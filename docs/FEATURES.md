@@ -48,7 +48,7 @@ The app and its UI are **English first**. Everything that depends on the languag
 - **Czech is the first pack**, built the same way as any other, not special-cased in the app. It is the reference for how a pack is made.
 - Packs are **separate downloadable modules** (installed on demand, updated independently of the app). The app works with the neutral rules when no pack is installed.
 - Basic packs (rules for the free checks) are free; packs with the style check data (address, gender, voice) belong to the Pro style check.
-- To do before this works: a pack format and loader (data files plus rules), a pack list and download in the app, and a UI string table (English default; the Czech UI becomes the first translation of the app itself).
+- Done: the pack format and loader (data files `pack.json` + `rules.json`, bundled and in `<config>/packs`; Czech is `free/lexo/packs/cs`). To do: a pack list and download in the app, `address.json` / `spelling.txt` / `ui.json` parts, and a UI string table (English default; the Czech UI becomes the first translation of the app itself).
 
 ## Taste before paying
 - **Limits, not a locked button.** A Pro feature in Free works on a small amount (for example batch translation or safe fixes for 20 lines per run) so that the user sees it works; Pro lifts the limit.
