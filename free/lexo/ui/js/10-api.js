@@ -1,4 +1,4 @@
-import { t } from './05-i18n.js';
+import { fromWire, t } from './05-i18n.js';
 import { TOKEN } from './00-core.js';
 import { S } from './11-state.js';
 /* ---------------------------------------------------------------- api */
@@ -17,6 +17,7 @@ export async function request(method, path, body) {
   catch { throw new Error(t('The connection to the application was lost – is the program still running?')); }
   let data;
   try { data = await res.json(); } catch { throw new Error(t('Invalid response from the application.')); }
+  data = fromWire(data);
   if (!data.ok) { const err = new Error(data.error || t('The operation failed.')); err.data = data; throw err; }
   return data;
 }

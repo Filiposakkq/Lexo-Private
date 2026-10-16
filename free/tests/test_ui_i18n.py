@@ -1,5 +1,6 @@
 """Interface texts: every t('English text') of the browser UI has a Czech text in the pack, nothing stale is left in the pack, and
 the modules that are already converted contain no Czech string literals any more (the list only grows)."""
+import functools
 import json
 import re
 import unittest
@@ -36,7 +37,8 @@ def js_sources():
     return {f.name: f.read_text(encoding="utf-8") for f in sorted((UI / "js").glob("*.js"))}
 
 
-def used_keys():
+@functools.lru_cache(maxsize=None)
+def _used_keys():
     keys = set()
     for name, text in js_sources().items():
         code = strip_comments(text)
@@ -48,8 +50,28 @@ def used_keys():
             keys.add(one + "|" + many)
         for table in re.findall(r"\blabels\(\{(.*?)\}\)", code, re.S):          # labels({ key: 'English text', ... }) is translated when read
             keys.update(unescape(a or b) for a, b in re.findall(r":\s*" + STR, table))
+    keys.update(python_keys())
     html = (UI / "index.html").read_text(encoding="utf-8")
     keys.update(re.findall(r'data-i18n(?:-title|-aria)?="([^"]*)"', html))
+    return keys
+
+
+def used_keys():
+    return set(_used_keys())
+
+
+def python_keys():
+    """Templates of the messages written in Python: msg("...") and msgn(n, "one", "many")."""
+    import ast
+    keys = set()
+    for f in sorted((UI.parent).glob("*.py")):
+        for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("msg", "msgn"):
+                consts = [a.value for a in node.args if isinstance(a, ast.Constant) and isinstance(a.value, str)]
+                if node.func.id == "msg" and consts:
+                    keys.add(consts[0])
+                elif node.func.id == "msgn" and len(consts) >= 2:
+                    keys.add(consts[0] + "|" + consts[1])
     return keys
 
 

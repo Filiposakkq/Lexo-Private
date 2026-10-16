@@ -117,3 +117,21 @@ export async function availableLanguages() {
     return [{ code: 'en', name: 'English' }];
   }
 }
+
+/* A response of the server may carry messages as {"$m": template, "p": values, "$n": plural template} (messages.py). They are translated here,
+   once, so the rest of the UI sees ordinary texts. */
+export function fromWire(value) {
+  if (Array.isArray(value)) return value.map(fromWire);
+  if (value && typeof value === 'object') {
+    if (Array.isArray(value.$j)) return value.$j.map(fromWire).join(value.sep || '') + (value.end || '');
+    if (typeof value.$m === 'string') {
+      const params = {};
+      for (const [k, v] of Object.entries(value.p || {})) params[k] = fromWire(v);
+      return typeof value.$n === 'string' ? tn(params.n, value.$m, value.$n, params) : t(value.$m, params);
+    }
+    const out = {};
+    for (const [k, v] of Object.entries(value)) out[k] = fromWire(v);
+    return out;
+  }
+  return value;
+}

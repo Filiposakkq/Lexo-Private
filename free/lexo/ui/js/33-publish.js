@@ -63,7 +63,7 @@ export async function viewPublish() {
       h('h4', { style: { marginTop: '10px' } }, T('These commands will run (with this one file only)')),
       h('div', { class: 'textbox mono' }, info.commands.join('\n')),
       info.dirty.length ? h('div', { class: 'muted' }, T('Other uncommitted changes in the repository (they will not be touched): {files}', { files: info.dirty.slice(0, 5).join(', ') + (info.dirty.length > 5 ? '…' : '') })) : null,
-      h('label', { class: 'check', style: { marginTop: '10px' } }, ack, info.warnings.some((w) => /main|master|ostro/.test(w)) ? T('I understand that the data is sent to GitHub and the website is updated live.') : T('I understand that the data is sent to GitHub.'))),
+      h('label', { class: 'check', style: { marginTop: '10px' } }, ack, info.live ? T('I understand that the data is sent to GitHub and the website is updated live.') : T('I understand that the data is sent to GitHub.'))),
       buttons: [{ label: T('Cancel') }, { node: go_ }] });
   }
   return root;

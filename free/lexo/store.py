@@ -20,6 +20,7 @@ from pathlib import Path
 
 from . import layout
 from .util import WriteFailed, fold, norm_ws, read_rows, write_csv
+from .messages import msg
 
 EP_STATES = [("none", "Nezačato"), ("wip", "Rozpracováno"), ("tr", "Přeloženo"), ("proof", "V korekci"), ("done", "Hotovo")]
 YES_WORDS = {"ano", "a", "x", "hotovo", "ok", "yes", "y", "1x"}
@@ -79,7 +80,7 @@ def assign_from_text(t):
 
 
 def assign_label(v):
-    return {"": "Nepřiřazeno", "gen": "Obecné (celá hra)"}.get(v) or ("Epizoda " + v[3:])
+    return {"": msg("Unassigned"), "gen": msg("General (the whole game)")}.get(v) or msg("Episode {n}", n=v[3:])
 
 
 def ep_of(v):
@@ -116,7 +117,7 @@ class Store:
             try:
                 getattr(self, "_load_" + kind)()
             except OSError as e:
-                self.warnings.append(f"{self.path(kind).name} nelze načíst: {e}")
+                self.warnings.append(msg("{file} cannot be loaded: {reason}", file=self.path(kind).name, reason=e))
         return self
 
     def _load_corr(self):
@@ -132,7 +133,7 @@ class Store:
                 if v and valid_assign(v):
                     self.assign[r[0]] = v
                 elif v:
-                    self.warnings.append(f"prirazeni.csv: {r[0]} → {r[1]!r} není platné zařazení, ignoruji.")
+                    self.warnings.append(msg("prirazeni.csv: {a} → {b} is not a valid assignment, ignoring it.", a=r[0], b=r[1]))
 
     def _load_approved(self):
         self.approved = {}

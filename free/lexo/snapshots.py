@@ -16,12 +16,13 @@ from datetime import datetime
 from pathlib import Path
 
 from .util import WriteFailed, atomic_write_bytes
+from .messages import msg
 
 DIR_NAME = "snapshots"
 NAME_RE = re.compile(r"^snap-\d{8}-\d{6}(?:-\d+)?-(auto|bulk|manual|restore)\.zip$")
 SKIP_DIRS = {"_progress_data", "__pycache__", ".git", "backups"}
 MAX_BYTES = 400 * 1024 * 1024
-REASONS = {"auto": "automatická", "bulk": "před hromadnou změnou", "manual": "ručně vytvořená", "restore": "před obnovením"}
+REASONS = {"auto": msg("automatic"), "bulk": msg("before a bulk change"), "manual": msg("created by hand"), "restore": msg("before a restore")}
 
 
 class SnapshotError(Exception):
@@ -48,13 +49,13 @@ def rpy_files(root):
 def create(root, data_dir, reason="manual", app_version=""):
     """Zip the .rpy files. Returns the manifest dict (with `name`), or None when there is nothing to save."""
     if reason not in REASONS:
-        raise SnapshotError("Neznámý druh zálohy.")
+        raise SnapshotError(msg("Unknown kind of backup."))
     files = rpy_files(root)
     if not files:
         return None
     total = sum(f.stat().st_size for _r, f in files if f.exists())
     if total > MAX_BYTES:
-        raise SnapshotError(f"Soubory .rpy mají {total // (1024 * 1024)} MB – záloha se nevytvoří (limit {MAX_BYTES // (1024 * 1024)} MB).")
+        raise SnapshotError(msg("The .rpy files are {size} MB – the backup is not created (limit {limit} MB).", size=total // (1024 * 1024), limit=MAX_BYTES // (1024 * 1024)))
     d = _dir(data_dir)
     d.mkdir(parents=True, exist_ok=True)
     now = datetime.now()
@@ -75,7 +76,7 @@ def create(root, data_dir, reason="manual", app_version=""):
     try:
         atomic_write_bytes(d / name, buf.getvalue())
     except WriteFailed as e:
-        raise SnapshotError(f"Zálohu nelze zapsat: {e.reason}") from e
+        raise SnapshotError(msg("The backup cannot be written: {reason}", reason=e.reason)) from e
     return dict(manifest, name=name)
 
 
@@ -129,10 +130,10 @@ def prune(data_dir, keep):
 
 def _path(data_dir, name):
     if not NAME_RE.match(str(name)):
-        raise SnapshotError("Neplatný název zálohy.")
+        raise SnapshotError(msg("Invalid backup name."))
     p = _dir(data_dir) / name
     if not p.is_file():
-        raise SnapshotError("Záloha neexistuje.")
+        raise SnapshotError(msg("The backup does not exist."))
     return p
 
 
@@ -140,7 +141,7 @@ def delete(data_dir, name):
     try:
         _path(data_dir, name).unlink()
     except OSError as e:
-        raise SnapshotError(f"Zálohu nelze smazat: {e.strerror or e}") from e
+        raise SnapshotError(msg("The backup cannot be deleted: {reason}", reason=e.strerror or e)) from e
 
 
 def compare(root, data_dir, name):
@@ -183,11 +184,11 @@ def restore(root, data_dir, name, files=None, app_version=""):
                 continue
             target = (root / rel).resolve()
             if root != target and root not in target.parents:
-                raise SnapshotError("Záloha obsahuje cestu mimo složku projektu, obnovení zrušeno.")
+                raise SnapshotError(msg("The backup contains a path outside the project folder, the restore was cancelled."))
             try:
                 atomic_write_bytes(target, z.read(info))
             except WriteFailed as e:
-                raise SnapshotError(f"Nelze zapsat {rel}: {e.reason}") from e
+                raise SnapshotError(msg("Cannot write {rel}: {reason}", rel=rel, reason=e.reason)) from e
             restored.append(rel)
     return {"restored": restored, "safety": safety}
 

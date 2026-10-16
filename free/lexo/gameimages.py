@@ -16,6 +16,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 from . import rpa
+from .messages import msg
 
 FONT_EXT = (".ttf", ".otf", ".woff", ".woff2")
 FONT_MIME = {".ttf": "font/ttf", ".otf": "font/otf", ".woff": "font/woff", ".woff2": "font/woff2"}
@@ -167,7 +168,7 @@ class GameImages:
             return self._cache[key]
         ref = self.stems.get(key)
         if ref is None:
-            raise rpa.RpaError("obrázek neexistuje")
+            raise rpa.RpaError(msg("the picture does not exist"))
         kind, where, entry, rel = ref
         data = rpa.read_entry(where, entry) if kind == "rpa" else Path(where).read_bytes()
         mime = self._sniff(data) or MIME.get(Path(rel).suffix.lower(), "image/jpeg")
@@ -181,7 +182,7 @@ class GameImages:
         key = Path(str(name)).name.lower()
         ref = self.fonts.get(key)
         if ref is None or key != str(name).lower():
-            raise rpa.RpaError("písmo neexistuje")
+            raise rpa.RpaError(msg("the font does not exist"))
         kind, where, entry, rel = ref
         data = rpa.read_entry(where, entry, 16 * 1024 * 1024) if kind == "rpa" else Path(where).read_bytes()
         return data, FONT_MIME.get(Path(key).suffix, "font/ttf")

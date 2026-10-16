@@ -18,6 +18,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 
 from . import lang
+from .messages import msg
 
 # Tags that must be closed.
 PAIRED_TAGS = {"i", "b", "u", "s", "plain", "color", "size", "font", "a", "alpha", "k",
@@ -71,7 +72,7 @@ def tokenize(text):
                 continue
             j = text.find("}", i + 1)
             if j == -1:
-                t.problems.append(("unterminated-tag", "Neukončená značka – chybí „}“."))
+                t.problems.append(("unterminated-tag", msg("Unterminated tag – the closing “{brace}” is missing.", brace="}")))
                 break
             body = text[i + 1:j]
             full = text[i:j + 1]
@@ -107,7 +108,7 @@ def tokenize(text):
                     depth -= 1
                 j += 1
             if depth:
-                t.problems.append(("unterminated-variable", "Neukončená proměnná – chybí „]“."))
+                t.problems.append(("unterminated-variable", msg("Unterminated variable – the closing “]” is missing.")))
                 break
             t.variables.append(text[i + 1:j - 1].strip())
             i = j
@@ -150,9 +151,9 @@ def check_text(source, target):
     issues = []
     s, t = tokenize(source), tokenize(target)
 
-    for code, msg in t.problems:
-        if (code, msg) not in s.problems:
-            issues.append(Issue("error", code, msg))
+    for code, text in t.problems:
+        if (code, text) not in s.problems:
+            issues.append(Issue("error", code, text))
 
     # ---- nesting of paired tags (only what is new compared with the source)
     src_nest = Counter((c, n) for _sev, c, n in nesting_problems(s))
@@ -161,12 +162,12 @@ def check_text(source, target):
         tgt_nest[(code, name)] += 1
         if tgt_nest[(code, name)] > src_nest.get((code, name), 0):
             if code == "stray-close":
-                issues.append(Issue("error", code, f"Závěrečná značka {{/{name}}} nemá odpovídající otevírací."))
+                issues.append(Issue("error", code, msg("The closing tag {tag} has no matching opening one.", tag="{/" + name + "}")))
             elif code == "mismatched-close":
-                issues.append(Issue("error", code, f"Značka {{/{name}}} je zavřena ve špatném pořadí (špatné zanoření)."))
+                issues.append(Issue("error", code, msg("The tag {tag} is closed in the wrong order (wrong nesting).", tag="{/" + name + "}")))
             else:
-                issues.append(Issue("warning", code, f"Značka {{{name}}} není zavřená, ale v originálu ano."
-                                    if name in s.close_tags else f"Značka {{{name}}} není zavřená."))
+                issues.append(Issue("warning", code, msg("The tag {tag} is not closed, but it is closed in the original.", tag="{" + name + "}")
+                                    if name in s.close_tags else msg("The tag {tag} is not closed.", tag="{" + name + "}")))
 
     # ---- paired tags: counts
     so, to = Counter(n for n, _a, _f in s.open_tags), Counter(n for n, _a, _f in t.open_tags)
@@ -174,14 +175,14 @@ def check_text(source, target):
     for name in sorted(set(so) | set(to) | set(sc) | set(tc)):
         if name not in PAIRED_TAGS:
             if tc[name] > sc[name]:
-                issues.append(Issue("warning", "unknown-close-tag", f"Neznámá závěrečná značka {{/{name}}}."))
+                issues.append(Issue("warning", "unknown-close-tag", msg("Unknown closing tag {tag}.", tag="{/" + name + "}")))
             continue
         if to[name] < so[name]:
-            issues.append(Issue("warning", "tag-missing", f"V překladu chybí značka {{{name}}} (originál ji má {so[name]}×, překlad {to[name]}×)."))
+            issues.append(Issue("warning", "tag-missing", msg("The translation is missing the tag {tag} (the original has it {a}×, the translation {b}×).", tag="{" + name + "}", a=so[name], b=to[name])))
         elif to[name] > so[name]:
-            issues.append(Issue("warning", "tag-extra", f"Překlad má značku {{{name}}} navíc ({to[name]}× proti {so[name]}× v originále)."))
+            issues.append(Issue("warning", "tag-extra", msg("The translation has an extra tag {tag} ({b}× against {a}× in the original).", tag="{" + name + "}", b=to[name], a=so[name])))
         if tc[name] < sc[name] and to[name] >= so[name]:
-            issues.append(Issue("warning", "close-missing", f"V překladu chybí závěrečná značka {{/{name}}}."))
+            issues.append(Issue("warning", "close-missing", msg("The translation is missing the closing tag {tag}.", tag="{/" + name + "}")))
 
     # ---- tag arguments (color=, size=, font=, a=...) should match the source
     src_args = Counter(f.replace(" ", "") for n, a, f in s.open_tags if n in ARG_TAGS and a)
@@ -190,7 +191,7 @@ def check_text(source, target):
         # only report when the same tag name exists on both sides, otherwise tag-missing/extra covers it
         name = full[1:].split("=", 1)[0]
         if so[name] and to[name]:
-            issues.append(Issue("warning", "tag-arg", f"Argument značky {full} se liší od originálu."))
+            issues.append(Issue("warning", "tag-arg", msg("The argument of the tag {tag} differs from the original.", tag=full)))
 
     # ---- single tags
     ss, ts = Counter(n for n, _f in s.singles), Counter(n for n, _f in t.singles)
@@ -203,48 +204,48 @@ def check_text(source, target):
             sev = "info"
         else:
             sev = "warning"
-        issues.append(Issue(sev, "single-tag", f"Počet značek {{{name}}} se liší (originál {ss[name]}×, překlad {ts[name]}×)."))
+        issues.append(Issue(sev, "single-tag", msg("The number of tags {tag} differs (original {a}×, translation {b}×).", tag="{" + name + "}", a=ss[name], b=ts[name])))
 
     # ---- unknown tags that appear only in the translation
     for full in sorted(set(t.unknown) - set(s.unknown)):
-        issues.append(Issue("warning", "unknown-tag", f"Neznámá značka {full} (není v originálu) – překlep?"))
+        issues.append(Issue("warning", "unknown-tag", msg("Unknown tag {tag} (not in the original) – a typo?", tag=full)))
 
     # ---- {#...} disambiguation comments
     if Counter(s.comments) != Counter(t.comments) and s.comments:
-        issues.append(Issue("info", "comment-tag", "Značka {#…} z originálu v překladu chybí nebo se liší (Ren'Py ji při zobrazení ignoruje)."))
+        issues.append(Issue("info", "comment-tag", msg("The tag {tag} of the original is missing from the translation or differs (Ren'Py ignores it when displaying).", tag="{#…}")))
 
     # ---- positional {} placeholders of system strings
     if s.placeholders != t.placeholders:
-        issues.append(Issue("error", "placeholder", f"Počet zástupných {{}} se liší (originál {s.placeholders}×, překlad {t.placeholders}×)."))
+        issues.append(Issue("error", "placeholder", msg("The number of placeholders {marks} differs (original {a}×, translation {b}×).", marks="{}", a=s.placeholders, b=t.placeholders)))
 
     # ---- [variables]
     sv, tv = Counter(s.variables), Counter(t.variables)
     s_bases = {_var_base(v) for v in s.variables}
     for expr in sorted(set(tv) - set(sv)):
         if _var_base(expr) not in s_bases:
-            issues.append(Issue("error", "variable-unknown", f"Proměnná [{expr}] není v originálu – překlep? Hra by mohla spadnout."))
+            issues.append(Issue("error", "variable-unknown", msg("The variable [{expr}] is not in the original – a typo? The game might crash.", expr=expr)))
         else:
-            issues.append(Issue("warning", "variable-changed", f"Proměnná [{expr}] se liší od originálu (např. jiný příznak)."))
+            issues.append(Issue("warning", "variable-changed", msg("The variable [{expr}] differs from the original (e.g. another flag).", expr=expr)))
     for expr in sorted(set(sv) - set(tv)):
         if _var_base(expr) not in {_var_base(v) for v in t.variables}:
-            issues.append(Issue("warning", "variable-missing", f"V překladu chybí proměnná [{expr}]."))
+            issues.append(Issue("warning", "variable-missing", msg("The translation is missing the variable [{expr}].", expr=expr)))
     for expr in sorted(set(sv) & set(tv)):
         if tv[expr] > sv[expr]:
-            issues.append(Issue("info", "variable-repeat", f"Proměnná [{expr}] je v překladu {tv[expr]}× (originál {sv[expr]}×)."))
+            issues.append(Issue("info", "variable-repeat", msg("The variable [{expr}] occurs {a}× in the translation (original {b}×).", expr=expr, a=tv[expr], b=sv[expr])))
         elif tv[expr] < sv[expr]:
-            issues.append(Issue("info", "variable-fewer", f"Proměnná [{expr}] je v překladu {tv[expr]}× (originál {sv[expr]}×)."))
+            issues.append(Issue("info", "variable-fewer", msg("The variable [{expr}] occurs {a}× in the translation (original {b}×).", expr=expr, a=tv[expr], b=sv[expr])))
 
     # ---- %-formats of system strings ("Page %s")
     if Counter(s.percents) != Counter(t.percents):
-        issues.append(Issue("error", "percent-format", f"Formátovací značky % se liší (originál {', '.join(s.percents) or '—'}, překlad {', '.join(t.percents) or '—'})."))
+        issues.append(Issue("error", "percent-format", msg("The format marks % differ (original {a}, translation {b}).", a=', '.join(s.percents) or '—', b=', '.join(t.percents) or '—')))
 
     # ---- escapes
     if len(ESCAPE_NL_RE.findall(source)) != len(ESCAPE_NL_RE.findall(target)):
         issues.append(Issue("warning", "newline-count",
-                            f"Počet zalomení \\n se liší (originál {len(ESCAPE_NL_RE.findall(source))}×, překlad {len(ESCAPE_NL_RE.findall(target))}×)."))
+                            msg("The number of \\n line breaks differs (original {a}×, translation {b}×).", a=len(ESCAPE_NL_RE.findall(source)), b=len(ESCAPE_NL_RE.findall(target)))))
     stripped = re.sub(r"\\.", "", target)
     if stripped.endswith("\\") or "\\" in stripped:
-        issues.append(Issue("error", "bad-escape", "Osamocený zpětný lomítko „\\“ – neplatná escape sekvence."))
+        issues.append(Issue("error", "bad-escape", msg("A lone backslash “\\” – an invalid escape sequence.")))
     return issues
 
 
@@ -283,12 +284,11 @@ def check_quality(source, target):
         # a number written out in words ("14" -> "čtrnáct") is normal in some languages (lang.Pack.number_words_ok)
         sev = "info" if ns and not nt and lang.current().number_words_ok else "warning"
         issues.append(Issue(sev, "numbers-differ",
-                            f"Čísla se liší od originálu (originál: {', '.join(sorted(ns.elements())) or '—'}; "
-                            f"překlad: {', '.join(sorted(nt.elements())) or '—'}).", category="text"))
+                            msg("The numbers differ from the original (original: {a}; translation: {b}).", a=', '.join(sorted(ns.elements())) or '—', b=', '.join(sorted(nt.elements())) or '—'), category="text"))
 
     # double spaces inside the text
     if re.search(r"\S {2,}\S", target) and not re.search(r"\S {2,}\S", source):
-        issues.append(Issue("warning", "double-space", "V překladu je dvojitá mezera.", category="text",
+        issues.append(Issue("warning", "double-space", msg("There is a double space in the translation."), category="text",
                             extra={"fixable": True, "kind": "spaces"}))
 
     # the same word twice in a row (typo), unless the source does it as well or Czech does it normally
@@ -297,7 +297,7 @@ def check_quality(source, target):
     for m in (_REPEAT_RE.finditer(pt) if pack.check_repeats else ()):
         w = m.group(1).lower()
         if w not in pack.repeat_ok and w not in src_rep:
-            issues.append(Issue("warning", "repeated-word", f"Dvakrát za sebou stejné slovo: „{w} {w}“.", category="text"))
+            issues.append(Issue("warning", "repeated-word", msg("The same word twice in a row: “{w} {w}”.", w=w), category="text"))
             break
 
     # English left in a translated line
@@ -305,7 +305,7 @@ def check_quality(source, target):
     hits = [w for w in words if w in ENGLISH_EVIDENCE]
     if len(hits) >= 3 or (len(hits) >= 2 and len(hits) / max(1, len(words)) >= 0.4):
         issues.append(Issue("warning", "english-left",
-                            f"V překladu zůstala angličtina ({', '.join(sorted(set(hits))[:5])}). Nezapomněl/a ses část nepřeložit?",
+                            msg("English is left in the translation ({words}). Did you forget to translate part of it?", words=', '.join(sorted(set(hits))[:5])),
                             category="text"))
     return issues
 
@@ -335,7 +335,7 @@ def check_terms(source, target, terms):
     for en, cz in terms.items():
         if en and cz and term_in_text(source, en) and not term_used(target, cz):
             issues.append(Issue("info", "term-inconsistent",
-                                f"Termín „{en}“ se ve Slovníku překládá jako „{cz}“, ale v překladu to nevidím.", category="text"))
+                                msg("The term “{en}” is translated as “{cz}” in the Glossary, but I do not see that in the translation.", en=en, cz=cz), category="text"))
     return issues
 
 
@@ -364,10 +364,10 @@ def check_length(source, target, cfg=None):
     ratio = lt / ls
     extra = {"ratio": round(ratio, 2), "source_len": ls, "target_len": lt}
     if ratio > c["max_ratio"] and lt - ls >= c["min_extra_chars"]:
-        return [Issue("warning", "length-long", f"Překlad je výrazně delší než originál ({lt} vs {ls} znaků, {ratio:.1f}×). Česky bývá text delší, ale tohle je hodně.",
+        return [Issue("warning", "length-long", msg("The translation is much longer than the original ({a} vs {b} characters, {ratio}×). Translations are often longer, but this is a lot.", a=lt, b=ls, ratio=format(ratio, ".1f")),
                       category="length", extra=extra)]
     if ratio < c["min_ratio"] and ls - lt >= c["min_missing_chars"]:
-        return [Issue("warning", "length-short", f"Překlad je výrazně kratší než originál ({lt} vs {ls} znaků, {ratio:.1f}×). Nechybí část textu?",
+        return [Issue("warning", "length-short", msg("The translation is much shorter than the original ({a} vs {b} characters, {ratio}×). Is part of the text missing?", a=lt, b=ls, ratio=format(ratio, ".1f")),
                       category="length", extra=extra)]
     return []
 
@@ -405,8 +405,7 @@ def check_textbox(source, target, cfg=None):
     ls, lt = lines_needed(source, c["chars_per_line"]), lines_needed(target, c["chars_per_line"])
     if lt > c["max_lines"] and lt > ls:
         return [Issue("warning", "textbox-overflow",
-                      f"Text se nemusí vejít do okna dialogu: asi {lt} řádků (limit {c['max_lines']}, originál {ls}). "
-                      f"Zkrať ho, nebo ho rozděl pomocí {{p}}.", category="length",
+                      msg("The text may not fit the dialogue box: about {lines} lines (limit {limit}, original {orig}). Shorten it, or split it with {tag}.", lines=lt, limit=c['max_lines'], orig=ls, tag="{p}"), category="length",
                       extra={"lines": lt, "limit": c["max_lines"]})]
     return []
 
@@ -422,11 +421,11 @@ def check_entry(entry, length_cfg=None, terms=None, spell=None, textbox=None):
     if entry.unit == "dialogue":
         if " ".join(entry.who.split()) != " ".join(entry.src_who.split()):
             issues.append(Issue("error", "speaker-changed",
-                                f"Mluvčí / atributy se liší od originálu: „{entry.src_who}“ → „{entry.who}“.",
+                                msg("The speaker / attributes differ from the original: “{a}” → “{b}”.", a=entry.src_who, b=entry.who),
                                 category="structure", extra={"fixable": True, "kind": "speaker"}))
         if " ".join(entry.suffix.split()) != " ".join(entry.src_suffix.split()):
             issues.append(Issue("error", "suffix-changed",
-                                f"Kód za textem se liší od originálu: „{entry.src_suffix}“ → „{entry.suffix}“.",
+                                msg("The code after the text differs from the original: “{a}” → “{b}”.", a=entry.src_suffix, b=entry.suffix),
                                 category="structure", extra={"fixable": True, "kind": "speaker"}))
     if entry.target.strip() == "" and entry.source.strip() != "":
         return issues
@@ -448,7 +447,7 @@ def check_parsed(parsed, length_cfg=None, terms=None, spell=None, textbox=None):
     for e in parsed.entries:
         for iss in check_entry(e, length_cfg, terms, spell, textbox):
             out.append((e.line, iss, e))
-    for line, code, msg in parsed.structure:
-        out.append((line, Issue("error", code, msg, category="structure"), None))
+    for line, code, text in parsed.structure:
+        out.append((line, Issue("error", code, text, category="structure"), None))
     out.sort(key=lambda r: r[0])
     return out

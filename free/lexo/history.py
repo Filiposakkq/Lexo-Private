@@ -7,6 +7,7 @@ refreshing "its" row while the translator works, exactly as the original tool di
 from datetime import date, datetime, timedelta
 
 from .util import read_rows, write_csv
+from .messages import msg, msgn
 
 HEADER = ["datum", "prelozeno", "celkem", "procenta", "korekce", "korekce_procenta"]
 STAMP_FORMAT = "%Y-%m-%d %H:%M"
@@ -106,11 +107,11 @@ def estimate(points, done_now, total_now, today=None, key=None):
            "eta": None, "eta_early": None, "eta_late": None, "confidence": None,
            "basis_days": 0, "days_with_data": 0, "reason": ""}
     if remaining == 0:
-        out.update(status="complete", reason="Vše je přeloženo.")
+        out.update(status="complete", reason=msg("Everything is translated."))
         return out
     series = daily_series(points)
     if not series:
-        out["reason"] = "Historie je prázdná – odhad zatím nejde spočítat."
+        out["reason"] = msg("The history is empty – the estimate cannot be calculated yet.")
         return out
     window_start = today - timedelta(days=WINDOW_DAYS)
     in_window = [s for s in series if s[0] >= window_start]
@@ -122,13 +123,12 @@ def estimate(points, done_now, total_now, today=None, key=None):
     span = (today - base[0]).days
     out["basis_days"], out["days_with_data"] = span, days_with_data
     if span < MIN_SPAN_DAYS or days_with_data < MIN_DAYS_WITH_DATA:
-        covers = "jen jeden den" if span < 1 else f"{span} dní"
-        out["reason"] = (f"Zatím málo dat: historie pokrývá {covers}, záznamy jsou z {days_with_data} dnů "
-                         f"(potřeba alespoň {MIN_SPAN_DAYS} dní a {MIN_DAYS_WITH_DATA} dnů se záznamem).")
+        covers = msg("only one day") if span < 1 else msgn(span, "{n} day", "{n} days")
+        out["reason"] = (msg("Not enough data yet: the history covers {covers}, the records are from {days} days (at least {min_span} days and {min_days} days with a record are needed).", covers=covers, days=days_with_data, min_span=MIN_SPAN_DAYS, min_days=MIN_DAYS_WITH_DATA))
         return out
     net = done_now - base[1]
     if net <= 0:
-        out.update(status="no_progress", reason="V posledních týdnech nepřibyly žádné přeložené řádky – termín nelze odhadnout.")
+        out.update(status="no_progress", reason=msg("No translated lines were added in recent weeks – the date cannot be estimated."))
         return out
     pace = net / max(span, 1)
     out["pace_per_day"] = round(pace, 1)
@@ -158,11 +158,10 @@ def estimate(points, done_now, total_now, today=None, key=None):
     else:
         out["confidence"] = "low"
     if out["eta"] is None:
-        out.update(status="too_far", reason="Při současném tempu by dokončení trvalo víc než 5 let – datum se neuvádí.")
+        out.update(status="too_far", reason=msg("At the current pace the finish would take more than 5 years – no date is given."))
         return out
     out["status"] = "ok"
-    out["reason"] = (f"Tempo {pace:.0f} řádků/den za posledních {span} dní"
-                     f" ({days_with_data} dnů se záznamem). Odhad se mění s tempem práce.")
+    out["reason"] = (msg("Pace {pace} lines/day over the last {span} days ({days} days with a record). The estimate changes with the pace of work.", pace=format(pace, ".0f"), span=span, days=days_with_data))
     return out
 
 

@@ -50,7 +50,7 @@ def pick_folder(initial=""):
         r = tk.Tk()
         r.withdraw()
         r.attributes("-topmost", True)
-        d = filedialog.askdirectory(title="Vyber složku s překladem (game/tl/czech)", initialdir=initial or None)
+        d = filedialog.askdirectory(title="Choose the translation folder (game/tl/<language>)", initialdir=initial or None)
         r.destroy()
         return d or None
     except Exception:  # noqa: BLE001
@@ -87,7 +87,7 @@ def run_desktop(url):
     try:
         import webview
     except ImportError:
-        print("(pywebview není nainstalovaný: py -m pip install pywebview)")
+        print("(pywebview is not installed: py -m pip install pywebview)")
         return False
     try:
         _WINDOW_MODE["desktop"] = True
@@ -149,7 +149,7 @@ def parse_args(argv):
         elif a.startswith("--debug="):
             opts["debug"] = a[8:]
         elif a.startswith("--episodes="):
-            print("(--episodes se už nepoužívá: epizody a sezóny jsou pevně dané – sezóna 1 = epizody 1–4, sezóna 2 = 5–8)")
+            print("(--episodes is no longer used: the groups are defined in the project file, see docs/PROJECT-FILE.md)")
         elif a.startswith("--"):
             opts["flags"].add(a)
         elif opts["folder"] is None:
@@ -167,7 +167,7 @@ def choose_project_dir(cfg, explicit):
         ok, msg = check_project_dir(saved)
         if ok:
             return saved, ""
-        note = f"Uložená složka už není použitelná ({msg})"
+        note = f"The saved folder is no longer usable ({msg})"
     else:
         note = ""
     here = app_dir()
@@ -184,8 +184,8 @@ def print_summary(app, only_todo):
             continue
         print(f"P {r.done / r.total * 100:5.1f}%  K {r.corr / r.total * 100:5.1f}%  {r.done:>5}/{r.total:<5}  {r.name}")
     s_done, s_total, s_corr, pct, cpct = totals_of(rows)
-    print(f"\nPREKLAD:   {s_done}/{s_total} ({pct:.1f} %), hotových souborů: {sum(1 for r in rows if r.todo == 0)}/{len(rows)}")
-    print(f"KOREKTURA: {s_corr}/{s_total} ({cpct:.1f} %), hotových souborů: {sum(1 for r in rows if r.corr >= r.total)}/{len(rows)}")
+    print(f"\nTRANSLATION: {s_done}/{s_total} ({pct:.1f} %), finished files: {sum(1 for r in rows if r.todo == 0)}/{len(rows)}")
+    print(f"PROOFREADING: {s_corr}/{s_total} ({cpct:.1f} %), finished files: {sum(1 for r in rows if r.corr >= r.total)}/{len(rows)}")
 
 
 def print_find(app, name):
@@ -207,11 +207,11 @@ def cli_publish(app):
     except AppError as e:
         print(f"! {e}")
         return 1
-    print("\nNÁHLED PUBLIKOVÁNÍ")
-    print(f"  Repozitář : {info['repo_path']}  ({info['remote'] or info.get('url') or '?'})")
-    print(f"  Větev     : {info['branch'] or '(výchozí po naklonování)'}   upstream: {info['upstream'] or '-'}")
-    print(f"  Soubor    : {info['target']}")
-    print(f"  Nově      : {info['new']}\n  Dosud     : {info['current']}")
+    print("\nPUBLISHING PREVIEW")
+    print(f"  Repository: {info['repo_path']}  ({info['remote'] or info.get('url') or '?'})")
+    print(f"  Branch    : {info['branch'] or '(default after cloning)'}   upstream: {info['upstream'] or '-'}")
+    print(f"  File      : {info['target']}")
+    print(f"  New       : {info['new']}\n  So far    : {info['current']}")
     for c in info["commands"]:
         print(f"    $ {c}")
     for w in info["warnings"]:
@@ -221,10 +221,10 @@ def cli_publish(app):
     if info["blockers"]:
         return 1
     if not sys.stdin or not sys.stdin.isatty():
-        print("\nPublikování vyžaduje potvrzení v terminálu (nebo tlačítko Publikovat v okně). Nic se neposlalo.")
+        print("\nPublishing needs a confirmation in the terminal (or the Publish button in the window). Nothing was sent.")
         return 1
-    if input("\nPro odeslání napiš PUBLISH (cokoli jiného = zrušit): ").strip() != "PUBLISH":
-        print("Zrušeno, nic se neposlalo.")
+    if input("\nTo send, type PUBLISH (anything else cancels): ").strip() != "PUBLISH":
+        print("Cancelled, nothing was sent.")
         return 0
     try:
         res = app.publish_confirm(info["token"], info["branch"] or "*clone*")
@@ -261,14 +261,14 @@ def main(argv=None):
         try:
             rep = app.open_project(path)
             app.maybe_auto_snapshot()
-            print(f"Projekt: {path}  ({len(app.project.files)} souborů, {rep.seconds:.1f} s)")
+            print(f"Project: {path}  ({len(app.project.files)} files, {rep.seconds:.1f} s)")
         except AppError as e:
             print(f"! {e}")
             app.notices.append(str(e))
             path = None
     if console:
         if not path:
-            print("! Nebyla nalezena použitelná složka s překladem. Zadej ji jako parametr.")
+            print("! No usable translation folder was found. Give it as an argument.")
             return 2
         if opts["find"]:
             print_find(app, opts["find"])
@@ -295,7 +295,7 @@ def main(argv=None):
     if "--browser" not in flags:
         shown = run_desktop(url)
     if not shown:
-        print("Otevírám v prohlížeči. Program skončí po zavření okna (nebo Enter).")
+        print("Opening in the browser. The program ends when the window is closed (or on Enter).")
         stop = threading.Event()
         open_app_window(url)
         threading.Thread(target=watchdog, args=(sess, stop), daemon=True).start()
@@ -321,7 +321,7 @@ def show_fatal(message):
     if sys.platform.startswith("win"):
         try:
             import ctypes
-            ctypes.windll.user32.MessageBoxW(None, message, "Lexo – chyba", 0x10)
+            ctypes.windll.user32.MessageBoxW(None, message, "Lexo – error", 0x10)
             return
         except Exception:  # noqa: BLE001
             pass
@@ -335,6 +335,6 @@ def run():
         raise
     except Exception as exc:  # noqa: BLE001
         log_exception()
-        show_fatal(f"Program skončil chybou:\n{exc}\n\nPodrobnosti jsou v souboru error.log ve složce "
+        show_fatal(f"The program ended with an error:\n{exc}\n\nDetails are in the file error.log in the folder "
                    f"{config_dir()}.")
         sys.exit(1)

@@ -91,7 +91,7 @@ class ProviderTests(unittest.TestCase):
         for cfg, text in ((dict(CFG, provider=""), "Hi"), (dict(CFG, consent=False), "Hi"), (dict(CFG, api_key=""), "Hi"), (CFG, "   ")):
             with self.assertRaises(mt.MTError):
                 mt.translate(cfg, text, http=FakeHttp(reply={}))
-        for status, word in ((403, "klíč"), (429, "limit"), (456, "kvóta")):
+        for status, word in ((403, "key"), (429, "limit"), (456, "quota")):
             with self.assertRaises(mt.MTError) as cm:
                 mt.translate(CFG, "Hi", http=FakeHttp(status, "nope"))
             self.assertIn(word, str(cm.exception))
@@ -152,7 +152,7 @@ class MTInAppTests(TempCase):
         self.app._mt_http = FakeHttp(403, "forbidden")
         with self.assertRaises(AppError) as cm:
             self.app.mt_suggest("a.rpy", self.line)
-        self.assertIn("klíč", str(cm.exception))
+        self.assertIn("key", str(cm.exception))
 
 
 if __name__ == "__main__":

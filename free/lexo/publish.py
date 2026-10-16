@@ -24,6 +24,7 @@ import sys
 from pathlib import Path, PurePosixPath
 
 from .util import WriteFailed, atomic_write_bytes
+from .messages import msg
 
 NOWIN = {"creationflags": 0x08000000} if sys.platform.startswith("win") else {}
 COMMIT_MESSAGE = "chore(translation): update progress data"
@@ -40,9 +41,9 @@ def _git(repo, *args, timeout=120):
     try:
         return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env, **NOWIN)
     except FileNotFoundError:
-        raise PublishError("Git není nainstalovaný nebo není v PATH (https://git-scm.com).") from None
+        raise PublishError(msg("Git is not installed or not in PATH (https://git-scm.com).")) from None
     except subprocess.TimeoutExpired:
-        raise PublishError("Git neodpověděl včas (přihlášení? síť?).") from None
+        raise PublishError(msg("Git did not answer in time (sign-in? network?).")) from None
 
 
 def _tail(r):
@@ -79,7 +80,7 @@ def clean_target(rel):
     rel = str(rel).replace("\\", "/").strip()
     pp = PurePosixPath(rel)
     if not rel or pp.is_absolute() or ".." in pp.parts or re.match(r"^[A-Za-z]:", rel) or pp.suffix.lower() != ".json":
-        raise PublishError(f"Neplatná cesta k souboru v repozitáři: {rel!r} (musí být relativní cesta k .json).")
+        raise PublishError(msg("Invalid path of the file in the repository: {rel} (it must be a relative path to a .json file).", rel=rel))
     return str(pp)
 
 
@@ -101,36 +102,36 @@ def _summ(d):
 def plan(web, data, text):
     """Read-only description of a publish. `web` is the config's web section, `text` the JSON text."""
     if not web.get("repo"):
-        raise PublishError("Web není nastavený – vyplň repozitář v Nastavení.")
+        raise PublishError(msg("The website is not set up – fill in the repository in Settings."))
     target = clean_target(web.get("path", ""))
     path, url = locate_repo(web["repo"])
     if path is None:
-        raise PublishError(f"Repozitář „{web['repo']}“ není složka ani adresa GitHubu.")
+        raise PublishError(msg("The repository “{repo}” is neither a folder nor a GitHub address.", repo=web['repo']))
     info = {"repo": web["repo"], "repo_path": str(path), "url": url, "target": target,
             "will_clone": url is not None and not (path / ".git").is_dir(),
             "branch": "", "remote": "", "upstream": "", "dirty": [], "current": None,
             "changed": True, "blockers": [], "warnings": [], "commands": [],
-            "new": _summ(data)}
+            "new": _summ(data), "live": False}
     info["token"] = hashlib.sha256((canonical(data) + "|" + str(path) + "|" + target).encode()).hexdigest()[:16]
     if info["will_clone"]:
-        info["warnings"].append("Repozitář ještě není stažený. Při publikování se naklonuje z "
-                                f"{url} a data se pošlou do jeho výchozí větve (obvykle main = ostrý web).")
-        info["commands"] = [f"git clone {url} \"{path}\"", f"zapsat {target}", f"git add -- {target}",
+        info["warnings"].append(msg("The repository is not downloaded yet. When publishing, it is cloned from {url} and the data is sent to its default branch (usually main = the live website).", url=url))
+        info["live"] = True            # the default branch of a new clone is usually the live website
+        info["commands"] = [f"git clone {url} \"{path}\"", f"write {target}", f"git add -- {target}",
                             f"git commit -m \"{COMMIT_MESSAGE}\" -- {target}", "git push"]
         return info
     if not (path / ".git").exists():
-        raise PublishError(f"Složka není git repozitář: {path}")
+        raise PublishError(msg("The folder is not a git repository: {path}", path=path))
     branch = _git(path, "rev-parse", "--abbrev-ref", "HEAD")
     if branch.returncode != 0:
-        raise PublishError("Git repozitář nelze přečíst: " + _tail(branch))
+        raise PublishError(msg("The git repository cannot be read: {output}", output=_tail(branch)))
     info["branch"] = branch.stdout.strip()
     if info["branch"] == "HEAD":
-        info["blockers"].append("Repozitář je v detached HEAD – přepni se na větev.")
+        info["blockers"].append(msg("The repository is in a detached HEAD – switch to a branch."))
     up = _git(path, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     if up.returncode == 0:
         info["upstream"] = up.stdout.strip()
     else:
-        info["blockers"].append(f"Větev {info['branch']} nemá nastavenou vzdálenou větev (upstream) – push by nikam nesměřoval.")
+        info["blockers"].append(msg("The branch {branch} has no remote branch (upstream) set – a push would go nowhere.", branch=info['branch']))
     rem = _git(path, "remote", "get-url", "origin")
     info["remote"] = rem.stdout.strip() if rem.returncode == 0 else ""
     st = _git(path, "status", "--porcelain")
@@ -143,16 +144,17 @@ def plan(web, data, text):
             info["current"] = _summ(cur)
             info["changed"] = canonical(cur) != canonical(data)
         except (OSError, ValueError):
-            info["warnings"].append("Stávající soubor v repozitáři nejde přečíst; bude přepsán.")
+            info["warnings"].append(msg("The existing file in the repository cannot be read; it will be overwritten."))
     else:
-        info["warnings"].append("Soubor v repozitáři zatím neexistuje, bude vytvořen.")
+        info["warnings"].append(msg("The file in the repository does not exist yet, it will be created."))
     if info["branch"] in PROTECTED_BRANCHES:
-        info["warnings"].append(f"Push do větve {info['branch']} nasadí web na ostro (Cloudflare Workers).")
+        info["warnings"].append(msg("A push to the branch {branch} deploys the website live (Cloudflare Workers).", branch=info['branch']))
+        info["live"] = True
     if info["dirty"]:
-        info["warnings"].append(f"V repozitáři jsou i jiné neuložené změny ({len(info['dirty'])}); publikování se jich nedotkne.")
+        info["warnings"].append(msg("There are other uncommitted changes in the repository ({n}); publishing does not touch them.", n=len(info['dirty'])))
     if not info["changed"]:
-        info["warnings"].append("Publikovaná data se od aktuálních neliší (kromě času) – není co publikovat.")
-    info["commands"] = ["git pull --ff-only", f"zapsat {target}", f"git add -- {target}",
+        info["warnings"].append(msg("The published data does not differ from the current data (except the time) – nothing to publish."))
+    info["commands"] = ["git pull --ff-only", f"write {target}", f"git add -- {target}",
                         f"git commit -m \"{COMMIT_MESSAGE}\" -- {target}", "git push"]
     return info
 
@@ -161,30 +163,30 @@ def publish(web, data, text, token, confirmed_branch):
     """Run the publish. Raises PublishError (nothing or only a reverted state left behind)."""
     info = plan(web, data, text)
     if token != info["token"]:
-        raise PublishError("Data nebo repozitář se od náhledu změnily – otevři náhled znovu.")
+        raise PublishError(msg("The data or the repository changed since the preview – open the preview again."))
     if info["blockers"]:
         raise PublishError(" ".join(info["blockers"]))
     path, target = Path(info["repo_path"]), info["target"]
     log = []
     if info["will_clone"]:
         if confirmed_branch != "*clone*":
-            raise PublishError("Klonování a publikování nebylo potvrzeno.")
+            raise PublishError(msg("Cloning and publishing was not confirmed."))
         path.parent.mkdir(parents=True, exist_ok=True)
         r = _git(None, "clone", info["url"], str(path), timeout=600)
         if r.returncode != 0:
             raise PublishError("git clone selhal: " + _tail(r))
-        log.append("Repozitář naklonován.")
+        log.append(msg("Repository cloned."))
         info = plan(web, data, text)
         if info["blockers"]:
             raise PublishError(" ".join(info["blockers"]))
     elif confirmed_branch != info["branch"]:
-        raise PublishError(f"Potvrzená větev „{confirmed_branch}“ nesouhlasí s aktuální „{info['branch']}“.")
+        raise PublishError(msg("The confirmed branch “{a}” does not match the current one “{b}”.", a=confirmed_branch, b=info['branch']))
     if not info["changed"] and not info["will_clone"]:
-        return {"ok": True, "message": "Beze změny – na webu je už aktuální stav.", "log": log}
+        return {"ok": True, "message": msg("No change – the website is already up to date."), "log": log}
 
     r = _git(path, "pull", "--ff-only", timeout=300)
     if r.returncode != 0:
-        raise PublishError("git pull --ff-only selhal (nic se nezměnilo): " + _tail(r))
+        raise PublishError(msg("git pull --ff-only failed (nothing changed): {output}", output=_tail(r)))
     dest = path / target
     before = dest.read_bytes() if dest.is_file() else None
     payload = text.encode("utf-8")
@@ -192,10 +194,10 @@ def publish(web, data, text, token, confirmed_branch):
         json.loads(payload.decode("utf-8"))
         atomic_write_bytes(dest, payload)
         if json.loads(dest.read_text(encoding="utf-8")).get("schema") != data.get("schema"):
-            raise PublishError("Zapsaný soubor neprošel kontrolou.")
+            raise PublishError(msg("The written file did not pass the check."))
     except (WriteFailed, ValueError) as e:
         _restore(dest, before)
-        raise PublishError(f"Soubor v repozitáři nelze zapsat: {e}") from e
+        raise PublishError(msg("The file in the repository cannot be written: {reason}", reason=e)) from e
     except PublishError:
         _restore(dest, before)
         raise
@@ -214,17 +216,17 @@ def publish(web, data, text, token, confirmed_branch):
         raise PublishError("git add selhal: " + _tail(r))
     if _git(path, "diff", "--cached", "--quiet", "--", target).returncode == 0:
         rollback()
-        return {"ok": True, "message": "Beze změny – na webu je už aktuální stav.", "log": log}
+        return {"ok": True, "message": msg("No change – the website is already up to date."), "log": log}
     r = _git(path, "commit", "-m", COMMIT_MESSAGE, "--", target)
     if r.returncode != 0:
         rollback()
-        raise PublishError("git commit selhal (soubor vrácen do původního stavu): " + _tail(r))
+        raise PublishError(msg("git commit failed (the file was restored to its previous state): {output}", output=_tail(r)))
     sha = _git(path, "rev-parse", "HEAD").stdout.strip()
     r = _git(path, "push", timeout=300)
     if r.returncode != 0:
         rollback(sha)
-        raise PublishError("git push selhal. Lokální commit i soubor byly vráceny do původního stavu: " + _tail(r))
-    return {"ok": True, "message": f"Publikováno do větve {info['branch'] or 'výchozí'} ({sha[:7]}).",
+        raise PublishError(msg("git push failed. The local commit and the file were restored to their previous state: {output}", output=_tail(r)))
+    return {"ok": True, "message": msg("Published to the branch {branch} ({sha}).", branch=info['branch'] or msg("default"), sha=sha[:7]),
             "log": log, "commit": sha}
 
 

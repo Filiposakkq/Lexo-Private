@@ -80,7 +80,7 @@ class ReplaceInAppTests(TempCase):
     def test_a_replacement_that_would_break_the_string_is_skipped(self):
         pv = self.app.replace_preview("Vezmi", 'Řekl "ahoj"', "plain")
         self.assertEqual((pv["total"], pv["applicable"]), (1, 0))
-        self.assertIn("uvozovk", pv["items"][0]["skip"].lower())
+        self.assertIn("quote", pv["items"][0]["skip"].lower())
         with self.assertRaises(AppError):
             self.app.replace_apply([{"file": "a.rpy", "line": pv["items"][0]["line"]}], "Vezmi", 'Řekl "ahoj"', "plain")
 

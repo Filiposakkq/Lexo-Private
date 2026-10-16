@@ -39,7 +39,7 @@ class LockTests(TempCase):
         with self.assertRaises(ProjectBusy) as cm:
             self.new_app()
         self.assertEqual(cm.exception.path, str(self.root.resolve()))
-        self.assertIn("jiná kopie", str(cm.exception))
+        self.assertIn("another copy", str(cm.exception))
 
     def test_force_takes_the_project_over_and_the_old_owner_notices(self):
         self.foreign_lock(age=5)

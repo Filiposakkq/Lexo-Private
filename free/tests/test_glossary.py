@@ -134,7 +134,7 @@ class GlossaryImportTests(TempCase):
         self.assertEqual(items["js"]["name"], "Josy")
         self.assertEqual(items["de"]["name"], "Duplicate Derek")                # Ren'Py: the last definition wins
         self.assertEqual(pv["duplicates"], [{"code": "de", "names": ["Derek", "Duplicate Derek"], "used": "Duplicate Derek"}])
-        self.assertIn("víckrát", items["de"]["note"])
+        self.assertIn("several times", items["de"]["note"])
         self.assertEqual(items["bu"]["name"], "Professor Burke")                # single quotes
         self.assertEqual(items["kid"]["name"], "Kid")
         self.assertEqual(items["mc"]["state"], "dynamic")
@@ -176,7 +176,7 @@ class GlossaryImportTests(TempCase):
         (self.game / "characters.rpy").unlink()
         pv = self.app.glossary_import_preview()
         self.assertEqual(pv["items"], [])
-        self.assertIn("nebyly nalezeny", pv["message"])
+        self.assertIn("were not found", pv["message"])
 
     def test_http_api(self):
         srv, sess, _ = server.start_server(self.app)

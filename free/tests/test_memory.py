@@ -157,12 +157,12 @@ class GameGuiTests(TempCase):
         app = self.make("define gui.text_size = 28\ndefine gui.dialogue_width = 900\ndefine gui.textbox_height = 200\n")
         g = app.settings()["game_gui"]
         self.assertEqual((g["text_size"], g["dialogue_width"], g["textbox_height"]), (28, 900, 200))
-        self.assertEqual(g["source"], "gui.rpy hry")
+        self.assertEqual(g["source"], "gui.rpy of the game")
 
     def test_defaults_when_the_game_sources_are_missing(self):
         g = self.make(None).settings()["game_gui"]
         self.assertEqual((g["text_size"], g["dialogue_width"]), (33, 1116))
-        self.assertEqual(g["source"], "výchozí hodnoty")
+        self.assertEqual(g["source"], "default values")
 
 
 if __name__ == "__main__":

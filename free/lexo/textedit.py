@@ -11,6 +11,7 @@ or fixed by hand.
 import re
 
 from . import validator
+from .messages import msg
 
 TOKEN_RE = re.compile(r"\{[^}]*\}|\[[^\]]*\]|\\.")      # tag, variable, escape
 LETTER = r"[^\W\d_]"
@@ -51,28 +52,28 @@ def stem_of(word):
 def make_replacer(find, replace, mode="plain", case=False):
     """Returns f(text, protect=True) -> (new_text, count). Raises ValueError for an unusable search."""
     if not find:
-        raise ValueError("Zadej, co hledat.")
+        raise ValueError(msg("Enter what to search for."))
     if len(find) > 300 or len(replace) > 2000:
-        raise ValueError("Hledaný nebo nahrazující text je příliš dlouhý.")
+        raise ValueError(msg("The text to find or replace is too long."))
     if mode not in MODES:
-        raise ValueError("Neznámý režim hledání.")
+        raise ValueError(msg("Unknown search mode."))
     flags = 0 if case else re.IGNORECASE
     if mode == "regex":
         try:
             pat = re.compile(find, flags | re.UNICODE)
             re.compile(pat.pattern).sub(replace, "test")        # reject bad group references early
         except re.error as e:
-            raise ValueError(f"Neplatný regulární výraz: {e}") from e
+            raise ValueError(msg("Invalid regular expression: {e}", e=e)) from e
 
         def rx(m):
             try:
                 return m.expand(replace)
             except (re.error, IndexError) as e:
-                raise ValueError(f"Neplatná náhrada: {e}") from e
+                raise ValueError(msg("Invalid replacement: {e}", e=e)) from e
         return lambda text, protect=True: sub_pattern(pat, rx, text, protect)
     if mode == "stem":
         if not re.fullmatch(LETTER + "{4,}", find) or not re.fullmatch(LETTER + "{2,}", replace):
-            raise ValueError("Režim „podle kmene“ je jen pro jedno slovo (aspoň 4 písmena) a jedno nahrazující slovo.")
+            raise ValueError(msg("The “by stem” mode is only for one word (at least 4 letters) and one replacement word."))
         stem = stem_of(find)
         pat = re.compile(f"(?<!{LETTER})({re.escape(stem)})({LETTER}*)", flags | re.UNICODE)
         new_stem = stem_of(replace)
@@ -137,7 +138,7 @@ def plan_text_fixes(project, spell, kinds, wanted=None, file=""):
                 new = fix_spaces(e.source, e.target)
                 if new is not None:
                     out.append({"file": rel, "line": e.line, "kind": "spaces", "before": e.target, "after": new,
-                                "default": True, "note": "dvojitá mezera"})
+                                "default": True, "note": msg("double space")})
             if "typo" in kinds:
                 res = fix_typos(spell, e.source, e.target)
                 if res is not None:

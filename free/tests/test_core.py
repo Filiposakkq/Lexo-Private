@@ -84,7 +84,7 @@ class AtomicWriteTests(TempCase):
         with mock.patch("os.replace", side_effect=PermissionError):
             with self.assertRaises(util.WriteFailed) as cm:
                 util.atomic_write_text(target, "new", )
-        self.assertIn("zamčený", cm.exception.reason)
+        self.assertIn("locked", cm.exception.reason)
         self.assertEqual(target.read_text(), "original")
         self.assertEqual(list(self.tmp.glob("*.tmp")), [])
 
@@ -280,10 +280,10 @@ class ProjectTests(TempCase):
     def test_check_project_dir(self):
         ok, msg = check_project_dir(self.tmp / "nope")
         self.assertFalse(ok)
-        self.assertIn("neexistuje", msg)
+        self.assertIn("does not exist", msg)
         ok, msg = check_project_dir(self.root)
         self.assertFalse(ok)
-        self.assertIn("žádné soubory .rpy", msg)
+        self.assertIn("no .rpy files", msg)
         self.write("a.rpy", dialog("a", "mc", "A", "B"))
         self.assertEqual(check_project_dir(self.root), (True, ""))
         self.assertFalse(check_project_dir("")[0])

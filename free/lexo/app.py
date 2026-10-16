@@ -20,6 +20,7 @@ from .project import (DATA_DIR_NAME, STATUS_LABELS, STATUS_ORDER, Project, Proje
 from . import features, layout
 from .store import EP_STATES, GLOSSARY_TYPES, Store, parse_value, text_hash, valid_assign
 from .util import WriteFailed, norm_ws, write_csv
+from .messages import msg, text_of
 
 # Files the legacy tool left next to the script; moved into _progress_data on first open.
 LEGACY_FILES = ("web.json", "progress.csv", "historie.csv", "korekce.csv", "epizody.csv",
@@ -90,21 +91,21 @@ class App:
             self.plock = None
 
     def open_project(self, path, force=False):
-        ok, msg = check_project_dir(path)
+        ok, problem = check_project_dir(path)
         if not ok:
-            raise AppError(msg)
+            raise AppError(problem)
         root = Path(path).resolve()
         data_dir = root / DATA_DIR_NAME
         try:
             data_dir.mkdir(exist_ok=True)
         except OSError as e:
-            raise AppError(f"Ve složce projektu nelze vytvořit {DATA_DIR_NAME} ({e.strerror or e}).") from e
+            raise AppError(msg("Cannot create {folder} in the project folder ({reason}).", folder=DATA_DIR_NAME, reason=e.strerror or e)) from e
         for name in LEGACY_FILES:                       # data of older versions lying next to the .rpy files
             src, dst = root / name, data_dir / name
             if src.is_file() and not dst.exists():
                 try:
                     shutil.move(str(src), str(dst))
-                    self.notices.append(f"Soubor {name} byl přesunut do {DATA_DIR_NAME}.")
+                    self.notices.append(msg("The file {name} was moved to {folder}.", name=name, folder=DATA_DIR_NAME))
                 except OSError:
                     pass
         with self.lock:
@@ -117,9 +118,9 @@ class App:
                 self.plock.release()
             self.plock = new_lock
             self.notices = [n for n in self.notices if n]
-            msg = migrate_web_json(self.config, data_dir)
-            if msg:
-                self.notices.append(msg)
+            note = migrate_web_json(self.config, data_dir)
+            if note:
+                self.notices.append(note)
             self.data_dir = data_dir
             lay, lay_note = layout.load(data_dir)
             layout.use(lay)
@@ -138,7 +139,7 @@ class App:
             try:
                 self.config.save()
             except WriteFailed as e:
-                self.notices.append(f"Nastavení se nepodařilo uložit: {e.reason}")
+                self.notices.append(msg("The settings could not be saved: {reason}", reason=e.reason))
             self.persist()
             return report
 
@@ -148,7 +149,7 @@ class App:
 
     def _need_project(self):
         if not self.project:
-            raise AppError("Není otevřený žádný projekt.")
+            raise AppError(msg("No project is open."))
 
     # ------------------------------------------------------------ persistence of derived files
     def persist(self):
@@ -196,13 +197,13 @@ class App:
                     pass
             if (self.store.unsaved or client_dirty) and not discard:
                 return {"needs_confirm": True,
-                        "message": ("Máš neuložené změny" + (f" ({', '.join(sorted(self.store.unsaved))} se nepodařilo zapsat)"
-                                                              if self.store.unsaved else " (rozeditované pole)")
-                                    + ". Obnovení souborů je nezahodí z paměti, ale rozeditovaná pole se přepíšou. Pokračovat?")}
+                        "message": msg("You have unsaved changes{what}. Refreshing the files does not discard them from memory, but fields being edited will be overwritten. Continue?",
+                                       what=(msg(" ({files} could not be written)", files=", ".join(sorted(self.store.unsaved)))
+                                             if self.store.unsaved else msg(" (a field being edited)")))}
             try:
                 rep = self.project.refresh(force=force)
             except ProjectUnavailable as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             self._log_external(rep.prev)
             moved = self.project.migrate_metadata(rep.renamed) if rep.renamed else 0
             self.store.ensure_files([r.name for r in self.project.rows()])
@@ -277,7 +278,7 @@ class App:
             for it in items:
                 rel, code = it.get("file"), str(it.get("code", ""))
                 if rel not in self.project.files:
-                    skipped.append((rel, "neznámý soubor"))
+                    skipped.append((rel, msg("unknown file")))
                     continue
                 ents = self.project.entries(rel)
                 e = None
@@ -289,9 +290,9 @@ class App:
                     key = (str(k[0]), norm_ws(str(k[1])), code)
                     e = next((x for x in ents if (x.block, norm_ws(x.source if x.source is not None else x.target)) == key[:2]), None)
                 if key is None:
-                    skipped.append((rel, "řádek se v souboru změnil – obnov soubory"))
+                    skipped.append((rel, msg("the line changed in the file – refresh the files")))
                 elif on and not any(r[2] is e and r[1].code == code for r in self._raw_issues(rel)):
-                    skipped.append((rel, "tenhle nález už neexistuje"))
+                    skipped.append((rel, msg("this finding no longer exists")))
                 else:
                     plan.append((rel, key, e))
             changed = 0
@@ -311,7 +312,7 @@ class App:
                         changed += 1
                     if not marks:
                         self.store.ignored.pop(rel, None)
-            self.store.change("Ignorování nálezů" if on else "Zrušení ignorování", ("ignored",), go)
+            self.store.change(msg("Ignoring findings") if on else msg("Un-ignoring findings"), ("ignored",), go)
             out = self._changed("ignore")
             out.update(changed=changed, skipped=skipped)
             return out
@@ -424,7 +425,7 @@ class App:
                     if severity and severity != "error":
                         continue
                     out.append({"file": rel, "line": line, "severity": "error", "code": "duplicate-id",
-                                "category": "structure", "message": f"Blok translate se stejným identifikátorem už existuje ({first}); Ren'Py ho odmítne.",
+                                "category": "structure", "message": msg("A translate block with the same identifier already exists ({first}); Ren'Py will reject it.", first=first),
                                 "source": "", "target": "", "who": "", "extra": {}})
         order = {"error": 0, "warning": 1, "info": 2}
         out.sort(key=lambda r: (order[r["severity"]], r["file"].lower(), r["line"]))
@@ -541,7 +542,7 @@ class App:
         ql = q.strip().lower()
         files = [file] if file else sorted(self.project.files, key=str.lower)
         if file and file not in self.project.files:
-            raise AppError("Neznámý soubor.")
+            raise AppError(msg("Unknown file."))
         iss_by = {}
         if self.config.get("validation.enabled", True):
             for rel in files:
@@ -603,11 +604,11 @@ class App:
     def entry_detail(self, rel, line):
         self._need_project()
         if rel not in self.project.files:
-            raise AppError("Neznámý soubor.")
+            raise AppError(msg("Unknown file."))
         ents = self.project.entries(rel)
         idx = next((i for i, e in enumerate(ents) if e.line == line), None)
         if idx is None:
-            raise AppError("Řádek už v souboru není – obnov soubory.")
+            raise AppError(msg("The line is no longer in the file – refresh the files."))
         e = ents[idx]
         on = self.config.get("validation.enabled", True)
         iss = [i for ln, i, _e in self._issues(rel) if ln == line] if on else []
@@ -642,7 +643,7 @@ class App:
         self._need_project()
         with self.lock:
             if name not in self.project.files:
-                raise AppError("Neznámý soubor.")
+                raise AppError(msg("Unknown file."))
             row = self.project.row(name)
             total, auto = row.total, row.auto
             c_n, t_n = parse_value(c, total), parse_value(t, total)
@@ -653,7 +654,7 @@ class App:
 
             def go():
                 self.store.corr[name] = {"c": "" if not c_n else str(c_n), "t": "" if t_n is None else str(t_n)}
-            self.store.change(f"Úprava počtů v {Path(name).name}", ("corr",), go)
+            self.store.change(msg("Editing the counts in {name}", name=Path(name).name), ("corr",), go)
             return self._changed("save")
 
     # ------------------------------------------------------------ glossary
@@ -698,13 +699,13 @@ class App:
         for it in items:
             code = str(it.get("code", "")).strip()
             if not code or len(code) > 60 or any(ch in code for ch in "\r\n"):
-                raise AppError(f"Neplatný kód: {code!r}")
+                raise AppError(msg("Invalid code: {code}", code=code))
             typ = it.get("type", "speaker")
             if typ not in GLOSSARY_TYPES:
-                raise AppError("Neplatný typ položky slovníku.")
+                raise AppError(msg("Invalid type of a glossary item."))
             name, note = str(it.get("name", "")).strip(), str(it.get("note", "")).strip()
             if len(name) > 200 or len(note) > 500:
-                raise AppError("Jméno nebo poznámka je příliš dlouhá.")
+                raise AppError(msg("The name or note is too long."))
             clean.append((code, name, typ, note))
         with self.lock:
             def go():
@@ -713,7 +714,7 @@ class App:
                         self.store.glossary[code] = {"n": name, "t": typ, "c": note}
                     else:
                         self.store.glossary.pop(code, None)
-            self.store.change(f"Slovník ({len(clean)})", ("glossary",), go)
+            self.store.change(msg("Glossary ({n})", n=len(clean)), ("glossary",), go)
             return {"ok": True, **self.glossary_payload()}
 
     def find_characters_files(self):
@@ -750,19 +751,19 @@ class App:
             files = self.find_characters_files()
         if not files:
             return {"path": given, "files": [], "items": [], "missing": [], "duplicates": [],
-                    "message": "Soubory characters*.rpy nebyly nalezeny – zadej cestu k souboru nebo ke složce hry."}
+                    "message": msg("The characters*.rpy files were not found – give the path to a file or to the game folder.")}
         defs = {}          # code -> list of (name, dynamic, file)
         for f in files:
             if f.suffix.lower() != ".rpy":
-                raise AppError("Importovat lze jen soubory .rpy (characters.rpy).")
+                raise AppError(msg("Only .rpy files (characters.rpy) can be imported."))
             try:
                 if not f.is_file():
-                    raise AppError(f"Soubor neexistuje: {f}")
+                    raise AppError(msg("The file does not exist: {path}", path=f))
                 if f.stat().st_size > CHARACTERS_MAX_BYTES:
-                    raise AppError(f"Soubor je příliš velký na seznam postav: {f.name}")
+                    raise AppError(msg("The file is too large for a list of characters: {name}", name=f.name))
                 text = f.read_text(encoding="utf-8-sig", errors="replace")
             except OSError as e:
-                raise AppError(f"Soubor nelze přečíst: {e.strerror or e}") from e
+                raise AppError(msg("The file cannot be read: {reason}", reason=e.strerror or e)) from e
             for line in text.splitlines():
                 m = CHARACTER_RE.match(line)
                 if m:
@@ -799,8 +800,8 @@ class App:
                 shown = str(src.relative_to(game_dir)) if game_dir else src.name
             except ValueError:
                 shown = src.name
-            note = "jméno zadává hráč (DynamicCharacter)" if dynamic else (
-                f"definováno víckrát ({' / '.join(names)}), platí poslední" if len(names) > 1 else "")
+            note = msg("the name is entered by the player (DynamicCharacter)") if dynamic else (
+                msg("defined several times ({names}), the last one counts", names=' / '.join(names)) if len(names) > 1 else "")
             items.append({"code": code, "name": name, "current": cur, "state": state, "in_project": code in in_project,
                           "note": note, "source": shown})
         missing = sorted(c for c in in_project - set(defs) if c)
@@ -821,7 +822,7 @@ class App:
     def glossary_delete(self, codes):
         self._need_project()
         with self.lock:
-            self.store.change(f"Slovník: smazáno ({len(codes)})", ("glossary",),
+            self.store.change(msg("Glossary: deleted ({n})", n=len(codes)), ("glossary",),
                               lambda: [self.store.glossary.pop(str(c), None) for c in codes])
             return {"ok": True, **self.glossary_payload()}
 
@@ -836,19 +837,19 @@ class App:
         Only translated lines can be proofread. One undo step. Returns {changed, skipped}."""
         self._need_project()
         if state not in ("ok", "fix", ""):
-            raise AppError("Neplatný stav korektury.")
+            raise AppError(msg("Invalid proofreading state."))
         with self.lock:
             plan, skipped = [], []
             for it in items:
                 rel = it.get("file")
                 if rel not in self.project.files:
-                    skipped.append((rel, "neznámý soubor"))
+                    skipped.append((rel, msg("unknown file")))
                     continue
                 key, e = self._proof_entry(rel, it.get("key") or ["", ""])
                 if e is None:
-                    skipped.append((rel, "řádek se v souboru změnil – obnov soubory"))
+                    skipped.append((rel, msg("the line changed in the file – refresh the files")))
                 elif state and not self.project.is_translated(rel, e):
-                    skipped.append((rel, "řádek ještě není přeložený"))
+                    skipped.append((rel, msg("the line is not translated yet")))
                 else:
                     plan.append((rel, key, e))
             changed = 0
@@ -871,7 +872,7 @@ class App:
                             changed += 1
                     if not marks:
                         self.store.proof.pop(rel, None)
-            label = {"ok": "Korektura: zkontrolováno", "fix": "Korektura: k opravě", "": "Korektura: zrušeno"}[state]
+            label = {"ok": msg("Proofreading: checked"), "fix": msg("Proofreading: to fix"), "": msg("Proofreading: cleared")}[state]
             self.store.change(f"{label} ({len(plan)})", ("proof",), go)
             out = self._changed("proof")
             out.update(changed=changed, skipped=skipped)
@@ -883,10 +884,10 @@ class App:
         state ""    - take the "proofread" mark away again (also stale ones). Lines flagged "to fix" are left alone."""
         self._need_project()
         if state not in ("ok", ""):
-            raise AppError("Neplatný stav korektury.")
+            raise AppError(msg("Invalid proofreading state."))
         with self.lock:
             if rel not in self.project.files:
-                raise AppError("Neznámý soubor.")
+                raise AppError(msg("Unknown file."))
             wanted = ("", "stale") if state == "ok" else ("ok", "stale")
             items = [{"file": rel, "key": list(e.key)} for e in self.project.entries(rel)
                      if e.line <= line and self.project.is_translated(rel, e)
@@ -900,9 +901,9 @@ class App:
         self._need_project()
         with self.lock:
             if rel not in self.project.files:
-                raise AppError("Neznámý soubor.")
+                raise AppError(msg("Unknown file."))
             n = len(self.store.proof.get(rel, {}))
-            self.store.change(f"Korektura: smazány značky v {Path(rel).name}", ("proof",),
+            self.store.change(msg("Proofreading: marks removed in {name}", name=Path(rel).name), ("proof",),
                               lambda: self.store.proof.pop(rel, None))
             out = self._changed("proof")
             out["changed"] = n
@@ -914,7 +915,7 @@ class App:
         files = [file] if file else sorted(self.project.files, key=str.lower)
         for rel in files:
             if rel not in self.project.files:
-                raise AppError("Neznámý soubor.")
+                raise AppError(msg("Unknown file."))
             for e in self.project.entries(rel):
                 if (not file or e.line > after) and self.project.is_translated(rel, e) \
                         and self.project.proof_state(rel, e) in ("", "stale"):
@@ -925,21 +926,21 @@ class App:
         self._need_project()
         with self.lock:
             if name not in self.project.files or not valid_assign(v):
-                raise AppError("Neplatná hodnota.")
+                raise AppError(msg("Invalid value."))
 
             def go():
                 if v:
                     self.store.assign[name] = v
                 else:
                     self.store.assign.pop(name, None)
-            self.store.change(f"Zařazení {Path(name).name}", ("assign",), go)
+            self.store.change(msg("Assignment of {name}", name=Path(name).name), ("assign",), go)
             return self._changed("assign")
 
     def set_episode_state(self, n, state):
         self._need_project()
         with self.lock:
             if n not in layout.ACTIVE_EPISODES or state not in dict(EP_STATES):
-                raise AppError("Neplatná hodnota.")
+                raise AppError(msg("Invalid value."))
             self.store.change(f"Stav epizody {n}", ("episodes",), lambda: self.store.episodes.__setitem__(n, state))
             return self._changed("episode")
 
@@ -966,10 +967,10 @@ class App:
         names = names or sorted(self.project.files, key=str.lower)
         unknown = [n for n in names if n not in self.project.files]
         if unknown:
-            raise AppError(f"Neznámé soubory: {', '.join(unknown[:3])}")
+            raise AppError(msg("Unknown files: {names}", names=', '.join(unknown[:3])))
         names, cut = self._cap("bulk.categorize", names)
         sugg = bulk.suggest(names, self.store.assign, known_assign=self.store.assign)
-        return {**cut, "items": sugg, "options": [{"value": "", "label": "Nepřiřazeno"}, {"value": "gen", "label": "Obecné (celá hra)"}]
+        return {**cut, "items": sugg, "options": [{"value": "", "label": msg("Unassigned")}, {"value": "gen", "label": msg("General (the whole game)")}]
                 + [{"value": f"ep:{n}", "label": f"Epizoda {n} (sezóna {next(s['n'] for s in layout.SEASONS if n in s['episodes'])})"}
                    for n in layout.ACTIVE_EPISODES]}
 
@@ -979,7 +980,7 @@ class App:
         with self.lock:
             for it in items:
                 if it.get("name") not in self.project.files:
-                    raise AppError(f"Neznámý soubor: {it.get('name')}")
+                    raise AppError(msg("Unknown file: {name}", name=it.get('name')))
             res = bulk.apply_assignments(self.store, items)
             out = self._changed("bulk-assign")
             out.update(res)
@@ -990,14 +991,14 @@ class App:
         try:
             return bulk.approval_candidates(self.project, file, int(line), scope, same_speaker)
         except ValueError as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
 
     def rule_preview(self, rules, files=None):
         self._need_project()
         files = [str(f) for f in (files or [])]
         unknown = [f for f in files if f not in self.project.files]
         if unknown:
-            raise AppError("Neznámý soubor: " + unknown[0])
+            raise AppError(msg("Unknown file: {name}", name=unknown[0]))
         return bulk.rule_candidates(self.project, self.store.glossary, list(rules or []), files or None)
 
     def glossary_occurrences(self, code, only_missing=False, limit=400):
@@ -1005,7 +1006,7 @@ class App:
         self._need_project()
         g = self.store.glossary.get(code)
         if g is None:
-            raise AppError("Záznam ve slovníku neexistuje.")
+            raise AppError(msg("The glossary entry does not exist."))
         czech = g.get("n", "")
         rows, found, missing, untranslated = [], 0, 0, 0
         for rel in sorted(self.project.files, key=str.lower):
@@ -1038,26 +1039,26 @@ class App:
         """The original game script around the line this translation unit comes from (read-only)."""
         self._need_project()
         if rel not in self.project.files:
-            raise AppError("Neznámý soubor.")
+            raise AppError(msg("Unknown file."))
         e = next((x for x in self.project.entries(rel) if x.line == line), None)
         if e is None:
-            raise AppError("Řádek už v souboru není – obnov soubory.")
+            raise AppError(msg("The line is no longer in the file – refresh the files."))
         m = re.match(r"^(game/.+?):(\d+)$", e.ref or "")
         if not m:
-            return {"available": False, "reason": "U řádku není zaznamenaná pozice ve skriptu hry."}
+            return {"available": False, "reason": msg("The line has no recorded position in the game script.")}
         base = self._game_root()
         if base is None:
-            return {"available": False, "ref": e.ref, "reason": "Složka hry (game) nad překladem nebyla nalezena."}
+            return {"available": False, "ref": e.ref, "reason": msg("The game folder (game) above the translation was not found.")}
         path = (base / m.group(1)).resolve()
         if base.resolve() not in path.parents or path.suffix.lower() not in (".rpy", ".rpym"):
-            return {"available": False, "ref": e.ref, "reason": "Neplatná cesta ke skriptu."}
+            return {"available": False, "ref": e.ref, "reason": msg("Invalid script path.")}
         try:
             if path.stat().st_size > 8 * 1024 * 1024:
-                return {"available": False, "ref": e.ref, "reason": "Skript je příliš velký."}
+                return {"available": False, "ref": e.ref, "reason": msg("The script is too large.")}
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             return {"available": False, "ref": e.ref,
-                    "reason": f"Skript {m.group(1)} nebyl nalezen (originální .rpy soubory hry nejsou po ruce, možná jen .rpyc)."}
+                    "reason": msg("The script {name} was not found (the original .rpy files of the game are not at hand, maybe only .rpyc).", name=m.group(1))}
         n = int(m.group(2))
         a, b = max(1, n - radius), min(len(lines), n + radius)
         return {"available": True, "ref": e.ref, "path": str(path),
@@ -1088,7 +1089,7 @@ class App:
         with self.lock:
             label = self.store.undo()
             if label is None:
-                raise AppError("Není co vrátit.")
+                raise AppError(msg("Nothing to undo."))
             self._val_cache.clear()
             out = self._changed("undo")
             out["undone"] = label
@@ -1113,7 +1114,7 @@ class App:
         self._need_project()
         ent = next((e for e in self.project.entries(rel) if e.line == line), None) if rel in self.project.files else None
         if ent is None or ent.source is None:
-            raise AppError("Řádek už v souboru není – obnov soubory.")
+            raise AppError(msg("The line is no longer in the file – refresh the files."))
         mem, skip = self._memory(), (rel, line)
         mine = memory.tags_of(ent.source)
 
@@ -1140,19 +1141,19 @@ class App:
         with self.lock:
             group = next((g for g in self._memory().groups(10 ** 6, bool(loose), bool(by_speaker)) if g["key"] == str(key)), None)
             if group is None:
-                raise AppError("Skupina se mezitím změnila – obnov soubory a zkus to znovu.")
+                raise AppError(msg("The group has changed in the meantime – refresh the files and try again."))
             target = str(target)
             chosen = {(str(x["file"]), int(x["line"])) for x in lines} if lines else None
             edits = [(l["file"], l["line"], target) for v in group["variants"] for l in v["lines"]
                      if (chosen is None or (l["file"], l["line"]) in chosen)]
             if not edits:
-                raise AppError("Není co sjednocovat.")
+                raise AppError(msg("Nothing to unify."))
             self._snapshot_for_bulk(len(edits), len({e[0] for e in edits}))
             try:
-                res = fixes.apply_edits(self.project, self.data_dir, edits, f"Sjednocení překladu: {group['source'][:40]}")
+                res = fixes.apply_edits(self.project, self.data_dir, edits, msg("Unifying the translation: {text}", text=group['source'][:40]))
                 self._log_text(res["details"], "unify")
             except fixes.FixError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             finally:
                 self.project.refresh(force=True)
                 self._val_cache.clear()
@@ -1167,7 +1168,7 @@ class App:
     def game_gui(self):
         """Dialogue box metrics of the game (gui.rpy: screen size, text size and width, box height, name position), for the scene
         preview. Falls back to the values of Being a DIK when the game sources are not next to the translation."""
-        out = dict(self.GUI_DEFAULTS, source="výchozí hodnoty")
+        out = dict(self.GUI_DEFAULTS, source=msg("default values"))
         base = self._game_root() if self.project else None
         if base is None:
             return out
@@ -1184,7 +1185,7 @@ class App:
         for k in self.GUI_DEFAULTS:
             if k in found:
                 out[k] = found[k]
-        out["source"] = "gui.rpy hry" if any(k in found for k in self.GUI_DEFAULTS) else "výchozí hodnoty"
+        out["source"] = msg("gui.rpy of the game") if any(k in found for k in self.GUI_DEFAULTS) else msg("default values")
         return out
 
     # ------------------------------------------------------------ fonts of the game (with the translation's overrides)
@@ -1224,7 +1225,7 @@ class App:
             out["text"] = styles["default"]
         if styles.get("say_label"):
             out["name"] = styles["say_label"]
-        out["source"] = "gui.rpy a překlad" if (found or styles) else ""
+        out["source"] = msg("gui.rpy and the translation") if (found or styles) else ""
         return out
 
     # ------------------------------------------------------------ the picture a line is shown on
@@ -1243,20 +1244,20 @@ class App:
         self._need_project()
         ent = next((e for e in self.project.entries(rel) if e.line == line), None) if rel in self.project.files else None
         if ent is None:
-            raise AppError("Řádek už v souboru není – obnov soubory.")
+            raise AppError(msg("The line is no longer in the file – refresh the files."))
         gui = self.game_gui()
         out = {"available": False, "gui": gui, "who": ent.who, "reason": ""}
         gi = self._game_images()
         if gi is None:
-            out["reason"] = "Složka hry (game) nad překladem nebyla nalezena, obrázky scén proto nejdou ukázat."
+            out["reason"] = msg("The game folder (game) above the translation was not found, so the scene pictures cannot be shown.")
             return out
         m = re.match(r"^(game/.+?):(\d+)$", ent.ref or "")
         if not m:
-            out["reason"] = "U řádku není zaznamenaná pozice ve skriptu hry."
+            out["reason"] = msg("The line has no recorded position in the game script.")
             return out
         script = (self._game_root() / m.group(1)).resolve()
         if self._game_root().resolve() not in script.parents or script.suffix.lower() not in (".rpy", ".rpym"):
-            out["reason"] = "Neplatná cesta ke skriptu."
+            out["reason"] = msg("Invalid script path.")
             return out
         try:
             sc = gi.scene_for(script, int(m.group(2)))
@@ -1274,7 +1275,7 @@ class App:
         if sc["found"] and sc["key"]:
             out["url"] = "/api/game/image?k=" + urllib.parse.quote(sc["key"], safe="")
         elif not sc["found"]:
-            out["reason"] = "Před tímto řádkem jsem v blízkosti nenašel obrázek (scene / show), který jde dohledat v archivech hry."
+            out["reason"] = msg("I found no picture (scene / show) before this line that can be traced in the game archives.")
         return out
 
     def game_font(self, name):
@@ -1282,11 +1283,11 @@ class App:
         self._need_project()
         gi = self._game_images()
         if gi is None:
-            raise AppError("Písma hry nejsou k dispozici.")
+            raise AppError(msg("The game fonts are not available."))
         try:
             return gi.font_bytes(name)
         except (gameimages.rpa.RpaError, OSError) as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
 
     def game_characters(self):
         """{speaker code: {name, color}} from the game's `define x = Character(...)` lines (empty without the game sources)."""
@@ -1299,7 +1300,7 @@ class App:
         data, _mime = self.game_font(name)
         m = fontmetrics.advances(data)
         if m is None:
-            raise AppError("Z písma nejdou přečíst šířky znaků.")
+            raise AppError(msg("The character widths cannot be read from the font."))
         return {"upm": m["upm"], "adv": {str(k): v for k, v in m["adv"].items()}}
 
     def game_image(self, key):
@@ -1307,11 +1308,11 @@ class App:
         self._need_project()
         gi = self._game_images()
         if gi is None:
-            raise AppError("Obrázky hry nejsou k dispozici.")
+            raise AppError(msg("The game pictures are not available."))
         try:
             return gi.image_bytes(key)
         except (gameimages.rpa.RpaError, OSError) as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
 
     # ------------------------------------------------------------ snapshots of the translation folder
     def _snapshot(self, reason, force=False):
@@ -1327,7 +1328,7 @@ class App:
                 snapshots.prune(self.data_dir, cfg.get("keep", 20))
             return snap
         except (snapshots.SnapshotError, OSError) as e:
-            self.notices.append(f"Záloha se nevytvořila: {e}")
+            self.notices.append(msg("The backup was not created: {reason}", reason=e))
             return None
 
     def _snapshot_for_bulk(self, lines, files):
@@ -1355,9 +1356,9 @@ class App:
             try:
                 snap = snapshots.create(self.project.root, self.data_dir, "manual", __version__)
             except snapshots.SnapshotError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             if snap is None:
-                raise AppError("Ve složce nejsou žádné soubory .rpy.")
+                raise AppError(msg("There are no .rpy files in the folder."))
             snapshots.prune(self.data_dir, self.config.get("snapshots.keep", 20))
             return {"ok": True, "snapshot": snap}
 
@@ -1366,7 +1367,7 @@ class App:
         try:
             return {"files": snapshots.compare(self.project.root, self.data_dir, name)}
         except (snapshots.SnapshotError, OSError) as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
 
     def snapshot_restore(self, name, files=None):
         """Put files of a snapshot back. The current state is saved first, so the restore can be undone the same way."""
@@ -1376,7 +1377,7 @@ class App:
             try:
                 res = snapshots.restore(self.project.root, self.data_dir, name, files, __version__)
             except snapshots.SnapshotError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             finally:
                 self.project.refresh(force=True)
                 self._val_cache.clear()
@@ -1394,7 +1395,7 @@ class App:
         try:
             snapshots.delete(self.data_dir, name)
         except snapshots.SnapshotError as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
         return {"ok": True}
 
     # ------------------------------------------------------------ Ren'Py lint of the whole game
@@ -1402,14 +1403,14 @@ class App:
         self._need_project()
         sdk = str(self.config.get("lint.sdk", "")).strip()
         if not sdk:
-            raise AppError("Nastav nejdřív složku Ren'Py SDK (tam, kde je renpy.py).")
+            raise AppError(msg("First set the Ren'Py SDK folder (the one with renpy.py)."))
         base = self._game_root()
         if base is None:
-            raise AppError("Složka hry (game) nad překladem nebyla nalezena – lint potřebuje zdrojové soubory hry.")
+            raise AppError(msg("The game folder (game) above the translation was not found – lint needs the source files of the game."))
         try:
             self.linter.start(sdk, base)
         except lint.LintError as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
         return {"ok": True}
 
     def lint_status(self):
@@ -1428,7 +1429,7 @@ class App:
         return st
 
     FIX_KINDS = ("speaker", "spaces", "typo")
-    FIX_LABELS = {"speaker": "mluvčí / atributy", "spaces": "dvojité mezery", "typo": "překlepy"}
+    FIX_LABELS = {"speaker": msg("speaker / attributes"), "spaces": msg("double spaces"), "typo": msg("typos")}
 
     def fix_preview(self, items=None, file="", kinds=None):
         """Every safe fix that could be applied. Nothing is written.
@@ -1446,7 +1447,7 @@ class App:
                 for p in fixes.plan(self.project, items, file):
                     out.append({"file": p["file"], "line": p["line"], "kind": "speaker", "before": p["before"],
                                 "after": p["after"], "skip": p["skip"], "default": not p["skip"], "code": True,
-                                "note": "mluvčí / atributy podle originálu"})
+                                "note": msg("speaker / attributes from the original")})
             for p in textedit.plan_text_fixes(self.project, self._spell(), kinds, wanted, file):
                 out.append(dict(p, skip="", code=False))
             out.sort(key=lambda r: (r["file"].lower(), r["line"], r["kind"]))
@@ -1466,14 +1467,14 @@ class App:
                 kinds = sorted({k for _f, _l, k in chosen})
                 items = [{"file": f, "line": l} for f, l, _k in chosen] or None
                 if not chosen:
-                    raise AppError("Není vybrané nic k opravě.")
+                    raise AppError(msg("Nothing is selected to fix."))
             else:
                 chosen = None
             plan = self.fix_preview(items, file, kinds)["items"]
             todo = [p for p in plan if not p["skip"] and (chosen is None or (p["file"], p["line"], p["kind"]) in chosen)]
             skipped = [(p["file"], p["line"], p["skip"]) for p in plan if p["skip"]]
             if not todo:
-                raise AppError("Není co opravovat.")
+                raise AppError(msg("Nothing to fix."))
             fixed, backups = 0, []
             self._snapshot_for_bulk(len(todo), len({p["file"] for p in todo}))
             try:
@@ -1503,7 +1504,7 @@ class App:
                     fixed += res["changed"]
                     backups += res["backups"]
             except fixes.FixError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             finally:
                 self.project.refresh(force=True)
                 self._val_cache.clear()
@@ -1517,11 +1518,11 @@ class App:
         try:
             rep = textedit.make_replacer(str(find), str(replace), mode, bool(case))
         except ValueError as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
         files = [str(f) for f in (files or [])]
         unknown = [f for f in files if f not in self.project.files]
         if unknown:
-            raise AppError("Neznámý soubor: " + unknown[0])
+            raise AppError(msg("Unknown file: {name}", name=unknown[0]))
         items, matches, truncated = [], 0, False
         for rel in sorted(files or self.project.files, key=str.lower):
             for e in self.project.entries(rel):
@@ -1566,18 +1567,18 @@ class App:
         with self.lock:
             chosen = {(str(x["file"]), int(x["line"])) for x in (selections or [])}
             if not chosen:
-                raise AppError("Není vybraný žádný řádek.")
+                raise AppError(msg("No line is selected."))
             items, _m, _t = self._replace_plan(find, replace, mode, case, files, protect, 20000)
             edits = [(i["file"], i["line"], i["after"]) for i in items if not i["skip"] and (i["file"], i["line"]) in chosen]
             if not edits:
-                raise AppError("Vybrané řádky se mezitím změnily – zobraz náhled znovu.")
-            label = f"Nahrazení „{str(find)[:30]}“ → „{str(replace)[:30]}“"
+                raise AppError(msg("The selected lines changed in the meantime – show the preview again."))
+            label = msg("Replacing “{a}” → “{b}”", a=str(find)[:30], b=str(replace)[:30])
             self._snapshot_for_bulk(len(edits), len({e[0] for e in edits}))
             try:
                 res = fixes.apply_edits(self.project, self.data_dir, edits, label)
                 self._log_text(res["details"], "replace")
             except fixes.FixError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             finally:
                 self.project.refresh(force=True)
                 self._val_cache.clear()
@@ -1594,7 +1595,7 @@ class App:
         try:
             res = mt.translate(cfg, ent.source, local, context, http=self._mt_http)
         except mt.MTError as e:
-            raise AppError(str(e)) from e
+            raise AppError(text_of(e)) from e
         probe = replace(ent, target=res["text"], category="")
         issues = [i.to_dict() for i in validator.check_entry(probe, self._length_cfg(), self._terms(), None,
                                                              self.config.get("validation.textbox", {})) if i.severity != "info"]
@@ -1606,7 +1607,7 @@ class App:
         ents = self.project.entries(rel) if rel in self.project.files else []
         idx = next((i for i, e in enumerate(ents) if e.line == line and e.source is not None), None)
         if idx is None:
-            raise AppError("Řádek už v souboru není – obnov soubory.")
+            raise AppError(msg("The line is no longer in the file – refresh the files."))
         return self._mt_one(rel, ents, idx, dict(self.config.get("mt", {})), self._terms())
 
     MT_BATCH = 10            # lines per request: the UI loops, so it can show progress and stop
@@ -1624,7 +1625,7 @@ class App:
             files = [file] if file else list(self.project.files)
         for rel in files:
             if rel not in self.project.files:
-                raise AppError("Neznámý soubor.")
+                raise AppError(msg("Unknown file."))
             for e in self.project.entries(rel):
                 if e.source is None or not e.source.strip() or (want is not None and (rel, e.line) not in want):
                     continue
@@ -1659,13 +1660,13 @@ class App:
             ents = self.project.entries(rel) if rel in self.project.files else []
             idx = next((i for i, e in enumerate(ents) if e.line == line and e.source is not None), None)
             if idx is None:
-                results.append({"file": rel, "line": line, "error": "Řádek už v souboru není."})
+                results.append({"file": rel, "line": line, "error": msg("The line is no longer in the file.")})
                 continue
             try:
                 r = self._mt_one(rel, ents, idx, cfg, terms)
             except AppError as e:
                 results.append({"file": rel, "line": line, "error": str(e)})
-                if not str(e).startswith("Řádek nemá"):
+                if str(e) != str(mt.NO_TEXT):
                     return {"results": results, "stopped": str(e)}
                 continue
             results.append({"file": rel, "line": line, "key": ents[idx].key, "who": ents[idx].who, "source": ents[idx].source,
@@ -1686,13 +1687,13 @@ class App:
                     continue
                 edits.append((rel, line, text))
             if not edits:
-                raise AppError("Není co zapsat (řádky se změnily nebo jsou schválené).")
+                raise AppError(msg("Nothing to write (the lines changed or are approved)."))
             self._snapshot_for_bulk(len(edits), len({e[0] for e in edits}))
             try:
-                res = fixes.apply_edits(self.project, self.data_dir, edits, f"Strojový překlad ({len(edits)} ř.)")
+                res = fixes.apply_edits(self.project, self.data_dir, edits, msg("Machine translation ({n} lines)", n=len(edits)))
                 self._log_text(res["details"], "mt")
             except fixes.FixError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             finally:
                 self.project.refresh(force=True)
                 self._val_cache.clear()
@@ -1712,9 +1713,9 @@ class App:
         for a fix (fix) or does not fit the dialogue box (over). {line: 0} when there is none."""
         self._need_project()
         if rel not in self.project.files:
-            raise AppError("Neznámý soubor.")
+            raise AppError(msg("Unknown file."))
         if kind not in ("todo", "review", "fix", "over"):
-            raise AppError("Neznámý druh řádku.")
+            raise AppError(msg("Unknown kind of line."))
         ents = self.project.entries(rel)
 
         def match(e):
@@ -1738,10 +1739,10 @@ class App:
         the one that holds `line`. Needs the game sources; without them {available: False}."""
         self._need_project()
         if rel not in self.project.files:
-            raise AppError("Neznámý soubor.")
+            raise AppError(msg("Unknown file."))
         gi, base = self._game_images(), self._game_root()
         if gi is None or base is None:
-            return {"available": False, "items": [], "cur": -1, "reason": "Složka hry (game) nad překladem nebyla nalezena."}
+            return {"available": False, "items": [], "cur": -1, "reason": msg("The game folder (game) above the translation was not found.")}
         root = base.resolve()
         items, key, cur, starts = [], None, -1, {}
         for e in self.project.entries(rel):
@@ -1778,11 +1779,11 @@ class App:
         """The lines around one line (original and translation), i.e. the scene it belongs to."""
         self._need_project()
         if rel not in self.project.files:
-            raise AppError("Neznámý soubor.")
+            raise AppError(msg("Unknown file."))
         ents = self.project.entries(rel)
         idx = next((i for i, e in enumerate(ents) if e.line == line), None)
         if idx is None:
-            raise AppError("Řádek už v souboru není – obnov soubory.")
+            raise AppError(msg("The line is no longer in the file – refresh the files."))
         r = max(1, min(int(radius), 30))
         a, b = max(0, idx - r), min(len(ents), idx + r + 1)
         return {"file": rel, "items": [{"line": e.line, "who": e.who, "source": e.source, "target": e.target,
@@ -1797,7 +1798,7 @@ class App:
         with self.lock:
             ent = next((e for e in self.project.entries(rel) if e.line == line), None) if rel in self.project.files else None
             if ent is None:
-                raise AppError("Řádek už v souboru není – obnov soubory.")
+                raise AppError(msg("The line is no longer in the file – refresh the files."))
             try:
                 fixes.check_literal(text)
                 literal = ""
@@ -1816,7 +1817,7 @@ class App:
             try:
                 res = fixes.edit_translation(self.project, self.data_dir, rel, int(line), str(text))
             except fixes.FixError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             finally:
                 self.project.refresh(force=True)
                 self._val_cache.clear()
@@ -1851,7 +1852,7 @@ class App:
         self._need_project()
         ent = next((e for e in self.project.entries(rel) if e.line == line), None) if rel in self.project.files else None
         if ent is None:
-            raise AppError("Řádek už v souboru není – obnov soubory.")
+            raise AppError(msg("The line is no longer in the file – refresh the files."))
         versions = self.texthist.versions(rel, ent.key, ent.target)
         return {"versions": versions, "count": max(0, len(versions) - 1)}
 
@@ -1867,7 +1868,7 @@ class App:
             try:
                 res = fixes.undo(self.project, self.data_dir)
             except fixes.FixError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             finally:
                 self.project.refresh(force=True)
                 self._val_cache.clear()
@@ -1883,7 +1884,7 @@ class App:
         """Open one of the fixed project links in the default browser."""
         url = LINKS.get(link_id)
         if url is None:
-            raise AppError("Neznámý odkaz.")
+            raise AppError(msg("Unknown link."))
         (opener or webbrowser.open)(url)
         return {"ok": True, "url": url}
 
@@ -1895,7 +1896,7 @@ class App:
         except ValueError as e:
             return {"ok": False, "message": str(e)}
         if rel not in self.project.files:
-            return {"ok": False, "message": "Neznámý soubor."}
+            return {"ok": False, "message": msg("Unknown file.")}
         return editor.open_in_editor(path, line, self.config.get("editor", {}), root=self.project.root)
 
     # ------------------------------------------------------------ settings / prefs
@@ -1912,7 +1913,7 @@ class App:
         if isinstance(ed, dict):
             pref = str(ed.get("preferred", "auto"))
             if pref not in ("auto", "vscode", "notepadpp", "custom", "system"):
-                raise AppError("Neplatná volba editoru.")
+                raise AppError(msg("Invalid editor choice."))
             clean["editor"] = {"preferred": pref, "custom": str(ed.get("custom", ""))[:500]}
         va = patch.get("validation")
         if isinstance(va, dict):
@@ -1933,9 +1934,9 @@ class App:
                         try:
                             val = int(float(tbx[k]))
                         except (TypeError, ValueError):
-                            raise AppError(f"Neplatná hodnota: {k}") from None
+                            raise AppError(msg("Invalid value: {k}", k=k)) from None
                         if not lo_ <= val <= hi:
-                            raise AppError(f"{k} musí být v rozmezí {lo_}–{hi}.")
+                            raise AppError(msg("{k} must be between {lo} and {hi}.", k=k, lo=lo_, hi=hi))
                         to[k] = val
                 out["textbox"] = to
             ln = va.get("length")
@@ -1947,9 +1948,9 @@ class App:
                         try:
                             val = float(ln[k])
                         except (TypeError, ValueError):
-                            raise AppError(f"Neplatná hodnota: {k}") from None
+                            raise AppError(msg("Invalid value: {k}", k=k)) from None
                         if not lo_ <= val <= hi:
-                            raise AppError(f"{k} musí být v rozmezí {lo_}–{hi}.")
+                            raise AppError(msg("{k} must be between {lo} and {hi}.", k=k, lo=lo_, hi=hi))
                         lo[k] = int(val) if k in ("min_source_chars", "min_extra_chars", "min_missing_chars") else val
                 if "enabled" in ln:
                     lo["enabled"] = bool(ln["enabled"])
@@ -1965,9 +1966,9 @@ class App:
                     try:
                         val = int(float(sn[k]))
                     except (TypeError, ValueError):
-                        raise AppError(f"Neplatná hodnota: {k}") from None
+                        raise AppError(msg("Invalid value: {k}", k=k)) from None
                     if not lo <= val <= hi:
-                        raise AppError(f"{k} musí být v rozmezí {lo}–{hi}.")
+                        raise AppError(msg("{k} must be between {lo} and {hi}.", k=k, lo=lo, hi=hi))
                     o[k] = val
             clean["snapshots"] = o
         m = patch.get("mt")
@@ -1976,7 +1977,7 @@ class App:
             o = {}
             if "provider" in m:
                 if m["provider"] not in ("",) + mt.PROVIDERS:
-                    raise AppError("Neznámý poskytovatel strojového překladu.")
+                    raise AppError(msg("Unknown machine translation provider."))
                 o["provider"] = m["provider"]
             for k, n in (("base_url", 300), ("model", 100), ("source_lang", 10), ("target_lang", 10)):
                 if k in m:
@@ -1985,7 +1986,7 @@ class App:
                 try:
                     mt._check_url(o["base_url"])
                 except mt.MTError as e:
-                    raise AppError(str(e)) from e
+                    raise AppError(text_of(e)) from e
             if "consent" in m:
                 o["consent"] = bool(m["consent"])
             if m.get("clear_key"):
@@ -2004,9 +2005,9 @@ class App:
                     try:
                         val = int(float(gl[k] or 0))
                     except (TypeError, ValueError):
-                        raise AppError(f"Neplatný cíl: {k}") from None
+                        raise AppError(msg("Invalid goal: {k}", k=k)) from None
                     if not 0 <= val <= 100000:
-                        raise AppError("Cíl musí být v rozmezí 0–100 000 řádků týdně (0 = automaticky).")
+                        raise AppError(msg("The goal must be between 0 and 100 000 lines per week (0 = automatic)."))
                     g[k] = val
             clean["goals"] = g
         web = patch.get("web")
@@ -2019,7 +2020,7 @@ class App:
                 try:
                     w["path"] = pub.clean_target(w["path"])
                 except pub.PublishError as e:
-                    raise AppError(str(e)) from e
+                    raise AppError(text_of(e)) from e
             clean["web"] = w
         if "skip_files" in patch:
             clean["skip_files"] = [str(x).strip() for x in patch["skip_files"] if str(x).strip()][:200]
@@ -2027,7 +2028,7 @@ class App:
             try:
                 self.config.update(clean)
             except WriteFailed as e:
-                raise AppError(f"Nastavení nelze uložit: {e.reason}") from e
+                raise AppError(msg("The settings cannot be saved: {reason}", reason=e.reason)) from e
             self._val_cache.clear()
             if "skip_files" in clean and self.project:
                 self.project.skip = {s.lower() for s in clean["skip_files"]}
@@ -2038,7 +2039,7 @@ class App:
 
     def set_ui_prefs(self, prefs):
         if not isinstance(prefs, dict) or len(json.dumps(prefs)) > UI_PREF_MAX:
-            raise AppError("Neplatné předvolby.")
+            raise AppError(msg("Invalid preferences."))
         with self.lock:
             self.config.set("ui", prefs)
             try:
@@ -2063,11 +2064,11 @@ class App:
             data = self.build_export()
             problems = export.validate_progress(data)
             if problems:
-                raise AppError("Export neprošel kontrolou: " + "; ".join(problems))
+                raise AppError(msg("The export did not pass the check: {problems}", problems="; ".join(problems)))
             try:
                 info = pub.plan(self.config.get("web", {}), data, export.render(data))
             except pub.PublishError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e
             info["summary"] = {"episodes": len(data["episodes"]), "files": data["files"]["total"],
                                "estimate": data["estimate"]["status"]}
             return info
@@ -2079,8 +2080,8 @@ class App:
             data = self.build_export()
             problems = export.validate_progress(data)
             if problems:
-                raise AppError("Export neprošel kontrolou: " + "; ".join(problems))
+                raise AppError(msg("The export did not pass the check: {problems}", problems="; ".join(problems)))
             try:
                 return pub.publish(self.config.get("web", {}), data, export.render(data), token, branch)
             except pub.PublishError as e:
-                raise AppError(str(e)) from e
+                raise AppError(text_of(e)) from e

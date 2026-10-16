@@ -26,7 +26,7 @@ class SnapshotTests(TempCase):
         snap = self.app.snapshot_create()["snapshot"]
         self.assertEqual((snap["files"], snap["reason"]), (2, "manual"))
         item = self.app.snapshot_list()["items"][0]
-        self.assertEqual((item["name"], item["reason_label"]), (snap["name"], "ručně vytvořená"))
+        self.assertEqual((item["name"], item["reason_label"]), (snap["name"], "created by hand"))
         with zipfile.ZipFile(self.root / "_progress_data" / "snapshots" / snap["name"]) as z:
             self.assertEqual(sorted(n for n in z.namelist() if n.startswith("files/")), ["files/a.rpy", "files/sub/b.rpy"])
 

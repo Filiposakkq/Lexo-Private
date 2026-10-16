@@ -52,6 +52,14 @@
 
   ok('hlavička ukazuje verzi', /\d+\.\d+\.\d+/.test(document.querySelector('#brandText').textContent), document.querySelector('#brandText').textContent);
 
+  await step('Zprávy ze serveru', async () => {                 // messages travel as templates and are translated in the browser
+    ok('zpráva se šablonou a hodnotami se přeloží', fromWire({ $m: 'Unknown file: {name}', p: { name: 'a.rpy' } }) === 'Neznámý soubor: a.rpy', 'nepřeloženo');
+    ok('počítaná zpráva použije správný tvar', fromWire({ $m: '{n} file', $n: '{n} files', p: { n: 3 } }) === '3 soubory', 'špatný tvar');
+    ok('zpráva uvnitř seznamu a objektu se přeloží', fromWire({ a: [{ $m: 'Close', p: {} }], b: 'text' }).a[0] === 'Zavřít', 'nepřeloženo');
+    let msgText = '';
+    try { await post('assign', { name: 'neexistuje.rpy', v: '' }); } catch (e) { msgText = e.message; }
+    ok('chyba ze serveru přijde přeložená', msgText.length > 0 && !msgText.includes('{'), msgText || 'bez chyby');
+  });
   await step('Přehled', async () => {
     await openView('overview');
     ok('Přehled ukazuje týdenní cíl', document.querySelector('#view .goalrow'), 'chybí panel cíle');

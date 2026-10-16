@@ -59,7 +59,7 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 ## Where we are before the Rust port (summary, kept current)
 | # | Step | State |
 |---|---|---|
-| 1 | UI texts: English source, Czech as a pack | **browser UI done**; Python-side messages -> message keys: open (next) |
+| 1 | UI texts: English source, Czech as a pack | **done** (browser UI and Python messages; see UI-TEXTS.md) |
 | 2 | Data layout: `.lexo/`, English file names, per-author event log, migration (docs/DATA-LAYOUT.md) | planned |
 | 3 | Rest of the generalisation: group/season wording from `labels`, BaDIK names and links, `ep1` name hints, tests on 3-4 other games (needs their `game` folders) | partly (project file, language packs done) |
 | 4 | Split Core and UI; Core interface; feature registry loaded through the Pro loader | registry done, split open |
@@ -67,3 +67,4 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 | 6 | Cleanup and test data for the Python/Rust comparison | planned |
 Done on the way: project file, language packs (format + loader), feature registry, game tools (.rpa, unrpyc as a helper, translation files through the SDK, no UI yet), `app.js` split into ES modules, UI text conversion.
 Not before the port: the menu with game selection and the new UI, the licence server, Free/Pro release.
+- Step 1 finished: Python-side messages are English templates (`msg`, `msgn`, `join`) translated in the browser; ~1 400 texts in the Czech pack; `test_python_messages.py` keeps Czech sentences out of the Python code. 470 tests, UI self-test 137/137 (Czech). Next: data layout (step 2).

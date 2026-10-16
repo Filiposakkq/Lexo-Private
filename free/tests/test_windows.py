@@ -8,6 +8,7 @@ from urllib.parse import parse_qs, urlparse
 from helpers import TempCase, dialog
 
 from lexo import server
+from lexo.messages import render
 
 
 class WindowTests(TempCase):
@@ -146,7 +147,7 @@ class WindowTests(TempCase):
         self.sess.open_window = boom
         status, res = self.call("POST", "/api/window/open", {})
         self.assertEqual((status, res["ok"], res["fallback"]), (200, False, True))
-        self.assertIn("no display", res["error"])
+        self.assertIn("no display", render(res["error"]))
 
     def test_the_request_needs_the_token(self):
         status, _res = self.call("POST", "/api/window/open", {}, token=False)

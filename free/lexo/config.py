@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 from .util import atomic_write_text
+from .messages import msg
 
 DEFAULTS = {
     "version": 1,
@@ -81,7 +82,7 @@ class Config:
             self.data = copy.deepcopy(DEFAULTS)
         except (OSError, ValueError) as e:
             # keep the broken file for inspection; run with defaults instead of crashing
-            self.load_error = f"Nastavení nelze načíst ({e}); používám výchozí hodnoty."
+            self.load_error = msg("The settings cannot be loaded ({e}); using the defaults.", e=e)
             self.data = copy.deepcopy(DEFAULTS)
         return self
 
@@ -144,5 +145,4 @@ def migrate_web_json(cfg, data_dir):
         cfg.set("web.title", str(old["title"]))
     cfg.set("web.migrated_from", str(legacy))
     cfg.save()
-    return (f"Nastavení webu bylo převzato z {legacy.name} do aplikace. Soubor můžeš ponechat jako zálohu "
-            "nebo smazat – aplikace ho už nepotřebuje. Publikování se teď vždy potvrzuje ručně.")
+    return msg("The website settings were taken over from {name} into the application. You can keep the file as a backup or delete it – the application no longer needs it. Publishing is now always confirmed by hand.", name=legacy.name)
