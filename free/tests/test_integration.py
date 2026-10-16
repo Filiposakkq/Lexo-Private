@@ -532,10 +532,10 @@ class ServerTests(TempCase):
 
         def fetch(_):
             c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=20)
-            c.request("GET", "/app.js")
+            c.request("GET", "/js/22-entries.js")
             r = c.getresponse()
             body = r.read()
-            return r.status == 200 and len(body) > 50000
+            return r.status == 200 and len(body) > 20000
         with ThreadPoolExecutor(max_workers=48) as pool:
             results = list(pool.map(fetch, range(400)))
         self.assertTrue(all(results), f"{results.count(False)} of {len(results)} requests failed")
