@@ -4,5 +4,6 @@
                 "ale", "čuk", "haha", "hihi", "ho", "bla", "ještě", "moc", "hodně", "hrozně", "pořád", "dobře",
                 "fajn", "ok", "hmm", "ach"],
   "number_words_ok": true,
-  "stem": {"type": "cut", "drop": 2, "min": 3}
+  "stem": {"type": "cut", "drop": 2, "min": 3},
+  "plural": "cs"
 }

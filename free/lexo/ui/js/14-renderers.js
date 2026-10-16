@@ -1,3 +1,4 @@
+import { labels, t } from './05-i18n.js';
 import { $, clamp01, h } from './00-core.js';
 import { S } from './11-state.js';
 import { icon, pref, setPref } from './12-chrome.js';
@@ -51,16 +52,16 @@ export function gameText(text) {
   if (last < text.length) top().append(text.slice(last));
   return root;
 }
-export const STATUS_LABEL = { done: 'Hotovo', rev: 'Korektura', proof: 'V korekci', tr: 'Přeloženo', wip: 'Rozpracováno', none: 'Nezačato', planned: 'Plánováno' };
-export const ENTRY_LABEL = { translated: 'Přeloženo', approved: 'Schváleno', todo: 'Nepřeloženo' };
-export const KIND_LABEL = { empty: 'prázdný', english: 'anglicky', same: 'shodné', symbols: 'jen znaky' };
-export const SEV_LABEL = { error: 'Chyba', warning: 'Varování', info: 'Info' };
-export const proofChip = (p) => (p === 'ok' ? chip('proof', '✓ Zkontrolováno') : p === 'fix' ? chip('warning', '⚑ k opravě')
-  : p === 'stale' ? chip('info', '↻ změněno po korektuře') : null);
+export const STATUS_LABEL = labels({ done: 'Done', rev: 'Proofreading', proof: 'In proofreading', tr: 'Translated', wip: 'In progress', none: 'Not started', planned: 'Planned' });
+export const ENTRY_LABEL = labels({ translated: 'Translated', approved: 'Approved', todo: 'Untranslated' });
+export const KIND_LABEL = labels({ empty: 'empty', english: 'in English', same: 'identical', symbols: 'symbols only' });
+export const SEV_LABEL = labels({ error: 'Error', warning: 'Warning', info: 'Info' });
+export const proofChip = (p) => (p === 'ok' ? chip('proof', t('✓ Proofread')) : p === 'fix' ? chip('warning', t('⚑ needs a fix'))
+  : p === 'stale' ? chip('info', t('↻ changed after proofreading')) : null);
 export const chip = (cls, text) => h('span', { class: 'chip ' + cls }, text);
 export function bar(pct, cls = '') { return h('div', { class: 'bar ' + cls }, h('i', { style: { width: clamp01(pct) + '%' } })); }
 export function empty(title, text) { return h('div', { class: 'empty' }, h('div', { class: 'empty-ico' }, icon('empty', 28)), h('b', null, title), text); }
-export function loading(text = 'Načítám…') { return h('div', { class: 'loading' }, h('span', { class: 'spin' }), ' ' + text); }
+export function loading(text = t('Loading…')) { return h('div', { class: 'loading' }, h('span', { class: 'spin' }), ' ' + text); }
 export const isTyping = (t) => t && (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable);
 
 /* resizable, sortable table with a persisted column layout */
@@ -71,7 +72,7 @@ export function makeSplitter(root, axis, { key, def, min, maxFrac }) {
   const vertical = axis === 'v';
   const prop = vertical ? '--detail-h' : '--detail-w';
   const bar = h('div', { class: 'splitter ' + (vertical ? 'sp-v' : 'sp-h'), role: 'separator', tabindex: '0',
-    'aria-orientation': vertical ? 'horizontal' : 'vertical', title: 'Tažením změníš velikost detailu, dvojklik ji vrátí. S fokusem fungují šipky.' });
+    'aria-orientation': vertical ? 'horizontal' : 'vertical', title: t('Drag to resize the detail, double-click resets it. Arrow keys work when it has the focus.') });
   const clampTo = (v) => {
     const total = vertical ? root.clientHeight : root.clientWidth;
     const max = Math.max(min, Math.floor(total * maxFrac));
@@ -110,7 +111,7 @@ export function buildTable({ key, cols, sort, onSort, className = '' }) {
       onclick: c.sortable ? () => onSort?.(c.k) : undefined, style: { position: 'sticky' } },
       c.node || c.label, sort && sort.k === c.k ? h('span', { class: 'arrow' }, sort.dir > 0 ? ' ▲' : ' ▼') : null);
     if (c.resize !== false) {
-      const rz = h('span', { class: 'rz', title: 'Tažením změníš šířku sloupce' });
+      const rz = h('span', { class: 'rz', title: t('Drag to resize the column') });
       rz.addEventListener('click', (e) => e.stopPropagation());
       rz.addEventListener('mousedown', (e) => {
         e.preventDefault(); e.stopPropagation();

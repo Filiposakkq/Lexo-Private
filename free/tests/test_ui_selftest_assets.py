@@ -60,7 +60,7 @@ class SelfTestAssets(TempCase):
     def test_start_synthetic_serves_the_app_for_the_browser_runner(self):
         srv, app, url, cleanup = load_serve_module().start_synthetic()
         try:
-            self.assertTrue(url.endswith("?selftest=1"))
+            self.assertTrue(url.endswith("?selftest=1&lang=cs"))
             host, port = srv.server_address
             c = http.client.HTTPConnection(host, port, timeout=10)
             c.request("GET", "/api/state")

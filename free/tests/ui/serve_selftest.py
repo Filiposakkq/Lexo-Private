@@ -109,7 +109,7 @@ def start_synthetic():
         app.close()
         shutil.rmtree(proj.parents[2].parent, ignore_errors=True)
         shutil.rmtree(cfg, ignore_errors=True)
-    return srv, app, url + "?selftest=1", cleanup
+    return srv, app, url + "?selftest=1&lang=cs", cleanup      # the self-test checks Czech texts
 
 
 def main():

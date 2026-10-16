@@ -1,3 +1,4 @@
+import { labels, t, t as tr } from './05-i18n.js';
 import { $, TABS, fmtN, h } from './00-core.js';
 import { S } from './11-state.js';
 import { pref, setIcon, setPref } from './12-chrome.js';
@@ -34,37 +35,37 @@ export function renderTabs() {
   nav.replaceChildren(...TABS.map(([k, label], i) => {
     const bad = k === 'validation' && S.overview ? S.overview.validation.error : 0;
     return h('button', { class: 'tab', role: 'tab', 'aria-selected': String(S.view === k), title: `Alt+${i + 1}`, onclick: () => go(k) },
-      tabIcon(k), label, bad ? h('span', { class: 'badge' }, fmtN(bad)) : null);
+      tabIcon(k), tr(label), bad ? h('span', { class: 'badge' }, fmtN(bad)) : null);
   }));
 }
 
 /* Look: automatic (follows the system) / dark / light. Stored as a preference, applied through the data-theme attribute. */
-const DENSITY_LABEL = { comfortable: 'pohodlná', compact: 'kompaktní' };
+const DENSITY_LABEL = labels({ comfortable: 'comfortable', compact: 'compact' });
 export function applyDensity() {
   const dn = pref('ui.density', 'comfortable') === 'compact' ? 'compact' : 'comfortable';
   document.documentElement.dataset.density = dn;
   const b = $('#densityBtn');
-  if (b) { setIcon(b, dn === 'compact' ? 'densityC' : 'density'); b.title = `Hustota tabulek: ${DENSITY_LABEL[dn]} (klik přepne)`; }
+  if (b) { setIcon(b, dn === 'compact' ? 'densityC' : 'density'); b.title = t('Table density: {value} (click to switch)', { value: DENSITY_LABEL[dn] }); }
 }
 export function toggleDensity() {
   setPref('ui.density', pref('ui.density', 'comfortable') === 'compact' ? 'comfortable' : 'compact');
   applyDensity();
-  toast(`Hustota tabulek: ${DENSITY_LABEL[pref('ui.density', 'comfortable')]}`, 'ok', 1400);
+  toast(t('Table density: {value}', { value: DENSITY_LABEL[pref('ui.density', 'comfortable')] }), 'ok', 1400);
 }
 const THEME_ICON = { auto: '◐', dark: '☾', light: '☀' };
-const THEME_LABEL = { auto: 'automaticky podle systému', dark: 'tmavý', light: 'světlý' };
+const THEME_LABEL = labels({ auto: 'automatic, follows the system', dark: 'dark', light: 'light' });
 export function applyTheme() {
   const t = ['auto', 'dark', 'light'].includes(pref('ui.theme', 'auto')) ? pref('ui.theme', 'auto') : 'auto';
   const light = t === 'light' || (t === 'auto' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
   document.documentElement.dataset.theme = light ? 'light' : 'dark';
   const b = $('#themeBtn');
-  if (b) { setIcon(b, { auto: 'theme', dark: 'moon', light: 'sun' }[t]); b.title = `Vzhled: ${THEME_LABEL[t]} (klik přepne)`; }
+  if (b) { setIcon(b, { auto: 'theme', dark: 'moon', light: 'sun' }[t]); b.title = tr('Appearance: {value} (click to switch)', { value: THEME_LABEL[t] }); }
 }
 export function cycleTheme() {
   const order = ['auto', 'dark', 'light'];
   setPref('ui.theme', order[(order.indexOf(pref('ui.theme', 'auto')) + 1) % 3]);
   applyTheme();
-  toast(`Vzhled: ${THEME_LABEL[pref('ui.theme', 'auto')]}`, 'ok', 1600);
+  toast(tr('Appearance: {value}', { value: THEME_LABEL[pref('ui.theme', 'auto')] }), 'ok', 1600);
 }
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyTheme());
 export function go(view, opts) {
