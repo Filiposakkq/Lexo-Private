@@ -214,7 +214,7 @@ def approval_candidates(project, rel, line, scope="project", same_speaker=True):
             if e is ref:
                 default = selectable
             items.append({"file": f, "line": e.line, "block": e.block, "who": e.who,
-                          "text": e.target, "kind": rpy.KIND_CODE[e.category],
+                          "text": e.target, "kind": e.category,
                           "key": [e.block, norm_ws(e.source)], "approved": already,
                           "selectable": selectable, "selected": default, "notes": reasons,
                           "is_reference": e is ref})

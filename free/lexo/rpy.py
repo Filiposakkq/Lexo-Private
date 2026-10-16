@@ -47,12 +47,12 @@ you're we're they're he's she's that's what's there's let's
 """.split())
 DIACRITICS = set("áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ")
 
-K_EMPTY = "Prázdný překlad"
-K_ENGLISH = "Anglicky (nepřeloženo?)"
-K_SAME = "Shodné – možná OK"
-K_SYMBOLS = "Jen znaky (…, ?!)"
+# Kinds of a pending line (the codes are sent to the UI, which words them): empty translation, still English, identical to the original, only symbols.
+K_EMPTY = "empty"
+K_ENGLISH = "english"
+K_SAME = "same"
+K_SYMBOLS = "symbols"
 KIND_RANK = {K_EMPTY: 0, K_ENGLISH: 1, K_SAME: 2, K_SYMBOLS: 3}
-KIND_CODE = {K_EMPTY: "empty", K_ENGLISH: "english", K_SAME: "same", K_SYMBOLS: "symbols"}
 
 
 def classify(text):

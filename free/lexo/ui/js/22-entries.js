@@ -231,7 +231,7 @@ export async function viewEntries() {
       h('div', { class: 'dhead' },
         h('span', { class: 'path', title: d.ref ? T('original script: {ref}', { ref: d.ref }) : '' }, `${d.file}:${d.line}`),
         d.unit === 'string' ? chip('choice', T('Choice')) : chip('none', T('Dialogue')),
-        chip(d.status, ENTRY_LABEL[d.status] + (d.kind_label && d.status !== 'translated' ? ` · ${d.kind_label}` : '')),
+        chip(d.status, ENTRY_LABEL[d.status] + (d.kind && d.status !== 'translated' ? ` · ${KIND_LABEL[d.kind]}` : '')),
         d.status !== 'todo' ? (proofChip(d.proof) || chip('none', T('Not proofread'))) : null,
         h('span', { class: 'spacer' }),
         canApprove ? h('button', { class: 'btn small primary', onclick: () => toggleApprove() }, d.status === 'approved' ? T('Unapprove (A)') : T('Approve (A)')) : null,
