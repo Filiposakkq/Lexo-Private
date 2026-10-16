@@ -48,9 +48,21 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 - The limit is applied in the Pro module, not scattered through Core: Core only asks "which features are available, and with which limit?".
 
 ## Licensing and protection (decision)
-- If Core is open source, a licence check can always be bypassed, so **no heavy protection**. Pro value is convenience, updates and support, not a lock.
-- Keep: a signed licence key verified offline, Pro code in a private repo and distributed as a separate module.
-- Do not keep: obfuscation, hardware binding, always-online checks (they annoy honest buyers more than they stop anyone).
+Status: **decided in principle, built at release (roadmap step 6)**. The source code stays **private** for now; whether any
+part becomes public is decided before the first release.
+
+- **Goal:** make bypassing cost more than the licence. A crack will appear if the app becomes popular; that is accepted. Pro value is convenience, updates (new language packs) and support.
+- **Pro code is not shipped without a licence.** The Pro module is downloaded after a valid key is entered. Free contains only the deliberately limited version of a feature (e.g. 20 lines), so removing the limit means rewriting the feature, not flipping a flag.
+- **Licence key:** signed (Ed25519), verified offline by the app.
+- **Check every 30 days:** at start-up the app asks the licence server whether the key is still valid and stores the answer, signed by the server, so that it cannot be forged with a file.
+  - If the check cannot be made (no internet), a **14-day grace period** applies with a notice; Pro never switches off in the middle of the work of an honest user.
+  - If the licence is cancelled or refunded, only the Pro features switch off. Projects and data are never locked or deleted, and Free keeps working.
+- **Two devices per key:** a device registers on activation (anonymous installation id stored at activation, no personal data and no hardware serial number, so a new disk or a Windows update does not break it). The user can **deactivate a device** in the app and on a small web page, so a new computer never leaves them locked out.
+- **Server:** a small service (for example a Cloudflare Worker with storage) holds key, devices, last check and status; a payment provider that issues keys and sends webhooks (Lemon Squeezy, Gumroad, Paddle and similar) handles payment and cancellation. This is the first part that needs operation (availability, backups, privacy and terms of use) - plan for it before release.
+- **Not doing:** obfuscation or packers (antivirus false positives hit honest users), hardware binding, always-online checks.
+
+In the code (already built): `features.py` is the catalog of gated features and the `Entitlements` object; the application asks it at the few
+places where a Pro feature is used. Today the default is everything on (development); the licence loader will later provide the real answer.
 
 ## Can it be separated later?
 Yes. Every module marked "only `app.py`" is imported from nowhere else, so it can move to `pro/` and be loaded through a registry

@@ -332,6 +332,7 @@ def make_handler(sess):
                 "assign": lambda: app.set_assign(str(d["name"]), str(d.get("v", ""))),
                 "assign/suggest": lambda: {"ok": True, **app.assign_suggest(list(d.get("names") or []))},
                 "assign/apply": lambda: app.assign_apply(list(d.get("items") or [])),
+                "features": lambda: app.features_status(),
                 "episode": lambda: app.set_episode_state(ints(d["ep"]), str(d["state"])),
                 "approve/preview": lambda: {"ok": True, **app.approval_preview(
                     str(d["file"]), ints(d["line"]), str(d.get("scope", "project")), bool(d.get("same_speaker", True)))},

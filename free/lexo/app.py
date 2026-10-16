@@ -17,7 +17,7 @@ from .config import Config, migrate_web_json
 from .lock import ProjectLock, ProjectLocked
 from .project import (DATA_DIR_NAME, STATUS_LABELS, STATUS_ORDER, Project, ProjectUnavailable,
                       check_project_dir, file_status, totals_of)
-from . import layout
+from . import features, layout
 from .store import EP_STATES, GLOSSARY_TYPES, Store, parse_value, text_hash, valid_assign
 from .util import WriteFailed, norm_ws, write_csv
 
@@ -54,9 +54,18 @@ class ProjectBusy(AppError):
         self.path = str(path)
 
 
+class FeatureLocked(AppError):
+    """A feature of the Pro version was used without it (see features.py). `feature` is its catalog id."""
+
+    def __init__(self, feature):
+        self.feature = feature
+        super().__init__(f"„{features.CATALOG[feature].title}“ je funkce verze Pro.")
+
+
 class App:
     def __init__(self, config=None):
         self.config = config or Config().load()
+        self.entitlements = features.default()
         self.lock = threading.RLock()
         self.project = None
         self.store = None
@@ -934,19 +943,39 @@ class App:
             self.store.change(f"Stav epizody {n}", ("episodes",), lambda: self.store.episodes.__setitem__(n, state))
             return self._changed("episode")
 
+    # ------------------------------------------------------------ gated (Pro) features
+    def features_status(self):
+        return {"ok": True, "tier": self.entitlements.source, "features": self.entitlements.status()}
+
+    def _gate(self, feature):
+        d = self.entitlements.decide(feature)
+        if not d.available:
+            raise FeatureLocked(feature)
+        return d
+
+    def _cap(self, feature, seq):
+        """Gate `feature` and cut `seq` to the free limit. Returns (items, info); info says what was cut, for the UI."""
+        d = self._gate(feature)
+        seq = list(seq)
+        if d.limit is None or len(seq) <= d.limit:
+            return seq, {}
+        return seq[:d.limit], {"limited": {"feature": feature, "limit": d.limit, "total": len(seq)}}
+
     def assign_suggest(self, names=None):
         self._need_project()
         names = names or sorted(self.project.files, key=str.lower)
         unknown = [n for n in names if n not in self.project.files]
         if unknown:
             raise AppError(f"Neznámé soubory: {', '.join(unknown[:3])}")
+        names, cut = self._cap("bulk.categorize", names)
         sugg = bulk.suggest(names, self.store.assign, known_assign=self.store.assign)
-        return {"items": sugg, "options": [{"value": "", "label": "Nepřiřazeno"}, {"value": "gen", "label": "Obecné (celá hra)"}]
+        return {**cut, "items": sugg, "options": [{"value": "", "label": "Nepřiřazeno"}, {"value": "gen", "label": "Obecné (celá hra)"}]
                 + [{"value": f"ep:{n}", "label": f"Epizoda {n} (sezóna {next(s['n'] for s in layout.SEASONS if n in s['episodes'])})"}
                    for n in layout.ACTIVE_EPISODES]}
 
     def assign_apply(self, items):
         self._need_project()
+        items, _cut = self._cap("bulk.categorize", items)
         with self.lock:
             for it in items:
                 if it.get("name") not in self.project.files:
@@ -1422,7 +1451,9 @@ class App:
                 out.append(dict(p, skip="", code=False))
             out.sort(key=lambda r: (r["file"].lower(), r["line"], r["kind"]))
             counts = {k: sum(1 for r in out if r["kind"] == k) for k in kinds}
-            return {"items": out, "total": len(out), "fixable": sum(1 for r in out if not r["skip"]), "counts": counts}
+            full = len(out)
+            out, cut = self._cap("fixes.safe", out)
+            return {**cut, "items": out, "total": full, "fixable": sum(1 for r in out if not r["skip"]), "counts": counts}
 
     def fix_apply(self, items=None, file="", kinds=None, selections=None):
         """Apply fixes. `selections` = [{file, line, kind}] picks exactly what the user ticked in the preview;
@@ -1430,6 +1461,7 @@ class App:
         self._need_project()
         with self.lock:
             if selections is not None:
+                selections, _cut = self._cap("fixes.safe", selections)
                 chosen = {(str(x["file"]), int(x["line"]), str(x["kind"])) for x in selections}
                 kinds = sorted({k for _f, _l, k in chosen})
                 items = [{"file": f, "line": l} for f, l, _k in chosen] or None
@@ -1519,6 +1551,8 @@ class App:
     def replace_preview(self, find, replace, mode="plain", case=False, files=None, protect=True, limit=2000):
         """Lines of already translated text that the search would change, with the new text. Nothing is written."""
         self._need_project()
+        if mode == "regex":
+            self._gate("replace.regex")
         with self.lock:
             items, matches, truncated = self._replace_plan(find, replace, mode, case, files, protect, max(1, min(int(limit), 20000)))
             return {"items": items, "total": len(items), "matches": matches, "truncated": truncated,
@@ -1527,6 +1561,8 @@ class App:
     def replace_apply(self, selections, find, replace, mode="plain", case=False, files=None, protect=True):
         """Write the replacement into the ticked lines (one undoable step, backup of every touched file)."""
         self._need_project()
+        if mode == "regex":
+            self._gate("replace.regex")
         with self.lock:
             chosen = {(str(x["file"]), int(x["line"])) for x in (selections or [])}
             if not chosen:
@@ -1596,12 +1632,26 @@ class App:
                     continue
                 out.append({"file": rel, "line": e.line})
                 chars += len(e.source)
-        return {"items": out, "total": len(out), "chars": chars}
+        total = len(out)
+        out, cut = self._cap("mt.batch", out)
+        if cut:
+            chars = self._chars_of(out)
+        return {**cut, "items": out, "total": total, "chars": chars}
+
+    def _chars_of(self, items):
+        """Characters of the originals of `items` [{file, line}] (what a machine translation service would receive)."""
+        n = 0
+        for it in items:
+            for e in self.project.entries(it["file"]):
+                if e.line == it["line"] and e.source:
+                    n += len(e.source)
+        return n
 
     def mt_batch(self, items):
         """Suggestions for up to MT_BATCH lines. Nothing is written. A failed line carries its own error; a rejected key,
         missing consent or a broken connection stops the batch (the same message for every line would be useless)."""
         self._need_project()
+        self._gate("mt.batch")
         items = list(items or [])[: self.MT_BATCH]
         cfg, terms, results = dict(self.config.get("mt", {})), self._terms(), []
         for it in items:
@@ -1625,6 +1675,7 @@ class App:
     def mt_apply(self, selections):
         """Write the ticked suggestions as one undoable step. Approved lines are never overwritten."""
         self._need_project()
+        selections, _cut = self._cap("mt.batch", selections or [])
         with self.lock:
             edits, skipped = [], 0
             for x in selections or []:
@@ -2007,6 +2058,7 @@ class App:
 
     def publish_plan(self):
         self._need_project()
+        self._gate("publish.web")
         with self.lock:
             data = self.build_export()
             problems = export.validate_progress(data)
@@ -2022,6 +2074,7 @@ class App:
 
     def publish_confirm(self, token, branch):
         self._need_project()
+        self._gate("publish.web")
         with self.lock:
             data = self.build_export()
             problems = export.validate_progress(data)
