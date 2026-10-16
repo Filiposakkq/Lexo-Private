@@ -37,7 +37,7 @@ class ProofreadTests(TempCase):
     def test_untranslated_lines_cannot_be_proofread(self):
         r = self.app.proof_set([self.item("a4")], "ok")
         self.assertEqual(r["changed"], 0)
-        self.assertIn("ještě není přeložený", r["skipped"][0][1])
+        self.assertIn("not translated yet", r["skipped"][0][1])
         self.assertEqual(self.corr(), 0)
 
     def test_approved_untranslated_line_can_be_proofread(self):

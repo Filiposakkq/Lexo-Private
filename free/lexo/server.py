@@ -16,6 +16,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from . import __version__, lang
+from .messages import text_of, wire
 from .app import AppError, ProjectBusy
 from .config import config_dir
 from .project import check_project_dir
@@ -106,7 +107,7 @@ def make_handler(sess):
                 self.close_connection = True
 
         def _json(self, payload, code=200):
-            self._send(code, json.dumps(payload, ensure_ascii=False), "application/json; charset=utf-8")
+            self._send(code, json.dumps(wire(payload), ensure_ascii=False), "application/json; charset=utf-8")
 
         def _static(self, name):
             path = (UI_DIR / name).resolve()
@@ -126,9 +127,9 @@ def make_handler(sess):
                     result = fn()
                 self._json(result if isinstance(result, dict) else {"ok": True, "result": result})
             except ProjectBusy as e:
-                self._json({"ok": False, "error": str(e), "locked": True, "path": e.path}, 409)
+                self._json({"ok": False, "error": text_of(e), "locked": True, "path": e.path}, 409)
             except AppError as e:
-                self._json({"ok": False, "error": str(e)}, 400)
+                self._json({"ok": False, "error": text_of(e)}, 400)
             except KeyError as e:
                 self._json({"ok": False, "error": f"Chybí údaj: {e}"}, 400)
             except WriteFailed as e:
@@ -288,9 +289,9 @@ def make_handler(sess):
                 chosen = sess.pick_folder()
                 if not chosen:
                     return {"ok": True, "cancelled": True}
-                ok, msg = check_project_dir(chosen)
+                ok, problem = check_project_dir(chosen)
                 if not ok:
-                    raise AppError(msg)
+                    raise AppError(problem)
                 app.open_project(chosen)
                 return {"ok": True, "cancelled": False, "path": chosen}
 
@@ -390,7 +391,7 @@ def make_handler(sess):
                 try:
                     need_project()
                 except AppError as e:
-                    return self._json({"ok": False, "error": str(e)}, 400)
+                    return self._json({"ok": False, "error": text_of(e)}, 400)
             self._run(fn)
 
     return Handler

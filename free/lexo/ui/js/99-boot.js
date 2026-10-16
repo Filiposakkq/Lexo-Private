@@ -1,4 +1,4 @@
-import { availableLanguages, chooseLanguage, loadLanguage, locale, setLanguage, t } from './05-i18n.js';
+import { availableLanguages, chooseLanguage, fromWire, loadLanguage, locale, setLanguage, t } from './05-i18n.js';
 import { $, TABS, TOKEN, h } from './00-core.js';
 import { get, post } from './10-api.js';
 import { S, loadGlossary } from './11-state.js';
@@ -70,4 +70,4 @@ if (new URLSearchParams(location.search).has('selftest')) {      // UI self-test
 
 
 // the UI self-test (selftest.js) is a classic script and reads these names from the global scope
-Object.assign(window, { $, ACTIONS, S, SECONDARY, applyDensity, applyTheme, comboOf, cycleTheme, enterProof, findAction, gameText, get, go, helpDialog, keysOf, mtDialog, post, pref, readableOn, setFocus, setPref, speakerBadge, status, toggleDensity });
+Object.assign(window, { $, ACTIONS, fromWire, S, SECONDARY, applyDensity, applyTheme, comboOf, cycleTheme, enterProof, findAction, gameText, get, go, helpDialog, keysOf, mtDialog, post, pref, readableOn, setFocus, setPref, speakerBadge, status, toggleDensity });

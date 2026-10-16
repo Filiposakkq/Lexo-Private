@@ -153,7 +153,7 @@ class ContextTests(TempCase):
         app = self.make(with_script=False)
         ctx = app.entry_context("tl.rpy", next(e.line for e in app.project.entries("tl.rpy")))
         self.assertFalse(ctx["available"])
-        self.assertIn("nebyl nalezen", ctx["reason"])
+        self.assertIn("was not found", ctx["reason"])
 
     def test_references_cannot_escape_the_game_folder(self):
         app = self.make()

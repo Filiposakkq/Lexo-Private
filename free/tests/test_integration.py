@@ -12,6 +12,7 @@ from helpers import ROOT, TempCase, dialog, rel
 
 from lexo import cli, editor, publish as pub, server
 from lexo.app import AppError
+from lexo.messages import render
 from lexo.config import Config, migrate_web_json
 
 
@@ -458,7 +459,7 @@ class ServerTests(TempCase):
         self.assertTrue(u["ok"])
         _, ov3, _ = self.call("GET", "/api/overview")
         self.assertEqual(ov3["totals"]["done"], done0)
-        self.assertEqual(ov3["undo"][0], "Zařazení script.rpy")
+        self.assertEqual(render(ov3["undo"][0]), "Assignment of script.rpy")
 
     def test_counts_edit_via_api_matches_old_semantics(self):
         self.call("POST", "/api/file/save", {"name": "script.rpy", "c": "2", "t": "3"})
