@@ -187,6 +187,11 @@ class GlossaryImportTests(TempCase):
         items = {i["code"]: i for i in self.app.glossary_import_preview()["items"]}
         self.assertEqual((items["my"]["name"], items["who"]["state"]), ("Maya", "dynamic"))
 
+    def test_a_space_before_the_bracket_is_allowed(self):
+        (self.game / "characters.rpy").write_text('define ca = Character ("Captain", color="#397ae3")\ndefine s = Character\t(\'Sophia\')\n', encoding="utf-8")
+        items = {i["code"]: i["name"] for i in self.app.glossary_import_preview()["items"]}
+        self.assertEqual((items["ca"], items["s"]), ("Captain", "Sophia"))
+
     def test_http_api(self):
         srv, sess, _ = server.start_server(self.app)
         self.addCleanup(srv.shutdown)
