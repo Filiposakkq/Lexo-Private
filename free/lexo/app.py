@@ -17,7 +17,7 @@ from .config import Config, migrate_web_json
 from .lock import ProjectLock, ProjectLocked
 from .project import (DATA_DIR_NAME, STATUS_LABELS, STATUS_ORDER, Project, ProjectUnavailable,
                       check_project_dir, file_status, totals_of)
-from .seasons import ACTIVE_EPISODES, SEASONS
+from . import layout
 from .store import EP_STATES, GLOSSARY_TYPES, Store, parse_value, text_hash, valid_assign
 from .util import WriteFailed, norm_ws, write_csv
 
@@ -112,6 +112,10 @@ class App:
             if msg:
                 self.notices.append(msg)
             self.data_dir = data_dir
+            lay, lay_note = layout.load(data_dir)
+            layout.use(lay)
+            if lay_note:
+                self.notices.append(lay_note)
             self.store = Store(data_dir).load()
             self.notices += self.store.warnings
             self.project = Project(root, self.store, skip=self.config.get("skip_files", []),
@@ -925,7 +929,7 @@ class App:
     def set_episode_state(self, n, state):
         self._need_project()
         with self.lock:
-            if n not in ACTIVE_EPISODES or state not in dict(EP_STATES):
+            if n not in layout.ACTIVE_EPISODES or state not in dict(EP_STATES):
                 raise AppError("Neplatná hodnota.")
             self.store.change(f"Stav epizody {n}", ("episodes",), lambda: self.store.episodes.__setitem__(n, state))
             return self._changed("episode")
@@ -938,8 +942,8 @@ class App:
             raise AppError(f"Neznámé soubory: {', '.join(unknown[:3])}")
         sugg = bulk.suggest(names, self.store.assign, known_assign=self.store.assign)
         return {"items": sugg, "options": [{"value": "", "label": "Nepřiřazeno"}, {"value": "gen", "label": "Obecné (celá hra)"}]
-                + [{"value": f"ep:{n}", "label": f"Epizoda {n} (sezóna {next(s['n'] for s in SEASONS if n in s['episodes'])})"}
-                   for n in ACTIVE_EPISODES]}
+                + [{"value": f"ep:{n}", "label": f"Epizoda {n} (sezóna {next(s['n'] for s in layout.SEASONS if n in s['episodes'])})"}
+                   for n in layout.ACTIVE_EPISODES]}
 
     def assign_apply(self, items):
         self._need_project()

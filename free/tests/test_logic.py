@@ -6,7 +6,8 @@ from datetime import date, datetime, timedelta
 from helpers import TempCase, dialog, rel
 
 from lexo import bulk, export, history as hist, rpy, validator
-from lexo.seasons import ACTIVE_EPISODES, SEASONS, season_of
+from lexo import layout
+from lexo.layout import season_of
 from lexo.store import Store
 
 
@@ -15,18 +16,26 @@ def issues(src, tgt):
 
 
 class SeasonModelTests(unittest.TestCase):
+    def setUp(self):
+        layout.use(layout.Layout(layout.BADIK_SECTIONS))
+        self.addCleanup(layout.use, layout.Layout())
+
     def test_mapping_matches_the_project_definition(self):
         self.assertEqual([season_of(n) for n in range(1, 9)], [1, 1, 1, 1, 2, 2, 2, 2])
         self.assertIsNone(season_of(9))
-        self.assertEqual(ACTIVE_EPISODES, tuple(range(1, 9)))
-        s3 = [s for s in SEASONS if s["n"] == 3][0]
+        self.assertEqual(layout.ACTIVE_EPISODES, tuple(range(1, 9)))
+        s3 = [s for s in layout.SEASONS if s["n"] == 3][0]
         self.assertEqual((s3["status"], s3["episodes"]), ("planned", ()))
 
     def test_planned_season_not_in_active_scope(self):
-        self.assertTrue(all(season_of(e) in (1, 2) for e in ACTIVE_EPISODES))
+        self.assertTrue(all(season_of(e) in (1, 2) for e in layout.ACTIVE_EPISODES))
 
 
 class SuggestTests(unittest.TestCase):
+    def setUp(self):
+        layout.use(layout.Layout(layout.BADIK_SECTIONS))
+        self.addCleanup(layout.use, layout.Layout())
+
     def one(self, name, current=None, known=None):
         cur = current or {}
         return bulk.suggest([name], cur, known_assign=known if known is not None else cur)[0]

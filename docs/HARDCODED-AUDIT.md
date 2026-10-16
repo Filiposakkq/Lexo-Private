@@ -7,7 +7,7 @@ Status of every row is "to do" until a step in the roadmap handles it.
 ## 1. Game structure (Being a DIK only)
 | Where | What is hard-wired | Generalisation |
 |---|---|---|
-| `seasons.py`, `app.py` (episode states, `ep:N` filter), `project.py` | Seasons 1-2, episodes 1-8, season 3 "planned"; files are assigned to episodes | Make "groups" optional and defined in the project file (name, ranges, files). A game without episodes simply has one group. |
+| ~~`seasons.py`~~ -> `layout.py` (done), `app.py` UI texts, `bulk.py` name hints | Layout comes from `project.json` (see PROJECT-FILE.md). Still open: UI wording and the `ep1` file-name hints. |
 | `bulk.py` `SHARED_STEMS` | File names `header, options, screens, gui, common, title_screens, fonts_czech` are treated as shared | Detect shared files by rule (no dialogue) and let the project file override. |
 | `config.py` `skip_files` | `common.rpy`, `fonts_czech.rpy` | Per-project setting, empty by default. |
 | `export.py`, `publish.py`, `web` config | Progress JSON for the BaDIK website, git repo and web path | Becomes an optional "publish progress" feature (candidate for Pro or a plug-in). |

@@ -18,7 +18,7 @@ import hashlib
 from datetime import date
 from pathlib import Path
 
-from .seasons import ACTIVE_EPISODES
+from . import layout
 from .util import WriteFailed, fold, norm_ws, read_rows, write_csv
 
 EP_STATES = [("none", "Nezačato"), ("wip", "Rozpracováno"), ("tr", "Přeloženo"), ("proof", "V korekci"), ("done", "Hotovo")]
@@ -58,7 +58,7 @@ def valid_assign(v):
     if v in ("", "gen"):
         return True
     if isinstance(v, str) and v.startswith("ep:") and v[3:].isdigit():
-        return int(v[3:]) in ACTIVE_EPISODES
+        return int(v[3:]) in layout.ACTIVE_EPISODES
     return False
 
 
@@ -225,7 +225,7 @@ class Store:
     def _save_episodes(self):
         labels = dict(EP_STATES)
         rows = [["epizoda", "stav"]]
-        rows += [[n, labels[self.episodes.get(n, "none")]] for n in ACTIVE_EPISODES]
+        rows += [[n, labels[self.episodes.get(n, "none")]] for n in layout.ACTIVE_EPISODES]
         write_csv(self.path("episodes"), rows, self.backups)
 
     def ensure_files(self, names):

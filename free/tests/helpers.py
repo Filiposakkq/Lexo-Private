@@ -1,4 +1,5 @@
 """Shared test helpers: build small synthetic Ren'Py translation projects in a temp folder."""
+import json
 import os
 import shutil
 import sys
@@ -10,6 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from lexo import layout  # noqa: E402
 from lexo.config import Config  # noqa: E402
 from lexo.app import App  # noqa: E402
 
@@ -45,6 +47,19 @@ class TempCase(unittest.TestCase):
         self._old_env = os.environ.get("LEXO_CONFIG_DIR")
         os.environ["LEXO_CONFIG_DIR"] = str(self.cfg_dir)
         self.addCleanup(self._restore_env)
+        self.addCleanup(layout.use, layout.Layout())
+        self.use_layout(layout.BADIK_SECTIONS)
+
+    def use_layout(self, sections, labels=None):
+        """Write the project layout file (project.json) of the temp project; None = no file (no groups)."""
+        path = self.root / "_progress_data" / layout.FILE_NAME
+        lay = layout.Layout(sections or (), labels)
+        layout.use(lay)                      # tests that use Store/bulk directly never open a project
+        if sections is None:
+            path.unlink(missing_ok=True)
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(lay.to_json()), encoding="utf-8")
 
     def _restore_env(self):
         if self._old_env is None:

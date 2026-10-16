@@ -7,7 +7,7 @@ import re
 from collections import Counter, defaultdict
 
 from . import rpy
-from .seasons import ACTIVE_EPISODES, episodes_of, season_of
+from . import layout
 from .store import assign_label, valid_assign
 from .util import norm_ws
 
@@ -62,15 +62,15 @@ def suggest(names, current, known_assign=None):
     for name in names:
         cur = current.get(name, "")
         eps, updates, seasons = _signals(name)
-        valid = [e for e in eps if e in ACTIVE_EPISODES]
-        invalid = [e for e in eps if e not in ACTIVE_EPISODES]
-        season_dirs = [s for s in seasons if episodes_of(s)]
-        allowed = {e for s in season_dirs for e in episodes_of(s)}
+        valid = [e for e in eps if e in layout.ACTIVE_EPISODES]
+        invalid = [e for e in eps if e not in layout.ACTIVE_EPISODES]
+        season_dirs = [s for s in seasons if layout.episodes_of(s)]
+        allowed = {e for s in season_dirs for e in layout.episodes_of(s)}
         sug, conf, reason, cands = "", "none", "", []
         season_conflict = False
         note = ""
         if invalid:
-            note = f" (číslo epizody {', '.join(map(str, invalid))} v cestě není v aktivním rozsahu 1–{max(ACTIVE_EPISODES)})"
+            note = f" (číslo epizody {', '.join(map(str, invalid))} v cestě není v aktivním rozsahu 1–{max(layout.ACTIVE_EPISODES, default=0)})"
 
         if len(valid) == 1:
             ep = valid[0]
@@ -78,7 +78,7 @@ def suggest(names, current, known_assign=None):
             reason = f"Název nebo složka obsahuje „ep{ep}“."
             if allowed and ep not in allowed:
                 conf, season_conflict = "low", True
-                reason = (f"Cesta obsahuje epizodu {ep} (sezóna {season_of(ep)}), ale leží ve složce sezóny "
+                reason = (f"Cesta obsahuje epizodu {ep} (sezóna {layout.season_of(ep)}), ale leží ve složce sezóny "
                           f"{', '.join(map(str, season_dirs))}.")
         elif len(valid) > 1:
             cands = [f"ep:{e}" for e in valid]
@@ -88,7 +88,7 @@ def suggest(names, current, known_assign=None):
                 reason = f"V cestě je více epizod ({', '.join(map(str, valid))}); složka sezóny vybírá epizodu {in_season[0]}."
             else:
                 reason = f"Nejednoznačné: cesta obsahuje více epizod ({', '.join(map(str, valid))})."
-        elif len(updates) == 1 and updates[0] in ACTIVE_EPISODES:
+        elif len(updates) == 1 and updates[0] in layout.ACTIVE_EPISODES:
             ep = updates[0]
             sug, conf = f"ep:{ep}", "medium"
             reason = f"Soubor „update{ep}“ odpovídá epizodě {ep} (konvence tohoto projektu)."
