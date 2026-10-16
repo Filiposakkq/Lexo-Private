@@ -55,7 +55,7 @@ class SelfTestAssets(TempCase):
             srv.shutdown()
             srv.server_close()
             app.close()
-        self.assertIn("selftest", (UI / "app.js").read_text(encoding="utf-8"))
+        self.assertIn("selftest", (UI / "js" / "99-boot.js").read_text(encoding="utf-8"))
 
     def test_start_synthetic_serves_the_app_for_the_browser_runner(self):
         srv, app, url, cleanup = load_serve_module().start_synthetic()

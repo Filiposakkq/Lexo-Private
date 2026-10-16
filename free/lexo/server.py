@@ -4,6 +4,7 @@ Only the loopback interface is bound, the Host header is checked (DNS-rebinding 
 and every POST needs the per-run token that the page receives from the server.
 """
 import json
+import re
 import mimetypes
 import secrets
 import socket
@@ -147,7 +148,7 @@ def make_handler(sess):
             p = url.path
             if p in ("/", "/index.html"):
                 return self._static("index.html")
-            if p in ("/app.js", "/styles.css", "/crest.svg", "/favicon.svg", "/selftest.js"):
+            if p in ("/styles.css", "/crest.svg", "/favicon.svg", "/selftest.js") or re.fullmatch(r"/js/[\w.-]+\.js", p):
                 return self._static(p[1:])
             if not p.startswith("/api/"):
                 return self._send(404, "not found", "text/plain")
