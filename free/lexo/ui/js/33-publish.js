@@ -12,7 +12,7 @@ export async function viewPublish() {
   root.append(h('div', { class: 'notice' }, T('Nothing is sent to GitHub or to the website until you yourself confirm “Publish” in the confirmation window. '),
     T('Generating the data and publishing are two separate steps.')),
     h('div', { class: 'panel', style: { marginBottom: '12px' } }, h('h3', null, T('1. Generate and check the data for the website')),
-      h('div', { class: 'panel-body' }, h('p', { class: 'muted' }, tx('Creates {file} in the folder {folder} and checks it (episode totals, percentage range, no file names). It is the same file the website draws from.', { file: h('span', { class: 'mono' }, 'progress.json'), folder: h('span', { class: 'mono' }, '_progress_data') })),
+      h('div', { class: 'panel-body' }, h('p', { class: 'muted' }, tx('Creates {file} in the local project data and checks it (episode totals, percentage range, no file names). It is the same file the website draws from.', { file: h('span', { class: 'mono' }, 'progress.json') })),
         h('button', { class: 'btn primary', onclick: preview }, T('Generate a preview')), out)),
     h('div', { class: 'panel' }, h('h3', null, T('2. Publish to the website')),
       h('div', { class: 'panel-body' },

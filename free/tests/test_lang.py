@@ -99,7 +99,7 @@ class ProjectLanguageTests(TempCase):
 
     def test_legacy_data_keeps_czech(self):
         self.use_layout(None, language="")
-        d = self.root / "_progress_data"
+        d = self.root / ".lexo"
         d.mkdir(exist_ok=True)
         (d / "epizody.csv").write_text("epizoda;stav\n", encoding="utf-8")
         lay, _ = layout.load(d)

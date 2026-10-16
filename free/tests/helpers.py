@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from lexo import layout  # noqa: E402
+from lexo import datadir, layout  # noqa: E402
 from lexo import lang  # noqa: E402
 from lexo.config import Config  # noqa: E402
 from lexo.app import App  # noqa: E402
@@ -54,8 +54,8 @@ class TempCase(unittest.TestCase):
         self.use_layout(layout.BADIK_SECTIONS)
 
     def use_layout(self, sections, labels=None, language="cs"):
-        """Write the project layout file (project.json) of the temp project; None = no file (no groups)."""
-        path = self.root / "_progress_data" / layout.FILE_NAME
+        """Write the project layout file (lexo.json) of the temp project; None = no file (no groups)."""
+        path = self.root / ".lexo" / layout.FILE_NAME
         lay = layout.Layout(sections or (), labels, language)
         layout.use(lay)                      # tests that use Store/bulk directly never open a project
         if sections is None:
@@ -63,6 +63,12 @@ class TempCase(unittest.TestCase):
             return
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(lay.to_json()), encoding="utf-8")
+
+    def local_dir(self):
+        """The local data folder (backups, snapshots, lock, derived files) of the temp project."""
+        shared = self.root / ".lexo"
+        shared.mkdir(exist_ok=True)
+        return datadir.local_dir(shared, self.root)
 
     def _restore_env(self):
         if self._old_env is None:

@@ -9,8 +9,8 @@ from . import rpy
 from .store import parse_corr, parse_value, text_hash
 from .messages import join, msg
 
-DATA_DIR_NAME = "_progress_data"
-IGNORED_DIRS = {DATA_DIR_NAME, ".git", "__pycache__", "node_modules"}
+DATA_DIR_NAME = ".lexo"          # shared project data (datadir.py)
+IGNORED_DIRS = {DATA_DIR_NAME, "_progress_data", ".git", "__pycache__", "node_modules"}
 
 # name, translated (incl. manual override), remaining, total, proofread, automatic translated count
 Row = namedtuple("Row", "name done todo total corr auto")

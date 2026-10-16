@@ -156,14 +156,14 @@ class StoreTests(TempCase):
 
 class ProjectTests(TempCase):
     def project(self):
-        s = Store(self.root / "_progress_data").load()
+        s = Store(self.root / ".lexo").load()
         p = Project(self.root, s, skip={"common.rpy"})
         return p, s
 
     def test_discovery_skips_data_dir_and_skip_list(self):
         self.basic_project()
         self.write("common.rpy", dialog("z", "mc", "Skip me"))
-        self.write(rel("_progress_data", "x.rpy"), dialog("z", "mc", "Never"))
+        self.write(rel(".lexo", "x.rpy"), dialog("z", "mc", "Never"))
         p, _ = self.project()
         rep = p.refresh()
         self.assertEqual(sorted(p.files), sorted(["script.rpy", rel("scripts", "episode2", "ep2_party.rpy"),
@@ -221,7 +221,7 @@ class ProjectTests(TempCase):
         self.assertNotIn("options.rpy", s.assign)
         self.assertEqual(s.corr["gui_options.rpy"]["c"], "1")
         self.assertEqual(s.approved["gui_options.rpy"], {("strings", "Quit")})
-        self.assertEqual(Store(self.root / "_progress_data").load().assign["gui_options.rpy"], "gen")
+        self.assertEqual(Store(self.root / ".lexo").load().assign["gui_options.rpy"], "gen")
 
     def test_metadata_of_removed_file_survives(self):
         self.basic_project()

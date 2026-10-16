@@ -1,4 +1,4 @@
-"""Project lock: keeps two copies of the app from editing one project (and its _progress_data) at the same time.
+"""Project lock: keeps two copies of the app from editing one project (and its data) at the same time.
 
 `lock.json` in the data folder names the owner (pid, computer, random token) and is touched every few seconds
 while the app runs. Another copy that finds a *fresh* lock of a different process refuses to open the project

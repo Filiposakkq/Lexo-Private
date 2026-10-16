@@ -27,7 +27,7 @@ class SnapshotTests(TempCase):
         self.assertEqual((snap["files"], snap["reason"]), (2, "manual"))
         item = self.app.snapshot_list()["items"][0]
         self.assertEqual((item["name"], item["reason_label"]), (snap["name"], "created by hand"))
-        with zipfile.ZipFile(self.root / "_progress_data" / "snapshots" / snap["name"]) as z:
+        with zipfile.ZipFile(self.local_dir() / "snapshots" / snap["name"]) as z:
             self.assertEqual(sorted(n for n in z.namelist() if n.startswith("files/")), ["files/a.rpy", "files/sub/b.rpy"])
 
     def test_compare_tells_changed_same_and_missing(self):
@@ -66,7 +66,7 @@ class SnapshotTests(TempCase):
         for bad in ("../x.zip", "snap-1.zip", "snap-20260101-000000-auto.zip.exe", ""):
             with self.assertRaises(AppError):
                 self.app.snapshot_restore(bad)
-        d = self.root / "_progress_data" / "snapshots"
+        d = self.local_dir() / "snapshots"
         d.mkdir(parents=True, exist_ok=True)
         evil = d / "snap-20260101-000000-manual.zip"
         with zipfile.ZipFile(evil, "w") as z:
@@ -77,7 +77,7 @@ class SnapshotTests(TempCase):
         self.assertFalse((self.root.parent / "evil.rpy").exists())
 
     def test_prune_keeps_the_newest_and_the_manual_ones_longest(self):
-        d = self.root / "_progress_data"
+        d = self.local_dir()
         for i in range(4):
             snapshots.create(self.root, d, "auto")
             time.sleep(1.05)

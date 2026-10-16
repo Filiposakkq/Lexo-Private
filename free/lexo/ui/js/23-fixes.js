@@ -41,7 +41,7 @@ export async function fixDialog({ items = [], file = '', kinds = ['speaker', 'sp
       ...Object.keys(data.counts).filter((k) => data.counts[k]).map((k) => h('button', { class: only === k ? 'on' : '', onclick: () => { only = k; paint(); } }, `${FIX_KIND_LABEL[k]} (${data.counts[k]})`)));
     const vis = visible();
     head.replaceChildren(
-      only ? h('p', null, FIX_KIND_HELP[only]) : h('p', { class: 'muted' }, tx('Choose what to fix. A backup of the file is made in {folder} before writing; the change can be undone with the button “Undo the last file change”. The files must be saved in the editor.', { folder: h('b', null, '_progress_data/backups') })),
+      only ? h('p', null, FIX_KIND_HELP[only]) : h('p', { class: 'muted' }, tx('Choose what to fix. A backup of the file is made in the subfolder {folder} of the local project data before writing; the change can be undone with the button “Undo the last file change”. The files must be saved in the editor.', { folder: h('b', null, 'backups') })),
       h('div', { class: 'toolbar' }, seg, h('span', { class: 'spacer' }),
         h('button', { class: 'btn small', onclick: () => { vis.forEach((it) => { if (!it.skip) sel.add(key(it)); }); paint(); } }, T('Select all')),
         h('button', { class: 'btn small', onclick: () => { vis.forEach((it) => sel.delete(key(it))); paint(); } }, T('None')),

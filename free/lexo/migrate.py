@@ -20,8 +20,6 @@ CSV_FILES = {
     "slovnik.csv": ("glossary.csv", ["code", "name", "type", "note"]),
     "historie.csv": ("history.csv", ["date", "translated", "total", "percent", "proofread", "proofread_percent"]),
 }
-JSONL_FILES = {"historie_textu.jsonl": "text_history.jsonl"}
-
 EPISODE_STATES = {"nezacato": "none", "rozpracovano": "wip", "prelozeno": "tr", "v korekci": "proof", "hotovo": "done"}   # as fold() writes them
 
 
@@ -57,14 +55,6 @@ def run(data_dir):
             made.append(new)
         except (OSError, WriteFailed) as e:
             failed.append(msg("{file} could not be converted: {reason}", file=old, reason=e))
-    for old, new in JSONL_FILES.items():
-        src, dst = data_dir / old, data_dir / new
-        if src.is_file() and not dst.exists():
-            try:
-                dst.write_bytes(src.read_bytes())
-                made.append(new)
-            except OSError as e:
-                failed.append(msg("{file} could not be converted: {reason}", file=old, reason=e))
     notes = list(failed)
     if made:
         notes.insert(0, msg("The data files were copied to the new names ({files}). The old files were left untouched.", files=", ".join(made)))

@@ -14,7 +14,7 @@ class LockTests(TempCase):
     def setUp(self):
         super().setUp()
         self.write("script.rpy", dialog("a1", "mc", "Hello.", "Ahoj.", 5))
-        self.lockfile = self.root / "_progress_data" / LOCK_NAME
+        self.lockfile = self.local_dir() / LOCK_NAME
 
     def foreign_lock(self, age=0, pid=None):
         self.lockfile.parent.mkdir(exist_ok=True)

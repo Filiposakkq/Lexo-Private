@@ -18,7 +18,7 @@ export function renderWelcome() {
     h('div', { class: 'row' }, input,
       h('button', { class: 'btn', onclick: pickProject }, t('Browse…')),
       h('button', { class: 'btn primary', onclick: () => openProject(input.value) }, t('Open'))),
-    h('p', { class: 'muted', style: { marginTop: '12px' } }, tx('You can also paste the path by hand. The app data is saved in the subfolder {folder}.', { folder: h('span', { class: 'mono' }, '_progress_data') }))));
+    h('p', { class: 'muted', style: { marginTop: '12px' } }, tx('You can also paste the path by hand. The shared project data is saved in the subfolder {folder} of the translation folder.', { folder: h('span', { class: 'mono' }, '.lexo') }))));
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') openProject(input.value); });
 }
 /* Another running copy of the app owns the project: offer to take it over (the other copy then shows a warning). */
