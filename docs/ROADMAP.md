@@ -47,3 +47,4 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 - Step 1.1 done: groups/sections come from `project.json` (docs/PROJECT-FILE.md); a project without it has no groups. 415 tests green.
 - Step 1.2 done: language packs (`lexo/lang.py`, `language` in project.json); neutral rules by default, Czech as a pack. Free/Pro proposal in docs/FEATURES.md. 421 tests green.
 - Step 2.0 done: feature registry in Core (`free/lexo/features.py`): catalog of gated features, free limits, gates in the app (mt batch, safe fixes, regex replace, bulk categorisation, publishing). Development default = everything on. Licensing decision (30-day check, 2 devices, private code) recorded in docs/FEATURES.md. 429 tests green.
+- Step 4b (planned, after the registry): language packs as downloadable modules (format, loader, pack list), Czech as the first pack; English UI with a string table. See docs/FEATURES.md, "Language packs".

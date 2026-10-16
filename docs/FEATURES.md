@@ -31,7 +31,7 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 |---|---|---|---|
 | **Carry a translation over to a new game version** (fuzzy matching of old translations to changed or moved originals, marked "check") | A game update shifts lines and the translator redoes it by hand; this saves the most work of all | new (builds on `memory`, `rpy`) | new |
 | **Fuzzy matches in translation memory** (not only identical originals) | Repeated and similar lines across a long game | `memory` | only `app.py` |
-| **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Czech machine translation mixes tykání and vykání | new, builds on `mt` | new |
+| **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Machine translation often mixes formal and informal address; where the language has such rules (for example Czech tykání/vykání) the check knows them through the language pack | new, builds on `mt` and `lang` | new |
 | **Character profiles** (who addresses whom how, gender, speech style) passed to batch machine translation | Makes the batch output usable | new + `mt` | new |
 | Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` |
 | **Release builder**: translation -> installable patch (zip or rpa), version, changelog | "From translation to release" in one tool, together with publishing | new | new |
@@ -41,6 +41,14 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 | Smarter spelling: extra language packs and better suggestions | Quality for more languages | `spelling`, `lang` | `app.py` |
 | Team work: several translators, assignments, who did what, merging changes (planned) | Teams | new | new |
 | Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new |
+
+## Language packs
+The app and its UI are **English first**. Everything that depends on the language of the translation lives in a **language pack**
+(`free/lexo/lang.py` today: repeated words, number words, stems; later also address rules for the style check, spelling data, UI texts).
+- **Czech is the first pack**, built the same way as any other, not special-cased in the app. It is the reference for how a pack is made.
+- Packs are **separate downloadable modules** (installed on demand, updated independently of the app). The app works with the neutral rules when no pack is installed.
+- Basic packs (rules for the free checks) are free; packs with the style check data (address, gender, voice) belong to the Pro style check.
+- To do before this works: a pack format and loader (data files plus rules), a pack list and download in the app, and a UI string table (English default; the Czech UI becomes the first translation of the app itself).
 
 ## Taste before paying
 - **Limits, not a locked button.** A Pro feature in Free works on a small amount (for example batch translation or safe fixes for 20 lines per run) so that the user sees it works; Pro lifts the limit.
