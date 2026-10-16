@@ -17,8 +17,8 @@ def issues(src, tgt):
 
 class SeasonModelTests(unittest.TestCase):
     def setUp(self):
-        layout.use(layout.Layout(layout.BADIK_SECTIONS))
-        self.addCleanup(layout.use, layout.Layout())
+        layout.use(layout.Layout(layout.BADIK_SECTIONS, language="cs"))
+        self.addCleanup(layout.use, layout.Layout(language="cs"))
 
     def test_mapping_matches_the_project_definition(self):
         self.assertEqual([season_of(n) for n in range(1, 9)], [1, 1, 1, 1, 2, 2, 2, 2])
@@ -33,8 +33,8 @@ class SeasonModelTests(unittest.TestCase):
 
 class SuggestTests(unittest.TestCase):
     def setUp(self):
-        layout.use(layout.Layout(layout.BADIK_SECTIONS))
-        self.addCleanup(layout.use, layout.Layout())
+        layout.use(layout.Layout(layout.BADIK_SECTIONS, language="cs"))
+        self.addCleanup(layout.use, layout.Layout(language="cs"))
 
     def one(self, name, current=None, known=None):
         cur = current or {}

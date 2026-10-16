@@ -17,7 +17,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
-from .util import fold
+from . import lang
 
 # Tags that must be closed.
 PAIRED_TAGS = {"i", "b", "u", "s", "plain", "color", "size", "font", "a", "alpha", "k",
@@ -256,9 +256,7 @@ _NOT_ENGLISH_EVIDENCE = {"i", "most", "had", "yes", "okay", "ok", "oh", "hey", "
 ENGLISH_EVIDENCE = None     # filled lazily from rpy.EN_WORDS (avoids an import cycle at module load)
 _WORD_RE = re.compile(r"[^\W\d_]+(?:'[^\W\d_]+)?", re.UNICODE)
 _REPEAT_RE = re.compile(r"\b([^\W\d_]{2,})\s+\1\b", re.IGNORECASE | re.UNICODE)
-# words that are legitimately doubled in Czech speech ("to to je", "tak tak", "ne ne")
-REPEAT_OK = {"to", "tak", "ne", "no", "ať", "jo", "hej", "ha", "ah", "se", "si", "že", "jak", "co", "ani", "už",
-             "ale", "čuk", "haha", "hihi", "ho", "bla", "ještě", "moc", "hodně", "hrozně", "pořád", "dobře", "fajn", "ok", "hmm", "ach"}
+# words that are legitimately doubled in speech depend on the language: see lang.Pack.repeat_ok
 
 
 def plain_text(text):
@@ -282,8 +280,8 @@ def check_quality(source, target):
     # numbers must survive the translation
     ns, nt = Counter(re.findall(r"\d+", ps)), Counter(re.findall(r"\d+", pt))
     if ns != nt:
-        # a number written out in words ("14" -> "čtrnáct") is normal Czech; changed digits are suspicious
-        sev = "info" if ns and not nt else "warning"
+        # a number written out in words ("14" -> "čtrnáct") is normal in some languages (lang.Pack.number_words_ok)
+        sev = "info" if ns and not nt and lang.current().number_words_ok else "warning"
         issues.append(Issue(sev, "numbers-differ",
                             f"Čísla se liší od originálu (originál: {', '.join(sorted(ns.elements())) or '—'}; "
                             f"překlad: {', '.join(sorted(nt.elements())) or '—'}).", category="text"))
@@ -294,10 +292,11 @@ def check_quality(source, target):
                             extra={"fixable": True, "kind": "spaces"}))
 
     # the same word twice in a row (typo), unless the source does it as well or Czech does it normally
+    pack = lang.current()
     src_rep = {m.group(1).lower() for m in _REPEAT_RE.finditer(ps)}
-    for m in _REPEAT_RE.finditer(pt):
+    for m in (_REPEAT_RE.finditer(pt) if pack.check_repeats else ()):
         w = m.group(1).lower()
-        if w not in REPEAT_OK and w not in src_rep:
+        if w not in pack.repeat_ok and w not in src_rep:
             issues.append(Issue("warning", "repeated-word", f"Dvakrát za sebou stejné slovo: „{w} {w}“.", category="text"))
             break
 
@@ -312,8 +311,7 @@ def check_quality(source, target):
 
 
 def _stem(word):
-    folded = fold(word)
-    return folded[:max(3, len(folded) - 2)]
+    return lang.current().stem(word)
 
 
 def term_in_text(text, term):

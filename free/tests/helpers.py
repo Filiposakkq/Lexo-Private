@@ -12,8 +12,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lexo import layout  # noqa: E402
+from lexo import lang  # noqa: E402
 from lexo.config import Config  # noqa: E402
 from lexo.app import App  # noqa: E402
+
+lang.use(lang.CS)      # tests that call the validator directly (no project open) use the Czech rules
 
 
 def dialog(ident, who, src, tgt=None, line=10, suffix=""):
@@ -47,13 +50,13 @@ class TempCase(unittest.TestCase):
         self._old_env = os.environ.get("LEXO_CONFIG_DIR")
         os.environ["LEXO_CONFIG_DIR"] = str(self.cfg_dir)
         self.addCleanup(self._restore_env)
-        self.addCleanup(layout.use, layout.Layout())
+        self.addCleanup(layout.use, layout.Layout(language="cs"))   # the older tests expect Czech rules
         self.use_layout(layout.BADIK_SECTIONS)
 
-    def use_layout(self, sections, labels=None):
+    def use_layout(self, sections, labels=None, language="cs"):
         """Write the project layout file (project.json) of the temp project; None = no file (no groups)."""
         path = self.root / "_progress_data" / layout.FILE_NAME
-        lay = layout.Layout(sections or (), labels)
+        lay = layout.Layout(sections or (), labels, language)
         layout.use(lay)                      # tests that use Store/bulk directly never open a project
         if sections is None:
             path.unlink(missing_ok=True)

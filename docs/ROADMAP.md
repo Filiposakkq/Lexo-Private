@@ -45,3 +45,4 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 ## Status
 - Step 1.0 done: the Python app is imported into `free/` (package `lexo`, launcher `run_lexo.py`), renamed from BaDIK, 406 tests green (the 24 tests of the BaDIK website stayed in the old repo). Game-specific parts are still in place; see HARDCODED-AUDIT.md.
 - Step 1.1 done: groups/sections come from `project.json` (docs/PROJECT-FILE.md); a project without it has no groups. 415 tests green.
+- Step 1.2 done: language packs (`lexo/lang.py`, `language` in project.json); neutral rules by default, Czech as a pack. Free/Pro proposal in docs/FEATURES.md. 421 tests green.

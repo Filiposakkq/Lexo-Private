@@ -19,7 +19,7 @@ Status of every row is "to do" until a step in the roadmap handles it.
 | Where | What | Generalisation |
 |---|---|---|
 | `rpy.py` | Docstrings and parsing assume `translate czech <id>`; check that the language name is a variable, not a literal | Language = project setting (`game/tl/<language>`). |
-| `validator.py` | Czech word lists, doubled words, number-words ("14" -> "čtrnáct"), English function words that are not Czech | Language packs: a `lang/<code>.py` with its own rules. Core keeps only language-neutral checks (tags, variables, brackets, length, box fit). |
+| `validator.py` | ~~Czech word lists~~ moved to `lang.py` packs (done: repeated words, number words, stems). Still Czech: English-left word list rules and message wording | Messages become keys with the UI translation. |
 | `spelling.py` | Czech spell checking, pairs like byt/být | Plug-in per language; off when no dictionary exists. |
 | `memory.py`, `bulk.py` (`interjections`) | Czech notes on declension and interjections | Move the wording into language packs. |
 | `mt.py` | `source_lang` "EN", `target_lang` "CS" defaults | Defaults come from the project. |

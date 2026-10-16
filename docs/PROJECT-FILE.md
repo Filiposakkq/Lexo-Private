@@ -25,3 +25,5 @@ write the file from its own UI.
 
 Not done yet: the UI still says "Epizoda" / "Sezóna" (the `labels` are stored but not used), the file is edited by hand,
 and assigning files to groups still relies on the `ep1`-style name hints of the first game.
+
+`language` (e.g. `"cs"`) selects the language pack for language-dependent checks (see `free/lexo/lang.py`); without it neutral rules apply, and legacy BaDIK data keeps `"cs"`.

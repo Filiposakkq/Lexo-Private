@@ -7,13 +7,15 @@ no groups, and every file counts as "unassigned" in the overview.
 The layout is read from `<project data folder>/project.json`:
 
     {"version": 1,
+     "language": "cs",
      "labels": {"section": "Season", "group": "Episode"},
      "sections": [{"n": 1, "status": "active",  "groups": [1, 2, 3, 4]},
                   {"n": 2, "status": "active",  "groups": [5, 6, 7, 8]},
                   {"n": 3, "status": "planned"}]}
 
 `status: "planned"` means the section is shown but never counted. Group numbers must be unique across the
-project. A broken file is reported and ignored (empty layout), it is never silently "repaired".
+project. `language` is the code of a language pack (lang.py) for the language-dependent checks; unknown or missing = neutral rules.
+A broken file is reported and ignored (empty layout), it is never silently "repaired".
 
 Everything that needs the layout reads it from here (`layout.ACTIVE_EPISODES`, `layout.SEASONS`, ...). The
 names keep the vocabulary of the first game (episodes, seasons) until the UI is switched to the labels.
@@ -21,6 +23,8 @@ The layout of the open project is process-wide state set by `use()`; the applica
 """
 import json
 from pathlib import Path
+
+from . import lang
 
 FILE_NAME = "project.json"
 LEGACY_MARKERS = ("prirazeni.csv", "epizody.csv")      # data written by the BaDIK tool, before layouts existed
@@ -34,7 +38,8 @@ DEFAULT_LABELS = {"section": "Season", "group": "Episode"}
 
 
 class Layout:
-    def __init__(self, sections=(), labels=None):
+    def __init__(self, sections=(), labels=None, language=""):
+        self.language = language
         self.sections = tuple(sections)
         self.labels = dict(DEFAULT_LABELS, **(labels or {}))
         self.active_groups = tuple(g for s in self.sections if s["status"] == "active" for g in s["episodes"])
@@ -52,7 +57,7 @@ class Layout:
         return ()
 
     def to_json(self):
-        return {"version": 1, "labels": self.labels,
+        return {"version": 1, **({"language": self.language} if self.language else {}), "labels": self.labels,
                 "sections": [{"n": s["n"], "status": s["status"], **({"groups": list(s["episodes"])} if s["status"] == "active" else {})}
                              for s in self.sections]}
 
@@ -86,7 +91,10 @@ def parse(raw):
     labels = raw.get("labels", {})
     if not isinstance(labels, dict) or not all(isinstance(v, str) for v in labels.values()):
         raise LayoutError("\"labels\" must map names to text")
-    return Layout(secs, {k: v for k, v in labels.items() if k in DEFAULT_LABELS})
+    language = raw.get("language", "")
+    if not isinstance(language, str):
+        raise LayoutError("\"language\" must be a language code such as \"cs\"")
+    return Layout(secs, {k: v for k, v in labels.items() if k in DEFAULT_LABELS}, language.strip().lower())
 
 
 def load(data_dir):
@@ -94,11 +102,13 @@ def load(data_dir):
     path = Path(data_dir) / FILE_NAME
     if path.is_file():
         try:
-            return parse(json.loads(path.read_text(encoding="utf-8-sig"))), ""
+            lay = parse(json.loads(path.read_text(encoding="utf-8-sig")))
+            return lay, (f"{FILE_NAME}: no language pack for \"{lay.language}\", neutral rules are used."
+                         if lay.language and lang.get(lay.language) is None else "")
         except (OSError, ValueError) as e:             # LayoutError and JSONDecodeError are ValueErrors
             return Layout(), f"{FILE_NAME} was ignored: {e}"
     if any((Path(data_dir) / m).is_file() for m in LEGACY_MARKERS):
-        return Layout(BADIK_SECTIONS), ""
+        return Layout(BADIK_SECTIONS, language="cs"), ""
     return Layout(), ""
 
 
@@ -108,6 +118,7 @@ _current = Layout()
 def use(layout):
     global _current
     _current = layout
+    lang.use(lang.get(layout.language))
 
 
 def current():
