@@ -7,7 +7,8 @@ import os
 
 here = os.path.dirname(os.path.abspath(SPEC))
 
-datas = [(os.path.join(here, "lexo", "ui"), os.path.join("lexo", "ui"))]
+datas = [(os.path.join(here, "lexo", "ui"), os.path.join("lexo", "ui")),
+         (os.path.join(here, "lexo", "packs"), os.path.join("lexo", "packs"))]
 binaries, hiddenimports = [], []
 try:                                   # pywebview is optional; without it the browser fallback is used
     from PyInstaller.utils.hooks import collect_all
