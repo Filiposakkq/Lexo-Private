@@ -1,4 +1,4 @@
-# Data layout (target design; parts 2a and 2b built)
+# Data layout (target design; parts 2a, 2b and 2c built)
 
 **Built (step 2a):** the files in `_progress_data` have English names, English column headers and English values, and the Czech names are read only by
 `free/lexo/migrate.py`, which copies them once when a project is opened (old files stay untouched, nothing is overwritten):
@@ -19,7 +19,12 @@ The BaDIK layout is still detected from the old marker files (`prirazeni.csv`, `
 **Built (step 2b):** the shared folder is `<translation folder>/.lexo/` (constant `DATA_DIR_NAME` in `project.py`, the only place to change if the product gets another name) with the CSV files above, `lexo.json` (was `project.json`) and `project-id`.
 Local data lives in `<config folder>/projects/<project id>/` (on Windows `%APPDATA%/Lexo/projects/<id>`): `backups/`, `snapshots/`, `lock.json`, `text_history.jsonl`, `last_fix.json`, and the derived `progress.csv` / `progress.json`.
 `free/lexo/datadir.py` creates the id, finds the local folder and, the first time a project is opened, **copies** (never moves or deletes) the old `_progress_data`: shared files to `.lexo/` (then `migrate.py` renames them), backups, snapshots and the text history to the local folder. Existing destination files are never overwritten.
-**Not built yet (2c):** the per-author event log.
+**Built (step 2c):** the event log (`free/lexo/events.py`, `Store.sync_events`):
+- `.lexo/events/<author>.jsonl`, one file per author, one JSON object per line: `{"v":1,"t":<UTC time>,"a":<author>,"kind":<kind>,"key":[...],"value":<json or null>}`. Kinds: `corr`, `assign`, `approved`, `episodes`, `proof`, `ignored` (the glossary stays a small file). `value: null` means removed; undo is a new event.
+- The author id (`<user name>-<4 hex>`) is made on first use and kept in the settings (`author`).
+- The state is the replay of all files; for one key the newest event wins (time, then author). The CSV files stay as the cache that is read at start and may still be edited in Excel: at start-up and at every refresh, differences between the memory and the log become events of this author, and events written by others since the last read are merged in and written to the CSV files.
+- Every computer remembers how much of each file it has read in `<local>/events-seen.json`. If that note is lost while events exist, the log wins over old CSV files; with no events yet, the current state is written as the first events.
+- Clocks decide conflicts, so two people changing the same key within seconds of clock difference may overwrite each other (the later one stays). Compaction of old events and showing conflicts are not built.
 The rest of this document is the target design.
 
 Where Lexo writes, and why. Today (imported BaDIK tool) the data is in `<translation folder>/_progress_data/` as seven Czech-named CSV files.
@@ -56,7 +61,7 @@ patterns exclude only entries starting with a dot at the root (`.*`), then class
 - the shared part may still reach a build, so it contains no secrets and no personal data beyond the author name the user chose; the app shows the one-line rule to add to `options.rpy` (`build.classify("**/.lexo/**", None)`) and does not write it itself;
 - the same holds for the old `_progress_data`.
 
-## Events
+## Events (built, see above)
 One JSON object per line: `{"v":1, "t":"2026-10-17T09:12:00Z", "a":"<author id>", "k":"proofread", "line":"<block id>", "h":"<text hash>", ...}`.
 Kinds: translated (manual override), proofread / flagged / unflagged, approved, ignored, assigned (file -> group), group state, glossary change.
 - State = replay of all authors' files; a cached composed state in `local/cache/` makes opening fast and is rebuilt when the files change.

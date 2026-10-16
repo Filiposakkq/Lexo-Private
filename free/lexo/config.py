@@ -37,6 +37,7 @@ DEFAULTS = {
     "lint": {"sdk": ""},                                               # Ren'Py SDK folder for the game check
     "web": {"repo": "", "path": "web/progress.json", "title": "", "migrated_from": ""},
     "ui": {},
+    "author": "",                                                      # id of this person in the event log (set on first use)
 }
 
 

@@ -1,17 +1,20 @@
 """Application core: the open project, refresh, persistence of derived files, settings, features, links."""
+import getpass
 import json
+import secrets
 import shutil
 import threading
 import webbrowser
 from datetime import datetime
 from pathlib import Path
 
-from . import datadir, editor, export, features, history as hist, layout, lint, migrate, mt, publish as pub, texthistory
+from . import datadir, editor, events, export, features, history as hist, layout, lint, migrate, mt, publish as pub, texthistory
 from .config import Config
 from .config import migrate_web_json
 from .lock import ProjectLock
 from .lock import ProjectLocked
 from .messages import msg
+from .messages import msgn
 from .messages import text_of
 from .project import DATA_DIR_NAME
 from .project import Project
@@ -95,6 +98,10 @@ class CorePart:
                 self.notices.append(lay_note)
             self.notices += migrate.run(data_dir)
             self.store = Store(data_dir, local_dir).load()
+            self.store.attach_events(events.EventLog(data_dir / "events", local_dir / events.SEEN_FILE, self.author_id()))
+            merged = self.store.sync_events()
+            if merged:
+                self.notices.append(msgn(merged, "{n} change by another author was merged.", "{n} changes by other authors were merged."))
             self.notices += self.store.warnings
             self.project = Project(root, self.store, skip=self.config.get("skip_files", []),
                                    symbols_as_done=self.config.get("count_symbol_only_as_done"))
@@ -114,6 +121,18 @@ class CorePart:
     @property
     def ready(self):
         return self.project is not None
+
+    def author_id(self):
+        """Who this computer's changes are written as in the event log; made once from the user name and kept in the settings."""
+        author = self.config.get("author", "")
+        if not author:
+            try:
+                name = getpass.getuser()
+            except Exception:
+                name = "author"
+            author = events.clean_author(name) + "-" + secrets.token_hex(2)
+            self.config.set("author", author)
+        return author
 
     def _need_project(self):
         if not self.project:
@@ -168,6 +187,7 @@ class CorePart:
                         "message": msg("You have unsaved changes{what}. Refreshing the files does not discard them from memory, but fields being edited will be overwritten. Continue?",
                                        what=(msg(" ({files} could not be written)", files=", ".join(sorted(self.store.unsaved)))
                                              if self.store.unsaved else msg(" (a field being edited)")))}
+            merged = self.store.sync_events()
             try:
                 rep = self.project.refresh(force=force)
             except ProjectUnavailable as e:
@@ -177,7 +197,7 @@ class CorePart:
             self.store.ensure_files([r.name for r in self.project.rows()])
             problems = self.persist() if rep.changed else []
             out = rep.to_dict()
-            out.update(moved_metadata=moved, save_problems=problems, retried=retried, needs_confirm=False)
+            out.update(merged_events=merged, moved_metadata=moved, save_problems=problems, retried=retried, needs_confirm=False)
             return out
 
     # ------------------------------------------------------------ gated (Pro) features
