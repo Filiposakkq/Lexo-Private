@@ -102,11 +102,11 @@ function overviewHero(o, files) {
       h('div', { class: 'muted' }, [
         e.pace_per_day ? T('pace ≈ {n} lines per day', { n: fmtN(Math.round(e.pace_per_day)) }) : '',
         e.status === 'ok' && e.eta ? T('estimated finish {date}', { date: dateCz(e.eta) }) : '',
-        T('{n} left to check ({pct} done)', { n: fmtN(Math.max(0, t.total - t.proofread)), pct: fmtPct(t.proofread_percent) })].filter(Boolean).join(' · ')),
+        T('{n} left to proofread ({pct} done)', { n: fmtN(Math.max(0, t.total - t.proofread)), pct: fmtPct(t.proofread_percent) })].filter(Boolean).join(' · ')),
       h('div', { class: 'row', style: { marginTop: '12px', flexWrap: 'wrap' } },
         h('button', { class: 'btn primary', onclick: resume }, last && last.file ? T('Continue: {where}', { where: `${last.file.split(/[\\/]/).pop()}:${last.line}` }) : T('Start translating')),
         h('button', { class: 'btn', title: T('Scene and editor over the whole screen, untranslated lines only'), onclick: () => enterQuick() }, T('Translate quickly')),
-        t.total - t.proofread > 0 ? h('button', { class: 'btn', title: T('Scene and editor over the whole screen, only lines to check (P marks one as checked and moves on)'), onclick: () => enterProof() }, T('Check quickly')) : null,
+        t.total - t.proofread > 0 ? h('button', { class: 'btn', title: T('Scene and editor over the whole screen, only lines to check (P marks one as checked and moves on)'), onclick: () => enterProof() }, T('Proofread quickly')) : null,
         near ? h('button', { class: 'btn ghost', title: T('File with the least left: {name}', { name: near.name }), onclick: () => go('entries', { file: near.name, status: 'todo', select: true }) }, T('Closest to done: {name} ({n} left)', { name: near.name.split(/[\\/]/).pop(), n: fmtN(near.todo) })) : null)));
 }
 function goalsPanel(g) {

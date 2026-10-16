@@ -127,6 +127,7 @@ def parse_text(text, digest=""):
     comment_list = []  # (normalized, text, line, who)
     code = []          # (line number, stripped line)
     block = ""
+    collecting = False   # only the body of a `translate <lang> <id>:` block holds dialogue; a script without such blocks is not a translation file
     block_ref = ""     # '# game/script.rpy:123' of the current translate block
     ref_pending = ""   # last such comment seen, waiting for its translate / old line
     old_ref = ""
@@ -185,6 +186,8 @@ def parse_text(text, digest=""):
             flush()
             close_old(lineno)
             block = line.rstrip(":")
+            words = line.split()
+            collecting = not (len(words) > 2 and words[2] in ("python", "style"))
             block_ref, ref_pending = ref_pending, ""
             m = TRANSLATE_RE.match(line)
             if m:
@@ -224,7 +227,7 @@ def parse_text(text, digest=""):
             old_text = None
             continue
         first = line.split(None, 1)[0]
-        if '"' in line and first not in NON_TEXT and not line.startswith("$"):
+        if collecting and '"' in line and first not in NON_TEXT and not line.startswith("$"):
             code.append((lineno, line))
     flush()
     close_old(len(lines))

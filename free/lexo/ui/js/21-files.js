@@ -12,7 +12,7 @@ import { refreshHeader } from './17-project.js';
 const FL_COLS = () => [
   { k: 'pick', w: 38, label: '', resize: false }, { k: 'name', w: 430, label: T('File'), sortable: true },
   { k: 'assign', w: 140, label: T('Assignment'), sortable: true }, { k: 'tp', w: 250, label: T('Translation'), sortable: true },
-  { k: 'cp', w: 230, label: T('Proofreading'), sortable: true }, { k: 'todo', w: 110, label: T('Left to translate'), sortable: true }, { k: 'rev', w: 130, label: T('Left to check'), sortable: true },
+  { k: 'cp', w: 230, label: T('Proofreading'), sortable: true }, { k: 'todo', w: 110, label: T('Left to translate'), sortable: true }, { k: 'rev', w: 130, label: T('Left to proofread'), sortable: true },
   { k: 'order', w: 112, label: T('State'), sortable: true }, { k: 'warn', w: 84, label: T('Check'), sortable: true },
 ];
 const assignKey = (a) => (!a ? 1000 : a === 'gen' ? 900 : parseInt(a.slice(3), 10));
@@ -126,7 +126,7 @@ export async function viewFiles() {
         h('dt', null, T('of which approved by hand')), h('dd', null, fmtN(r.approved)),
         h('dt', null, T('Counted automatically')), h('dd', null, fmtN(r.auto)),
         h('dt', null, T('Left to translate')), h('dd', null, fmtN(r.todo)),
-        h('dt', null, T('Left to check')), h('dd', null, fmtN(Math.max(0, total - r.corr))),
+        h('dt', null, T('Left to proofread')), h('dd', null, fmtN(Math.max(0, total - r.corr))),
         h('dt', null, T('Proofread')), h('dd', null, `${fmtN(r.corr)} (${fmtPct(total ? r.corr / total * 100 : 0)})`),
         h('dt', null, T('of which line by line')), h('dd', null, fmtN(r.proof_marked)),
         h('dt', null, T('To fix')), h('dd', null, r.proof_fix ? h('button', { class: 'btn small', onclick: () => go('entries', { file: r.name, status: 'fix' }) }, fmtN(r.proof_fix)) : '0'),

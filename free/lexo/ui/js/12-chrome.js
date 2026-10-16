@@ -81,8 +81,8 @@ export function paintFocusBar() {
       h('button', { class: 'btn small', title: t('Flags the line for a fix (F)'), onclick: () => S.ent?.api?.flagFix() }, t('⚑ Needs a fix')),
       h('button', { class: 'btn small icon', title: t('Previous line (↑)'), onclick: () => S.ent?.api?.select(S.ent.sel - 1) }, '↑'),
       h('button', { class: 'btn small icon', title: t('Next line (↓)'), onclick: () => S.ent?.api?.select(S.ent.sel + 1) }, '↓'),
-      h('span', { class: 'muted' }, t('Proofreading') + (rev != null ? ' · ' + t('left to check: {n}', { n: rev }) : ''))]
-      : S.quick ? [h('span', { class: 'muted' }, t('Quick translating') + (rest != null ? ' · ' + t('left to translate: {n}', { n: rest }) : '') + (rev != null ? ' · ' + t('to check: {n}', { n: rev }) : ''))] : []));
+      h('span', { class: 'muted' }, t('Proofreading') + (rev != null ? ' · ' + t('left to proofread: {n}', { n: rev }) : ''))]
+      : S.quick ? [h('span', { class: 'muted' }, t('Quick translating') + (rest != null ? ' · ' + t('left to translate: {n}', { n: rest }) : '') + (rev != null ? ' · ' + t('to proofread: {n}', { n: rev }) : ''))] : []));
 }
 export function enterQuick() {
   setPref('entries.layout', 'film'); setPref('ui.detailTab', 'check');

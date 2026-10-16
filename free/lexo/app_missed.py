@@ -10,11 +10,8 @@ from .util import WriteFailed
 class MissedPart:
     def _script_folder(self):
         """The folder with the game's scripts (.rpy outside tl): <game>/ for a translation in <game>/tl/<language>."""
-        root = self.project.root
-        for base in (root.parent.parent, root.parent.parent.parent):         # <game>/ and the folder above it
-            if base.is_dir() and base != root and missed.has_scripts(base):
-                return base
-        return None
+        base = self._game_dir()
+        return base if base is not None and missed.has_scripts(base) else None
 
     def missed_scan(self, level="likely"):
         """Look for texts in the game's scripts that the translation does not have. Nothing is changed.
