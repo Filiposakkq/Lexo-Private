@@ -42,3 +42,4 @@ author's own data of the old tool and was not touched.
 - The line classifier (`rpy.classify`) still looks at Czech letters to tell a translated line from an English one; with other target languages it needs the language pack (step 3).
 - Games with encrypted or modified archives, or with scripts that unrpyc cannot read, are not covered; the quarantine keeps the rest working.
 - Only the structure of the projects was checked (opening, counts, glossary import, scene data, validation); no translation was written back in these games.
+- **Texts the generator misses** (Being a DIK, reported by the translator): `show text`, input prompts, titles in variables. New: `missed.py`, see GAME-TOOLS.md. Found 185 likely texts in Being a DIK, 85 in Milfy City (defaults such as names and SMS texts), 10 in Eternum (input prompts), 8 in A Wife and Mother, about a thousand in LoSeSb (a very large game).

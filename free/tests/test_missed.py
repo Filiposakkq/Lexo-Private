@@ -1,0 +1,161 @@
+"""Texts that Ren'Py's generator does not extract (show text, input prompts, titles, dialogue without a block)."""
+import http.client
+import json
+import unittest
+
+from helpers import TempCase
+from lexo import missed, server
+from lexo.app import AppError
+
+SCRIPT = '''label start:
+    show text "{i}Mini-games are optional.\\nYou can skip them.{/i}"
+    $ renpy.pause()
+    hide text
+    mc "Hello there, friend."
+    mc "A line the generator forgot."
+    $ player = renpy.input("What is your name?", length=15)
+    $ episode_title_name = "Maggot Brothers"
+    $ image_name = "bg/room.png"
+    $ speed = 12
+    menu:
+        "Play mini-games":
+            pass
+        "Skip":
+            pass
+
+screen hud():
+    text "Money" size 20
+    $ tip = "Click to continue"
+
+image eileen happy:
+    "eileen_happy.png"
+    "a blink"
+
+define build.name = "MyGame"
+define mc = Character("Mike", color="#fff")
+'''
+
+TRANSLATION = '''# game/script.rpy:5
+translate czech start_1:
+
+    # mc "Hello there, friend."
+    mc "Hello there, friend."
+
+translate czech strings:
+
+    old "Skip"
+    new "Skip"
+'''
+
+
+class MissedTests(TempCase):
+    def setUp(self):
+        super().setUp()
+        self.game = self.tmp / "game"
+        (self.game / "tl" / "czech").mkdir(parents=True)
+        (self.game / "script.rpy").write_text(SCRIPT, encoding="utf-8")
+        (self.game / "tl" / "czech" / "script.rpy").write_text(TRANSLATION, encoding="utf-8")
+        self.tl = self.game / "tl" / "czech"
+
+    def scan(self, **kw):
+        strings, dialogue, places = missed.known_texts(self.tl)
+        res = missed.find_missed(self.game, strings, dialogue, places, **kw)
+        return {i["text"]: i for i in res["items"]}
+
+    def test_known_texts_read_strings_dialogue_and_places(self):
+        strings, dialogue, places = missed.known_texts(self.tl)
+        self.assertEqual((strings, dialogue, places), ({"Skip"}, {"Hello there, friend."}, {("script.rpy", 5)}))
+
+    def test_show_text_input_and_titles_are_found_as_likely(self):
+        found = self.scan()
+        for text in ("{i}Mini-games are optional.\\nYou can skip them.{/i}", "What is your name?", "Maggot Brothers"):
+            self.assertEqual(found[text]["level"], "likely", text)
+            self.assertEqual(found[text]["kind"], "text")
+        self.assertEqual(found["Maggot Brothers"]["line"], 8)
+
+    def test_dialogue_without_a_block_is_found_by_its_place(self):
+        found = self.scan()
+        self.assertEqual((found["A line the generator forgot."]["kind"], found["A line the generator forgot."]["level"]), ("dialogue", "likely"))
+        self.assertNotIn("Hello there, friend.", found)                     # it has a block at the place the translation points to
+
+    def test_what_ren_py_handles_or_what_is_no_text_is_left_out(self):
+        found = self.scan()
+        for text in ("Play mini-games", "Skip", "Money", "bg/room.png", "eileen_happy.png", "a blink", "MyGame", "Mike", "12"):
+            self.assertNotIn(text, found, text)
+
+    def test_python_lines_inside_a_screen_still_count(self):
+        self.assertEqual(self.scan()["Click to continue"]["level"], "likely")
+
+    def test_a_string_already_in_the_table_is_not_reported(self):
+        (self.tl / "script.rpy").write_text(TRANSLATION + '\n    old "Maggot Brothers"\n    new "Bratři"\n', encoding="utf-8")
+        self.assertNotIn("Maggot Brothers", self.scan())
+
+    def test_looks_like_text(self):
+        for yes in ("Hello there", "Congratulations!", "Episode [n]", "{i}Hi you{/i}"):
+            self.assertTrue(missed.looks_like_text(yes), yes)
+        for no in ("#ff0000", "bg/room.png", "my_variable", "ab", "12", "button_idle", "x.rpy"):
+            self.assertFalse(missed.looks_like_text(no), no)
+
+    def test_write_strings_appends_once_and_skips_known(self):
+        items = [{"text": "Maggot Brothers", "file": "script.rpy", "line": 8}, {"text": "Skip", "file": "script.rpy", "line": 12}]
+        first = missed.write_strings(self.tl, "czech", items)
+        self.assertEqual((first["added"], first["skipped"]), (1, 1))
+        text = (self.tl / missed.FILE_NAME).read_text(encoding="utf-8")
+        self.assertIn('translate czech strings:', text)
+        self.assertIn('# game/script.rpy:8\n    old "Maggot Brothers"\n    new "Maggot Brothers"', text)
+        again = missed.write_strings(self.tl, "czech", items)
+        self.assertEqual(again["added"], 0)
+        self.assertEqual((self.tl / missed.FILE_NAME).read_text(encoding="utf-8"), text)
+
+
+class MissedInTheAppTests(TempCase):
+    def setUp(self):
+        super().setUp()
+        self.game = self.root.parent / "gamefolder" / "game"
+        self.tl = self.game / "tl" / "czech"
+        self.tl.mkdir(parents=True)
+        (self.game / "script.rpy").write_text(SCRIPT, encoding="utf-8")
+        (self.tl / "script.rpy").write_text(TRANSLATION, encoding="utf-8")
+        self.app = self.new_app(open_root=False)
+        self.app.open_project(self.tl)
+
+    def test_scan_and_add(self):
+        res = self.app.missed_scan()
+        texts = {i["text"] for i in res["items"]}
+        self.assertIn("Maggot Brothers", texts)
+        self.assertTrue(res["folder"])
+        before = self.app.overview()["totals"]["total"]
+        out = self.app.missed_add([i for i in res["items"] if i["text"] in ("Maggot Brothers", "What is your name?")])
+        self.assertEqual(out["added"], 2)
+        self.assertEqual(self.app.overview()["totals"]["total"], before + 2)
+        self.assertEqual({i["text"] for i in self.app.missed_scan()["items"]} & {"Maggot Brothers", "What is your name?"}, set())
+
+    def test_http_api(self):
+        srv, sess, _ = server.start_server(self.app)
+        self.addCleanup(srv.shutdown)
+
+        def call(method, path, body=None):
+            c = http.client.HTTPConnection("127.0.0.1", srv.server_address[1], timeout=10)
+            c.request(method, path, json.dumps(body) if body is not None else None, {"X-Token": sess.token})
+            r = c.getresponse()
+            return r.status, json.loads(r.read())
+        st, r = call("GET", "/api/missed")
+        self.assertEqual(st, 200)
+        self.assertTrue(any(i["text"] == "Maggot Brothers" for i in r["items"]))
+        self.assertEqual(call("POST", "/api/missed/add", {"items": []})[0], 400)
+        st, r = call("POST", "/api/missed/add", {"items": [i for i in r["items"] if i["text"] == "Maggot Brothers"]})
+        self.assertEqual((st, r["added"]), (200, 1))
+
+    def test_nothing_chosen_is_an_error(self):
+        with self.assertRaises(AppError):
+            self.app.missed_add([])
+
+    def test_without_scripts_there_is_a_hint(self):
+        (self.game / "script.rpy").unlink()
+        res = self.app.missed_scan()
+        self.assertEqual(res["items"], [])
+        self.assertIn("scripts", str(res["message"]))
+
+
+if __name__ == "__main__":
+    unittest.main()

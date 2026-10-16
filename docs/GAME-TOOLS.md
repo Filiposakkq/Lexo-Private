@@ -28,3 +28,16 @@ UI and server routes for these steps (they come with the new UI and the project 
 3. `decompile` (unrpyc), then `repair_decompiled` (indentation after a backslash in python blocks);
 4. `generate_translation` with the game's own engine (`lint.find_launcher`); files named in Ren'Py's error output are renamed to `.unparsable` and the run is repeated (up to three times).
 The game folder is only read. No UI yet.
+
+## Texts the generator misses (`missed.py`, Tools > "Texts the generator missed…")
+`renpy translate` writes blocks for dialogue, menu choices, screens and strings marked `_("...")`. A text shown another way has no block: `show text "..."`,
+`renpy.input("prompt")`, `renpy.notify(...)`, a title assigned to a variable and shown later with `[title]`, and dialogue in places the generator does not reach.
+Such texts can still be translated with a `translate <language> strings:` block (old / new).
+Lexo reads the game's scripts (the decompiled `.rpy`), compares them with the translation and lists what it does not have:
+- `likely`: the text goes to `show text`, `renpy.input`, `renpy.notify`, `Text(...)`..., or is assigned to a variable whose name says text (title, name, message...), or it is a dialogue line at a place that no translation block points to (`# game/script.rpy:109` comments);
+- `maybe`: any other string that looks like a sentence (shown only on request, a long list).
+Menu choices, screen language (`text "..."` in screens), image/transform/style blocks, `Character(...)` definitions and `config`/`build`/`gui` settings are skipped.
+The chosen texts are appended to `<translation folder>/extra_strings.rpy` (untranslated, so they show up as lines to do); texts already in the string table are never written twice.
+Checked on Being a DIK: of the 27 strings the translator had added by hand, 24 are found (all as `likely`); the other 3 are not missed texts (the generator did extract two
+of them, one is built from pieces in the code). The list has 185 likely texts for that game, mostly more `show text` lines the translator had not reached yet.
+It is a heuristic: review the list, untick what the player never sees (a build name, a file label).
