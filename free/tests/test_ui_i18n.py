@@ -71,7 +71,12 @@ class UiTextTests(unittest.TestCase):
         for key, val in self.strings.items():
             want = set(re.findall(r"\{(\w+)\}", key))
             for form in ([val] if isinstance(val, str) else val):
-                self.assertEqual(set(re.findall(r"\{(\w+)\}", form)), want, f"placeholders of {key!r}")
+                got = set(re.findall(r"\{(\w+)\}", form))
+                if not isinstance(val, str):          # a plural form may leave out the number itself ("one file" instead of "1 file")
+                    got, want_here = got | ({"n"} & want), want
+                else:
+                    want_here = want
+                self.assertEqual(got, want_here, f"placeholders of {key!r}")
 
     def test_converted_modules_have_no_czech_literals(self):
         src = js_sources()

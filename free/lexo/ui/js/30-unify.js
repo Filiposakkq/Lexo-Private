@@ -1,3 +1,4 @@
+import { tn, t as T, tx } from './05-i18n.js';
 import { $, h, plural } from './00-core.js';
 import { post } from './10-api.js';
 import { S, speakerLabel } from './11-state.js';
@@ -19,32 +20,32 @@ export function unifyDialog(g, v, loose, bySp, done) {
   function paint() {
     const rows = lines.map((l) => { const same = l.current === v.target; const d = same ? null : diffSpans(l.current, v.target); return h('tr', null,
       h('td', { class: 'center' }, h('input', { type: 'checkbox', checked: sel.has(key(l)), disabled: same, onchange: (e) => { e.target.checked ? sel.add(key(l)) : sel.delete(key(l)); paint2(); } })),
-      h('td', null, fname(l.file), h('span', { class: 'mono muted' }, `řádek ${l.line}`)), h('td', { class: 'who' }, speakerLabel(l.who) || '—'),
-      h('td', { class: 'txt' }, same ? h('span', null, fmtText(l.current), ' ', chip('done', 'už je')) : d.before),
+      h('td', null, fname(l.file), h('span', { class: 'mono muted' }, T('line {n}', { n: l.line }))), h('td', { class: 'who' }, speakerLabel(l.who) || '—'),
+      h('td', { class: 'txt' }, same ? h('span', null, fmtText(l.current), ' ', chip('done', T('already so'))) : d.before),
       h('td', { class: 'txt' }, same ? '' : d.after),
-      h('td', null, h('button', { class: 'btn small ghost', onclick: () => { closeAllDialogs(); go('entries', { file: l.file, line: l.line, status: 'all' }); } }, 'Zobrazit'))); });
+      h('td', null, h('button', { class: 'btn small ghost', onclick: () => { closeAllDialogs(); go('entries', { file: l.file, line: l.line, status: 'all' }); } }, T('Show')))); });
     const t = h('table', { class: 'data' }, h('colgroup', null, [44, 200, 110, 240, 240, 90].map((w) => h('col', { style: { width: w + 'px' } }))),
-      h('thead', null, h('tr', null, ['', 'Kde', 'Mluvčí', 'Teď', 'Po sjednocení', ''].map((x) => h('th', null, x)))), h('tbody', null, rows));
+      h('thead', null, h('tr', null, ['', T('Where'), T('Speaker'), T('Now'), T('After unifying'), ''].map((x) => h('th', null, x)))), h('tbody', null, rows));
     t.style.width = '924px';
-    box.replaceChildren(h('p', null, 'Originál: ', h('b', null, fmtText(g.source)), ' → nový překlad: ', h('b', null, fmtText(v.target))),
-      h('p', { class: 'muted' }, 'Stejný text může mít jiný význam (jiný mluvčí, rod, tón, kontext). Zaškrtni jen řádky, kde to opravdu sedí.'),
+    box.replaceChildren(h('p', null, tx('Original: {source} → new translation: {target}', { source: h('b', null, fmtText(g.source)), target: h('b', null, fmtText(v.target)) })),
+      h('p', { class: 'muted' }, T('The same text can mean something else (another speaker, gender, tone, context). Tick only the lines where it really fits.')),
       h('div', { class: 'toolbar' },
-        h('button', { class: 'btn small', onclick: () => { lines.forEach((l) => { if (l.current !== v.target) sel.add(key(l)); }); paint(); } }, 'Vybrat vše'),
-        h('button', { class: 'btn small', onclick: () => { sel.clear(); paint(); } }, 'Nic'),
-        h('button', { class: 'btn small', title: 'Jen řádky mluvčích, kteří tuhle variantu používají', onclick: () => { sel.clear(); lines.forEach((l) => { if (l.current !== v.target && speakers.has((l.who || '').split(' ')[0])) sel.add(key(l)); }); paint(); } }, 'Jen stejný mluvčí')),
+        h('button', { class: 'btn small', onclick: () => { lines.forEach((l) => { if (l.current !== v.target) sel.add(key(l)); }); paint(); } }, T('Select all')),
+        h('button', { class: 'btn small', onclick: () => { sel.clear(); paint(); } }, T('None')),
+        h('button', { class: 'btn small', title: T('Only the lines of speakers who use this variant'), onclick: () => { sel.clear(); lines.forEach((l) => { if (l.current !== v.target && speakers.has((l.who || '').split(' ')[0])) sel.add(key(l)); }); paint(); } }, T('Only the same speaker'))),
       h('div', { class: 'tablewrap', style: { maxHeight: '46vh' } }, t));
     paint2();
   }
-  function paint2() { const n = sel.size; go1.disabled = !n; go1.textContent = `Sjednotit ${n} ${plural(n, 'řádek', 'řádky', 'řádků')}`; info.textContent = `Vybráno ${n} z ${lines.filter((l) => l.current !== v.target).length} odlišných`; }
+  function paint2() { const n = sel.size; go1.disabled = !n; go1.textContent = tn(n, 'Unify {n} line', 'Unify {n} lines'); info.textContent = T('Selected {n} of {total} different', { n, total: lines.filter((l) => l.current !== v.target).length }); }
   go1.onclick = async () => {
     try {
       const r = await post('consistency/unify', { key: g.key, target: v.target, loose, by_speaker: bySp, lines: lines.filter((l) => sel.has(key(l))).map((l) => ({ file: l.file, line: l.line })) });
-      toast(`Sjednoceno: ${r.changed} ${plural(r.changed, 'řádek', 'řádky', 'řádků')}. Zpět: „Vrátit poslední změnu souboru“.`);
+      toast(T('{lines}. Undo: “Undo the last file change”.', { lines: tn(r.changed, 'Unified: {n} line', 'Unified: {n} lines') }));
       S.files = null; await refreshHeader(); done?.();
     } catch (e) { fail(e); return false; }
   };
   S.dlgDirty = true;
-  dialog({ title: 'Sjednotit překlad', body: box, buttons: [{ label: 'Zrušit' }, { node: h('span', { style: { display: 'contents' } }, info, go1) }] });
+  dialog({ title: T('Unify the translation'), body: box, buttons: [{ label: T('Cancel') }, { node: h('span', { style: { display: 'contents' } }, info, go1) }] });
   paint();
 }
 
