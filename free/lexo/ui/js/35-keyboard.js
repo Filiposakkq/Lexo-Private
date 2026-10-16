@@ -1,3 +1,4 @@
+import { t } from './05-i18n.js';
 import { $, TABS, h } from './00-core.js';
 import { get, post } from './10-api.js';
 import { S } from './11-state.js';
@@ -36,7 +37,7 @@ export const ACTIONS = [
   { id: 'refresh', label: 'Obnovit soubory', keys: ['F5', 'Ctrl+R'], typing: true, run: () => doRefresh() },
   { id: 'undo', label: 'Vrátit poslední změnu (schválení, korektura, slovník)', keys: ['Ctrl+Z'], run: () => doUndo() },
   { id: 'help', label: 'Ukázat zkratky', keys: ['?'], run: () => helpDialog() },
-  ...TABS.map(([k, label], i) => ({ id: 'tab_' + k, label: `Přejít na: ${label}`, keys: [`Alt+${i + 1}`], typing: true, run: () => go(k) })),
+  ...TABS.map(([k, label], i) => ({ id: 'tab_' + k, get label() { return t('Go to: {name}', { name: t(label) }); }, keys: [`Alt+${i + 1}`], typing: true, run: () => go(k) })),
   { id: 'next', label: 'Řádky: další řádek', keys: ['ArrowDown', 'J'], entries: true, run: () => moveSel(1) },
   { id: 'prev', label: 'Řádky: předchozí řádek', keys: ['ArrowUp', 'K'], entries: true, run: () => moveSel(-1) },
   { id: 'pagedown', label: 'Řádky: o stránku dolů', keys: ['PageDown'], entries: true, run: () => moveSel(15) },

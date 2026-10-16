@@ -1,3 +1,4 @@
+import { t } from './05-i18n.js';
 import { fmtN, h } from './00-core.js';
 /* ---------------------------------------------------------------- filter bar pieces (shared by all tabs) */
 export const filterGroup = (label, ...controls) => h('label', { class: 'fgroup' }, h('span', { class: 'flabel' }, label), ...controls);
@@ -12,8 +13,8 @@ export function pillRow(options, current, counts, onPick) {
 /* "Active filters" row: one removable chip per narrowing filter plus a reset. items: [[text, clearFn]] */
 export function activeChips(items, resetAll) {
   if (!items.length) return [];
-  return [h('span', { class: 'flabel' }, 'Aktivní filtry:'),
-    ...items.map(([text, clear]) => h('span', { class: 'fchip' }, text, h('button', { title: 'Zrušit tento filtr', 'aria-label': 'Zrušit filtr: ' + text, onclick: clear }, '✕'))),
-    h('button', { class: 'btn small ghost', onclick: resetAll }, 'Zrušit všechny filtry')];
+  return [h('span', { class: 'flabel' }, t('Active filters:')),
+    ...items.map(([text, clear]) => h('span', { class: 'fchip' }, text, h('button', { title: t('Clear this filter'), 'aria-label': t('Clear filter: {name}', { name: text }), onclick: clear }, '✕'))),
+    h('button', { class: 'btn small ghost', onclick: resetAll }, t('Clear all filters'))];
 }
 

@@ -1,3 +1,4 @@
+import { t } from './05-i18n.js';
 import { TOKEN } from './00-core.js';
 import { S } from './11-state.js';
 /* ---------------------------------------------------------------- api */
@@ -13,10 +14,10 @@ export async function request(method, path, body) {
   }
   let res;
   try { res = await fetch(url, opts); }
-  catch { throw new Error('Spojení s aplikací se přerušilo – běží ještě program?'); }
+  catch { throw new Error(t('The connection to the application was lost – is the program still running?')); }
   let data;
-  try { data = await res.json(); } catch { throw new Error('Neplatná odpověď aplikace.'); }
-  if (!data.ok) { const err = new Error(data.error || 'Operace selhala.'); err.data = data; throw err; }
+  try { data = await res.json(); } catch { throw new Error(t('Invalid response from the application.')); }
+  if (!data.ok) { const err = new Error(data.error || t('The operation failed.')); err.data = data; throw err; }
   return data;
 }
 export const get = (p, q) => request('GET', p, q);

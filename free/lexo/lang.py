@@ -55,9 +55,27 @@ class Pack:
     check_repeats: bool = False
     number_words_ok: bool = False
     stem: Callable[[str], str] = _stem_none
+    plural: str = "en"                       # name of a rule in PLURAL_RULES (how many forms a counted text has, which one is used)
+    folder: object = None                    # where the pack was read from (its ui.json lives there)
 
 
 NEUTRAL = Pack(code="und", name="Neutral")
+
+# Plural rules by name: number -> index of the form. The browser has the same table (ui/js/05-i18n.js); both must agree.
+PLURAL_RULES = {
+    "en": (2, lambda n: 0 if n == 1 else 1),
+    "cs": (3, lambda n: 0 if n == 1 else 1 if 2 <= n <= 4 else 2),
+    "sk": (3, lambda n: 0 if n == 1 else 1 if 2 <= n <= 4 else 2),
+    "pl": (3, lambda n: 0 if n == 1 else 1 if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else 2),
+    "ru": (3, lambda n: 0 if n % 10 == 1 and n % 100 != 11 else 1 if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else 2),
+    "fr": (2, lambda n: 0 if n in (0, 1) else 1),
+}
+
+
+def plural_index(rule, n):
+    """Index of the form of a counted text for the number `n` under the named rule (unknown rule = English)."""
+    forms, fn = PLURAL_RULES.get(rule, PLURAL_RULES["en"])
+    return min(fn(abs(int(n))), forms - 1)
 
 
 def _read(path):
@@ -102,8 +120,31 @@ def load_dir(folder):
         flags[key] = rules.get(key, False)
         if not isinstance(flags[key], bool):
             raise PackError(f"rules.json: \"{key}\" must be true or false")
+    plural = rules.get("plural", "en")
+    if plural not in PLURAL_RULES:
+        raise PackError(f"rules.json: unknown \"plural\" rule {plural!r} (known: {', '.join(sorted(PLURAL_RULES))})")
     return Pack(code=code.strip().lower(), name=name, version=version, repeat_ok=frozenset(w.lower() for w in repeat_ok),
-                stem=_stem_rule(rules.get("stem")), **flags)
+                stem=_stem_rule(rules.get("stem")), plural=plural, folder=folder, **flags)
+
+
+def load_ui_strings(pack):
+    """The interface texts of a pack: {English source text: translation | [plural forms]} from its ui.json, or None when it has none.
+    Raises PackError for a broken file."""
+    if pack is None or pack.folder is None or not (Path(pack.folder) / "ui.json").is_file():
+        return None
+    raw = _read(Path(pack.folder) / "ui.json")
+    strings = raw.get("strings") if isinstance(raw, dict) else None
+    if not isinstance(strings, dict):
+        raise PackError("ui.json: \"strings\" must be an object {English text: translation}")
+    forms = PLURAL_RULES[pack.plural][0]
+    for key, val in strings.items():
+        if isinstance(val, str):
+            continue
+        if not (isinstance(val, list) and val and all(isinstance(v, str) for v in val)):
+            raise PackError(f"ui.json: the value of {key!r} must be text or a list of texts")
+        if len(val) != forms:
+            raise PackError(f"ui.json: {key!r} has {len(val)} plural forms, the rule {pack.plural!r} needs {forms}")
+    return strings
 
 
 def user_dir():
@@ -156,3 +197,26 @@ def use(pack):
 
 def current():
     return _current
+
+
+# ---------------------------------------------------------------- interface languages (served to the browser UI)
+def ui_languages():
+    """[{code, name}] of the languages the interface can be shown in: English (built in) and every pack that has a ui.json."""
+    out = [{"code": "en", "name": "English"}]
+    for pack in discover().values():
+        if pack.code != NEUTRAL.code and pack.folder is not None and (Path(pack.folder) / "ui.json").is_file():
+            out.append({"code": pack.code, "name": pack.name})
+    return out
+
+
+def ui_language(code):
+    """{code, name, plural, strings} for the interface in `code`; English is an empty table (the English text is the key).
+    Raises PackError when there is no such interface language."""
+    code = (code or "").strip().lower()
+    if code in ("", "en"):
+        return {"code": "en", "name": "English", "plural": "en", "strings": {}}
+    pack = get(code)
+    strings = load_ui_strings(pack)
+    if strings is None:
+        raise PackError(f"no interface language {code!r}")
+    return {"code": pack.code, "name": pack.name, "plural": pack.plural, "strings": strings}

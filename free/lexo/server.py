@@ -15,7 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse
 
-from . import __version__
+from . import __version__, lang
 from .app import AppError, ProjectBusy
 from .config import config_dir
 from .project import check_project_dir
@@ -172,6 +172,13 @@ def make_handler(sess):
                     "ok": True, "ready": app.ready, "notices": list(app.notices),
                     "config_error": app.config.load_error, "prefs": app.ui_prefs(), "version": __version__,
                     "project_dir": app.config.get("project_dir", "")})
+            if r == "ui-langs":                  # interface languages: needs no open project
+                return self._json({"ok": True, "langs": lang.ui_languages()})
+            if r == "ui-lang":
+                try:
+                    return self._json({"ok": True, **lang.ui_language(q1(q, "code"))})
+                except lang.PackError as e:
+                    return self._json({"ok": False, "error": str(e)}, 404)
             if not app.ready:
                 return self._json({"ok": False, "error": "Není otevřený žádný projekt."}, 400)
             if r == "game/font":              # a font of the game by file name (never a path)

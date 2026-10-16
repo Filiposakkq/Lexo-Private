@@ -1,3 +1,4 @@
+import { t as T } from './05-i18n.js';
 import { $, h } from './00-core.js';
 import { S } from './11-state.js';
 /* ---------------------------------------------------------------- feedback */
@@ -7,7 +8,7 @@ export function status(msg, kind) {
   el.className = kind || '';
 }
 export function toast(msg, kind = 'ok', ms = 4500) {
-  const t = h('div', { class: 'toast ' + kind }, h('span', null, msg), h('button', { class: 'x', title: 'Zavřít', onclick: () => t.remove() }, '✕'));
+  const t = h('div', { class: 'toast ' + kind }, h('span', null, msg), h('button', { class: 'x', title: T('Close'), onclick: () => t.remove() }, '✕'));
   $('#toasts').append(t);
   if (ms) setTimeout(() => t.remove(), kind === 'bad' ? ms * 2 : ms);
   status(msg, kind === 'bad' ? 'bad' : 'ok');
@@ -30,11 +31,11 @@ export function dialog({ title, body, buttons = [], narrow = false, onclose }) {
   return close;
 }
 export const dialogOpen = () => $('#dlg').open;
-export function confirmDialog(title, text, okLabel = 'Pokračovat') {
+export function confirmDialog(title, text, okLabel = T('Continue')) {
   return new Promise((resolve) => {
     let answered = false;
     dialog({ title, narrow: true, body: h('p', null, text),
-      buttons: [{ label: 'Zrušit', onclick: () => { answered = true; resolve(false); } },
+      buttons: [{ label: T('Cancel'), onclick: () => { answered = true; resolve(false); } },
                 { label: okLabel, kind: 'primary', onclick: () => { answered = true; resolve(true); } }],
       onclose: () => { if (!answered) resolve(false); } });
   });

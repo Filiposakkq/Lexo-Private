@@ -1,3 +1,4 @@
+import { locale } from './05-i18n.js';
 /* Lexo – UI. Vanilla JS, no build step. All data is inserted with textContent
    (the h() helper), never innerHTML, so file contents can never inject markup. */
 
@@ -35,11 +36,13 @@ export function h(tag, props, ...kids) {
   return el;
 }
 
-export const nf = new Intl.NumberFormat('cs-CZ');
+export const nf = { format: (n) => new Intl.NumberFormat(locale()).format(n) };
 export const plural = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);     // Czech: 1 řádek, 2–4 řádky, 5 řádků
 export const fmtN = (n) => nf.format(n ?? 0);
-export const fmtPct = (p) => (p === null || p === undefined ? '–' : p.toFixed(1).replace('.', ',') + ' %');
+export const fmtPct = (p) => (p === null || p === undefined ? '–'
+  : new Intl.NumberFormat(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(p) + ' %');
 export const clamp01 = (v) => Math.max(0, Math.min(100, v || 0));
-export const dateCz = (iso) => iso ? new Date(iso + 'T12:00:00').toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+export const dateCz = (iso) => iso ? new Date(iso + 'T12:00:00').toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
-export const TABS = [['overview', 'Přehled'], ['files', 'Soubory'], ['entries', 'Řádky'], ['validation', 'Kontrola'], ['glossary', 'Slovník'], ['publish', 'Publikace'], ['settings', 'Nastavení']];
+// the labels are English texts; show them through t()
+export const TABS = [['overview', 'Overview'], ['files', 'Files'], ['entries', 'Lines'], ['validation', 'Check'], ['glossary', 'Glossary'], ['publish', 'Publishing'], ['settings', 'Settings']];

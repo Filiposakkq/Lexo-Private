@@ -33,7 +33,7 @@ class UiModuleTests(unittest.TestCase):
         for n, t in self.js.items():
             for names, src in IMPORT_RE.findall(t):
                 self.assertIn(src, self.js, f"{n} imports from a missing file {src}")
-                for name in (x.strip() for x in names.split(",") if x.strip()):
+                for name in (x.strip().split(" as ")[0] for x in names.split(",") if x.strip()):
                     self.assertIn(name, exports[src], f"{n} imports {name}, which {src} does not export")
 
     def test_every_file_is_reachable_from_the_entry(self):
