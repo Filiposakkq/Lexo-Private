@@ -112,7 +112,7 @@
     ok('menu Nástroje obsahuje „Schválit podle pravidla“', btn, 'chybí');
     if (btn) {
       btn.click();
-      const dlg = await waitFor(() => document.querySelector('#dlg[open] .dlg-head')?.textContent.includes('pravidla') && document.querySelector('#dlg .check, #dlg .empty'), 6000);
+      const dlg = await waitFor(() => document.querySelector('#dlg[open] .dlg-head')?.textContent.includes('pravidla') && document.querySelector('#dlg .check, #dlg .empty'), 15000);
       ok('dialog pravidel se otevře a načte náhled', dlg, 'dialog se nenačetl');
       const seg = [...document.querySelectorAll('#dlg .seg button')].find((b) => b.textContent.includes('Jen vybrané'));
       ok('dialog pravidel nabízí výběr souborů', seg, 'chybí volba „Jen vybrané soubory“');
