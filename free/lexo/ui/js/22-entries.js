@@ -1,4 +1,18 @@
-"use strict";
+import { $, fmtN, h, plural } from './00-core.js';
+import { clearCtx, get, post } from './10-api.js';
+import { S, speakerFull, speakerLabel, speakerMode, speakerName } from './11-state.js';
+import { COMPANION, layoutMenu, paintFocusBar, pref, setPref, speakerBadge, speakerColor, speakerModeSelect } from './12-chrome.js';
+import { confirmDialog, dialog, fail, status, toast } from './13-feedback.js';
+import { ENTRY_LABEL, KIND_LABEL, SEV_LABEL, bar, buildTable, chip, empty, fmtText, fname, gameText, loading, makeSplitter, menuButton, proofChip } from './14-renderers.js';
+import { activeChips, filterGroup, pillRow } from './15-filterbar.js';
+import { go, render } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
+import { announceDraft, announceFocus, copy, openEditor } from './21-files.js';
+import { diffSpans, fixDialog } from './23-fixes.js';
+import { mtDialog } from './24-machine-translation.js';
+import { replaceDialog } from './25-replace.js';
+import { ruleApproveDialog } from './26-approve-rules.js';
+import { ignoreDialog, unignore } from './28-ignore.js';
 /* ================================================================ ENTRIES */
 const EN_COLS = [
   { k: 'file', w: 360, label: 'Soubor' }, { k: 'line', w: 66, label: 'Řádek', sortable: true, title: 'Řádek v překladovém souboru' },
@@ -11,7 +25,7 @@ function entQuery(extra = {}) {
   const e = pref('entries', {});
   return { file: e.file || '', status: e.status || 'todo', unit: e.unit || '', kind: e.kind || '', issues: e.issues || '', q: e.q || '', sort: e.sort || 'line', limit: 200, ...extra };
 }
-async function viewEntries() {
+export async function viewEntries() {
   if (S.goOpts) {
     const o = S.goOpts;
     if (o.file !== undefined) setPref('entries.file', o.file);

@@ -1,6 +1,7 @@
-"use strict";
+import { TOKEN } from './00-core.js';
+import { S } from './11-state.js';
 /* ---------------------------------------------------------------- api */
-async function request(method, path, body) {
+export async function request(method, path, body) {
   const opts = { method, headers: {} };
   let url = '/api/' + path;
   if (method === 'POST') {
@@ -18,7 +19,7 @@ async function request(method, path, body) {
   if (!data.ok) { const err = new Error(data.error || 'Operace selhala.'); err.data = data; throw err; }
   return data;
 }
-const get = (p, q) => request('GET', p, q);
-const clearCtx = () => { S.ctxCache?.clear(); S.ctxDone?.clear(); S.scenesCache = {}; };       // the scene list itself (S.scenesDone) stays: it is refreshed in the background
-const post = (p, b) => { if (p !== 'focus' && p !== 'prefs' && p !== 'entry/check') clearCtx(); return request('POST', p, b); };   // a write may change the neighbouring lines
+export const get = (p, q) => request('GET', p, q);
+export const clearCtx = () => { S.ctxCache?.clear(); S.ctxDone?.clear(); S.scenesCache = {}; };       // the scene list itself (S.scenesDone) stays: it is refreshed in the background
+export const post = (p, b) => { if (p !== 'focus' && p !== 'prefs' && p !== 'entry/check') clearCtx(); return request('POST', p, b); };   // a write may change the neighbouring lines
 

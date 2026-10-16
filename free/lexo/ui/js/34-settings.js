@@ -1,6 +1,13 @@
-"use strict";
+import { $, h } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S } from './11-state.js';
+import { pref, setPref } from './12-chrome.js';
+import { fail, toast } from './13-feedback.js';
+import { openProject, pickProject, refreshHeader } from './17-project.js';
+import { snapshotsPanel } from './29-snapshots.js';
+import { keysPanel } from './35-keyboard.js';
 /* ================================================================ SETTINGS */
-async function viewSettings() {
+export async function viewSettings() {
   const s = await get('settings');
   const root = h('div', { style: { maxWidth: '1100px' } });
   const val = (id) => $('#' + id);

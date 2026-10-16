@@ -1,8 +1,8 @@
-"use strict";
+import { fmtN, h } from './00-core.js';
 /* ---------------------------------------------------------------- filter bar pieces (shared by all tabs) */
-const filterGroup = (label, ...controls) => h('label', { class: 'fgroup' }, h('span', { class: 'flabel' }, label), ...controls);
+export const filterGroup = (label, ...controls) => h('label', { class: 'fgroup' }, h('span', { class: 'flabel' }, label), ...controls);
 /* A row of "pills" (one per option, with a count) – the main filter of a list. */
-function pillRow(options, current, counts, onPick) {
+export function pillRow(options, current, counts, onPick) {
   return options.map(([k, label]) => {
     const n = counts ? counts[k] : undefined;
     return h('button', { class: 'pill' + (current === k ? ' on' : '') + (n === 0 && current !== k ? ' zero' : ''), 'aria-pressed': String(current === k), onclick: () => onPick(k) },
@@ -10,7 +10,7 @@ function pillRow(options, current, counts, onPick) {
   });
 }
 /* "Active filters" row: one removable chip per narrowing filter plus a reset. items: [[text, clearFn]] */
-function activeChips(items, resetAll) {
+export function activeChips(items, resetAll) {
   if (!items.length) return [];
   return [h('span', { class: 'flabel' }, 'Aktivní filtry:'),
     ...items.map(([text, clear]) => h('span', { class: 'fchip' }, text, h('button', { title: 'Zrušit tento filtr', 'aria-label': 'Zrušit filtr: ' + text, onclick: clear }, '✕'))),

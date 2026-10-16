@@ -1,7 +1,15 @@
-"use strict";
+import { $, h, plural } from './00-core.js';
+import { post } from './10-api.js';
+import { S, speakerLabel } from './11-state.js';
+import { dialog, fail, status, toast } from './13-feedback.js';
+import { chip, fmtText, fname } from './14-renderers.js';
+import { go } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
+import { diffSpans } from './23-fixes.js';
+import { closeAllDialogs } from './35-keyboard.js';
 /* Unify: set ONE chosen translation on the lines you tick. The same words can mean something else in another place, so every line
    of the group is listed (speaker, current translation) and only the ticked ones change. */
-function unifyDialog(g, v, loose, bySp, done) {
+export function unifyDialog(g, v, loose, bySp, done) {
   const lines = g.variants.flatMap((x) => x.lines.map((l) => ({ ...l, current: x.target })));
   const sel = new Set(lines.filter((l) => l.current !== v.target).map((l) => `${l.file}|${l.line}`));
   const key = (l) => `${l.file}|${l.line}`;

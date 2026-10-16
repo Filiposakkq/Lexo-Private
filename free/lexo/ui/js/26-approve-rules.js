@@ -1,6 +1,10 @@
-"use strict";
+import { $, h } from './00-core.js';
+import { post } from './10-api.js';
+import { S, speakerLabel } from './11-state.js';
+import { dialog, fail, toast } from './13-feedback.js';
+import { chip, empty, fmtText, fname, loading } from './14-renderers.js';
 /* Approve lines by a simple rule (symbols only, interjections, names from the glossary). Goes through the normal approval. */
-async function ruleApproveDialog(done, preselected = []) {
+export async function ruleApproveDialog(done, preselected = []) {
   const rules = { symbols: true, interjections: true, names: true };
   const allFiles = (S.files || []).map((x) => x.name);
   const chosen = new Set(preselected.filter((n) => allFiles.includes(n)));

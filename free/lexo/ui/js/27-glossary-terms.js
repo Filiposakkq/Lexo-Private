@@ -1,6 +1,10 @@
-"use strict";
+import { $, h } from './00-core.js';
+import { get } from './10-api.js';
+import { dialog, status } from './13-feedback.js';
+import { chip, empty, fmtText, fname, loading } from './14-renderers.js';
+import { go } from './16-tabs.js';
 /* Every line whose original contains a glossary term, and whether the Czech term is used there. */
-async function occurrencesDialog(code) {
+export async function occurrencesDialog(code) {
   let only = false;
   const body = h('div');
   async function load() {

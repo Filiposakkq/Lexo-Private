@@ -1,6 +1,17 @@
-"use strict";
+import { $, TABS, fmtN, h } from './00-core.js';
+import { S } from './11-state.js';
+import { pref, setIcon, setPref } from './12-chrome.js';
+import { toast } from './13-feedback.js';
+import { loading } from './14-renderers.js';
+import { renderWelcome } from './17-project.js';
+import { viewOverview } from './20-overview.js';
+import { viewFiles } from './21-files.js';
+import { viewEntries } from './22-entries.js';
+import { viewValidation } from './31-validation.js';
+import { viewGlossary } from './32-glossary.js';
+import { viewPublish } from './33-publish.js';
+import { viewSettings } from './34-settings.js';
 /* ---------------------------------------------------------------- tabs */
-const TABS = [['overview', 'Přehled'], ['files', 'Soubory'], ['entries', 'Řádky'], ['validation', 'Kontrola'], ['glossary', 'Slovník'], ['publish', 'Publikace'], ['settings', 'Nastavení']];
 /* Small stroke icons for the tabs (24x24, drawn here so no icon font or file is needed). */
 const TAB_ICONS = {
   overview: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
@@ -18,7 +29,7 @@ function tabIcon(k) {
   el.innerHTML = TAB_ICONS[k] || '';
   return el;
 }
-function renderTabs() {
+export function renderTabs() {
   const nav = $('#tabs');
   nav.replaceChildren(...TABS.map(([k, label], i) => {
     const bad = k === 'validation' && S.overview ? S.overview.validation.error : 0;
@@ -29,40 +40,40 @@ function renderTabs() {
 
 /* Look: automatic (follows the system) / dark / light. Stored as a preference, applied through the data-theme attribute. */
 const DENSITY_LABEL = { comfortable: 'pohodlná', compact: 'kompaktní' };
-function applyDensity() {
+export function applyDensity() {
   const dn = pref('ui.density', 'comfortable') === 'compact' ? 'compact' : 'comfortable';
   document.documentElement.dataset.density = dn;
   const b = $('#densityBtn');
   if (b) { setIcon(b, dn === 'compact' ? 'densityC' : 'density'); b.title = `Hustota tabulek: ${DENSITY_LABEL[dn]} (klik přepne)`; }
 }
-function toggleDensity() {
+export function toggleDensity() {
   setPref('ui.density', pref('ui.density', 'comfortable') === 'compact' ? 'comfortable' : 'compact');
   applyDensity();
   toast(`Hustota tabulek: ${DENSITY_LABEL[pref('ui.density', 'comfortable')]}`, 'ok', 1400);
 }
 const THEME_ICON = { auto: '◐', dark: '☾', light: '☀' };
 const THEME_LABEL = { auto: 'automaticky podle systému', dark: 'tmavý', light: 'světlý' };
-function applyTheme() {
+export function applyTheme() {
   const t = ['auto', 'dark', 'light'].includes(pref('ui.theme', 'auto')) ? pref('ui.theme', 'auto') : 'auto';
   const light = t === 'light' || (t === 'auto' && window.matchMedia?.('(prefers-color-scheme: light)').matches);
   document.documentElement.dataset.theme = light ? 'light' : 'dark';
   const b = $('#themeBtn');
   if (b) { setIcon(b, { auto: 'theme', dark: 'moon', light: 'sun' }[t]); b.title = `Vzhled: ${THEME_LABEL[t]} (klik přepne)`; }
 }
-function cycleTheme() {
+export function cycleTheme() {
   const order = ['auto', 'dark', 'light'];
   setPref('ui.theme', order[(order.indexOf(pref('ui.theme', 'auto')) + 1) % 3]);
   applyTheme();
   toast(`Vzhled: ${THEME_LABEL[pref('ui.theme', 'auto')]}`, 'ok', 1600);
 }
 window.matchMedia?.('(prefers-color-scheme: light)').addEventListener?.('change', () => applyTheme());
-function go(view, opts) {
+export function go(view, opts) {
   S.view = view; setPref('view', view);
   S.goOpts = opts || null;
   renderTabs(); render();
 }
 
-async function render() {
+export async function render() {
   const view = $('#view');
   view.className = ['entries', 'files'].includes(S.view) && S.ready ? 'flush' : '';
   if (!S.ready) return renderWelcome();

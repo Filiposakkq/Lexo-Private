@@ -1,6 +1,18 @@
-"use strict";
+import { $, fmtN, h, nf, plural } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S } from './11-state.js';
+import { pref, setPref } from './12-chrome.js';
+import { confirmDialog, fail, status, toast } from './13-feedback.js';
+import { SEV_LABEL, buildTable, chip, empty, fmtText, fname, loading } from './14-renderers.js';
+import { activeChips, filterGroup, pillRow } from './15-filterbar.js';
+import { go } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
+import { openEditor } from './21-files.js';
+import { fixDialog } from './23-fixes.js';
+import { IGN_STATE, ignoreDialog, unignore } from './28-ignore.js';
+import { unifyDialog } from './30-unify.js';
 /* ================================================================ VALIDATION */
-async function viewValidation() {
+export async function viewValidation() {
   const o = S.goOpts; S.goOpts = null;
   if (o?.file !== undefined) setPref('validation.file', o.file);
   if (o?.ignored !== undefined) setPref('validation.ignored', o.ignored);

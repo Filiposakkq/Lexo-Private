@@ -1,6 +1,10 @@
-"use strict";
+import { $, fmtN, fmtPct, h } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S, loadGlossary } from './11-state.js';
+import { confirmDialog, fail, status, toast } from './13-feedback.js';
+import { render, renderTabs } from './16-tabs.js';
 /* ---------------------------------------------------------------- welcome / project */
-function renderWelcome() {
+export function renderWelcome() {
   const view = $('#view');
   view.className = '';
   const input = h('input', { type: 'text', id: 'welPath', placeholder: 'D:\\Hra\\game\\tl\\czech', value: S.projectDir || '' });
@@ -23,11 +27,11 @@ async function offerTakeover(e) {
   if (ok) await openProject(e.data.path, true);
   return true;
 }
-async function openProject(path, force = false) {
+export async function openProject(path, force = false) {
   if (!path.trim()) return toast('Zadej cestu ke složce.', 'bad');
   try { status('Otevírám projekt…'); await post('project/set', { path, force }); await afterProjectChange(); } catch (e) { if (!await offerTakeover(e)) fail(e); }
 }
-async function pickProject() {
+export async function pickProject() {
   try {
     const r = await post('project/pick', {});
     if (r.cancelled) return status('Výběr složky zrušen.');
@@ -43,7 +47,7 @@ async function afterProjectChange() {
   render();
   if (S.ready) toast('Projekt otevřen.');
 }
-async function refreshHeader() {
+export async function refreshHeader() {
   $('#projectPath').textContent = S.ready ? S.projectDir : 'žádný projekt';
   $('#undoBtn').disabled = true;
   $('#refreshBtn').disabled = !S.ready;
@@ -52,7 +56,7 @@ async function refreshHeader() {
   }
   renderTabs(); renderStatusRight();
 }
-function renderStatusRight() {
+export function renderStatusRight() {
   const o = S.overview;
   $('#statusRight').textContent = o ? `${o.project.files} souborů · ${fmtN(o.totals.done)} / ${fmtN(o.totals.total)} řádků · ${fmtPct(o.totals.percent)}` +
     (S.lastRefresh ? ` · obnoveno ${S.lastRefresh}` : '') : '';

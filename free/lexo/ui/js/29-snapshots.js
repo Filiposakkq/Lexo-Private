@@ -1,8 +1,14 @@
-"use strict";
+import { $, h, plural } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S } from './11-state.js';
+import { confirmDialog, dialog, fail, toast } from './13-feedback.js';
+import { buildTable, chip, empty, fname, loading } from './14-renderers.js';
+import { go } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
 /* Zip backups of the translation folder (automatic, before bulk changes, manual). Restoring first saves the current state. */
-const fmtSize = (b) => (b >= 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(b / 1024)) + ' kB');
+export const fmtSize = (b) => (b >= 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(b / 1024)) + ' kB');
 const SNAP_REASON = { auto: 'automatická', bulk: 'před hromadnou změnou', manual: 'ručně vytvořená', restore: 'před obnovením' };
-function snapshotsPanel(s) {
+export function snapshotsPanel(s) {
   const sn = s.snapshots || { enabled: true, interval_hours: 12, keep: 20 };
   const list = h('div');
   const on = h('input', { type: 'checkbox', id: 'set_snap_on', checked: sn.enabled });

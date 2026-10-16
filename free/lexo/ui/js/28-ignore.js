@@ -1,7 +1,12 @@
-"use strict";
+import { $, h } from './00-core.js';
+import { post } from './10-api.js';
+import { S } from './11-state.js';
+import { dialog, fail, toast } from './13-feedback.js';
+import { SEV_LABEL, chip } from './14-renderers.js';
+import { refreshHeader } from './17-project.js';
 /* Ignoring findings on single lines. An ignore is bound to the current translation text: when the text changes, the
    finding shows up again. Ignored findings stay listed (Kontrola -> Ignorované) and can be restored. */
-function ignoreDialog(items, done) {
+export function ignoreDialog(items, done) {
   const note = h('input', { type: 'text', placeholder: 'Proč se to ignoruje? (nepovinné, uvidíš to v seznamu ignorovaných)', style: { width: '100%' } });
   const all = items.length > 1 ? h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: true, id: 'ignAll' }), ` Ignorovat všech ${items.length} nálezů u tohoto řádku`) : null;
   const body = h('div', null,
@@ -19,13 +24,13 @@ function ignoreDialog(items, done) {
   } }] });
   setTimeout(() => note.focus(), 0);
 }
-async function unignore(items, done) {
+export async function unignore(items, done) {
   try {
     const r = await post('ignore/set', { items: items.map((x) => ({ file: x.file, line: x.line || undefined, key: x.key, code: x.code })), on: false });
     toast(`Nález je znovu aktivní (${r.changed}).`, 'ok');
     S.files = null; await refreshHeader(); done?.();
   } catch (e) { fail(e); }
 }
-const IGN_STATE = { active: ['Ignorováno', 'none', 'Nález je schovaný.'], expired: ['Text se změnil', 'warning', 'Překlad se od ignorování změnil, takže se nález zobrazuje znovu (ignorování už neplatí).'],
+export const IGN_STATE = { active: ['Ignorováno', 'none', 'Nález je schovaný.'], expired: ['Text se změnil', 'warning', 'Překlad se od ignorování změnil, takže se nález zobrazuje znovu (ignorování už neplatí).'],
   resolved: ['Už se neděje', 'tr', 'Text je stejný, ale kontrola tenhle nález už nehlásí (třeba po změně nastavení).'], gone: ['Řádek zmizel', 'none', 'Řádek už v souboru není.'] };
 

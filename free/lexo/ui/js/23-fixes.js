@@ -1,7 +1,13 @@
-"use strict";
+import { $, h, plural } from './00-core.js';
+import { post } from './10-api.js';
+import { S } from './11-state.js';
+import { dialog, fail, toast } from './13-feedback.js';
+import { chip, fname } from './14-renderers.js';
+import { go } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
 /* Fix speaker / attributes / trailing code from the original (the only operation that edits the .rpy files). */
 /* Shows what changed between two texts: common start / end stay plain, the middle is marked. */
-function diffSpans(before, after) {
+export function diffSpans(before, after) {
   const n = Math.min(before.length, after.length);
   let i = 0;
   while (i < n && before[i] === after[i]) i++;
@@ -19,7 +25,7 @@ const FIX_KIND_HELP = {
   spaces: 'Několik mezer za sebou mezi slovy se změní na jednu (jen když je originál nemá taky).',
   typo: 'Návrhy podle slovníku z tvého vlastního překladu. Krátká a nejistá slova jsou odškrtnutá, protože může jít o falešný poplach (byt / být). Zaškrtni jen to, co opravdu chceš.',
 };
-async function fixDialog({ items = [], file = '', kinds = ['speaker', 'spaces', 'typo'] }, done) {
+export async function fixDialog({ items = [], file = '', kinds = ['speaker', 'spaces', 'typo'] }, done) {
   let data;
   try { data = await post('fix/preview', { items, file, kinds }); } catch (e) { return fail(e); }
   if (!data.total) return toast('Není co opravovat.', 'ok');
