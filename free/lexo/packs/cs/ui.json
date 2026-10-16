@@ -1044,6 +1044,7 @@
   "The DeepL answer does not have the expected shape.": "Odpověď DeepL nemá očekávaný tvar.",
   "The default 65 comes from the game's gui.rpy (text width 1116 px, font 33 px).": "Výchozí 65 vychází z gui.rpy hry (šířka textu 1116 px, písmo 33 px).",
   "The episodes {nums} do not match the active range {active}.": "Epizody {nums} neodpovídají aktivnímu rozsahu {active}.",
+  "The event log could not be written: {reason}": "Záznam změn se nepodařilo zapsat: {reason}",
   "The exact text of the original is compared": "Porovnává se přesný text originálu",
   "The existing file in the repository cannot be read; it will be overwritten.": "Stávající soubor v repozitáři nejde přečíst; bude přepsán.",
   "The export did not pass the check: {problems}": "Export neprošel kontrolou: {problems}",
@@ -1422,6 +1423,11 @@
   "{lines}, {matches}": "{lines}, {matches}",
   "{lines}. Undo: “Undo the last file change”.": "{lines}. Zpět: „Vrátit poslední změnu souboru“.",
   "{n} % similar": "{n} % podobné",
+  "{n} change by another author was merged.|{n} changes by other authors were merged.": [
+   "{n} změna jiného autora byla sloučena.",
+   "{n} změny jiných autorů byly sloučeny.",
+   "{n} změn jiných autorů bylo sloučeno."
+  ],
   "{n} change|{n} changes": [
    "{n} změna",
    "{n} změny",

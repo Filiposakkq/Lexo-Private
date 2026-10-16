@@ -73,6 +73,27 @@ part becomes public is decided before the first release.
 In the code (already built): `features.py` is the catalog of gated features and the `Entitlements` object; the application asks it at the few
 places where a Pro feature is used. Today the default is everything on (development); the licence loader will later provide the real answer.
 
+## How Pro gets into Free (flow, decided in principle)
+What the user sees: enters a key in Settings, the Pro features appear, nothing is reinstalled by hand.
+
+1. **Free build** contains the gate (`features.py`), the licence-key check and the deliberately limited Free version of each gated feature (written as its own simpler implementation, not as the Pro code with a flag). It contains **no Pro code**.
+2. **Key entered:** the app verifies the Ed25519 signature offline (public key inside the app). A malformed or forged key is refused before any network call.
+3. **Activation:** the app registers the device with the licence server (anonymous installation id, two devices per key) and receives a signed answer (valid until, features, module version to use).
+4. **Download:** the server hands out the Pro module for this app version only for a valid licence. The package is **signed**; the app verifies the signature before it stores it in `<config>/pro/` and again before every load (a modified package is ignored with a notice).
+5. **Load:** the Pro loader loads the module and registers its features in the registry; from then on `features.py` answers "available" and the Pro implementation replaces the Free one. The UI shows the Pro features because the registry has them.
+6. **Every 30 days** the licence is re-checked (14 days grace without internet). When it lapses, only the loader stops loading the module: projects and data stay, Free keeps working, the downloaded package may stay on disk.
+7. **App updates and the module:** the module declares which app versions it fits; after an app update the loader downloads a matching module (or says that none exists yet) and never loads an incompatible one.
+
+Where it attaches in the code (Python today): `App` is assembled from parts (`app_*.py`). A Pro part is one more mixin added to `App` by the loader. Parts that are Pro only
+(`app_mt.py`, `app_publish.py`) can move to `pro/` as they are; parts with a Free and a Pro behaviour (fixes, replace, bulk assignment) need their Free variant written separately first.
+The gates that exist now (`_gate`, `_cap` in `app_core.py`) are the places to replace by the registry.
+
+**Open until the start of the Rust port** (decided then, not before): how the Pro module is loaded in the Tauri app. Candidates:
+- a **sidecar**: Pro is a separate program that the app starts and talks to through a local interface; needs the clean UI-Core interface of roadmap step 5 anyway (current favourite);
+- a **dynamic library** loaded at run time (fast, but fragile across versions and platforms);
+- a **WebAssembly plug-in** (safest sandbox, most work).
+The design above (signed key, signed package, registry, gates in few places) holds for all three; only step 5 changes.
+
 ## Can it be separated later?
 Yes. Every module marked "only `app.py`" is imported from nowhere else, so it can move to `pro/` and be loaded through a registry
 instead of a direct import. What has to be built first (roadmap step 2):

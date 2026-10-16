@@ -15,7 +15,7 @@ which keeps an undo stack of the most recent changes.
 """
 import copy
 import hashlib
-from datetime import date
+
 from pathlib import Path
 
 from . import layout
@@ -108,6 +108,7 @@ class Store:
         self.undo_stack = []
         self.unsaved = set()  # kinds whose last save failed
         self.warnings = []
+        self.events = None   # EventLog of the open project (attach_events), None in tests that use the store alone
 
     # ------------------------------------------------------------ paths
     def path(self, kind):
@@ -243,6 +244,145 @@ class Store:
             except WriteFailed as e:
                 self.warnings.append(str(e))
 
+    # ------------------------------------------------------------ event log (events.py)
+    EVENT_KINDS = ("corr", "assign", "approved", "episodes", "proof", "ignored")
+
+    def flatten(self):
+        """The shared state as {kind: {key tuple: JSON value}}; empty rows (the blank lines added for new files) do not count."""
+        out = {k: {} for k in self.EVENT_KINDS}
+        for f, v in self.corr.items():
+            if v.get("c") or v.get("t"):
+                out["corr"][(f,)] = {"c": v.get("c", ""), "t": v.get("t", "")}
+        for f, v in self.assign.items():
+            if v:
+                out["assign"][(f,)] = v
+        for f, keys in self.approved.items():
+            for b, o in keys:
+                out["approved"][(f, b, o)] = True
+        for n, st in self.episodes.items():
+            out["episodes"][(n,)] = st
+        for f, marks in self.proof.items():
+            for (b, o), m in marks.items():
+                out["proof"][(f, b, o)] = dict(m)
+        for f, marks in self.ignored.items():
+            for (b, o, code), m in marks.items():
+                out["ignored"][(f, b, o, code)] = dict(m)
+        return out
+
+    def _set_flat(self, kind, key, value):
+        """Apply one replayed value (None = removed) to the in-memory state. Returns True when something changed."""
+        if kind == "corr":
+            cur = self.corr.get(key[0], {"c": "", "t": ""})
+            new = {"c": "", "t": ""} if value is None else {"c": value.get("c", ""), "t": value.get("t", "")}
+            if (cur.get("c", ""), cur.get("t", "")) == (new["c"], new["t"]):
+                return False
+            self.corr[key[0]] = new
+        elif kind == "assign":
+            if value is not None and not valid_assign(value):
+                return False
+            if self.assign.get(key[0], "") == (value or ""):
+                return False
+            if value is None:
+                self.assign.pop(key[0], None)
+            else:
+                self.assign[key[0]] = value
+        elif kind == "approved":
+            have = (key[1], key[2]) in self.approved.get(key[0], ())
+            if have == (value is not None):
+                return False
+            if value is None:
+                self.approved[key[0]].discard((key[1], key[2]))
+                if not self.approved[key[0]]:
+                    del self.approved[key[0]]
+            else:
+                self.approved.setdefault(key[0], set()).add((key[1], key[2]))
+        elif kind == "episodes":
+            if value is not None and value not in EP_STATE_KEYS:
+                return False
+            if self.episodes.get(key[0]) == value:
+                return False
+            if value is None:
+                self.episodes.pop(key[0], None)
+            else:
+                self.episodes[key[0]] = value
+        elif kind in ("proof", "ignored"):
+            table = getattr(self, kind)
+            k = tuple(key[1:])
+            if table.get(key[0], {}).get(k) == value:
+                return False
+            if value is None:
+                table[key[0]].pop(k, None)
+                if not table[key[0]]:
+                    del table[key[0]]
+            else:
+                table.setdefault(key[0], {})[k] = value
+        else:
+            return False
+        return True
+
+    def attach_events(self, log):
+        self.events = log
+        return self
+
+    def _diff_to_events(self, base):
+        """Changes (kind, key, value) that turn the flat state `base` into the current in-memory state."""
+        now, out = self.flatten(), []
+        for kind in self.EVENT_KINDS:
+            cur, old = now[kind], base.get(kind, {})
+            out += [(kind, k, v) for k, v in cur.items() if old.get(k) != v]
+            out += [(kind, k, None) for k in old if k not in cur]
+        return out
+
+    def record_changes(self):
+        """Write the difference between the memory and the log as events of this author (after every change and undo)."""
+        if not self.events:
+            return 0
+        try:
+            return self.events.append(self._diff_to_events(self.events.flat()))
+        except OSError as e:
+            self.warnings.append(msg("The event log could not be written: {reason}", reason=e))
+            return 0
+
+    def sync_events(self):
+        """Reconcile the CSV state in memory with the event log. Returns the number of events of other authors that changed something.
+
+        First run on a computer (no seen file): if the log is empty the current state is written as the first events; if the log already
+        has events, it wins over the CSV files (they may be old). Later runs: differences between the memory (edited in Excel, say) and
+        the part of the log read before become events of this author; then the events written by others since are merged in."""
+        log = self.events
+        if not log:
+            return 0
+        seen, unseen, ends = log.read_all()
+        log.state = {}
+        log.replay(seen)
+        if log.known or not (seen or unseen):
+            self.record_changes()                      # local edits since the last run (or the very first baseline)
+        log.replay(unseen)
+        log.offsets.update(ends)
+        merged = 0
+        changed_kinds = set()
+        if not log.known and (seen or unseen):         # the log is the truth: whatever the CSV files hold beyond it is old
+            have = log.flat()
+            for kind, slot in self.flatten().items():
+                for key in slot:
+                    if key not in have.get(kind, {}) and self._set_flat(kind, key, None):
+                        changed_kinds.add(kind)
+        for kind, slot in log.state.items():
+            for key, (value, _) in list(slot.items()):
+                if kind in self.EVENT_KINDS and self._set_flat(kind, key, value):
+                    changed_kinds.add(kind)
+        merged = sum(1 for ev, src in unseen if src != log.path.name)
+        for kind in sorted(changed_kinds):
+            try:
+                self.save(kind)
+            except WriteFailed as e:
+                self.warnings.append(str(e))
+        # keys that exist only in the memory (kept from the CSV) are events now, so the log is complete
+        self.record_changes()
+        log.known = True
+        log.save_seen()
+        return merged if changed_kinds else 0
+
     # ------------------------------------------------------------ undoable change
     def change(self, label, kinds, fn):
         """Run `fn()` (which mutates in-memory state), save `kinds`, and record an undo step.
@@ -259,6 +399,7 @@ class Store:
         if before != {k: getattr(self, k) for k in kinds}:
             self.undo_stack.append({"label": label, "kinds": tuple(kinds), "before": before})
             del self.undo_stack[:-UNDO_LIMIT]
+            self.record_changes()
         return result
 
     def undo(self):
@@ -277,6 +418,7 @@ class Store:
                 setattr(self, k, v)
             raise
         self.undo_stack.pop()
+        self.record_changes()
         return step["label"]
 
     def clear_undo(self):

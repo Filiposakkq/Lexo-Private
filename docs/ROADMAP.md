@@ -60,7 +60,7 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 | # | Step | State |
 |---|---|---|
 | 1 | UI texts: English source, Czech as a pack | **done** (browser UI and Python messages; see UI-TEXTS.md) |
-| 2 | Data layout: `.lexo/`, English file names, per-author event log, migration (docs/DATA-LAYOUT.md) | **2a, 2b done** (English names/columns/values; `.lexo/` + local data in the app data folder; migrations in `migrate.py` and `datadir.py`); 2c event log: planned |
+| 2 | Data layout: `.lexo/`, English file names, per-author event log, migration (docs/DATA-LAYOUT.md) | **2a, 2b done** (English names/columns/values; `.lexo/` + local data in the app data folder; migrations in `migrate.py` and `datadir.py`); 2c event log done (`events.py`) |
 | 3 | Rest of the generalisation: group/season wording from `labels`, BaDIK names and links, `ep1` name hints, tests on 3-4 other games (needs their `game` folders) | partly (project file, language packs done) |
 | 4 | Split Core and UI; Core interface; feature registry loaded through the Pro loader | registry done, split open |
 | 5 | Interface contract between UI and Core (JSON calls with tests, also the check for the Rust port) | planned |
@@ -71,3 +71,4 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - Step 2a done: data files have English names, headers and values; `migrate.py` copies the old Czech-named files once (old ones untouched); text-history sources are translatable messages; project status labels removed (only keys remained in use). 475 tests, UI self-test 137/137. Still Czech as data: `rpy.py` line kinds. Next: 2b.
 - Step 2b done: shared data in `.lexo/` (`lexo.json`, `project-id`, CSV files), local data (backups, snapshots, lock, text history, progress.*) in `<config>/projects/<id>`; the old `_progress_data` is copied once and left untouched. 476 tests, UI self-test 137/137. Next: 2c (event log).
 - App split: `app.py` (2 094 lines, one class) is now 13 mixin parts `app_*.py` + `app_base.py`; proved lossless (115 members, identical syntax trees), `test_app_parts.py` guards the size. FeatureLocked message is translatable. 479 tests, UI self-test 137/137. Core/UI split proper (step 4) is still open: the parts still know the config and the file system.
+- Step 2c done: per-author event log (`.lexo/events/<author>.jsonl`) for the project state; events of other authors are merged at open and refresh, CSV hand edits become events; 12 new tests. Step 2 (data layout) is finished except the Czech line kinds in `rpy.py`. Docs: FEATURES.md has the flow "How Pro gets into Free". Next: step 3 (rest of the generalisation; needs other games) or the cleanup of the line kinds.
