@@ -48,6 +48,10 @@ def main():
             ctx = browser.new_context(viewport={"width": 1400, "height": 900}, bypass_csp=True)
             page = ctx.new_page()
             page.on("pageerror", lambda e: page_errors.append(str(e)))
+            started, durations = {}, []                  # how long every API call took: a slow runner shows up here
+            page.on("request", lambda r: started.__setitem__(r, time.time()) if "/api/" in r.url else None)
+            page.on("requestfinished", lambda r: durations.append((time.time() - started.pop(r), r.url.split("/api/")[-1][:60])) if r in started else None)
+            page.on("requestfailed", lambda r: durations.append((-1.0, "FAILED " + r.url.split("/api/")[-1][:60])) if "/api/" in r.url else None)
             page.goto(url)
             deadline = time.time() + TIMEOUT_MS / 1000
             while not page.evaluate("Boolean(window.__selftest && window.__selftest.done)"):
@@ -56,6 +60,7 @@ def main():
                 time.sleep(1)
             result = page.evaluate("window.__selftest")
             page.screenshot(path=str(HERE / "selftest-result.png"))
+            view_text = page.evaluate("(document.querySelector('#view') || document.body).innerText.slice(0, 400)")
             browser.close()
     finally:
         cleanup()
@@ -66,6 +71,10 @@ def main():
         print(f"  FAIL  {r['name']}  {r.get('detail', '')}")
     if results:
         print(f"  last check that ran: {results[-1]['name']}")
+    slow = sorted(durations, reverse=True)[:5]
+    print("  slowest API calls: " + "; ".join(f"{d:.1f}s {u}" for d, u in slow))
+    if failed:
+        print("  view text at the end: " + " | ".join(view_text.splitlines()))
     for e in result.get("errors", []) + page_errors:
         print(f"  JS ERROR  {e}")
     if failed or result.get("errors") or page_errors:
