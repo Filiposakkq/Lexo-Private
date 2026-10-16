@@ -43,17 +43,40 @@ def msgn(n, one, many, **params):
     return Message(one, many, n=n, **params)
 
 
+class Joined(str):
+    """Several messages (or plain texts) put one after another: join([msg("added {n}", n=2), msg("changed {n}", n=1)], ", ", ".")."""
+
+    def __new__(cls, parts, sep="", end=""):
+        obj = super().__new__(cls, sep.join(str(p) for p in parts) + end)
+        obj.parts, obj.sep, obj.end = list(parts), sep, end
+        return obj
+
+    def __reduce__(self):
+        return (Joined, (self.parts, self.sep, self.end))
+
+
+def join(parts, sep="", end=""):
+    return Joined(parts, sep, end)
+
+
 def text_of(exc):
     """The message of an exception: its Message when it has one (so the template survives), otherwise str(exc)."""
     first = exc.args[0] if getattr(exc, "args", None) else None
     return first if isinstance(first, Message) else str(exc)
 
 
+def _plain(value):
+    """A value that JSON can carry: numbers, text, None, bool stay; anything else (a Path ...) becomes its text."""
+    return value if value is None or isinstance(value, (bool, int, float, str, list, tuple, dict)) else str(value)
+
+
 def wire(value):
     """JSON-ready copy of `value`: every Message becomes {"$m": template, "p": values} (and "$n": the plural template for counted
     messages); containers are walked, other values stay."""
+    if isinstance(value, Joined):
+        return {"$j": [wire(p) for p in value.parts], "sep": value.sep, "end": value.end}
     if isinstance(value, Message):
-        out = {"$m": value.template, "p": {k: wire(v) for k, v in value.params.items()}}
+        out = {"$m": value.template, "p": {k: wire(_plain(v)) for k, v in value.params.items()}}
         if value.plural is not None:
             out["$n"] = value.plural
         return out
@@ -67,6 +90,8 @@ def wire(value):
 def render(value):
     """The English text of what `wire` produced: every {"$m": ..., "p": ...} becomes its formatted English text. For tests and the command line."""
     if isinstance(value, dict):
+        if "$j" in value:
+            return value.get("sep", "").join(str(render(p)) for p in value["$j"]) + value.get("end", "")
         if "$m" in value:
             params = {k: render(v) for k, v in value.get("p", {}).items()}
             return str(Message(value["$m"], value.get("$n"), **params))

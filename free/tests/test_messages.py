@@ -7,7 +7,7 @@ import unittest
 from helpers import ROOT  # noqa: F401  (puts the package on sys.path)
 
 from lexo.app import AppError
-from lexo.messages import Message, msg, msgn, render, text_of, wire
+from lexo.messages import Message, join, msg, msgn, render, text_of, wire
 
 
 class MessageTests(unittest.TestCase):
@@ -34,6 +34,14 @@ class MessageTests(unittest.TestCase):
         self.assertEqual(w["error"], {"$m": "Bad {x}", "p": {"x": 1}})
         self.assertEqual(w["nested"]["p"]["inner"], {"$m": "Inner {y}", "p": {"y": 2}})
         self.assertEqual(render(w), {"ok": False, "error": "Bad 1", "list": ["A", "plain", 3], "nested": "Outer Inner 2", "n": "2 files"})
+
+    def test_joined_messages_travel_as_a_list(self):
+        j = join([msg("added {n}", n=2), msg("changed {n}", n=1)], ", ", ".")
+        self.assertEqual(j, "added 2, changed 1.")
+        w = wire({"summary": j})
+        self.assertEqual(w["summary"]["sep"], ", ")
+        self.assertEqual(render(w), {"summary": "added 2, changed 1."})
+        self.assertEqual(join([msg("A"), ""], ""), "A")
 
     def test_text_of_keeps_the_template_of_an_exception(self):
         m = msg("Unknown file: {name}", name="x")

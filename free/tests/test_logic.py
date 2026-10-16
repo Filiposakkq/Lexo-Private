@@ -89,7 +89,7 @@ class SuggestTests(unittest.TestCase):
     def test_season_folder_without_episode_is_explained(self):
         s = self.one(rel("season2", "scripts", "laptop", "laptop.rpy"))
         self.assertEqual(s["suggested"], "")
-        self.assertIn("sezóny 2", s["reason"])
+        self.assertIn("season 2", s["reason"])
 
 
 class BulkApplyTests(TempCase):
@@ -140,7 +140,7 @@ class GlobalApprovalTests(TempCase):
         other_speaker = [i for i in proj["items"] if i["who"] == "de" and i["text"] == "Hmm..."][0]
         self.assertFalse(other_speaker["selected"])
         self.assertTrue(other_speaker["selectable"])
-        self.assertIn("jiný mluvčí", other_speaker["notes"][0])
+        self.assertIn("another speaker", other_speaker["notes"][0])
         same_speaker = [i for i in proj["items"] if i["who"] == "mc" and i["file"] != f][0]
         self.assertTrue(same_speaker["selected"])
         self.assertTrue(by[(f, line)]["is_reference"])

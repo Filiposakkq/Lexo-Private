@@ -7,6 +7,7 @@ from pathlib import Path
 
 from . import rpy
 from .store import parse_corr, parse_value, text_hash
+from .messages import join, msg
 
 DATA_DIR_NAME = "_progress_data"
 IGNORED_DIRS = {DATA_DIR_NAME, ".git", "__pycache__", "node_modules"}
@@ -57,15 +58,19 @@ class RefreshReport:
 
     def summary(self):
         if not self.changed and not self.errors:
-            return "Beze změn."
+            return msg("No changes.")
         parts = []
-        for label, items in (("přidáno", self.added), ("změněno", self.modified),
-                             ("přejmenováno", self.renamed), ("odebráno", self.removed)):
-            if items:
-                parts.append(f"{label} {len(items)}")
+        if self.added:
+            parts.append(msg("added {n}", n=len(self.added)))
+        if self.modified:
+            parts.append(msg("changed {n}", n=len(self.modified)))
+        if self.renamed:
+            parts.append(msg("renamed {n}", n=len(self.renamed)))
+        if self.removed:
+            parts.append(msg("removed {n}", n=len(self.removed)))
         if self.errors:
-            parts.append(f"problémy {len(self.errors)}")
-        return ", ".join(parts) + "."
+            parts.append(msg("problems {n}", n=len(self.errors)))
+        return join(parts, ", ", ".")
 
     def to_dict(self):
         return {"added": self.added, "removed": self.removed, "modified": self.modified,
@@ -79,20 +84,20 @@ def check_project_dir(path):
     try:
         p = Path(path)
         if not str(path).strip():
-            return False, "Není vybraná žádná složka."
+            return False, msg("No folder is selected.")
         if not p.exists():
-            return False, f"Složka neexistuje: {p}"
+            return False, msg("The folder does not exist: {p}", p=p)
         if not p.is_dir():
-            return False, f"Není to složka: {p}"
+            return False, msg("It is not a folder: {p}", p=p)
         if not os.access(p, os.R_OK):
-            return False, f"Ke složce nemám přístup pro čtení: {p}"
+            return False, msg("I have no permission to read the folder: {p}", p=p)
         for _dirpath, dirs, files in os.walk(p):
             dirs[:] = [d for d in dirs if d not in IGNORED_DIRS]
             if any(f.lower().endswith(".rpy") for f in files):
                 return True, ""
-        return False, f"Ve složce nejsou žádné soubory .rpy: {p}"
+        return False, msg("There are no .rpy files in the folder: {p}", p=p)
     except OSError as e:
-        return False, f"Složku nelze číst: {e}"
+        return False, msg("The folder cannot be read: {reason}", reason=e)
 
 
 class Project:
@@ -109,12 +114,12 @@ class Project:
     # ------------------------------------------------------------ discovery
     def _discover(self, errors, failed_dirs):
         if not self.root.is_dir():
-            raise ProjectUnavailable(f"Složka projektu není dostupná: {self.root}")
+            raise ProjectUnavailable(msg("The project folder is not available: {root}", root=self.root))
         found = {}
 
         def onerror(e):
             failed_dirs.append(Path(getattr(e, "filename", "") or self.root))
-            errors.append(f"Složku nelze procházet: {getattr(e, 'filename', '')} ({e.strerror or e})")
+            errors.append(msg("The folder cannot be browsed: {name} ({reason})", name=getattr(e, 'filename', ''), reason=e.strerror or e))
 
         for dirpath, dirs, files in os.walk(self.root, onerror=onerror):
             dirs[:] = sorted(d for d in dirs if d not in IGNORED_DIRS)
@@ -151,7 +156,7 @@ class Project:
             try:
                 parsed = rpy.parse_bytes(full.read_bytes())
             except OSError as e:
-                report.errors.append(f"{rel}: soubor nelze přečíst ({e.strerror or e}); ponechán poslední známý stav.")
+                report.errors.append(msg("{rel}: the file cannot be read ({reason}); the last known state is kept.", rel=rel, reason=e.strerror or e))
                 continue
             fresh[rel] = FileInfo(rel, sig, parsed)
 
@@ -229,7 +234,7 @@ class Project:
                     store.approved.setdefault(new, store.approved.pop(old))
                 if old in store.proof:
                     store.proof.setdefault(new, store.proof.pop(old))
-        store.change("Přejmenované soubory", ("corr", "assign", "approved", "proof"), go)
+        store.change(msg("Renamed files"), ("corr", "assign", "approved", "proof"), go)
         store.clear_undo()   # older undo steps refer to the old names
         return len(moved)
 
@@ -297,7 +302,7 @@ class Project:
         full = (self.root / rel).resolve()
         root = self.root.resolve()
         if root != full and root not in full.parents:
-            raise ValueError("Soubor není uvnitř složky projektu.")
+            raise ValueError(msg("The file is not inside the project folder."))
         return full
 
 

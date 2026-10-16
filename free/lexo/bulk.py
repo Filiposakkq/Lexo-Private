@@ -10,6 +10,7 @@ from . import rpy
 from . import layout
 from .store import assign_label, valid_assign
 from .util import norm_ws
+from .messages import join, msg
 
 EP_RE = re.compile(r"(?<![a-z0-9])(?:episode|ep)[ _-]?0*(\d{1,2})(?!\d)")
 UPDATE_RE = re.compile(r"(?<![a-z0-9])update[ _-]?0*(\d{1,2})(?!\d)")
@@ -70,49 +71,47 @@ def suggest(names, current, known_assign=None):
         season_conflict = False
         note = ""
         if invalid:
-            note = f" (číslo epizody {', '.join(map(str, invalid))} v cestě není v aktivním rozsahu 1–{max(layout.ACTIVE_EPISODES, default=0)})"
+            note = msg(" (the episode number(s) {numbers} in the path are outside the active range 1–{max})", numbers=', '.join(map(str, invalid)), max=max(layout.ACTIVE_EPISODES, default=0))
 
         if len(valid) == 1:
             ep = valid[0]
             sug, conf = f"ep:{ep}", "high"
-            reason = f"Název nebo složka obsahuje „ep{ep}“."
+            reason = msg("The name or folder contains “ep{ep}”.", ep=ep)
             if allowed and ep not in allowed:
                 conf, season_conflict = "low", True
-                reason = (f"Cesta obsahuje epizodu {ep} (sezóna {layout.season_of(ep)}), ale leží ve složce sezóny "
-                          f"{', '.join(map(str, season_dirs))}.")
+                reason = (msg("The path contains episode {ep} (season {season}), but it lies in the folder of season {folders}.", ep=ep, season=layout.season_of(ep), folders=', '.join(map(str, season_dirs))))
         elif len(valid) > 1:
             cands = [f"ep:{e}" for e in valid]
             in_season = [e for e in valid if not allowed or e in allowed]
             if len(in_season) == 1 and allowed:
                 sug, conf = f"ep:{in_season[0]}", "medium"
-                reason = f"V cestě je více epizod ({', '.join(map(str, valid))}); složka sezóny vybírá epizodu {in_season[0]}."
+                reason = msg("There are several episodes in the path ({eps}); the season folder selects episode {ep}.", eps=', '.join(map(str, valid)), ep=in_season[0])
             else:
-                reason = f"Nejednoznačné: cesta obsahuje více epizod ({', '.join(map(str, valid))})."
+                reason = msg("Ambiguous: the path contains several episodes ({eps}).", eps=', '.join(map(str, valid)))
         elif len(updates) == 1 and updates[0] in layout.ACTIVE_EPISODES:
             ep = updates[0]
             sug, conf = f"ep:{ep}", "medium"
-            reason = f"Soubor „update{ep}“ odpovídá epizodě {ep} (konvence tohoto projektu)."
+            reason = msg("The file “update{ep}” corresponds to episode {ep} (the convention of this project).", ep=ep)
             if allowed and ep not in allowed:
                 conf, season_conflict = "low", True
-                reason += " Složka sezóny s tím ale nesedí."
+                reason = join([reason, msg("The season folder does not fit this.")], " ")
         else:
             d = posixpath.dirname(_posix(name))
             sib = by_dir.get(d)
             stem = posixpath.splitext(posixpath.basename(_posix(name)))[0]
             if sib and len(sib) == 1 and next(iter(sib)):
                 sug, conf = next(iter(sib)), "medium"
-                reason = f"Ostatní soubory ve stejné složce jsou zařazené jako „{assign_label(sug)}“."
+                reason = msg("The other files in the same folder are assigned as “{label}”.", label=assign_label(sug))
             elif stem in SHARED_STEMS:
                 sug, conf = "gen", "medium"
-                reason = "Název odpovídá souborům celé hry (hlavička, nastavení, obrazovky)."
+                reason = msg("The name matches the files of the whole game (header, options, screens).")
             elif sib and len(sib) > 1:
                 cands = [k for k, _ in sib.most_common()]
-                reason = "Soubory ve stejné složce jsou zařazené do různých epizod."
+                reason = msg("The files in the same folder are assigned to different episodes.")
             elif allowed:
-                reason = (f"Složka patří do sezóny {', '.join(map(str, season_dirs))} (epizody "
-                          f"{min(allowed)}–{max(allowed)}), konkrétní epizodu z cesty nelze určit.")
+                reason = (msg("The folder belongs to season {seasons} (episodes {a}–{b}), the exact episode cannot be told from the path.", seasons=', '.join(map(str, season_dirs)), a=min(allowed), b=max(allowed)))
             else:
-                reason = "Nelze odvodit z názvu ani ze složky." + note
+                reason = join([msg("Cannot be derived from the name or the folder."), note], "")
         if sug and not valid_assign(sug):
             sug, conf = "", "none"
 
@@ -126,7 +125,7 @@ def suggest(names, current, known_assign=None):
             state = "same"
         elif cur:
             state = "conflict"
-            reason += f" Ručně je nastaveno „{assign_label(cur)}“."
+            reason = join([reason, msg("It is set to “{label}” by hand.", label=assign_label(cur))], " ")
         else:
             state = "new"
         out.append({"name": name, "current": cur, "suggested": sug, "confidence": conf,
@@ -147,20 +146,20 @@ def apply_assignments(store, items):
         for it in items:
             name, v = it["name"], it.get("value", "")
             if not valid_assign(v):
-                skipped.append((name, "neplatné zařazení"))
+                skipped.append((name, msg("invalid assignment")))
                 continue
             cur = store.assign.get(name, "")
             if cur == v:
                 continue
             if cur and not it.get("overwrite"):
-                skipped.append((name, "má ručně nastavené zařazení (přepsání nebylo potvrzeno)"))
+                skipped.append((name, msg("has an assignment set by hand (the overwrite was not confirmed)")))
                 continue
             if v:
                 store.assign[name] = v
             else:
                 store.assign.pop(name, None)
             applied.append(name)
-    store.change(f"Zařazení souborů ({len(items)})", ("assign",), go)
+    store.change(msg("Assignment of files ({n})", n=len(items)), ("assign",), go)
     return {"applied": applied, "skipped": skipped}
 
 
@@ -181,10 +180,10 @@ def approval_candidates(project, rel, line, scope="project", same_speaker=True):
     Returns {reference, scope, items:[...], counts}.
     """
     if scope not in SCOPES:
-        raise ValueError("neznámý rozsah")
+        raise ValueError(msg("unknown scope"))
     ref = next((e for e in project.entries(rel) if e.line == line), None)
     if ref is None or not ref.pending:
-        raise ValueError("Řádek není mezi nepřeloženými.")
+        raise ValueError(msg("The line is not among the untranslated ones."))
     src, tgt = norm_ws(ref.source), norm_ws(ref.target)
     approved = project.store.approved
     files = [rel] if scope in ("occurrence", "file") else sorted(project.files, key=str.lower)
@@ -202,16 +201,16 @@ def approval_candidates(project, rel, line, scope="project", same_speaker=True):
             selectable, default = True, True
             if already:
                 selectable = default = False
-                reasons.append("už schváleno")
+                reasons.append(msg("already approved"))
             if e.category == rpy.K_EMPTY:
                 selectable = default = False
-                reasons.append("prázdný překlad nelze schválit")
+                reasons.append(msg("an empty translation cannot be approved"))
             if not same_who and same_speaker:
                 default = False
-                reasons.append(f"jiný mluvčí („{e.who or '—'}“ místo „{ref.who or '—'}“)")
+                reasons.append(msg("another speaker (“{a}” instead of “{b}”)", a=e.who or '—', b=ref.who or '—'))
             if e.category == rpy.K_ENGLISH and default:
                 default = False
-                reasons.append("vypadá jako nepřeložená angličtina")
+                reasons.append(msg("looks like untranslated English"))
             if e is ref:
                 default = selectable
             items.append({"file": f, "line": e.line, "block": e.block, "who": e.who,
@@ -237,15 +236,15 @@ def apply_approvals(project, selections, on=True, label=None):
     for sel in selections:
         f, key = sel["file"], (str(sel["key"][0]), norm_ws(str(sel["key"][1])))
         if f not in project.files:
-            skipped.append((f, "neznámý soubor"))
+            skipped.append((f, msg("unknown file")))
             continue
         if on:
             ent = next((e for e in project.entries(f) if e.pending and e.key == key), None)
             if ent is None:
-                skipped.append((f, "řádek se mezitím změnil – obnov soubory"))
+                skipped.append((f, msg("the line changed in the meantime – refresh the files")))
                 continue
             if ent.category == rpy.K_EMPTY:
-                skipped.append((f, "prázdný překlad nelze schválit"))
+                skipped.append((f, msg("an empty translation cannot be approved")))
                 continue
         plan[f].add(key)
     changed = 0
@@ -261,16 +260,16 @@ def apply_approvals(project, selections, on=True, label=None):
             else:
                 store.approved.pop(f, None)
     n = sum(len(k) for k in plan.values())
-    store.change(label or (f"{'Schválení' if on else 'Zrušení schválení'} {n} řádků"), ("approved",), go)
+    store.change(label or ((msg("Approving {n} lines", n=n) if on else msg("Removing the approval of {n} lines", n=n))), ("approved",), go)
     return {"changed": changed, "skipped": skipped}
 
 
 # ---------------------------------------------------------------- approval by rule
 
 RULES = {
-    "symbols": "Jen znaky (…, ?!, čísla) – nic k překladu",
-    "interjections": "Citoslovce (Hmm, Ah, Haha, Wow, Ugh…) – v češtině stejná",
-    "names": "Jen jména ze Slovníku (mluvčí, termíny)",
+    "symbols": msg("Symbols only (…, ?!, numbers) – nothing to translate"),
+    "interjections": msg("Interjections (Hmm, Ah, Haha, Wow, Ugh…) – the same in the translation"),
+    "names": msg("Only names from the Glossary (speakers, terms)"),
 }
 INTERJECTIONS = {"hm", "hmm", "hmmm", "mm", "mmm", "mhm", "ah", "aha", "ahh", "oh", "ooh", "uh", "uhm", "um", "umm",
                  "ugh", "ha", "haha", "hahaha", "hehe", "heh", "hihi", "wow", "whoa", "yay", "ow", "ouch", "argh",
@@ -323,7 +322,7 @@ def rule_candidates(project, glossary, rules, rels=None):
             items.append({"file": f, "line": e.line, "block": e.block, "who": e.who, "text": text, "rule": hit,
                           "key": [e.block, norm_ws(e.source)], "approved": already,
                           "selectable": not already, "selected": not already,
-                          "notes": ["už schváleno"] if already else []})
+                          "notes": [msg("already approved")] if already else []})
     return {"items": items, "rules": RULES, "files": len(files),
             "counts": {"total": len(items), "selectable": sum(1 for i in items if i["selectable"]),
                        "by_rule": dict(per_rule)}}

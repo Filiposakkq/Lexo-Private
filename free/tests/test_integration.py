@@ -59,7 +59,7 @@ class ConfigTests(TempCase):
         with mock.patch("lexo.cli.app_dir", return_value=self.tmp / "nowhere"):
             path, note = cli.choose_project_dir(c, None)
         self.assertIsNone(path)
-        self.assertIn("neexistuje", note)
+        self.assertIn("does not exist", note)
 
     def test_explicit_folder_wins_and_bad_explicit_is_an_error(self):
         self.basic_project()
@@ -499,7 +499,7 @@ class ServerTests(TempCase):
     def test_project_switching_and_invalid_paths(self):
         st, r, _ = self.call("POST", "/api/project/set", {"path": str(self.tmp / "nope")})
         self.assertEqual(st, 400)
-        self.assertIn("neexistuje", r["error"])
+        self.assertIn("does not exist", render(r["error"]))
         self.assertEqual(self.call("POST", "/api/project/set", {"path": str(self.root)})[0], 200)
         st, r, _ = self.call("POST", "/api/project/pick", {})
         self.assertEqual(r["path"], str(self.root))
@@ -567,7 +567,7 @@ class CliTests(TempCase):
         elsewhere.mkdir()
         r = self.run_cli(str(self.root), "--nogui", cwd=elsewhere)
         self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertIn("PREKLAD", r.stdout)
+        self.assertIn("TRANSLATION", r.stdout)
         self.assertTrue((self.root / "_progress_data" / "progress.json").exists())
         self.assertTrue((self.root / "_progress_data" / "progress.csv").exists())
         self.assertEqual(list(elsewhere.iterdir()), [])
@@ -582,7 +582,7 @@ class CliTests(TempCase):
     def test_bad_folder_gives_clear_error(self):
         r = self.run_cli(str(self.tmp / "nothing"), "--nogui")
         self.assertEqual(r.returncode, 2)
-        self.assertIn("neexistuje", r.stdout)
+        self.assertIn("does not exist", r.stdout)
 
 
 if __name__ == "__main__":

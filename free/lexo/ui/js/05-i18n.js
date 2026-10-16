@@ -123,6 +123,7 @@ export async function availableLanguages() {
 export function fromWire(value) {
   if (Array.isArray(value)) return value.map(fromWire);
   if (value && typeof value === 'object') {
+    if (Array.isArray(value.$j)) return value.$j.map(fromWire).join(value.sep || '') + (value.end || '');
     if (typeof value.$m === 'string') {
       const params = {};
       for (const [k, v] of Object.entries(value.p || {})) params[k] = fromWire(v);
