@@ -51,11 +51,11 @@ class AssignPart:
         """The groups the project has now and the groups its file names suggest (episode, chapter, part, day, update, act). Nothing is changed."""
         self._need_project()
         cur = layout.current()
-        return {"current": {"label": cur.labels.get("group", "Episode"), "groups": list(cur.active_groups), "sections": len(cur.sections)},
+        return {"current": {"label": cur.labels.get("group", "Episode"), "groups": list(cur.active_groups), "sections": len(cur.sections), "series": cur.series},
                 "proposal": layout.propose(sorted(self.project.files, key=str.lower)),
                 "words": list(layout.GROUP_WORDS)}
 
-    def groups_apply(self, label, groups):
+    def groups_apply(self, label, groups, series=""):
         """Define the groups of the project (one section) and write them to lexo.json. Files keep their assignments; assignments to a group that
         no longer exists stay in the data but are not counted until the group is back."""
         self._need_project()
@@ -72,12 +72,12 @@ class AssignPart:
             raise AppError(msg("This project has several sections (seasons) in lexo.json; edit the file by hand to change them."))
         with self.lock:
             try:
-                lay = layout.save_groups(self.data_dir, label, [{"n": 1, "groups": nums}])
+                lay = layout.save_groups(self.data_dir, label, [{"n": 1, "groups": nums}], str(series or ""))
             except (layout.LayoutError, OSError) as e:
                 raise AppError(msg("The groups could not be saved: {reason}", reason=e)) from e
             layout.use(lay)
             self.persist()
-            return {"groups": nums, "label": label}
+            return {"groups": nums, "label": label, "series": lay.series}
 
     def assign_apply(self, items):
         self._need_project()

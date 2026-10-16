@@ -193,31 +193,49 @@ def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5
 FILE_NAME = "extra_strings.rpy"
 
 
+def _target_file(tl_dir, rel):
+    """The translation file that mirrors the script `rel` (game/script2.rpy -> tl/<language>/script2.rpy) when it exists, else None."""
+    if not rel or not rel.endswith(".rpy"):
+        return None
+    path = (tl_dir / rel).resolve()
+    root = tl_dir.resolve()
+    return path if (root in path.parents and path.is_file()) else None
+
+
 def write_strings(tl_dir, language, items, backup_dir=None):
-    """Append the chosen texts to `<tl_dir>/extra_strings.rpy` as a `translate <language> strings:` block, with the original as the first
-    translation (so they show up as untranslated). Texts already in the string table are not written twice. Returns {file, added, skipped}."""
+    """Add the chosen texts as `translate <language> strings:` blocks, with the original as the first translation (so they show up as
+    untranslated). Each text goes to the translation file that mirrors its script (script2.rpy -> tl/<language>/script2.rpy), so statistics by
+    file and by group stay right; a text whose script has no translation file goes to `extra_strings.rpy`. The place does not matter to the game:
+    Ren'Py reads every strings block of every file. Texts already in the string table are not written twice.
+    Returns {file, files: {path: count}, added, skipped}."""
     tl_dir = Path(tl_dir)
     known = known_strings(tl_dir)
-    path = tl_dir / FILE_NAME
-    old_text = path.read_text(encoding="utf-8-sig") if path.is_file() else ""
-    fresh, skipped = [], 0
+    targets, seen, skipped = {}, set(), 0
     for it in items:
         text = str(it.get("text", ""))
-        if not text or text in known or any(text == f["text"] for f in fresh):
+        if not text or text in known or text in seen:
             skipped += 1
             continue
-        fresh.append({"text": text, "file": str(it.get("file", "")), "line": it.get("line", 0)})
-    if not fresh:
-        return {"file": str(path), "added": 0, "skipped": skipped}
-    lines = [f"translate {language} strings:", ""]
-    for f in fresh:
-        if f["file"]:
-            lines.append(f"    # game/{f['file']}:{f['line']}")
-        lines += [f'    old "{f["text"]}"', f'    new "{f["text"]}"', ""]
-    block = "\n".join(lines)
-    new_text = (old_text.rstrip("\n") + "\n\n" if old_text.strip() else "") + block
-    atomic_write_text(path, new_text, backup_dir=backup_dir)
-    return {"file": str(path), "added": len(fresh), "skipped": skipped}
+        seen.add(text)
+        rel = str(it.get("file", "")).replace("\\", "/")
+        target = _target_file(tl_dir, rel) or (tl_dir / FILE_NAME)
+        targets.setdefault(target, []).append({"text": text, "file": rel, "line": it.get("line", 0)})
+    files = {}
+    for path, entries in targets.items():
+        old_text = path.read_bytes().decode("utf-8-sig", errors="replace") if path.is_file() else ""      # bytes: keep the line endings
+        lines = [f"translate {language} strings:", ""]
+        for f in entries:
+            if f["file"]:
+                lines.append(f"    # game/{f['file']}:{f['line']}")
+            lines += [f'    old "{f["text"]}"', f'    new "{f["text"]}"', ""]
+        nl = "\r\n" if "\r\n" in old_text else "\n"
+        block = "\n".join(lines)
+        new_text = (old_text.rstrip("\r\n") + "\n\n" if old_text.strip() else "") + block
+        atomic_write_text(path, new_text, backup_dir=backup_dir, newline=nl)
+        files[str(path.relative_to(tl_dir)).replace("\\", "/")] = len(entries)
+    added = sum(files.values())
+    return {"file": str(tl_dir / FILE_NAME), "files": files, "added": added, "skipped": skipped}
+
 
 
 def suggest_functions(game_dir, known, functions=(), ignored=(), min_calls=3):

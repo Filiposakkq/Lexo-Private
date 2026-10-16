@@ -79,5 +79,5 @@ class MissedPart:
             except WriteFailed as e:
                 raise AppError(msg("The strings file could not be written: {reason}", reason=e.reason)) from e
             self.refresh(force=True)
-            res["message"] = msgn(res["added"], "{n} text was added to extra_strings.rpy.", "{n} texts were added to extra_strings.rpy.")
+            res["message"] = msgn(res["added"], "{n} text was added to the translation files.", "{n} texts were added to the translation files.")
             return res

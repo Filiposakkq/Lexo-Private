@@ -374,7 +374,7 @@ def make_handler(sess):
                 "missed/add": lambda: {"ok": True, **app.missed_add(d.get("items"))},
                 "missed/settings": lambda: {"ok": True, **app.missed_settings(d.get("functions"))},
                 "missed/ignore": lambda: {"ok": True, **app.missed_ignore(d.get("texts"), bool(d.get("clear")))},
-                "groups/apply": lambda: {"ok": True, **app.groups_apply(d.get("label"), d.get("groups"))},
+                "groups/apply": lambda: {"ok": True, **app.groups_apply(d.get("label"), d.get("groups"), d.get("series", ""))},
                 "snapshots/create": lambda: app.snapshot_create(),
                 "snapshots/restore": lambda: app.snapshot_restore(str(d.get("name", "")), d.get("files")),
                 "snapshots/delete": lambda: app.snapshot_delete(str(d.get("name", ""))),

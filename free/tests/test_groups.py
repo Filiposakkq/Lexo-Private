@@ -30,6 +30,27 @@ class ProposeTests(unittest.TestCase):
         self.assertEqual(layout.group_regex("Chapter").findall("scripts/chapter_04/a.rpy"), ["4"])
         self.assertEqual(layout.group_regex("Chapter").findall("scripts/ep4/a.rpy"), [])
 
+    def test_a_numbered_series_of_files_is_found_script_script2_script3(self):
+        p = layout.propose(["script.rpy", "script2.rpy", "script3.rpy", "script4.rpy", "options.rpy", "screens.rpy", "gallery.rpy"])
+        self.assertEqual((p["label"], p["groups"], p["series"], p["matched"]), ("Episode", [1, 2, 3, 4], "script", 4))
+
+    def test_two_files_are_not_a_series_and_a_word_match_wins_a_tie(self):
+        self.assertEqual(layout.propose(["script.rpy", "script2.rpy", "options.rpy"])["groups"], [])
+        p = layout.propose(["chapter1.rpy", "chapter2.rpy", "chapter3.rpy", "script.rpy", "script2.rpy", "script3.rpy"])
+        self.assertEqual((p["label"], p["series"]), ("Chapter", ""))
+
+    def test_a_series_needs_no_gap_and_in_a_big_project_a_real_share_of_the_files(self):
+        self.assertEqual(layout.propose(["bedroom1.rpy", "bedroom4.rpy", "bedroom5.rpy"])["series"], "")             # 1, 4, 5: not an episode list
+        many = [f"scripts/scene{i}/a.rpy" for i in range(40)] + [f"cosplay_outfit{i}.rpy" for i in range(1, 7)]
+        self.assertEqual(layout.propose(many)["series"], "")                                                          # 6 of 46 files
+        small = ["script.rpy", "script2.rpy", "script3.rpy"] + [f"other{i}x.rpy" for i in range(10)]
+        self.assertEqual(layout.propose(small)["series"], "script")
+
+    def test_series_number(self):
+        self.assertEqual([layout.series_number(n, "script") for n in ("script.rpy", "tl/script2.rpy", "scripts/script_03.rpy", "scripts/a.rpy", "scripts2.rpy", "")],
+                         [1, 2, 3, None, None, None])
+        self.assertIsNone(layout.series_number("script2.rpy", ""))
+
 
 class GroupsInTheAppTests(TempCase):
     def setUp(self):
@@ -67,6 +88,22 @@ class GroupsInTheAppTests(TempCase):
         self.assertEqual(opts["ep:2"], "Chapter 2")
         sug = {i["name"]: i for i in self.app.assign_suggest()["items"]}
         self.assertEqual(sug["chapter_3.rpy"]["suggested"], "ep:3")
+
+    def test_the_series_makes_script_files_suggest_their_group(self):
+        for n in (1, 2, 3):
+            (self.root / f"ep{n}_story.rpy").rename(self.root / ("script.rpy" if n == 1 else f"script{n}.rpy"))
+        self.app.refresh(force=True)
+        s = self.app.groups_suggest()
+        self.assertEqual((s["proposal"]["series"], s["proposal"]["groups"]), ("script", [1, 2, 3]))
+        self.app.groups_apply("Episode", [1, 2, 3], s["proposal"]["series"])
+        raw = json.loads((self.app.data_dir / layout.FILE_NAME).read_text(encoding="utf-8"))
+        self.assertEqual(raw["series"], "script")
+        sug = {i["name"]: i["suggested"] for i in self.app.assign_suggest()["items"]}
+        self.assertEqual((sug["script.rpy"], sug["script2.rpy"], sug["script3.rpy"], sug["options.rpy"]), ("ep:1", "ep:2", "ep:3", "gen"))
+        again = self.new_app()                                                    # the setting survives a restart
+        self.assertEqual(again.groups_suggest()["current"]["series"], "script")
+        again.groups_apply("Episode", [1, 2, 3], "")
+        self.assertNotIn("series", json.loads((self.app.data_dir / layout.FILE_NAME).read_text(encoding="utf-8")))
 
     def test_it_survives_a_restart_and_keeps_other_keys(self):
         path = self.app.data_dir / layout.FILE_NAME

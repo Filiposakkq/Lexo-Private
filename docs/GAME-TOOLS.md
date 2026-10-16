@@ -48,3 +48,8 @@ It is a heuristic: review the list, untick what the player never sees (a build n
   similar are left out). A click adds a name. Texts passed to these functions become `likely`.
 - **Ignored texts:** "Ignore selected" puts texts that the player never sees (a build name, a label) into the project's ignore list; they stay out of every later search until "Forget the ignored texts".
 - The file is `<translation folder>/.lexo/missed.json`, shared like the other project files. Built-in: any `<name>.say("...")` call counts as a text sink.
+
+### Where the added texts go
+The place does not matter to the game: Ren'Py reads every `translate <language> strings:` block of every file under `tl/<language>`. For the statistics, though, each text is written
+into the translation file that mirrors its own script (`script2.rpy` -> `tl/czech/script2.rpy`), at the end of the file as one more strings block, so files and groups keep the right counts. A text whose script has
+no translation file goes to `extra_strings.rpy`. Line endings of the file are kept, and a path that would lead outside the translation folder is never followed.

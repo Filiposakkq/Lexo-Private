@@ -42,12 +42,16 @@ export async function groupsDialog(done) {
   const sel = h('select', null, data.words.map((w) => h('option', { value: w, selected: w === start.label }, words[w] || w)));
   const list = h('input', { type: 'text', value: formatGroups(start.groups), placeholder: '1-8', style: { width: '320px' } });
   const info = h('p', { class: 'muted' });
+  const stem = data.current.series || data.proposal.series || '';
+  const seriesBox = h('input', { type: 'checkbox', checked: data.current.groups.length ? !!data.current.series : !!data.proposal.series });
+  const seriesRow = stem ? h('label', { class: 'check', style: { display: 'block', margin: '8px 0' } }, seriesBox, ' ',
+    T('Files called {a}, {b}2, {b}3… are groups 1, 2, 3…', { a: stem, b: stem })) : null;
   const locked = data.current.sections > 1;
   const apply = h('button', { class: 'btn primary', onclick: async () => {
     const groups = parseGroups(list.value);
     if (!groups || !groups.length) return toast(T('Write the numbers like 1-8 or 1, 2, 5-7.'), 'bad');
     try {
-      await post('groups/apply', { label: sel.value, groups });
+      await post('groups/apply', { label: sel.value, groups, series: stem && seriesBox.checked ? stem : '' });
       toast(T('Groups saved: {list}', { list: formatGroups(groups) }), 'ok');
       S.files = null; S.overview = null; close(); await refreshHeader(); done?.();
     } catch (e) { fail(e); }
@@ -57,11 +61,12 @@ export async function groupsDialog(done) {
   info.textContent = locked ? T('This project has several sections (seasons) in lexo.json; edit the file by hand to change them.')
     : p.groups.length ? T('Suggested from the file names: {label} {list} ({matched} of {total} files).', { label: words[p.label] || p.label, list: formatGroups(p.groups), matched: p.matched, total: p.total })
       : T('No numbered groups (ep1, chapter2, part3, day4, update5…) were found in the file names; write them yourself if the game has them.');
-  if (locked) { apply.disabled = true; sel.disabled = true; list.disabled = true; }
+  if (locked) { apply.disabled = true; sel.disabled = true; list.disabled = true; seriesBox.disabled = true; }
   body.replaceChildren(
     h('p', { class: 'muted' }, T('Groups are the numbered units you want statistics for, such as episodes or chapters. Files are assigned to them in the Files tab; the suggestion there reads the numbers from the file and folder names.')),
     info,
     h('div', { class: 'toolbar' }, h('b', null, T('They are called:')), sel, h('b', null, T('Numbers:')), list),
+    seriesRow,
     data.current.groups.length ? h('p', { class: 'muted' }, T('Now: {label} {list}', { label: words[data.current.label] || data.current.label, list: formatGroups(data.current.groups) })) : empty(T('No groups yet'), T('Until groups exist, files can only be “General” or unassigned.')));
   close = dialog({ title: T('Groups of the project'), body, buttons: [{ label: T('Cancel') }, { node: apply }] });
 }
