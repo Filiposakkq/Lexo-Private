@@ -33,11 +33,10 @@ author's own data of the old tool and was not touched.
 | unrpyc loses the indentation after a backslash inside a python block, Ren'Py rejects the file | Being a DIK `credits.rpy` | `repair_continuations` indents such lines; if a file still fails, `quarantine_unparsable` renames it to `.unparsable` and the rest is translated |
 | a character called `old` made the parser see a string pair | Eternum: `old "W-WHO ARE YOU?!" with hpunch` | `old`/`new` are keywords only inside `translate <lang> strings:` |
 | characters are searched in files named `characters*.rpy` only | every game except Being a DIK | when there are none, every script with a `define x = Character(...)` line counts |
+| `define ca = Character ("Captain")` (a space before the bracket) was not recognised: only 2 of 77 speaker codes of A Wife and Mother were found | A Wife and Mother | the pattern allows white space before the bracket (80 characters found now) |
 | a Czech sentence hidden in an f-string | `gametools.extract_rpa` | now a message |
 
 ## Not solved / to watch
-- **Characters:** in A Wife and Mother only 2 of 77 speaker codes are defined in the extracted scripts (the others are defined where the decompiled scripts do not show them);
-  Lexo lists them as "missing" in the import, which is correct but may confuse.
 - **Big games:** 360 000 lines open in 14 s and validation takes 3 s; generating takes minutes and a lot of memory (the game's engine initialises all of its images).
 - **No UI yet** for the way above (`gametools.prepare_translation` is the function a "Prepare a game" screen would call; the menu is planned after the port).
 - The line classifier (`rpy.classify`) still looks at Czech letters to tell a translated line from an English one; with other target languages it needs the language pack (step 3).
