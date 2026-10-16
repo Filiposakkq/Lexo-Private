@@ -210,7 +210,8 @@ export async function viewEntries() {
     if (!COMPANION) {
       announceFocus(it);
       (S.prefs.ui ||= {}).last = { file: it.file, line: it.line };                    // in memory at once, written after a pause
-      clearTimeout(S.lastT); S.lastT = setTimeout(() => setPref('ui.last', S.prefs.ui.last), 6000);
+      // the preferences may have been replaced (reloaded from the server) during the pause: write the position only if it still exists
+      clearTimeout(S.lastT); S.lastT = setTimeout(() => { const last = S.prefs.ui?.last; if (last) setPref('ui.last', last); }, 6000);
     }
     const tab = pref('ui.detailTab', 'scene');
     const pre = (COMPANION ? (S.compFull || tab === 'scene') : (film || (tab === 'scene' && !(S.companionOpen && pref('ui.slimMain', true))))) ? prefetchScene(it.file, it.line).catch(() => {}) : null;
