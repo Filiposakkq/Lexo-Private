@@ -4,8 +4,9 @@ import { get, post } from './10-api.js';
 import { S } from './11-state.js';
 import { enterProof, enterQuick, pref } from './12-chrome.js';
 import { fail, status, toast } from './13-feedback.js';
-import { STATUS_LABEL, bar, chip, empty } from './14-renderers.js';
-import { go } from './16-tabs.js';
+import { STATUS_LABEL, bar, chip, empty, groupName } from './14-renderers.js';
+import { groupsDialog } from './37-groups.js';
+import { go, render } from './16-tabs.js';
 import { refreshHeader, renderStatusRight } from './17-project.js';
 /* ================================================================ OVERVIEW */
 export async function viewOverview() {
@@ -41,6 +42,7 @@ export async function viewOverview() {
   root.append(estimatePanel(o.estimate));
 
   const left = h('div'), right = h('div');
+  if (!o.groups_defined) left.append(h('div', { class: 'panel' }, h('div', { class: 'panel-body' }, h('b', null, T('No groups yet')), h('p', { class: 'muted' }, T('Episodes, chapters or parts give you statistics for each of them. Lexo can guess them from the file names.')), h('button', { class: 'btn', onclick: () => groupsDialog(() => render()) }, T('Set up groups…')))));
   for (const s of o.seasons) left.append(seasonPanel(s, o.episodes));
   const ug = (label, g) => g.translation.total ? h('li', null, h('span', null, label, h('span', { class: 'muted' }, ' · ' + tn(g.files, '{n} file', '{n} files'))), h('span', { class: 'num' }, `${fmtN(g.translation.done)} / ${fmtN(g.translation.total)} (${fmtPct(g.translation.percent)})`)) : null;
   left.append(h('div', { class: 'panel' }, h('h3', null, T('Outside episodes')),
@@ -137,7 +139,8 @@ function seasonPanel(s, episodes) {
       h('div', { class: 'panel-body muted' }, T('The season is planned for the future and is not being translated yet. It does not count in any percentage or in the finish estimate.')));
   }
   const eps = episodes.filter((e) => e.season === s.n);
-  const head = h('div', { class: 'season-head' }, h('h3', null, T('Season {n}', { n: s.n })), h('span', { class: 'muted' }, T('episodes {a}–{b}', { a: s.episodes[0], b: s.episodes.at(-1) })),
+  const single = (S.overview?.seasons || []).filter((x) => x.status !== 'planned').length === 1;     // one section: no "Season 1" heading
+  const head = h('div', { class: 'season-head' }, h('h3', null, single ? T('Progress by group') : T('Season {n}', { n: s.n })), h('span', { class: 'muted' }, s.episodes.length > 1 ? `${groupName(s.episodes[0])} – ${groupName(s.episodes.at(-1))}` : s.episodes.length ? groupName(s.episodes[0]) : ''),
     h('span', { class: 'grow' }),
     h('div', { class: 'season-stats' },
       h('div', { class: 'st' }, h('span', { class: 'lbl' }, T('Translation')), h('b', null, fmtPct(s.translation.percent)), h('div', { class: 'muted num' }, `${fmtN(s.translation.done)} / ${fmtN(s.translation.total)}`)),
@@ -146,10 +149,10 @@ function seasonPanel(s, episodes) {
     h('div', { class: 'seasonbars' }, bar(s.translation.percent), bar(s.proofreading.percent, 'alt')));
   for (const e of eps) {
     const sel = h('select', { class: 'sel', value: e.status, 'aria-label': T('Status of episode {n}', { n: e.n }), onchange: async () => {
-      try { await post('episode', { ep: e.n, state: sel.value }); toast(T('Episode {n}: {status}', { n: e.n, status: STATUS_LABEL[sel.value] })); await refreshHeader(); } catch (err) { fail(err); }
+      try { await post('episode', { ep: e.n, state: sel.value }); toast(`${groupName(e.n)}: ${STATUS_LABEL[sel.value]}`); await refreshHeader(); } catch (err) { fail(err); }
     } }, ['none', 'wip', 'tr', 'proof', 'done'].map((k) => h('option', { value: k }, STATUS_LABEL[k])));
     sel.value = e.status;
-    panel.append(h('div', { class: 'ep-row' }, h('span', { class: 'nm' }, T('Episode {n}', { n: e.n })),
+    panel.append(h('div', { class: 'ep-row' }, h('span', { class: 'nm' }, groupName(e.n)),
       e.translation.total ? h('div', { class: 'bars' }, bar(e.translation.percent), bar(e.proofreading.percent, 'alt')) : h('span', { class: 'muted' }, T('no assigned files')),
       h('div', { class: 'pcts' }, h('span', null, T('Translation '), h('b', null, fmtPct(e.translation.percent))), h('span', { class: 'pr' }, T('Proofreading '), h('b', null, fmtPct(e.proofreading.percent)))),
       h('span', { class: 'meta' }, e.files ? T('{done} / {total} lines · {files} files ({finished} finished)', { done: fmtN(e.translation.done), total: fmtN(e.translation.total), files: e.files, finished: e.files_done }) : T('no files'),

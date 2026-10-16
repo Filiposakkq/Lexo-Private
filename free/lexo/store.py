@@ -85,8 +85,15 @@ def assign_from_text(t):
     return f"ep:{int(digits)}" if digits else ""
 
 
+def group_label(n):
+    """"Episode 3", "Chapter 3" ...: the word is the `group` label of the open project (layout.py); a word without a translation is used as it is."""
+    word = layout.current().labels.get("group", "Episode")
+    return {"Episode": lambda: msg("Episode {n}", n=n), "Chapter": lambda: msg("Chapter {n}", n=n), "Part": lambda: msg("Part {n}", n=n),
+            "Day": lambda: msg("Day {n}", n=n), "Update": lambda: msg("Update {n}", n=n), "Act": lambda: msg("Act {n}", n=n)}.get(word, lambda: f"{word} {n}")()
+
+
 def assign_label(v):
-    return {"": msg("Unassigned"), "gen": msg("General (the whole game)")}.get(v) or msg("Episode {n}", n=v[3:])
+    return {"": msg("Unassigned"), "gen": msg("General (the whole game)")}.get(v) or group_label(v[3:])
 
 
 def ep_of(v):

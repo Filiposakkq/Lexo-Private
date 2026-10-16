@@ -2,7 +2,7 @@
 import json
 from datetime import date
 
-from . import export, history as hist, spelling, validator
+from . import export, history as hist, layout, spelling, validator
 from .messages import msg
 from .project import STATUS_ORDER
 from .project import file_status
@@ -295,7 +295,8 @@ class ValidationPart:
                        "proofread": c_done, "proofread_percent": round(cpct, 1), "approved": approved,
                        "proof_marked": marked, "proof_fix": flagged, "proof_stale": stale},
             "file_counts": counts,
-            "seasons": stats["seasons"], "episodes": stats["episodes"],
+            "seasons": stats["seasons"], "episodes": stats["episodes"], "labels": dict(layout.current().labels),
+            "groups_defined": bool(layout.ACTIVE_EPISODES),
             "general": stats["general"], "unassigned": stats["unassigned"],
             "validation": vcounts, "worst_files": self._worst_files(per_file), "goals": self.goals(),
             "estimate": est_now,

@@ -22,9 +22,11 @@ names keep the vocabulary of the first game (episodes, seasons) until the UI is 
 The layout of the open project is process-wide state set by `use()`; the application serves one project at a time.
 """
 import json
+import re
 from pathlib import Path
 
 from . import lang
+from .util import atomic_write_text
 
 FILE_NAME = "lexo.json"
 LEGACY_MARKERS = ("prirazeni.csv", "epizody.csv")      # data written by the BaDIK tool, before layouts existed
@@ -143,3 +145,73 @@ def episodes_of(season):
 
 def is_active_episode(episode):
     return episode in _current.active_groups
+
+
+# ---------------------------------------------------------------- groups found from file names
+# The words a project may call its numbered units, with the pattern that recognises them in a file or folder name.
+GROUP_WORDS = {"Episode": r"episode|ep", "Chapter": r"chapter|chap|ch", "Part": r"part", "Day": r"day", "Update": r"update|upd", "Act": r"act"}
+_SEASON_RE = re.compile(r"(?<![a-z0-9])season[ _-]?0*(\d{1,2})(?!\d)")
+
+
+def group_regex(word=None):
+    """Pattern that finds the number of a group in a lower-case path; `word` defaults to the label of the open project."""
+    word = word or _current.labels.get("group", "Episode")
+    return re.compile(rf"(?<![a-z0-9])(?:{GROUP_WORDS.get(word, GROUP_WORDS['Episode'])})[ _-]?0*(\d{{1,3}})(?!\d)")
+
+
+def propose(names):
+    """Guess the groups of a project from its file names: {label, groups, sections, matched, total}.
+    The word (episode, chapter, part, day, update, act) that names the most different numbers wins; `season N` in a name makes sections.
+    Nothing is written. Empty groups = nothing recognisable."""
+    paths = [str(n).replace("\\", "/").lower() for n in names]
+    best = ("", [], 0)
+    for word in GROUP_WORDS:
+        rx = group_regex(word)
+        nums, files = set(), 0
+        for p in paths:
+            found = {int(x) for x in rx.findall(p)}
+            if found:
+                nums |= found
+                files += 1
+        if len(nums) >= 2 and (len(nums), files) > (len(best[1]), best[2]):
+            best = (word, sorted(nums)[:200], files)
+    word, groups, matched = best
+    if not groups:
+        return {"label": "Episode", "groups": [], "sections": [], "matched": 0, "total": len(paths)}
+    rx = group_regex(word)
+    season_of_group = {}
+    for p in paths:
+        seasons = {int(x) for x in _SEASON_RE.findall(p)}
+        found = {int(x) for x in rx.findall(p)}
+        if len(seasons) == 1:
+            for g in found:
+                season_of_group.setdefault(g, next(iter(seasons)))
+    if len(set(season_of_group.values())) >= 2:
+        first = min(season_of_group.values())
+        by_season = {}
+        for g in groups:
+            by_season.setdefault(season_of_group.get(g, first), []).append(g)
+        sections = [{"n": n, "groups": gs} for n, gs in sorted(by_season.items())]
+    else:
+        sections = [{"n": 1, "groups": groups}]
+    return {"label": word, "groups": groups, "sections": sections, "matched": matched, "total": len(paths)}
+
+
+def save_groups(data_dir, label, sections):
+    """Write the groups into lexo.json (other keys, such as `language`, stay). `sections`: [{"n": 1, "groups": [1, 2, 3]}].
+    Returns the new Layout; raises LayoutError for numbers that cannot be used."""
+    path = Path(data_dir) / FILE_NAME
+    raw = {}
+    if path.is_file():
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError):
+            raw = {}
+        if not isinstance(raw, dict):
+            raw = {}
+    labels = dict(raw.get("labels", {}) if isinstance(raw.get("labels"), dict) else {})
+    labels["group"] = label
+    raw.update(version=1, labels=labels, sections=[{"n": s["n"], "status": "active", "groups": list(s["groups"])} for s in sections])
+    lay = parse(raw)                                    # validates: raises LayoutError before anything is written
+    atomic_write_text(path, json.dumps(raw, ensure_ascii=False, indent=1) + "\n")
+    return lay
