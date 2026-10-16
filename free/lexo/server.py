@@ -236,6 +236,7 @@ def make_handler(sess):
                 "glossary": lambda: {"ok": True, **app.glossary_payload()},
                 "proof/next": lambda: {"ok": True, **app.proof_next(q1(q, "file"), int(q1(q, "after", "0") or 0))},
                 "export/preview": lambda: {"ok": True, **app.export_preview()},
+                "missed": lambda: {"ok": True, **app.missed_scan(q1(q, "level", "likely"))},
             }
             fn = routes.get(r)
             if fn is None:
@@ -368,6 +369,7 @@ def make_handler(sess):
                 "mt/targets": lambda: {"ok": True, **app.mt_targets(str(d.get("file", "")), d.get("lines") or None, bool(d.get("only_todo", True)))},
                 "mt/batch": lambda: {"ok": True, **app.mt_batch(d.get("items") or [])},
                 "mt/apply": lambda: app.mt_apply(d.get("selections") or []),
+                "missed/add": lambda: {"ok": True, **app.missed_add(d.get("items"))},
                 "snapshots/create": lambda: app.snapshot_create(),
                 "snapshots/restore": lambda: app.snapshot_restore(str(d.get("name", "")), d.get("files")),
                 "snapshots/delete": lambda: app.snapshot_delete(str(d.get("name", ""))),

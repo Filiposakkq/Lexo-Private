@@ -1,0 +1,199 @@
+"""Texts that Ren'Py's `translate` command does not extract, found by reading the game's scripts.
+
+The generator only takes what goes through the translation system with a block of its own: dialogue in labels, menu choices, screens and strings
+marked `_("...")`. A text shown some other way (`show text "..."`, `renpy.input("prompt")`, `renpy.notify(...)`, a title assigned to a variable and
+shown later with `[title]`, or dialogue in a place the generator does not reach) has no block, yet it can be translated with a
+`translate <lang> strings:` block (old / new). This module finds such texts and writes them into a strings file, so the translator does not have to
+search for them by hand.
+
+It is a heuristic and says so: every finding has a `level`:
+  likely   the text is given to a function or statement that shows text (`show text`, `renpy.input`, `renpy.notify`, `Text(...)`, ...), or assigned
+           to a variable whose name says text (title, name, message ...), or it is a dialogue line that has no translation block at all;
+  maybe    any other string that looks like a sentence or a title (it contains a space, a tag or a [variable]).
+and a `kind`: `text` or `dialogue`. Nothing is changed by the search. Menu choices and everything inside `screen` blocks are skipped, because
+Ren'Py extracts those itself.
+"""
+import re
+from pathlib import Path
+
+from .util import atomic_write_text
+
+SKIP_DIRS = {"tl", "cache", "saves", ".lexo", "_progress_data", ".git", "__pycache__"}
+STRING = r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\''
+LITERAL_RE = re.compile(r'"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\'')
+# a dialogue line (`who "text"`, `"text"`, with an optional `with`/`id` tail) and a menu choice (`"text" if cond:`)
+SAY_RE = re.compile(rf'^\s*(?:[A-Za-z_]\w*(?:\s+[\w.@]+)*\s+)?(?:{STRING})(?:\s+(?:with|id)\s+\S+)*\s*$')
+CHOICE_RE = re.compile(rf'^\s*(?:{STRING})(?:\s+if\s+.+)?:\s*$')
+# words that start a Ren'Py statement: a line beginning with one of them is not a dialogue line, whatever follows
+NOT_A_SPEAKER = {"show", "hide", "scene", "play", "queue", "stop", "window", "pause", "nvl", "call", "jump", "return", "with", "python", "init",
+                 "define", "default", "if", "elif", "else", "while", "for", "menu", "label", "screen", "image", "transform", "style", "voice",
+                 "camera", "pass", "renpy"}
+STATEMENT_SKIP = ("translate ", "image ", "transform ", "style ", "label ", "jump ", "call ", "play ", "queue ", "stop ", "scene ",
+                  "hide ", "with ", "from ", "import ", "init offset", "python hide", "define build.", "define config.", "define gui.",
+                  "build.", "config.", "gui.", "$ config.", "$ gui.")
+# top-level statements whose indented body is not text for the player (image definitions, transforms, styles, translations)
+BLOCK_SKIP = ("image ", "transform ", "style ", "translate ", "layeredimage ", "init python in ")
+SINK_RE = re.compile(r"\b(?:show\s+text|renpy\.input|renpy\.notify|renpy\.confirm|renpy\.say|renpy\.display_say|Notify|Text|ui\.text|"
+                     r"renpy\.show_screen|tooltip)\b")
+NAME_HINT_RE = re.compile(r"\w*(?:title|name|text|message|msg|caption|label|desc|prompt|hint|tip|header|heading)\w*\s*=(?!=)", re.I)
+CHARACTER_DEF_RE = re.compile(r"\bCharacter\s*\(")
+PATHLIKE_RE = re.compile(r"/|\\(?![ntr\"'\\])|\.(?:png|jpg|jpeg|webp|webm|mp4|mp3|ogg|opus|wav|rpy|rpyc|ttf|otf|py|json|txt)\b", re.I)
+IDENT_RE = re.compile(r"^[\w.\[\]]+$")
+COLOR_RE = re.compile(r"^#[0-9a-fA-F]{3,8}$")
+TAG_RE = re.compile(r"\{[^{}]*\}|\[[^\[\]]*\]")
+COMMENT_SAY_RE = re.compile(rf'^\s*#\s*(?:[A-Za-z_]\w*(?:\s+[\w.@]+)*\s+)?({STRING})')
+
+
+def looks_like_text(text):
+    """Does this string look like something a person reads (not an id, a path, a colour or a single lower-case word)?"""
+    plain = TAG_RE.sub(" ", text)                      # {i} and {/i} must not look like a path
+    if len(text) < 3 or COLOR_RE.match(text) or PATHLIKE_RE.search(plain):
+        return False
+    if not re.search(r"[A-Za-z]{3,}", plain):
+        return False
+    if " " in text.strip():
+        return True
+    if IDENT_RE.match(text) and not text[:1].isupper():
+        return False
+    return text[:1].isupper() and "_" not in text
+
+
+def _scripts(game_dir):
+    game_dir = Path(game_dir)
+    for path in sorted(game_dir.rglob("*.rpy")):
+        parts = path.relative_to(game_dir).parts
+        if set(parts[:-1]) & SKIP_DIRS:
+            continue
+        yield path, "/".join(parts)
+
+
+def has_scripts(game_dir):
+    """Is there at least one script (outside tl and the other skipped folders) below `game_dir`?"""
+    return any(True for _ in _scripts(game_dir))
+
+
+def _literal(m):
+    return m.group(1) if m.group(1) is not None else m.group(2)
+
+
+REF_RE = re.compile(r"^#\s*(?:game/)?(?P<file>[^:\s]+\.rpym?):(?P<line>\d+)\s*$")
+
+
+def known_texts(tl_dir):
+    """(strings, dialogue, places): the `old "..."` strings of the translation; the original texts of its dialogue blocks (the `# who "text"`
+    comments); and the places `(file, line)` that its blocks point to (the `# game/script.rpy:22` comments of Ren'Py's generator)."""
+    strings, dialogue, places = set(), set(), set()
+    for path in Path(tl_dir).rglob("*.rpy"):
+        if "_progress_data" in path.parts or ".lexo" in path.parts:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8-sig", errors="replace")
+        except OSError:
+            continue
+        for line in text.splitlines():
+            s = line.strip()
+            if s.startswith("old "):
+                m = LITERAL_RE.search(s)
+                if m:
+                    strings.add(_literal(m))
+            elif s.startswith("#"):
+                ref = REF_RE.match(s)
+                if ref:
+                    places.add((ref.group("file").replace("\\", "/"), int(ref.group("line"))))
+                    continue
+                m = COMMENT_SAY_RE.match(s)
+                if m:
+                    dialogue.add(m.group(1)[1:-1])
+    return strings, dialogue, places
+
+
+def known_strings(tl_dir):
+    return known_texts(tl_dir)[0]
+
+
+def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5000):
+    """Texts in the game's scripts that the translation does not have. `known` = the string table; `known_places` = the places its dialogue
+    blocks point to (a dialogue line at any other place has no block); `known_dialogue` = the texts of the dialogue blocks, used when the places are
+    not known; with neither, dialogue is not examined. Returns {items, truncated}; each item is {text, kind, file, line, level, context, count}, the
+    likely ones first."""
+    found = {}
+
+    def add(text, kind, level, rel, no, context):
+        old = found.get(text)
+        if old:
+            old["count"] += 1
+            if level == "likely" and old["level"] != "likely":
+                old.update(level="likely", kind=kind, context=context, file=rel, line=no)
+        else:
+            found[text] = {"text": text, "kind": kind, "file": rel, "line": no, "level": level, "context": context, "count": 1}
+
+    for path, rel in _scripts(game_dir):
+        try:
+            lines = path.read_text(encoding="utf-8-sig", errors="replace").splitlines()
+        except OSError:
+            continue
+        in_screen = in_skipped_block = False
+        for no, line in enumerate(lines, 1):
+            s = line.strip()
+            if not s or s.startswith("#"):
+                continue
+            if not line.startswith((" ", "\t")):
+                in_screen = s.startswith("screen ")
+                in_skipped_block = s.startswith(BLOCK_SKIP)
+            if in_skipped_block:
+                continue
+            if in_screen and not s.startswith("$"):        # the screen language is extracted by Ren'Py; only python lines (`$ ...`) can hide texts
+                continue
+            if s.startswith(STATEMENT_SKIP) or CHOICE_RE.match(line) or CHARACTER_DEF_RE.search(line):
+                continue
+            first = re.match(r"[A-Za-z_]\w*", s)
+            if SAY_RE.match(line) and not (first and first.group(0) in NOT_A_SPEAKER):
+                text = _literal(list(LITERAL_RE.finditer(line))[-1])
+                if known_places:
+                    without_block = (rel, no) not in known_places
+                elif known_dialogue is not None:
+                    without_block = text not in known_dialogue
+                else:
+                    continue
+                if without_block and text not in known and looks_like_text(text):
+                    add(text, "dialogue", "likely", rel, no, s[:100])
+                continue
+            for m in LITERAL_RE.finditer(line):
+                text = _literal(m)
+                if text in known or not looks_like_text(text):
+                    continue
+                before = line[:m.start()]
+                level = "likely" if (SINK_RE.search(before) or NAME_HINT_RE.search(before)) else "maybe"
+                add(text, "text", level, rel, no, s[:100])
+    items = sorted(found.values(), key=lambda i: (i["level"] != "likely", i["file"].lower(), i["line"]))
+    return {"items": items[:limit], "truncated": len(items) > limit}
+
+
+FILE_NAME = "extra_strings.rpy"
+
+
+def write_strings(tl_dir, language, items, backup_dir=None):
+    """Append the chosen texts to `<tl_dir>/extra_strings.rpy` as a `translate <language> strings:` block, with the original as the first
+    translation (so they show up as untranslated). Texts already in the string table are not written twice. Returns {file, added, skipped}."""
+    tl_dir = Path(tl_dir)
+    known = known_strings(tl_dir)
+    path = tl_dir / FILE_NAME
+    old_text = path.read_text(encoding="utf-8-sig") if path.is_file() else ""
+    fresh, skipped = [], 0
+    for it in items:
+        text = str(it.get("text", ""))
+        if not text or text in known or any(text == f["text"] for f in fresh):
+            skipped += 1
+            continue
+        fresh.append({"text": text, "file": str(it.get("file", "")), "line": it.get("line", 0)})
+    if not fresh:
+        return {"file": str(path), "added": 0, "skipped": skipped}
+    lines = [f"translate {language} strings:", ""]
+    for f in fresh:
+        if f["file"]:
+            lines.append(f"    # game/{f['file']}:{f['line']}")
+        lines += [f'    old "{f["text"]}"', f'    new "{f["text"]}"', ""]
+    block = "\n".join(lines)
+    new_text = (old_text.rstrip("\n") + "\n\n" if old_text.strip() else "") + block
+    atomic_write_text(path, new_text, backup_dir=backup_dir)
+    return {"file": str(path), "added": len(fresh), "skipped": skipped}

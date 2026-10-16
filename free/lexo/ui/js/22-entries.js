@@ -13,6 +13,7 @@ import { diffSpans, fixDialog } from './23-fixes.js';
 import { mtDialog } from './24-machine-translation.js';
 import { replaceDialog } from './25-replace.js';
 import { ruleApproveDialog } from './26-approve-rules.js';
+import { missedTextsDialog } from './36-missed-texts.js';
 import { ignoreDialog, unignore } from './28-ignore.js';
 /* ================================================================ ENTRIES */
 const EN_COLS = () => [
@@ -98,6 +99,7 @@ export async function viewEntries() {
       menuButton(T('Tools'), [
         { label: T('Find and replace…'), hint: T('in the translations'), run: () => replaceDialog(async () => { S.files = null; await refreshHeader(); load(true); }, S.fl.picked.size ? [...S.fl.picked] : (pref('entries.file', '') ? [pref('entries.file', '')] : [])) },
         { label: T('Approve by rule…'), hint: T('names, interjections'), run: () => ruleApproveDialog(async () => { S.files = null; await refreshHeader(); load(true); }, S.fl.picked.size ? [...S.fl.picked] : (pref('entries.file', '') ? [pref('entries.file', '')] : [])) },
+        { label: T('Texts the generator missed…'), hint: T('show text, input prompts, titles'), run: () => missedTextsDialog(async () => { S.files = null; await refreshHeader(); load(true); }) },
         { label: T('Fix…'), hint: T('speaker, spaces, typos'), run: () => fixDialog({ file: pref('entries.file', '') }, async () => { S.files = null; await refreshHeader(); load(true); }) },
         { label: T('Translate with a machine…'), hint: T('selected lines, scene, file'), run: () => openMtDialog() },
       ], { title: T('Bulk edits of translations') }),
