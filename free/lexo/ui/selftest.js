@@ -65,9 +65,9 @@
   });
   await step('Řádky + editor překladu', async () => {
     await openView('entries', { file: '', status: 'all' });
-    await waitFor(() => document.querySelector('#view table.data tbody tr'));
+    await waitFor(() => document.querySelector('#view table.data tbody tr'), 25000);      // a slow CI runner needs more than the default 8 s
     const rows = document.querySelectorAll('#view table.data tbody tr');
-    ok('Řádky mají tabulku', rows.length >= 1, 'žádné řádky');
+    ok('Řádky mají tabulku', rows.length >= 1, 'žádné řádky; v zobrazení: ' + (document.querySelector('#view')?.innerText || '').slice(0, 160).split('\n').join(' | '));
     if (rows.length) {
       S.ent.api.select(0);
       const ta = await waitFor(() => document.querySelector('#editTarget'));
