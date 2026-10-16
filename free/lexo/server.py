@@ -238,6 +238,7 @@ def make_handler(sess):
                 "export/preview": lambda: {"ok": True, **app.export_preview()},
                 "missed": lambda: {"ok": True, **app.missed_scan(q1(q, "level", "likely"))},
                 "groups/suggest": lambda: {"ok": True, **app.groups_suggest()},
+                "missed/functions": lambda: {"ok": True, **app.missed_functions()},
             }
             fn = routes.get(r)
             if fn is None:
@@ -371,6 +372,8 @@ def make_handler(sess):
                 "mt/batch": lambda: {"ok": True, **app.mt_batch(d.get("items") or [])},
                 "mt/apply": lambda: app.mt_apply(d.get("selections") or []),
                 "missed/add": lambda: {"ok": True, **app.missed_add(d.get("items"))},
+                "missed/settings": lambda: {"ok": True, **app.missed_settings(d.get("functions"))},
+                "missed/ignore": lambda: {"ok": True, **app.missed_ignore(d.get("texts"), bool(d.get("clear")))},
                 "groups/apply": lambda: {"ok": True, **app.groups_apply(d.get("label"), d.get("groups"))},
                 "snapshots/create": lambda: app.snapshot_create(),
                 "snapshots/restore": lambda: app.snapshot_restore(str(d.get("name", "")), d.get("files")),

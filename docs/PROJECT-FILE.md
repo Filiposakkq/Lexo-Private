@@ -27,3 +27,10 @@ Not done yet: the UI still says "Epizoda" / "Sezóna" (the `labels` are stored b
 and assigning files to groups still relies on the `ep1`-style name hints of the first game.
 
 `language` (e.g. `"cs"`) selects the language pack for language-dependent checks (see `free/lexo/lang.py`); without it neutral rules apply, and legacy BaDIK data keeps `"cs"`.
+
+## Groups without a hand-written file: Files > "Groups…"
+A project that has no groups (a game other than Being a DIK) gets them from the file names: Lexo looks for numbers after `episode`/`ep`, `chapter`, `part`, `day`, `update`, `act`
+(`ep1_cafe.rpy`, `scripts/chapter_03/…`), takes the word with the most different numbers and proposes `label` and `groups`; `season N` in the names makes sections when two or more seasons appear.
+The dialog shows the proposal ("Episode 1-8, 44 of 72 files"), lets you change the word and the numbers, and writes `labels.group` and one section into `lexo.json` (other keys, such as `language`, stay).
+The word is used everywhere ("Chapter 3" instead of "Episode 3"); the suggestion of assignments reads the numbers with the same word. A project with several sections (the BaDIK layout) is edited in the file by hand.
+Until groups exist, files can only be "General" or unassigned, and the Overview offers "Set up groups…".
