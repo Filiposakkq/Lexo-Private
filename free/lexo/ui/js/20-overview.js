@@ -34,7 +34,7 @@ export async function viewOverview() {
       h('div', { class: 'row', style: { marginTop: '8px' } },
         h('button', { class: 'btn small primary', onclick: () => go('entries', { file: '', status: 'review', select: true }) }, T('Continue proofreading')))),
     h('div', { class: 'panel stat', style: { cursor: 'pointer' }, onclick: () => go('validation') }, h('div', { class: 'label' }, T('Translation check')),
-      h('div', { class: 'value' }, fmtN(v.error), h('small', null, v.error === 1 ? 'chyba' : 'chyb')),
+      h('div', { class: 'value' }, fmtN(v.error), h('small', null, tn(v.error, 'error', 'errors'))),
       h('div', { class: 'sub' }, tn(v.warning, '{n} warning ({length} about text length)', '{n} warnings ({length} about text length)', { n: fmtN(v.warning), length: fmtN(v.length) })),
       v.ignored ? h('div', { class: 'sub' }, h('a', { href: '#', onclick: (ev) => { ev.preventDefault(); ev.stopPropagation(); go('validation', { ignored: 'only' }); } }, T('ignored {n}', { n: fmtN(v.ignored) }))) : null)));
   if (o.goals) root.append(goalsPanel(o.goals));
@@ -96,7 +96,7 @@ function overviewHero(o, files) {
   const near = (files || []).filter((f) => f.todo > 0 && f.done > 0).sort((a, b) => a.todo - b.todo)[0];
   const resume = () => (last && last.file ? go('entries', { file: last.file, line: last.line, status: 'all', select: true }) : go('entries', { file: '', status: 'todo', select: true }));
   return h('div', { class: 'panel hero' },
-    h('div', { class: 'hero-ring' }, ringChart(t.percent, t.proofread_percent), h('div', { class: 'hero-pct' }, h('b', null, fmtPct(t.percent)), h('span', { class: 'muted' }, 'přeloženo'))),
+    h('div', { class: 'hero-ring' }, ringChart(t.percent, t.proofread_percent), h('div', { class: 'hero-pct' }, h('b', null, fmtPct(t.percent)), h('span', { class: 'muted' }, T('translated')))),
     h('div', { class: 'hero-body' },
       h('h2', null, t.remaining ? tn(t.remaining, '{n} line left to translate', '{n} lines left to translate', { n: fmtN(t.remaining) }) : T('Everything is translated')),
       h('div', { class: 'muted' }, [

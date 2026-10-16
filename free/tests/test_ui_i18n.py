@@ -6,14 +6,15 @@ import unittest
 from pathlib import Path
 
 from helpers import ROOT  # noqa: F401  (puts the package on sys.path)
+import jsscan
 
 from lexo import lang
 
 UI = Path(__file__).resolve().parent.parent / "lexo" / "ui"
 PACK = Path(__file__).resolve().parent.parent / "lexo" / "packs" / "cs"
 
-# Modules whose Czech literals have all been moved to t() / tn() / tx(). Add a module here when it is done.
-CONVERTED = ["00-core.js", "10-api.js", "13-feedback.js", "12-chrome.js", "14-renderers.js", "23-fixes.js", "24-machine-translation.js", "25-replace.js", "26-approve-rules.js", "15-filterbar.js", "16-tabs.js", "17-project.js", "18-refresh.js", "99-boot.js"]
+# Every module of the UI is converted: no Czech string literal may remain (the English text of a key may contain Czech example words).
+CONVERTED = sorted(f.name for f in (UI / "js").glob("*.js"))
 
 CZECH = re.compile(r"[ěščřžýáíéůúťďňĚŠČŘŽÝÁÍÉŮÚŤĎŇ]")
 STR = r"""(?:'((?:\\.|[^'\\\n])*)'|"((?:\\.|[^"\\\n])*)")"""
@@ -81,11 +82,9 @@ class UiTextTests(unittest.TestCase):
     def test_converted_modules_have_no_czech_literals(self):
         src = js_sources()
         for name in CONVERTED:
-            code = strip_comments(src[name])
             # an English text may contain Czech example words (byt / být); it is fine when it is a key of the pack
-            bad = [m.group(0)[:60] for m in LITERAL.finditer(code)
-                   if CZECH.search(next(g for g in m.groups() if g is not None))
-                   and unescape(next(g for g in m.groups() if g is not None)) not in self.strings]
+            bad = [t["body"][:60] for t in jsscan.scan(src[name])
+                   if t["kind"] in ("str", "tpl") and CZECH.search(t["body"]) and unescape(t["body"]) not in self.strings]
             self.assertEqual(bad, [], f"{name} still has Czech literals")
 
     def test_no_translated_text_is_built_from_a_template_literal(self):

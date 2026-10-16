@@ -18,7 +18,7 @@ export async function viewGlossary() {
   const counter = h('span', { class: 'muted' });
   const search = h('input', { type: 'search', class: 'search', id: 'search', placeholder: T('Search code or name… (Ctrl+F)'), value: f.q || '',
     oninput: (ev) => { setPref('glossary.q', ev.target.value); draw(); } });
-  const seg = h('div', { class: 'seg' }, [['all', T('All')], ['unnamed', T('Without a name')], ['speaker', 'Mluvčí'], ['term', T('Terms')]].map(([k, l]) =>
+  const seg = h('div', { class: 'seg' }, [['all', T('All')], ['unnamed', T('Without a name')], ['speaker', T('Speaker')], ['term', T('Terms')]].map(([k, l]) =>
     h('button', { class: (f.filter || 'all') === k ? 'on' : '', onclick: (ev) => { setPref('glossary.filter', k); seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === ev.currentTarget)); draw(); } }, l)));
   root.append(
     h('p', { class: 'muted' }, T('Glossary of names. Speakers in the files are only abbreviations (mc, de, ji…); here you give them the full name. '),
@@ -45,7 +45,7 @@ export async function viewGlossary() {
         onchange: (ev) => { it.name = ev.target.value.trim(); save({ code: it.code, name: it.name, type: it.type, note: it.note }); } });
       const note = h('input', { type: 'text', value: it.note, style: { width: '100%' },
         onchange: (ev) => { it.note = ev.target.value.trim(); save({ code: it.code, name: it.name, type: it.type, note: it.note }); } });
-      t.tbody.append(h('tr', null, h('td', null, chip(it.type === 'speaker' ? 'info' : 'none', it.type === 'speaker' ? 'mluvčí' : 'termín')),
+      t.tbody.append(h('tr', null, h('td', null, chip(it.type === 'speaker' ? 'info' : 'none', it.type === 'speaker' ? T('speaker') : T('term'))),
         h('td', { class: 'mono' }, it.code), h('td', null, name), h('td', null, note), h('td', { class: 'num' }, it.count || '–'),
         h('td', { class: 'txt muted' }, it.example), h('td', null,
           it.type === 'term' ? h('button', { class: 'btn small', title: T('Where the term occurs in the original and whether it is translated according to the glossary'), onclick: () => occurrencesDialog(it.code) }, T('Occurrences')) : null, ' ',

@@ -147,7 +147,7 @@ async function bulkAssignDialog(names) {
   const rows = items.map((i) => ({ ...i, value: i.suggested || i.current || '', apply: i.state === 'new' || i.state === 'same' ? i.state === 'new' : false, overwrite: false }));
   S.dlgDirty = true;
   const STATE = { new: [T('New'), 'tr'], same: [T('Unchanged'), 'none'], conflict: [T('Conflict'), 'error'], ambiguous: [T('Ambiguous'), 'warning'], unknown: [T('Unknown'), 'none'], keep: [T('Kept'), 'none'] };
-  const CONF = { high: 'vysoká', medium: 'střední', low: 'nízká', none: '—' };
+  const CONF = { high: T('high'), medium: T('medium'), low: T('low'), none: '—' };
   const summary = h('span');
   const upd = () => { const n = rows.filter((r) => r.apply && r.value !== r.current).length; summary.textContent = tn(n, 'To write: {n} file', 'To write: {n} files'); applyBtn.disabled = !n; };
   const filterSel = h('select', { onchange: () => paint() }, h('option', { value: 'all' }, T('Show all')), h('option', { value: 'change' }, T('Only changes')), h('option', { value: 'problem' }, T('Only conflicts and unclear ones')));
@@ -163,7 +163,7 @@ async function bulkAssignDialog(names) {
       const needsOw = r.current && r.value !== r.current;
       tbody.append(h('tr', null,
         h('td', { class: 'center' }, h('input', { type: 'checkbox', checked: r.apply, title: needsOw ? T('Overwrites an assignment set by hand – ticking confirms the overwrite') : T('Apply'), onchange: (e) => { r.apply = e.target.checked; r.overwrite = e.target.checked && !!needsOw; upd(); } })),
-        h('td', null, fname(r.name)), h('td', null, r.current ? optLabel(data.options, r.current) : h('span', { class: 'muted' }, 'nepřiřazeno')),
+        h('td', null, fname(r.name)), h('td', null, r.current ? optLabel(data.options, r.current) : h('span', { class: 'muted' }, T('unassigned'))),
         h('td', null, h('select', { value: r.value, onchange: (e) => { r.value = e.target.value; r.apply = r.value !== r.current; r.overwrite = !!(r.current && r.apply); paint(); upd(); } },
           data.options.map((o) => h('option', { value: o.value }, o.label)))),
         h('td', null, CONF[r.confidence]), h('td', null, chip(STATE[r.state][1], STATE[r.state][0]), needsOw ? h('div', { class: 'sugg-state muted' }, T('overwrites a manual value')) : null),
