@@ -22,5 +22,16 @@ class KindTests(TempCase):
         self.assertNotIn("kind_label", detail)
 
 
+class KeywordSpeakerTests(unittest.TestCase):
+    def test_a_character_called_old_or_new_is_a_speaker_in_a_dialogue_block(self):
+        text = ("translate czech block_1:\n\n"
+                '    # old "Who are you?!" with hpunch\n    old "Who are you?!" with hpunch\n\n'
+                "translate czech strings:\n\n"
+                '    old "Hello"\n    new "Ahoj"\n')
+        parsed = rpy.parse_text(text)
+        self.assertEqual(parsed.structure, [])
+        self.assertEqual([(e.unit, e.who, e.source) for e in parsed.entries], [("dialogue", "old", "Who are you?!"), ("string", "", "Hello")])
+
+
 if __name__ == "__main__":
     unittest.main()

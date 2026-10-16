@@ -20,3 +20,11 @@ v2 needs Python 3.9+ and is for Ren'Py 8 games; v1 (legacy branch) runs on the P
 
 ## Not done yet
 UI and server routes for these steps (they come with the new UI and the project menu), choosing unrpyc v1/v2 automatically from the detected Ren'Py version, a real unrpyc run in CI.
+
+## From a built game to translation files (tested on five games, see GAME-TESTS.md)
+`gametools.prepare_translation(game_root, workspace, language, unrpyc_python, unrpyc_script)` runs the whole way in a workspace:
+1. `make_workspace`: hard links of the game (not `cache`, `saves`, `tl`, `_progress_data`, `.lexo`); script and bytecode files are copied;
+2. `extract_scripts`: the scripts inside the `.rpa` archives are unpacked next to them;
+3. `decompile` (unrpyc), then `repair_decompiled` (indentation after a backslash in python blocks);
+4. `generate_translation` with the game's own engine (`lint.find_launcher`); files named in Ren'Py's error output are renamed to `.unparsable` and the run is repeated (up to three times).
+The game folder is only read. No UI yet.

@@ -30,11 +30,26 @@ def find_python(sdk):
     if not lib.is_dir():
         return None
     plat = "windows" if sys.platform.startswith("win") else "mac" if sys.platform == "darwin" else "linux"
-    dirs = sorted(lib.glob("py3-*")) + sorted(lib.glob("py2-*")) + sorted(lib.glob(plat + "-*"), key=lambda d: ("x86_64" not in d.name, d.name))
+    others = {"windows", "linux", "mac"} - {plat}
+
+    def pick(pattern):
+        found = [d for d in lib.glob(pattern) if not any(o in d.name for o in others)]       # never the Python of another platform
+        return sorted(found, key=lambda d: (plat not in d.name, "x86_64" not in d.name, d.name))
+    dirs = pick("py3-*") + pick("py2-*") + pick(plat + "-*")
     for d in dirs:
         for name in ("python.exe", "python"):
             if (d / name).is_file():
                 return d / name
+    return None
+
+
+def find_launcher(folder):
+    """The `<Game>.py` next to `<Game>.exe` / `<Game>.sh` in a built game: it is the same file as renpy.py in an SDK, so the game's own
+    engine can run commands such as `translate` without a separate SDK. None when there is no such pair."""
+    folder = Path(folder)
+    for py in sorted(folder.glob("*.py")):
+        if py.name != "renpy.py" and any((folder / (py.stem + ext)).is_file() for ext in (".exe", ".sh")):
+            return py
     return None
 
 
@@ -44,6 +59,8 @@ def build_command(sdk, base, command=("lint",)):
     if not sdk.is_dir():
         raise LintError(msg("The Ren'Py SDK folder does not exist: {sdk}", sdk=sdk))
     py, entry = find_python(sdk), sdk / "renpy.py"
+    if py and not entry.is_file():
+        entry = find_launcher(sdk) or entry                 # a built game carries its own engine
     if py and entry.is_file():
         return [str(py), "-EO", str(entry), str(base), *command], sdk
     sh = sdk / "renpy.sh"

@@ -197,5 +197,51 @@ class TranslateTests(Tmp):
         self.assertEqual(argv[-1], "lint")
 
 
+class WorkspaceTests(Tmp):
+    def built_game(self):
+        g = self.tmp / "Game-1.0-pc"
+        for rel, data in {"game/archive.rpa": b"RPA", "game/script.rpyc": b"compiled", "game/fonts/a.ttf": b"font",
+                          "game/cache/bytecode.rpyb": b"cache", "game/saves/1.save": b"save", "game/tl/None/x.rpy": b"t",
+                          "renpy/__init__.py": b"x", "_progress_data/korekce.csv": b"data", "lib/py3-windows-x86_64/python.exe": b"py", "Game.py": b"launcher", "Game.exe": b"exe"}.items():
+            f = g / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(data)
+        return g
+
+    def test_big_files_are_linked_and_rewritable_ones_are_copied(self):
+        g, ws = self.built_game(), self.tmp / "ws"
+        res = gametools.make_workspace(g, ws)
+        self.assertTrue((ws / "game" / "archive.rpa").samefile(g / "game" / "archive.rpa"))
+        self.assertFalse((ws / "game" / "script.rpyc").samefile(g / "game" / "script.rpyc"))
+        self.assertEqual((ws / "game" / "script.rpyc").read_bytes(), b"compiled")
+        self.assertEqual((res["linked"] > 0, res["copied"]), (True, 1))
+
+    def test_cache_saves_and_tl_are_left_out_and_the_game_is_untouched(self):
+        g, ws = self.built_game(), self.tmp / "ws"
+        before = sorted(str(p.relative_to(g)) for p in g.rglob("*"))
+        gametools.make_workspace(g, ws)
+        for skipped in ("cache", "saves", "tl"):
+            self.assertFalse((ws / "game" / skipped).exists(), skipped)
+        self.assertFalse((ws / "_progress_data").exists())
+        self.assertEqual(sorted(str(p.relative_to(g)) for p in g.rglob("*")), before)
+
+    def test_refuses_nested_or_equal_places_and_non_games(self):
+        g = self.built_game()
+        for bad in (g, g / "inside", self.tmp):
+            with self.assertRaises(gametools.ToolError):
+                gametools.make_workspace(g, bad)
+        with self.assertRaises(gametools.ToolError):
+            gametools.make_workspace(self.tmp / "nothing", self.tmp / "ws2")
+
+    def test_a_built_game_can_run_commands_with_its_own_engine(self):
+        from lexo import lint
+        g = self.built_game()
+        argv, cwd = lint.build_command(g, g, ("translate", "czech"))
+        self.assertTrue(argv[0].endswith("python.exe"))
+        self.assertTrue(argv[2].endswith("Game.py"))
+        self.assertEqual(argv[-2:], ["translate", "czech"])
+        self.assertEqual(lint.find_launcher(self.tmp), None)
+
+
 if __name__ == "__main__":
     unittest.main()
