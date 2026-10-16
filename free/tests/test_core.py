@@ -79,7 +79,7 @@ class AtomicWriteTests(TempCase):
         self.assertEqual(len(list((self.tmp / "bk").glob("a.csv.*.bak"))), 3)
 
     def test_locked_file_reports_friendly_error_and_keeps_original(self):
-        target = self.tmp / "korekce.csv"
+        target = self.tmp / "proofread.csv"
         target.write_text("original")
         with mock.patch("os.replace", side_effect=PermissionError):
             with self.assertRaises(util.WriteFailed) as cm:
@@ -100,10 +100,10 @@ class StoreTests(TempCase):
     def test_reads_legacy_files_and_preserves_them(self):
         d = self.tmp / "data"
         d.mkdir()
-        (d / "prirazeni.csv").write_text("\ufeffsoubor;zarazeni\nscript.rpy;Epizoda 1\nheader.rpy;Obecné\n", encoding="utf-8")
-        (d / "schvaleno.csv").write_text("\ufeffsoubor;blok;original\nscript.rpy;strings;Quit\n", encoding="utf-8")
-        (d / "korekce.csv").write_text("\ufeffsoubor;zkontrolovano;prelozeno_rucne\nscript.rpy;5;\n", encoding="utf-8")
-        (d / "epizody.csv").write_text("\ufeffepizoda;stav\n1;Rozpracováno\n", encoding="utf-8")
+        (d / "assignments.csv").write_text("\ufefffile;group\nscript.rpy;episode 1\nheader.rpy;general\n", encoding="utf-8")
+        (d / "approved.csv").write_text("\ufefffile;block;original\nscript.rpy;strings;Quit\n", encoding="utf-8")
+        (d / "proofread.csv").write_text("\ufefffile;proofread;translated_manual\nscript.rpy;5;\n", encoding="utf-8")
+        (d / "episode_states.csv").write_text("\ufeffepisode;state\n1;wip\n", encoding="utf-8")
         s = Store(d).load()
         self.assertEqual(s.assign, {"script.rpy": "ep:1", "header.rpy": "gen"})
         self.assertEqual(s.approved["script.rpy"], {("strings", "Quit")})
@@ -115,7 +115,7 @@ class StoreTests(TempCase):
     def test_invalid_assignment_is_ignored_with_warning(self):
         d = self.tmp / "data"
         d.mkdir()
-        (d / "prirazeni.csv").write_text("soubor;zarazeni\na.rpy;Epizoda 9\n", encoding="utf-8")
+        (d / "assignments.csv").write_text("file;group\na.rpy;episode 9\n", encoding="utf-8")
         s = Store(d).load()
         self.assertEqual(s.assign, {})
         self.assertTrue(s.warnings)
@@ -126,7 +126,7 @@ class StoreTests(TempCase):
         self.assertFalse(valid_assign("ep:9"))
         self.assertFalse(valid_assign("ep:0"))
         self.assertTrue(valid_assign("gen") and valid_assign(""))
-        self.assertEqual(assign_from_text("Epizoda 7"), "ep:7")
+        self.assertEqual(assign_from_text("episode 7"), "ep:7")
 
     def test_undo_restores_previous_state_and_disk(self):
         s = Store(self.tmp / "data")

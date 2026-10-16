@@ -1,6 +1,6 @@
 """History of the translated text of every line.
 
-Each change of a translation is appended to `historie_textu.jsonl` in the data folder: when, which line (file + the same
+Each change of a translation is appended to `text_history.jsonl` in the data folder: when, which line (file + the same
 key that proofreading uses: block + normalized original, so it follows the line when the file is reorganised), the old
 and the new text, and how it happened (edit in the app, fix, replace, unify, undo, or a change made outside the app that
 was noticed at the next refresh). The translator can look at all versions of a line and restore one.
@@ -13,13 +13,16 @@ import threading
 from collections import defaultdict
 from datetime import datetime
 
+from .messages import msg
 from .util import norm_ws
 
-FILE_NAME = "historie_textu.jsonl"
+FILE_NAME = "text_history.jsonl"
 MAX_LINES = 60000
 KEEP_LINES = 40000
-VIA = {"edit": "úprava v aplikaci", "fix": "oprava", "replace": "nahrazení", "unify": "sjednocení",
-       "undo": "vrácení změny", "restore": "obnovení ze zálohy", "external": "změna mimo aplikaci"}
+def via_label(key):
+    """How a change happened; labels are messages, so they are built at run time."""
+    return {"edit": msg("edit in the app"), "fix": msg("fix"), "replace": msg("replace"), "unify": msg("unify"),
+            "undo": msg("undo"), "restore": msg("restore from a backup"), "external": msg("change outside the app")}.get(key, key)
 
 
 def key_of(block, source):
@@ -83,9 +86,9 @@ class TextHistory:
         recs = self.by_key.get((file, str(key[0]), norm_ws(str(key[1]))), [])
         if not recs:
             return []
-        seq = [{"text": recs[0]["o"], "time": "", "via": "původní text před první zaznamenanou změnou"}]
+        seq = [{"text": recs[0]["o"], "time": "", "via": msg("original text before the first recorded change")}]
         for r in recs:
-            seq.append({"text": r["n"], "time": r["t"], "via": VIA.get(r["v"], r["v"])})
+            seq.append({"text": r["n"], "time": r["t"], "via": via_label(r["v"])})
         out = []
         for i, v in enumerate(reversed(seq)):
             v["current"] = v["text"] == current and not any(o["current"] for o in out)

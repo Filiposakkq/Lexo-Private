@@ -3,7 +3,7 @@
 Definitions (identical for the overall figure, seasons and episodes):
   - A "line" is one translation unit (see rpy.py); translated = done / total as in progress.csv.
   - Overall = every scanned file of the project, including shared ('Obecné') and unassigned files.
-  - An episode / season = only the files assigned to its episodes ('Epizoda N' in prirazeni.csv).
+  - An episode / season = only the files assigned to its episodes ('episode N' in assignments.csv).
   - overall = sum(episodes) + general + unassigned, which validate() checks before writing.
   - Season 3 is 'planned': it has no files, no figures and never enters any percentage.
 
@@ -16,7 +16,7 @@ import re
 from datetime import datetime
 
 from . import history as hist
-from .project import STATUS_LABELS, file_status, totals_of
+from .project import STATUS_ORDER, file_status, totals_of
 from . import layout
 from .store import ep_of
 from .util import atomic_write_text
@@ -87,7 +87,7 @@ def stats_for(rows, store):
 def build_progress(rows, store, history, title="", now=None, today=None):
     """The public progress.json as a dict."""
     t_done, total, c_done, tpct, cpct = totals_of(rows)
-    counts = {k: 0 for k in STATUS_LABELS}
+    counts = {k: 0 for k in STATUS_ORDER}
     for r in rows:
         counts[file_status(r.done, r.todo, r.total, r.corr)] += 1
     st = stats_for(rows, store)

@@ -35,8 +35,8 @@ them with the same `ui.json` as the UI texts (`fromWire`), so the rest of the UI
 (also tags such as "{/b}" and paths) go in placeholders; an exception carries its message as `AppError(msg(...))` (use `text_of(e)` to re-raise without losing it).
 Tests in Python use `render(...)` to read what the server sent.
 
-**What stays Czech in the code on purpose** (data stored in files or identifiers, listed in `tests/test_python_messages.py`): the status labels in the CSV files, the
-kinds of lines, the sources of the text history. They move with the new data layout (docs/DATA-LAYOUT.md).
+**What stays Czech in the code on purpose** (data stored in files or identifiers, listed in `tests/test_python_messages.py`): the kinds of lines in `rpy.py`
+(shown in the UI and used in filters; they change together with the UI in step 2b). The CSV status words and the text-history sources are already English / messages (see DATA-LAYOUT.md).
 
 ## State
 Everything the user sees is translatable: all modules of the browser UI, `index.html`, and the Python-side messages. The English UI shows no Czech except the language names.

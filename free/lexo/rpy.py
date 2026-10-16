@@ -6,7 +6,7 @@ A *translation unit* is either
 
 `parse_text` returns every unit as an Entry. A unit is *pending* (not yet translated) when its
 code line equals the source comment (or `new` equals `old`, or `new ""`). That is the same rule
-the original tool used, so the counts stay comparable with historie.csv.
+the original tool used, so the counts stay comparable with history.csv.
 """
 import hashlib
 import re

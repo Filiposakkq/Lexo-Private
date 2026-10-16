@@ -51,7 +51,7 @@ class SnapshotTests(TempCase):
         self.app.snapshot_restore(name)
         self.assertIn("Ahoj.", self.p2.read_text(encoding="utf-8"))
         v = self.app.entry_history("a.rpy", e.line)["versions"]
-        self.assertEqual(v[0]["via"], "obnovení ze zálohy")
+        self.assertEqual(v[0]["via"], "restore from a backup")
 
     def test_the_restore_snapshot_lets_you_undo_a_restore(self):
         name = self.app.snapshot_create()["snapshot"]["name"]

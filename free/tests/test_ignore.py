@@ -60,7 +60,7 @@ class IgnoreTests(TempCase):
         app2 = self.new_app()
         self.assertEqual(app2.overview()["validation"]["error"], 0)
         self.assertEqual(app2.ignored_list()["items"][0]["note"], "trvale")
-        self.assertTrue((self.root / "_progress_data" / "ignorovano.csv").is_file())
+        self.assertTrue((self.root / "_progress_data" / "ignored.csv").is_file())
 
     def test_changing_the_translation_brings_the_finding_back(self):
         self.ignore()

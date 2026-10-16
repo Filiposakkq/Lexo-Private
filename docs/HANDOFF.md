@@ -76,7 +76,7 @@ The shell is Git Bash / PowerShell: for multi-line scripts write a file instead 
 
 ## 8. Current state and what is next
 Done: project file, language packs, feature registry, game tools (no UI yet), UI split into ES modules, all UI and Python texts translatable (step 1 of the pre-Rust list).
-Next: **step 2, data layout** (`.lexo/`, English file names, event log, migration). It also removes the last Czech data constants (CSV status labels, line kinds, text-history sources, the "ano" keyword).
+Done in step 2: **2a** English file names/headers/values and `migrate.py`. Next: **2b** (`.lexo/` folder, local data to `%APPDATA%`, `lexo.json`), **2c** (per-author event log), and the last Czech data constants (line kinds in `rpy.py`).
 Then: rest of the generalisation (needs `game` folders of 3-4 other games from the owner), Core/UI split, interface contract with tests, cleanup and test data for Python/Rust comparison, then the port.
 The roadmap table in ROADMAP.md is the source of truth for "what is next".
 

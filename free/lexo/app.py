@@ -15,10 +15,10 @@ from . import (__version__, bulk, editor, export, fixes, fontmetrics, gameimages
                spelling, textedit, texthistory, validator)
 from .config import Config, migrate_web_json
 from .lock import ProjectLock, ProjectLocked
-from .project import (DATA_DIR_NAME, STATUS_LABELS, STATUS_ORDER, Project, ProjectUnavailable,
+from .project import (DATA_DIR_NAME, STATUS_ORDER, Project, ProjectUnavailable,
                       check_project_dir, file_status, totals_of)
-from . import features, layout
-from .store import EP_STATES, GLOSSARY_TYPES, Store, parse_value, text_hash, valid_assign
+from . import features, layout, migrate
+from .store import EP_STATE_KEYS, GLOSSARY_TYPES, ep_states, Store, parse_value, text_hash, valid_assign
 from .util import WriteFailed, norm_ws, write_csv
 from .messages import msg, text_of
 
@@ -126,11 +126,12 @@ class App:
             layout.use(lay)
             if lay_note:
                 self.notices.append(lay_note)
+            self.notices += migrate.run(data_dir)
             self.store = Store(data_dir).load()
             self.notices += self.store.warnings
             self.project = Project(root, self.store, skip=self.config.get("skip_files", []),
                                    symbols_as_done=self.config.get("count_symbol_only_as_done"))
-            self.history = hist.History(data_dir / "historie.csv", data_dir / "backups")
+            self.history = hist.History(data_dir / "history.csv", data_dir / "backups")
             self.texthist = texthistory.TextHistory(data_dir / texthistory.FILE_NAME).load()
             self._val_cache.clear()
             report = self.project.refresh(force=True)
@@ -159,7 +160,7 @@ class App:
         rows = self.project.rows()
         try:
             write_csv(self.data_dir / "progress.csv",
-                      [["soubor", "prelozeno", "zbyva", "celkem", "zkontrolovano", "preklad_%", "korektura_%"]]
+                      [["file", "translated", "remaining", "total", "proofread", "translation_%", "proofreading_%"]]
                       + [[r.name, r.done, r.todo, r.total, r.corr, f"{r.done / r.total * 100:.1f}",
                           f"{r.corr / r.total * 100:.1f}"] for r in rows])
         except WriteFailed as e:
@@ -462,7 +463,7 @@ class App:
         self._need_project()
         rows = self.project.rows()
         t_done, total, c_done, tpct, cpct = totals_of(rows)
-        counts = {k: 0 for k in STATUS_LABELS}
+        counts = {k: 0 for k in STATUS_ORDER}
         for r in rows:
             counts[file_status(r.done, r.todo, r.total, r.corr)] += 1
         approved = sum(len(v) for v in self.store.approved.values())
@@ -505,7 +506,7 @@ class App:
             "last_refresh": self.project.last_report.to_dict() if self.project.last_report else None,
             "lock_lost": bool(self.plock and not self.plock.check()),
             "loaded_at": self.project.loaded_at,
-            "episode_states": [{"key": k, "label": l} for k, l in EP_STATES],
+            "episode_states": [{"key": k, "label": l} for k, l in ep_states()],
         }
 
     def files_payload(self):
@@ -939,7 +940,7 @@ class App:
     def set_episode_state(self, n, state):
         self._need_project()
         with self.lock:
-            if n not in layout.ACTIVE_EPISODES or state not in dict(EP_STATES):
+            if n not in layout.ACTIVE_EPISODES or state not in EP_STATE_KEYS:
                 raise AppError(msg("Invalid value."))
             self.store.change(f"Stav epizody {n}", ("episodes",), lambda: self.store.episodes.__setitem__(n, state))
             return self._changed("episode")
