@@ -30,7 +30,7 @@ export function snapshotsPanel(s) {
   }
   paint();
   return h('div', null,
-    h('p', { class: 'muted' }, tx('A zip of all .rpy files of the translation folder, saved in {folder}. It is created automatically at start-up (when the last one is older than the set number of hours) and before bulk changes (replacing, fixes, unifying). A restore first saves the current state as another backup.', { folder: h('span', { class: 'mono' }, '_progress_data\\snapshots') })),
+    h('p', { class: 'muted' }, tx('A zip of all .rpy files of the translation folder, saved in the subfolder {folder} of the local project data. It is created automatically at start-up (when the last one is older than the set number of hours) and before bulk changes (replacing, fixes, unifying). A restore first saves the current state as another backup.', { folder: h('span', { class: 'mono' }, 'snapshots') })),
     h('div', { class: 'row', style: { marginBottom: '8px' } }, h('label', { class: 'check' }, on, ' ' + T('Back up automatically')), h('span', null, T('every')), hours, h('span', null, T('hours, keep')), keep, h('span', null, T('backups')),
       h('span', { class: 'spacer' }), h('button', { class: 'btn small primary', onclick: async () => { try { const r = await post('snapshots/create'); toast(T('Backup created ({files} files, {size}).', { files: r.snapshot.files, size: fmtSize(r.snapshot.bytes) })); paint(); } catch (e) { fail(e); } } }, T('Create a backup now'))),
     list);

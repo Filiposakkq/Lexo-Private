@@ -126,7 +126,7 @@ class WebJsonMigrationTests(TempCase):
 
     def test_open_project_imports_legacy_file_from_data_dir(self):
         self.basic_project()
-        data = self.root / "_progress_data"
+        data = self.root / ".lexo"
         data.mkdir(exist_ok=True)
         (data / "web.json").write_text(json.dumps({"repo": "a/b", "path": "web/progress.json", "push": True}), encoding="utf-8")
         app = self.new_app()
@@ -568,8 +568,8 @@ class CliTests(TempCase):
         r = self.run_cli(str(self.root), "--nogui", cwd=elsewhere)
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("TRANSLATION", r.stdout)
-        self.assertTrue((self.root / "_progress_data" / "progress.json").exists())
-        self.assertTrue((self.root / "_progress_data" / "progress.csv").exists())
+        self.assertTrue((self.local_dir() / "progress.json").exists())
+        self.assertTrue((self.local_dir() / "progress.csv").exists())
         self.assertEqual(list(elsewhere.iterdir()), [])
         self.assertEqual(json.loads((self.cfg_dir / "config.json").read_text(encoding="utf-8"))["project_dir"], str(self.root.resolve()))
 

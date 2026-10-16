@@ -10,7 +10,7 @@
   history.csv         see history.py
 
 Data written by the BaDIK tool (Czech file names) is copied to these names once by migrate.py.
-Every write is atomic and backed up (<data dir>/backups). Mutations go through `change()`,
+Every write is atomic and backed up (<local data dir>/backups). Mutations go through `change()`,
 which keeps an undo stack of the most recent changes.
 """
 import copy
@@ -95,9 +95,9 @@ def ep_of(v):
 
 
 class Store:
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, local_dir=None):
         self.dir = Path(data_dir)
-        self.backups = self.dir / "backups"
+        self.backups = Path(local_dir or data_dir) / "backups"
         self.corr = {}       # name -> {"c": str, "t": str}
         self.assign = {}     # name -> '' | 'gen' | 'ep:N'
         self.approved = {}   # name -> {(block, normalized source)}

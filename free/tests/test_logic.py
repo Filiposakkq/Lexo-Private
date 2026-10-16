@@ -94,7 +94,7 @@ class SuggestTests(unittest.TestCase):
 
 class BulkApplyTests(TempCase):
     def test_apply_respects_overwrite_flag_and_is_undoable(self):
-        s = Store(self.root / "_progress_data")
+        s = Store(self.root / ".lexo")
         s.assign.update({"a.rpy": "ep:1"})
         res = bulk.apply_assignments(s, [{"name": "a.rpy", "value": "ep:2"}, {"name": "b.rpy", "value": "ep:3"},
                                          {"name": "c.rpy", "value": "ep:9"}])

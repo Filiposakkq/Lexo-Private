@@ -1,4 +1,4 @@
-"""Snapshots of the translation folder: a zip of every .rpy file, kept in `_progress_data/snapshots`.
+"""Snapshots of the translation folder: a zip of every .rpy file, kept in the local data folder (datadir.py).
 
 Made automatically (at start when the last one is older than the configured interval), before bulk changes
 (replace, fixes, unify) and on request; restoring first makes a snapshot of the current state, so a restore itself can
@@ -20,7 +20,7 @@ from .messages import msg
 
 DIR_NAME = "snapshots"
 NAME_RE = re.compile(r"^snap-\d{8}-\d{6}(?:-\d+)?-(auto|bulk|manual|restore)\.zip$")
-SKIP_DIRS = {"_progress_data", "__pycache__", ".git", "backups"}
+SKIP_DIRS = {"_progress_data", ".lexo", "__pycache__", ".git", "backups"}
 MAX_BYTES = 400 * 1024 * 1024
 REASONS = {"auto": msg("automatic"), "bulk": msg("before a bulk change"), "manual": msg("created by hand"), "restore": msg("before a restore")}
 

@@ -278,7 +278,7 @@ def main(argv=None):
             return 0
         print_summary(app, "--todo" in flags)
         if "--export" in flags:
-            print(f"progress.json: {app.data_dir / 'progress.json'}")
+            print(f"progress.json: {app.local_dir / 'progress.json'}")
         if "--publish" in flags:
             return cli_publish(app)
         return 0

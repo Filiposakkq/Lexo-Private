@@ -1,4 +1,4 @@
-# Data layout (target design; part 2a built)
+# Data layout (target design; parts 2a and 2b built)
 
 **Built (step 2a):** the files in `_progress_data` have English names, English column headers and English values, and the Czech names are read only by
 `free/lexo/migrate.py`, which copies them once when a project is opened (old files stay untouched, nothing is overwritten):
@@ -16,7 +16,10 @@
 | historie_textu.jsonl | text_history.jsonl | (JSON lines, unchanged) |
 
 The BaDIK layout is still detected from the old marker files (`prirazeni.csv`, `epizody.csv`), so a migrated legacy project keeps its groups.
-**Not built yet (2b, 2c):** the folder `.lexo/` instead of `_progress_data` with `local/` data moved to `%APPDATA%`, the per-author event log, `lexo.json` replacing `project.json`.
+**Built (step 2b):** the shared folder is `<translation folder>/.lexo/` (constant `DATA_DIR_NAME` in `project.py`, the only place to change if the product gets another name) with the CSV files above, `lexo.json` (was `project.json`) and `project-id`.
+Local data lives in `<config folder>/projects/<project id>/` (on Windows `%APPDATA%/Lexo/projects/<id>`): `backups/`, `snapshots/`, `lock.json`, `text_history.jsonl`, `last_fix.json`, and the derived `progress.csv` / `progress.json`.
+`free/lexo/datadir.py` creates the id, finds the local folder and, the first time a project is opened, **copies** (never moves or deletes) the old `_progress_data`: shared files to `.lexo/` (then `migrate.py` renames them), backups, snapshots and the text history to the local folder. Existing destination files are never overwritten.
+**Not built yet (2c):** the per-author event log.
 The rest of this document is the target design.
 
 Where Lexo writes, and why. Today (imported BaDIK tool) the data is in `<translation folder>/_progress_data/` as seven Czech-named CSV files.

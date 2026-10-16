@@ -17,7 +17,7 @@ from .config import Config, migrate_web_json
 from .lock import ProjectLock, ProjectLocked
 from .project import (DATA_DIR_NAME, STATUS_ORDER, Project, ProjectUnavailable,
                       check_project_dir, file_status, totals_of)
-from . import features, layout, migrate
+from . import datadir, features, layout, migrate
 from .store import EP_STATE_KEYS, GLOSSARY_TYPES, ep_states, Store, parse_value, text_hash, valid_assign
 from .util import WriteFailed, norm_ws, write_csv
 from .messages import msg, text_of
@@ -71,7 +71,8 @@ class App:
         self.project = None
         self.store = None
         self.history = None
-        self.data_dir = None
+        self.data_dir = None       # shared data: <translation folder>/.lexo
+        self.local_dir = None      # local data: backups, snapshots, lock, derived files (datadir.py)
         self.notices = []          # one-off messages for the UI (migration, load problems...)
         self._spell_cache = None
         self._memory_cache = None
@@ -100,16 +101,19 @@ class App:
             data_dir.mkdir(exist_ok=True)
         except OSError as e:
             raise AppError(msg("Cannot create {folder} in the project folder ({reason}).", folder=DATA_DIR_NAME, reason=e.strerror or e)) from e
-        for name in LEGACY_FILES:                       # data of older versions lying next to the .rpy files
-            src, dst = root / name, data_dir / name
+        local_dir = datadir.local_dir(data_dir, root)
+        for name in LEGACY_FILES:                       # data of the oldest versions lying next to the .rpy files
+            src = root / name
+            dst = (local_dir if name.startswith("progress.") else data_dir) / name       # progress.* is derived data
             if src.is_file() and not dst.exists():
                 try:
                     shutil.move(str(src), str(dst))
-                    self.notices.append(msg("The file {name} was moved to {folder}.", name=name, folder=DATA_DIR_NAME))
+                    self.notices.append(msg("The file {name} was moved to {folder}.", name=name, folder=dst.parent.name))
                 except OSError:
                     pass
+        data_notes = datadir.migrate_folder(root, data_dir, local_dir)
         with self.lock:
-            new_lock = ProjectLock(data_dir)
+            new_lock = ProjectLock(local_dir)
             try:
                 new_lock.acquire(force=force)
             except ProjectLocked as e:
@@ -122,17 +126,19 @@ class App:
             if note:
                 self.notices.append(note)
             self.data_dir = data_dir
+            self.local_dir = local_dir
+            self.notices += data_notes
             lay, lay_note = layout.load(data_dir)
             layout.use(lay)
             if lay_note:
                 self.notices.append(lay_note)
             self.notices += migrate.run(data_dir)
-            self.store = Store(data_dir).load()
+            self.store = Store(data_dir, local_dir).load()
             self.notices += self.store.warnings
             self.project = Project(root, self.store, skip=self.config.get("skip_files", []),
                                    symbols_as_done=self.config.get("count_symbol_only_as_done"))
-            self.history = hist.History(data_dir / "history.csv", data_dir / "backups")
-            self.texthist = texthistory.TextHistory(data_dir / texthistory.FILE_NAME).load()
+            self.history = hist.History(data_dir / "history.csv", local_dir / "backups")
+            self.texthist = texthistory.TextHistory(local_dir / texthistory.FILE_NAME).load()
             self._val_cache.clear()
             report = self.project.refresh(force=True)
             self.store.ensure_files([r.name for r in self.project.rows()])
@@ -159,7 +165,7 @@ class App:
         problems = []
         rows = self.project.rows()
         try:
-            write_csv(self.data_dir / "progress.csv",
+            write_csv(self.local_dir / "progress.csv",
                       [["file", "translated", "remaining", "total", "proofread", "translation_%", "proofreading_%"]]
                       + [[r.name, r.done, r.todo, r.total, r.corr, f"{r.done / r.total * 100:.1f}",
                           f"{r.corr / r.total * 100:.1f}"] for r in rows])
@@ -171,7 +177,7 @@ class App:
         except WriteFailed as e:
             problems.append(str(e))
         try:
-            export.write_local(self.data_dir / "progress.json", self.build_export())
+            export.write_local(self.local_dir / "progress.json", self.build_export())
         except (WriteFailed, ValueError) as e:
             problems.append(str(e))
         self.last_save_error = "; ".join(problems)
@@ -489,7 +495,7 @@ class App:
                                "proofread": corr - prev[3], "total_translated": done})
             prev = (ts, done, tot, corr)
         return {
-            "project": {"path": str(self.project.root), "data_dir": str(self.data_dir),
+            "project": {"path": str(self.project.root), "data_dir": str(self.data_dir), "local_dir": str(self.local_dir),
                         "files": len(rows), "skipped": sorted(self.project.skip)},
             "totals": {"done": t_done, "total": total, "remaining": total - t_done, "percent": round(tpct, 1),
                        "proofread": c_done, "proofread_percent": round(cpct, 1), "approved": approved,
@@ -1151,7 +1157,7 @@ class App:
                 raise AppError(msg("Nothing to unify."))
             self._snapshot_for_bulk(len(edits), len({e[0] for e in edits}))
             try:
-                res = fixes.apply_edits(self.project, self.data_dir, edits, msg("Unifying the translation: {text}", text=group['source'][:40]))
+                res = fixes.apply_edits(self.project, self.local_dir, edits, msg("Unifying the translation: {text}", text=group['source'][:40]))
                 self._log_text(res["details"], "unify")
             except fixes.FixError as e:
                 raise AppError(text_of(e)) from e
@@ -1321,12 +1327,12 @@ class App:
         cfg = self.config.get("snapshots", {})
         if not force and not cfg.get("enabled", True):
             return None
-        if reason == "bulk" and snapshots.recent(self.data_dir, 10):
+        if reason == "bulk" and snapshots.recent(self.local_dir, 10):
             return None
         try:
-            snap = snapshots.create(self.project.root, self.data_dir, reason, __version__)
+            snap = snapshots.create(self.project.root, self.local_dir, reason, __version__)
             if snap:
-                snapshots.prune(self.data_dir, cfg.get("keep", 20))
+                snapshots.prune(self.local_dir, cfg.get("keep", 20))
             return snap
         except (snapshots.SnapshotError, OSError) as e:
             self.notices.append(msg("The backup was not created: {reason}", reason=e))
@@ -1341,32 +1347,32 @@ class App:
         if not self.project or not self.config.get("snapshots.enabled", True):
             return
         interval = self.config.get("snapshots.interval_hours", 12)
-        if not snapshots.due(self.data_dir, interval):
+        if not snapshots.due(self.local_dir, interval):
             return
         threading.Thread(target=lambda: self._snapshot("auto"), daemon=True).start()
 
     def snapshot_list(self):
         self._need_project()
         cfg = self.config.get("snapshots", {})
-        return {"items": snapshots.list_snapshots(self.data_dir), "enabled": cfg.get("enabled", True),
+        return {"items": snapshots.list_snapshots(self.local_dir), "enabled": cfg.get("enabled", True),
                 "interval_hours": cfg.get("interval_hours", 12), "keep": cfg.get("keep", 20)}
 
     def snapshot_create(self):
         self._need_project()
         with self.lock:
             try:
-                snap = snapshots.create(self.project.root, self.data_dir, "manual", __version__)
+                snap = snapshots.create(self.project.root, self.local_dir, "manual", __version__)
             except snapshots.SnapshotError as e:
                 raise AppError(text_of(e)) from e
             if snap is None:
                 raise AppError(msg("There are no .rpy files in the folder."))
-            snapshots.prune(self.data_dir, self.config.get("snapshots.keep", 20))
+            snapshots.prune(self.local_dir, self.config.get("snapshots.keep", 20))
             return {"ok": True, "snapshot": snap}
 
     def snapshot_files(self, name):
         self._need_project()
         try:
-            return {"files": snapshots.compare(self.project.root, self.data_dir, name)}
+            return {"files": snapshots.compare(self.project.root, self.local_dir, name)}
         except (snapshots.SnapshotError, OSError) as e:
             raise AppError(text_of(e)) from e
 
@@ -1376,7 +1382,7 @@ class App:
         with self.lock:
             before = {rel: list(self.project.entries(rel)) for rel in self.project.files}
             try:
-                res = snapshots.restore(self.project.root, self.data_dir, name, files, __version__)
+                res = snapshots.restore(self.project.root, self.local_dir, name, files, __version__)
             except snapshots.SnapshotError as e:
                 raise AppError(text_of(e)) from e
             finally:
@@ -1394,7 +1400,7 @@ class App:
     def snapshot_delete(self, name):
         self._need_project()
         try:
-            snapshots.delete(self.data_dir, name)
+            snapshots.delete(self.local_dir, name)
         except snapshots.SnapshotError as e:
             raise AppError(text_of(e)) from e
         return {"ok": True}
@@ -1481,7 +1487,7 @@ class App:
             try:
                 speaker = {(p["file"], p["line"]) for p in todo if p["kind"] == "speaker"}
                 if speaker:
-                    res = fixes.apply(self.project, self.data_dir, [p for p in fixes.plan(self.project, None, "")
+                    res = fixes.apply(self.project, self.local_dir, [p for p in fixes.plan(self.project, None, "")
                                                                     if (p["file"], p["line"]) in speaker and not p["skip"]])
                     fixed += res["fixed"]
                     backups += res["backups"]
@@ -1499,7 +1505,7 @@ class App:
                         if e is not None and e.source is not None:
                             pick[(f, l)] = textedit.chain_fixes(self._spell(), e.source, e.target, ks)
                     kinds_txt = ", ".join(self.FIX_LABELS[k] for k in sorted({k for _f, _l, k in texts}))
-                    res = fixes.apply_edits(self.project, self.data_dir, [(f, l, t) for (f, l), t in pick.items()],
+                    res = fixes.apply_edits(self.project, self.local_dir, [(f, l, t) for (f, l), t in pick.items()],
                                             f"Opravy textu ({kinds_txt})")
                     self._log_text(res["details"], "fix")
                     fixed += res["changed"]
@@ -1576,7 +1582,7 @@ class App:
             label = msg("Replacing “{a}” → “{b}”", a=str(find)[:30], b=str(replace)[:30])
             self._snapshot_for_bulk(len(edits), len({e[0] for e in edits}))
             try:
-                res = fixes.apply_edits(self.project, self.data_dir, edits, label)
+                res = fixes.apply_edits(self.project, self.local_dir, edits, label)
                 self._log_text(res["details"], "replace")
             except fixes.FixError as e:
                 raise AppError(text_of(e)) from e
@@ -1691,7 +1697,7 @@ class App:
                 raise AppError(msg("Nothing to write (the lines changed or are approved)."))
             self._snapshot_for_bulk(len(edits), len({e[0] for e in edits}))
             try:
-                res = fixes.apply_edits(self.project, self.data_dir, edits, msg("Machine translation ({n} lines)", n=len(edits)))
+                res = fixes.apply_edits(self.project, self.local_dir, edits, msg("Machine translation ({n} lines)", n=len(edits)))
                 self._log_text(res["details"], "mt")
             except fixes.FixError as e:
                 raise AppError(text_of(e)) from e
@@ -1816,7 +1822,7 @@ class App:
         self._need_project()
         with self.lock:
             try:
-                res = fixes.edit_translation(self.project, self.data_dir, rel, int(line), str(text))
+                res = fixes.edit_translation(self.project, self.local_dir, rel, int(line), str(text))
             except fixes.FixError as e:
                 raise AppError(text_of(e)) from e
             finally:
@@ -1859,7 +1865,7 @@ class App:
 
     def fix_last(self):
         self._need_project()
-        return {"last": fixes.last(self.data_dir)}
+        return {"last": fixes.last(self.local_dir)}
 
     def fix_undo(self):
         """Restore the files changed by the last Opravit from their backups."""
@@ -1867,7 +1873,7 @@ class App:
         with self.lock:
             before = {rel: list(self.project.entries(rel)) for rel in self.project.files}
             try:
-                res = fixes.undo(self.project, self.data_dir)
+                res = fixes.undo(self.project, self.local_dir)
             except fixes.FixError as e:
                 raise AppError(text_of(e)) from e
             finally:
@@ -2056,7 +2062,7 @@ class App:
         with self.lock:
             data = self.build_export()
             problems = export.validate_progress(data)
-            return {"data": data, "problems": problems, "path": str(self.data_dir / "progress.json")}
+            return {"data": data, "problems": problems, "path": str(self.local_dir / "progress.json")}
 
     def publish_plan(self):
         self._need_project()

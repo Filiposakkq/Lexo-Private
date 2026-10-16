@@ -36,7 +36,7 @@ class HistoryTests(TempCase):
         self.app.entry_save("a.rpy", self.line, "Čau tam.")
         app2 = self.new_app()
         self.assertEqual([x["text"] for x in app2.entry_history("a.rpy", self.line)["versions"]], ["Čau tam.", "Ahoj tam."])
-        self.assertTrue((self.root / "_progress_data" / texthistory.FILE_NAME).is_file())
+        self.assertTrue((self.local_dir() / texthistory.FILE_NAME).is_file())
 
     def test_fix_replace_and_unify_are_logged_with_their_origin(self):
         self.app.entry_save("a.rpy", self.line, "Ahoj  tam.")                       # a double space to fix
@@ -68,7 +68,7 @@ class HistoryTests(TempCase):
         self.assertEqual(len(self.versions()), 2)
 
     def test_a_damaged_history_file_does_not_break_anything(self):
-        f = self.root / "_progress_data" / texthistory.FILE_NAME
+        f = self.local_dir() / texthistory.FILE_NAME
         f.write_text('not json\n{"t": "x"}\n' + json.dumps({"t": "2026-01-01T00:00:00", "f": "a.rpy", "k": ["translate czech a1", "Hello there."],
                                                               "o": "Ahoj tam.", "n": "Čau.", "v": "edit"}) + "\n", encoding="utf-8")
         app = self.new_app()
@@ -79,7 +79,7 @@ class HistoryTests(TempCase):
             self.app.entry_history("a.rpy", 9999)
 
     def test_the_file_is_trimmed_when_it_grows_too_large(self):
-        f = self.root / "_progress_data" / texthistory.FILE_NAME
+        f = self.local_dir() / texthistory.FILE_NAME
         row = json.dumps({"t": "2026-01-01T00:00:00", "f": "a.rpy", "k": ["b", "s"], "o": "x", "n": "y", "v": "edit"})
         f.write_text((row + "\n") * (texthistory.MAX_LINES + 10), encoding="utf-8")
         h = texthistory.TextHistory(f).load()

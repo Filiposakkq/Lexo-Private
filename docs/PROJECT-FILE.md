@@ -1,6 +1,6 @@
-# Project file (`project.json`)
+# Project file (`lexo.json`)
 
-Lives in the project's data folder (`<translation folder>/_progress_data/project.json`) and tells Lexo how the files of
+Lives in the project's data folder (`<translation folder>/.lexo/lexo.json`) and tells Lexo how the files of
 that game are grouped for statistics. It is **optional**: without it the project has no groups and every file counts as
 "unassigned". Groups are what the first game calls episodes, sections what it calls seasons.
 
@@ -19,7 +19,7 @@ that game are grouped for statistics. It is **optional**: without it the project
 Rules: `n` and group numbers are positive integers; a group belongs to one section only; `planned` sections are shown but
 never counted. A broken file is ignored with a notice, never auto-repaired.
 
-Migration: data written by the BaDIK tool (it has `prirazeni.csv` or `epizody.csv` but no `project.json`) keeps the
+Migration: data written by the BaDIK tool (it has `prirazeni.csv` or `epizody.csv` but no `lexo.json`) keeps the
 first game's layout (seasons 1-2, episodes 1-8), so nothing is dropped on opening. This rule goes away when the app can
 write the file from its own UI.
 

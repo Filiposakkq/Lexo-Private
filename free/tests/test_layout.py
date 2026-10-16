@@ -1,4 +1,4 @@
-"""Project layout file (project.json): groups and sections are defined per project, not in the code."""
+"""Project layout file (lexo.json): groups and sections are defined per project, not in the code."""
 import json
 import unittest
 
@@ -34,7 +34,7 @@ class ParseTests(unittest.TestCase):
 
 class LoadTests(TempCase):
     def data_dir(self):
-        d = self.root / "_progress_data"
+        d = self.root / ".lexo"
         d.mkdir(exist_ok=True)
         return d
 

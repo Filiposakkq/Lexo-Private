@@ -4,7 +4,7 @@ A *group* is a numbered unit the translator wants statistics for (an episode, a 
 *section* is a set of groups (a season, a part). Both are optional: a project without a layout file has
 no groups, and every file counts as "unassigned" in the overview.
 
-The layout is read from `<project data folder>/project.json`:
+The layout is read from `<project data folder>/lexo.json`:
 
     {"version": 1,
      "language": "cs",
@@ -26,7 +26,7 @@ from pathlib import Path
 
 from . import lang
 
-FILE_NAME = "project.json"
+FILE_NAME = "lexo.json"
 LEGACY_MARKERS = ("prirazeni.csv", "epizody.csv")      # data written by the BaDIK tool, before layouts existed
 
 BADIK_SECTIONS = (

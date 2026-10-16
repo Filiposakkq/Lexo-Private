@@ -78,7 +78,7 @@ class EpisodeProofStatusTests(TempCase):
 
     def test_old_files_with_four_states_still_load(self):
         self.basic_project()
-        data = self.root / "_progress_data"
+        data = self.root / ".lexo"
         data.mkdir(exist_ok=True)
         (data / "epizody.csv").write_text("epizoda;stav\n1;Přeloženo\n2;Hotovo\n", encoding="utf-8")
         app = self.new_app()
