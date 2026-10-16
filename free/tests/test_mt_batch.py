@@ -58,7 +58,7 @@ class MtBatchTests(TempCase):
     def test_a_rejected_key_stops_the_batch_after_the_first_line(self):
         self.app._mt_http = FakeHttp(403, "forbidden")
         res = self.app.mt_batch(self.items())
-        self.assertIn("klíč", res["stopped"])
+        self.assertIn("key", res["stopped"])
         self.assertEqual(len(res["results"]), 1)
 
     def test_a_vanished_line_is_reported_for_that_line_only(self):

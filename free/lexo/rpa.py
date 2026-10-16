@@ -7,6 +7,7 @@ create any object: only plain numbers, strings, bytes, lists, tuples and dicts g
 import io
 import pickle
 import zlib
+from .messages import msg
 
 MAX_INDEX = 128 * 1024 * 1024        # the decompressed index of even a huge game is a few MB
 
@@ -26,7 +27,7 @@ def read_index(path):
         with open(path, "rb") as f:
             head = f.readline(80).decode("latin-1").strip().split()
             if not head or head[0] not in ("RPA-3.0", "RPA-2.0"):
-                raise RpaError("není archiv RPA 2 / 3")
+                raise RpaError(msg("not an RPA 2 / 3 archive"))
             off = int(head[1], 16)
             key = int(head[2], 16) if head[0] == "RPA-3.0" else 0
             f.seek(off)
@@ -34,15 +35,15 @@ def read_index(path):
         dec = zlib.decompressobj()
         raw = dec.decompress(comp, MAX_INDEX)
         if dec.unconsumed_tail:
-            raise RpaError("index archivu je nezvykle velký")
+            raise RpaError(msg("the archive index is unusually large"))
         idx = _PlainUnpickler(io.BytesIO(raw), encoding="latin-1").load()
     except RpaError:
         raise
     except (OSError, ValueError, IndexError, zlib.error, pickle.UnpicklingError, EOFError, AttributeError, TypeError) as e:
-        raise RpaError(f"archiv nejde přečíst: {e}") from e
+        raise RpaError(msg("the archive cannot be read: {reason}", reason=e)) from e
     out = {}
     if not isinstance(idx, dict):
-        raise RpaError("index archivu má neočekávaný tvar")
+        raise RpaError(msg("the archive index has an unexpected shape"))
     for name, items in idx.items():
         try:
             e = items[0]
@@ -62,11 +63,11 @@ def read_entry(path, entry, limit=64 * 1024 * 1024):
     """The bytes of one file of an archive (prefix + data), at most `limit` bytes."""
     offset, length, prefix = entry
     if length > limit:
-        raise RpaError("soubor v archivu je příliš velký")
+        raise RpaError(msg("the file in the archive is too large"))
     try:
         with open(path, "rb") as f:
             f.seek(offset)
             data = f.read(max(0, length - len(prefix)))
     except OSError as e:
-        raise RpaError(f"archiv nejde přečíst: {e.strerror or e}") from e
+        raise RpaError(msg("the archive cannot be read: {reason}", reason=e.strerror or e)) from e
     return prefix + data

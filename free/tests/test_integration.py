@@ -33,7 +33,7 @@ class ConfigTests(TempCase):
         self.cfg_dir.mkdir()
         (self.cfg_dir / "config.json").write_text("{not json", encoding="utf-8")
         c = Config().load()
-        self.assertIn("nelze načíst", c.load_error)
+        self.assertIn("cannot be loaded", c.load_error)
         self.assertEqual(c.get("editor.preferred"), "auto")
 
     def test_unknown_keys_kept_and_wrong_types_ignored(self):
@@ -122,7 +122,7 @@ class WebJsonMigrationTests(TempCase):
         self.assertTrue(app.overview()["totals"]["total"])
         with self.assertRaises(AppError) as cm:
             app.publish_plan()
-        self.assertIn("není nastavený", str(cm.exception))
+        self.assertIn("not set up", str(cm.exception))
 
     def test_open_project_imports_legacy_file_from_data_dir(self):
         self.basic_project()
@@ -174,7 +174,7 @@ class EditorTests(TempCase):
         self.assertTrue(r["ok"])
         self.assertFalse(r["jumped"])
         self.assertEqual(r["editor"], "system")
-        self.assertIn("bez skoku na řádek", r["message"])
+        self.assertIn("without jumping to line", r["message"])
         self.assertEqual(len(opened), 1)
 
     def test_failure_is_reported_not_silent(self):
@@ -183,7 +183,7 @@ class EditorTests(TempCase):
         r = editor.open_in_editor(self.f, 3, {"preferred": "auto"}, root=self.root, runner=self.runner,
                                   finder=self.finder({}), opener=no)
         self.assertFalse(r["ok"])
-        self.assertIn("nepodařilo", r["message"])
+        self.assertIn("could not be opened", r["message"])
 
     def test_runner_error_tries_next_editor(self):
         def runner(argv):
@@ -283,7 +283,7 @@ class PublishTests(TempCase):
         self.app.export_preview()
         self.assertEqual((info["branch"], info["upstream"]), ("main", "origin/main"))
         self.assertTrue(info["changed"])
-        self.assertTrue(any("nasadí web na ostro" in w for w in info["warnings"]))
+        self.assertTrue(any("deploys the website live" in w for w in info["warnings"]))
         self.assertIn("git push", info["commands"])
         self.assertEqual(before, (self.head(), git(self.work, "rev-parse", "HEAD"), git(self.work, "status", "--porcelain")))
 
@@ -305,13 +305,13 @@ class PublishTests(TempCase):
         self.app.set_assign("script.rpy", "ep:1")          # data changed after the preview
         with self.assertRaises(AppError) as cm:
             self.app.publish_confirm(info["token"], "main")
-        self.assertIn("od náhledu změnily", str(cm.exception))
+        self.assertIn("changed since the preview", str(cm.exception))
         self.assertEqual(self.head(), before)
 
     def test_successful_publish_commits_only_the_data_file(self):
         (self.work / "notes.txt").write_text("keep me", encoding="utf-8")        # unrelated dirty file
         info = self.app.publish_plan()
-        self.assertTrue(any("jiné neuložené změny" in w for w in info["warnings"]))
+        self.assertTrue(any("other uncommitted changes" in w for w in info["warnings"]))
         res = self.app.publish_confirm(info["token"], "main")
         self.assertTrue(res["ok"])
         self.assertEqual(git(self.remote, "show", "--name-only", "--format=%s", "main").splitlines(),
@@ -329,7 +329,7 @@ class PublishTests(TempCase):
         info2 = self.app.publish_plan()
         self.assertFalse(info2["changed"])
         res = self.app.publish_confirm(info2["token"], "main")
-        self.assertIn("Beze změny", res["message"])
+        self.assertIn("No change", res["message"])
         self.assertEqual(self.head(), head)
 
     def test_failed_push_rolls_everything_back(self):
@@ -341,7 +341,7 @@ class PublishTests(TempCase):
         info = self.app.publish_plan()
         with self.assertRaises(AppError) as cm:
             self.app.publish_confirm(info["token"], "main")
-        self.assertIn("push selhal", str(cm.exception))
+        self.assertIn("push failed", str(cm.exception))
         self.assertEqual(git(self.work, "rev-parse", "HEAD"), local_before)
         self.assertEqual((self.work / "web" / "progress.json").read_bytes(), file_before)
         self.assertEqual(git(self.work, "status", "--porcelain"), "")
@@ -366,7 +366,7 @@ class PublishTests(TempCase):
         info = self.app.publish_plan()
         self.assertTrue(info["will_clone"])
         self.assertFalse(Path(info["repo_path"]).exists())
-        self.assertTrue(any("naklonuje" in w for w in info["warnings"]))
+        self.assertTrue(any("cloned" in w for w in info["warnings"]))
         with self.assertRaises(AppError):
             self.app.publish_confirm(info["token"], "main")         # clone needs its own confirmation marker
 

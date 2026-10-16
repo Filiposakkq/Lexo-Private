@@ -13,6 +13,7 @@ import threading
 import time
 
 from .util import atomic_write_bytes
+from .messages import msg
 
 LOCK_NAME = "lock.json"
 STALE_AFTER = 60.0
@@ -25,9 +26,8 @@ class ProjectLocked(Exception):
     def __init__(self, holder):
         self.holder = holder
         age = max(0, int(time.time() - holder.get("time", 0)))
-        super().__init__(f"Projekt právě používá jiná kopie aplikace (počítač {holder.get('host', '?')}, "
-                         f"proces {holder.get('pid', '?')}, naposledy aktivní před {age} s). "
-                         f"Dvě kopie najednou by si přepisovaly data.")
+        super().__init__(msg("The project is being used by another copy of the application (computer {host}, process {pid}, last active {age} s ago). Two copies at once would overwrite each other's data.",
+                             host=holder.get("host", "?"), pid=holder.get("pid", "?"), age=age))
 
 
 def _read(path):

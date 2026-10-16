@@ -9,6 +9,7 @@ import time
 import unicodedata
 from datetime import datetime, timedelta
 from pathlib import Path
+from .messages import msg
 
 
 class WriteFailed(OSError):
@@ -68,9 +69,9 @@ def atomic_write_bytes(path, data, backup_dir=None, retries=3):
             make_backup(path, backup_dir)
         fd, tmp = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
     except PermissionError as e:
-        raise WriteFailed(path, "nemám oprávnění zapisovat do složky") from e
+        raise WriteFailed(path, msg("no permission to write to the folder")) from e
     except OSError as e:
-        raise WriteFailed(path, f"složku nelze použít ({e.strerror or e})") from e
+        raise WriteFailed(path, msg("the folder cannot be used ({reason})", reason=e.strerror or e)) from e
     try:
         with os.fdopen(fd, "wb") as fh:
             fh.write(data)
@@ -82,7 +83,7 @@ def atomic_write_bytes(path, data, backup_dir=None, retries=3):
                 break
             except PermissionError:
                 if attempt == retries - 1:
-                    raise WriteFailed(path, "soubor je zamčený (otevřený v Excelu nebo jiném programu?)") from None
+                    raise WriteFailed(path, msg("the file is locked (open in Excel or another program?)")) from None
                 time.sleep(0.15 * (attempt + 1))
     except WriteFailed:
         raise

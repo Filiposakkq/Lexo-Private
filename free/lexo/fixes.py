@@ -17,6 +17,7 @@ from pathlib import Path
 
 from . import rpy, validator
 from .util import WriteFailed, atomic_write_bytes, make_backup, norm_ws
+from .messages import msg
 
 SPLIT_RE = re.compile(r"(\r\n|\r|\n)")
 BOM = b"\xef\xbb\xbf"
@@ -68,9 +69,9 @@ def plan(project, items=None, file=""):
             after = fixed_line(e, e.cur_raw)
             skip = ""
             if after is None:
-                skip = "Řádek neobsahuje text v uvozovkách."
+                skip = msg("The line does not contain text in quotes.")
             elif norm_ws(after) == norm_ws(e.src_raw):
-                skip = "Po opravě by byl řádek shodný s originálem (počítal by se jako nepřeložený) – oprav ručně."
+                skip = msg("After the fix the line would be identical to the original (it would count as untranslated) – fix it by hand.")
             out.append({"file": rel, "line": e.line, "code": codes[0], "before": e.cur_raw, "after": after or "",
                         "skip": skip, "source_line": e.src_raw})
     return out
@@ -92,16 +93,16 @@ def apply(project, data_dir, planned):
         try:
             data = full.read_bytes()
         except OSError as e:
-            raise FixError(f"{rel}: soubor nelze přečíst ({e.strerror or e}).") from e
+            raise FixError(msg("{rel}: the file cannot be read ({reason}).", rel=rel, reason=e.strerror or e)) from e
         if fi is None or rpy.parse_bytes(data).digest != fi.parsed.digest:
-            raise FixError(f"{rel}: soubor se na disku změnil od načtení. Obnov soubory a zkus to znovu.")
+            raise FixError(msg("{rel}: the file changed on the disk since it was loaded. Refresh the files and try again.", rel=rel))
         had_bom = data.startswith(BOM)
         text = data[len(BOM):].decode("utf-8", errors="strict") if had_bom else data.decode("utf-8", errors="strict")
         parts = SPLIT_RE.split(text)       # text, eol, text, eol ... — line N is parts[2 * (N - 1)]
         for p in items:
             idx = 2 * (p["line"] - 1)
             if idx >= len(parts) or parts[idx].strip() != p["before"]:
-                raise FixError(f"{rel}:{p['line']}: řádek už neodpovídá načtenému stavu. Obnov soubory.")
+                raise FixError(msg("{rel}:{line}: the line no longer matches the loaded state. Refresh the files.", rel=rel, line=p['line']))
             lead = parts[idx][:len(parts[idx]) - len(parts[idx].lstrip())]
             parts[idx] = lead + p["after"].lstrip() + parts[idx][len(parts[idx].rstrip()):]
         new_bytes = ("".join(parts)).encode("utf-8")
@@ -113,19 +114,19 @@ def apply(project, data_dir, planned):
         try:
             atomic_write_bytes(full, new_bytes)
         except WriteFailed as e:
-            raise FixError(f"Nelze zapsat: {e.reason} ({full.name})") from e
+            raise FixError(msg("Cannot write: {reason} ({name})", reason=e.reason, name=full.name)) from e
         check = rpy.parse_bytes(full.read_bytes())
         old_entries = fi.parsed.entries
         if len(check.entries) != len(old_entries) or any(
                 a.target != b.target for a, b in zip(old_entries, check.entries)):
             atomic_write_bytes(full, data)
-            raise FixError(f"{rel}: kontrola po zápisu selhala, soubor byl vrácen do původního stavu.")
+            raise FixError(msg("{rel}: the check after writing failed, the file was restored to its previous state.", rel=rel))
         fixed += len(items)
         if backup:
             record.append({"file": rel, "backup": str(backup), "after": hashlib.sha1(new_bytes).hexdigest(),
                            "lines": len(items)})
     if record:
-        _push(data_dir, {"time": datetime.now().isoformat(timespec="seconds"), "label": "Oprava mluvčích podle originálu",
+        _push(data_dir, {"time": datetime.now().isoformat(timespec="seconds"), "label": msg("Fix of speakers from the original"),
                          "files": record})
     return {"fixed": fixed, "skipped": skipped, "backups": backups}
 
@@ -164,7 +165,7 @@ def undo(project, data_dir):
     (the backup would silently throw those edits away). Returns {restored: [rel...], lines, label}."""
     stack = _stack(data_dir)
     if not stack:
-        raise FixError("Není co vracet.")
+        raise FixError(msg("Nothing to undo."))
     rec = stack[-1]
     checked = []
     for f in rec["files"]:
@@ -174,16 +175,15 @@ def undo(project, data_dir):
             now = hashlib.sha1(full.read_bytes()).hexdigest()
             before = bak.read_bytes()
         except OSError as e:
-            raise FixError(f"{f['file']}: nelze číst soubor nebo zálohu ({e.strerror or e}).") from e
+            raise FixError(msg("{file}: the file or the backup cannot be read ({reason}).", file=f['file'], reason=e.strerror or e)) from e
         if now != f["after"]:
-            raise FixError(f"{f['file']}: soubor se od poslední změny změnil jinde (např. v editoru). Vrácení by smazalo "
-                           f"pozdější úpravy – zálohu najdeš v {bak.parent}.")
+            raise FixError(msg("{file}: the file changed elsewhere since the last change (e.g. in the editor). Undoing would delete later edits – the backup is in {folder}.", file=f['file'], folder=bak.parent))
         checked.append((full, before, f["file"]))
     for full, before, _rel in checked:
         try:
             atomic_write_bytes(full, before)
         except WriteFailed as e:
-            raise FixError(f"Nelze zapsat: {e.reason} ({full.name})") from e
+            raise FixError(msg("Cannot write: {reason} ({name})", reason=e.reason, name=full.name)) from e
     rest = stack[:-1]
     try:
         if rest:
@@ -201,17 +201,17 @@ def undo(project, data_dir):
 def check_literal(text):
     """The raw text that goes between the quotes of a Ren'Py string must stay one valid string literal."""
     if "\n" in text or "\r" in text:
-        raise FixError("Text nesmí obsahovat skutečné zalomení řádku. Nový řádek zapiš jako \\n.")
+        raise FixError(msg("The text must not contain a real line break. Write a new line as \n."))
     i = 0
     while i < len(text):
         ch = text[i]
         if ch == "\\":
             if i + 1 >= len(text):
-                raise FixError("Text nesmí končit samotným zpětným lomítkem „\\“ (zapiš \\\\ nebo \\n).")
+                raise FixError(msg("The text must not end with a lone backslash “\\” (write \\ or \n)."))
             i += 2
             continue
         if ch == '"':
-            raise FixError('Uvozovku v textu zapiš jako \\" – holá uvozovka by ukončila řetězec.')
+            raise FixError(msg("Write a quote in the text as \\\" – a bare quote would end the string."))
         i += 1
 
 
@@ -219,33 +219,33 @@ def _stage_file(project, rel, changes):
     """Prepare the new bytes of one file for {line: new_text}. Nothing is written. Returns a dict."""
     fi = project.files.get(rel)
     if fi is None:
-        raise FixError(f"{rel}: neznámý soubor.")
+        raise FixError(msg("{rel}: unknown file.", rel=rel))
     ents = {e.line: e for e in project.entries(rel)}
     full = project.path_of(rel)
     try:
         data = full.read_bytes()
     except OSError as e:
-        raise FixError(f"{rel}: soubor nelze přečíst ({e.strerror or e}).") from e
+        raise FixError(msg("{rel}: the file cannot be read ({reason}).", rel=rel, reason=e.strerror or e)) from e
     if rpy.parse_bytes(data).digest != fi.parsed.digest:
-        raise FixError(f"{rel}: soubor se na disku změnil od načtení (třeba v editoru). Obnov soubory a zkus to znovu.")
+        raise FixError(msg("{rel}: the file changed on the disk since it was loaded (maybe in the editor). Refresh the files and try again.", rel=rel))
     had_bom = data.startswith(BOM)
     try:
         text = (data[len(BOM):] if had_bom else data).decode("utf-8")
     except UnicodeDecodeError as e:
-        raise FixError(f"{rel}: soubor není platné UTF-8, úpravu raději neprovádím.") from e
+        raise FixError(msg("{rel}: the file is not valid UTF-8, I rather do not edit it.", rel=rel)) from e
     parts = SPLIT_RE.split(text)
     for line, new_text in changes.items():
         ent = ents.get(line)
         if ent is None:
-            raise FixError(f"{rel}:{line}: řádek už v souboru není – obnov soubory.")
+            raise FixError(msg("{rel}:{line}: the line is no longer in the file – refresh the files.", rel=rel, line=line))
         check_literal(new_text)
         idx = 2 * (line - 1)
         if idx >= len(parts) or parts[idx].strip() != ent.cur_raw:
-            raise FixError(f"{rel}:{line}: řádek už neodpovídá načtenému stavu. Obnov soubory.")
+            raise FixError(msg("{rel}:{line}: the line no longer matches the loaded state. Refresh the files.", rel=rel, line=line))
         raw = parts[idx]
         m = rpy.STR_RE.search(raw)
         if not m:
-            raise FixError(f"{rel}:{line}: na řádku není text v uvozovkách.")
+            raise FixError(msg("{rel}:{line}: there is no text in quotes on the line.", rel=rel, line=line))
         parts[idx] = raw[:m.start()] + '"' + new_text + '"' + raw[m.end():]
     new_bytes = "".join(parts).encode("utf-8")
     if had_bom:
@@ -287,7 +287,7 @@ def apply_edits(project, data_dir, edits, label):
             atomic_write_bytes(st["full"], st["new"])
             written.append(st)
             if not _verify(st, rpy.parse_bytes(st["full"].read_bytes())):
-                raise FixError(f"{st['rel']}: kontrola po zápisu selhala, změny byly vráceny do původního stavu.")
+                raise FixError(msg("{rel}: the check after writing failed, the changes were restored to their previous state.", rel=st['rel']))
             if backup:
                 backups.append(str(backup))
                 record.append({"file": st["rel"], "backup": str(backup), "after": hashlib.sha1(st["new"]).hexdigest(),
@@ -299,10 +299,10 @@ def apply_edits(project, data_dir, edits, label):
             except (WriteFailed, OSError):
                 pass
         if isinstance(e, WriteFailed):
-            raise FixError(f"Nelze zapsat: {e.reason} ({e.path.name})") from e
+            raise FixError(msg("Cannot write: {reason} ({name})", reason=e.reason, name=e.path.name)) from e
         if isinstance(e, FixError):
             raise
-        raise FixError(f"Zápis selhal: {e}") from e
+        raise FixError(msg("The write failed: {reason}", reason=e)) from e
     if record:
         _push(data_dir, {"time": datetime.now().isoformat(timespec="seconds"), "label": label, "files": record})
     details = [{"file": st["rel"], "line": e.line, "key": e.key, "old": e.target, "new": st["changes"][e.line]}
@@ -314,9 +314,9 @@ def edit_translation(project, data_dir, rel, line, new_text):
     """Replace the translated text of one unit. Returns {changed, backup}."""
     ent = next((e for e in project.entries(rel) if e.line == line), None)
     if ent is None:
-        raise FixError("Řádek už v souboru není – obnov soubory.")
+        raise FixError(msg("The line is no longer in the file – refresh the files."))
     check_literal(new_text)
     if new_text == ent.target:
         return {"changed": False}
-    res = apply_edits(project, data_dir, [(rel, line, new_text)], f"Úprava řádku {line} v {Path(rel).name}")
+    res = apply_edits(project, data_dir, [(rel, line, new_text)], msg("Editing line {line} in {name}", line=line, name=Path(rel).name))
     return {"changed": True, "backup": res["backups"][0] if res["backups"] else "", "details": res["details"]}

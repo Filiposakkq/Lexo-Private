@@ -74,7 +74,7 @@ class ExtractTests(Tmp):
         self.assertEqual(res["written"], ["a.png"])
         res = gametools.extract_rpa(self.tmp / "a.rpa", self.tmp / "o2", max_file=3)
         self.assertEqual(res["written"], [])
-        self.assertEqual({r for _n, r in res["skipped"]}, {"soubor je příliš velký"})
+        self.assertEqual({r for _n, r in res["skipped"]}, {"the file is too large"})
         res = gametools.extract_rpa(self.tmp / "a.rpa", self.tmp / "o3", max_total=6)
         self.assertEqual(len(res["written"]), 1)
 
@@ -160,14 +160,14 @@ class TranslateTests(Tmp):
         base, sdk = self.project(), self.sdk()
         with self.assertRaises(gametools.ToolError) as cm:
             gametools.generate_translation(sdk, base, "czech", runner=lambda a, c: (0, ""))
-        self.assertIn("potvrdit", str(cm.exception))
+        self.assertIn("confirmed explicitly", str(cm.exception))
         for bad in ("", "1abc", "cz ech", "../x", "a;b"):
             with self.subTest(bad), self.assertRaises(gametools.ToolError):
                 gametools.generate_translation(sdk, base, bad, write_into_project=True, runner=lambda a, c: (0, ""))
         (base / "game" / "tl" / "czech").mkdir(parents=True)
         with self.assertRaises(gametools.ToolError) as cm:
             gametools.generate_translation(sdk, base, "czech", write_into_project=True, runner=lambda a, c: (0, ""))
-        self.assertIn("nebudu ji přepisovat", str(cm.exception))
+        self.assertIn("will not overwrite it", str(cm.exception))
         with self.assertRaises(gametools.ToolError):
             gametools.generate_translation(sdk, self.tmp / "nogame", "czech", write_into_project=True)
 

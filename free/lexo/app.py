@@ -755,10 +755,10 @@ class App:
         defs = {}          # code -> list of (name, dynamic, file)
         for f in files:
             if f.suffix.lower() != ".rpy":
-                raise AppError("Importovat lze jen soubory .rpy (characters.rpy).")
+                raise AppError(msg("Only .rpy files (characters.rpy) can be imported."))
             try:
                 if not f.is_file():
-                    raise AppError(f"Soubor neexistuje: {f}")
+                    raise AppError(msg("The file does not exist: {path}", path=f))
                 if f.stat().st_size > CHARACTERS_MAX_BYTES:
                     raise AppError(msg("The file is too large for a list of characters: {name}", name=f.name))
                 text = f.read_text(encoding="utf-8-sig", errors="replace")
@@ -1666,7 +1666,7 @@ class App:
                 r = self._mt_one(rel, ents, idx, cfg, terms)
             except AppError as e:
                 results.append({"file": rel, "line": line, "error": str(e)})
-                if not str(e).startswith("Řádek nemá"):
+                if str(e) != str(mt.NO_TEXT):
                     return {"results": results, "stopped": str(e)}
                 continue
             results.append({"file": rel, "line": line, "key": ents[idx].key, "who": ents[idx].who, "source": ents[idx].source,

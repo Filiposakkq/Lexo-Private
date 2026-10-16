@@ -304,7 +304,7 @@ class EstimateTests(unittest.TestCase):
         e = hist.estimate([(datetime(2026, 10, 14, 10, 0), 1100, 10000, 0), (datetime(2026, 10, 14, 15, 0), 3000, 10000, 0)],
                           3000, 10000, today=date(2026, 10, 14))
         self.assertEqual((e["status"], e["eta"]), ("insufficient_data", None))
-        self.assertIn("málo dat", e["reason"])
+        self.assertIn("Not enough data", e["reason"])
 
     def test_empty_history(self):
         self.assertEqual(hist.estimate([], 0, 100, today=date(2026, 10, 14))["status"], "insufficient_data")
@@ -432,7 +432,7 @@ class ExportTests(TempCase):
         d = self.project().build_export()
         self.assertNotIn(".rpy", json.dumps(d))
         d["title"] = "leak script.rpy"
-        self.assertTrue(any("názvy souborů" in p for p in export.validate_progress(d)))
+        self.assertTrue(any("file names" in p for p in export.validate_progress(d)))
 
     def test_validation_catches_inconsistent_data(self):
         d = self.project().build_export()
@@ -443,7 +443,7 @@ class ExportTests(TempCase):
         self.assertTrue(export.validate_progress(d))
         d = self.project().build_export()
         d["seasons"][2]["translation"] = {"done": 0, "total": 0, "percent": 0}
-        self.assertTrue(any("Plánovaná" in p for p in export.validate_progress(d)))
+        self.assertTrue(any("planned season" in p for p in export.validate_progress(d)))
         d = self.project().build_export()
         d["translation"]["percent"] = 140
         self.assertTrue(export.validate_progress(d))

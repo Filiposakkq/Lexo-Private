@@ -20,6 +20,7 @@ from .project import STATUS_LABELS, file_status, totals_of
 from . import layout
 from .store import ep_of
 from .util import atomic_write_text
+from .messages import msg
 
 SCHEMA = 2
 
@@ -144,55 +145,54 @@ def validate_progress(data):
     for key in ("translation", "proofreading"):
         b = data.get(key)
         if not isinstance(b, dict) or not all(k in b for k in ("done", "total", "percent")):
-            p.append(f"Chybí blok „{key}“.")
+            p.append(msg("The block “{key}” is missing.", key=key))
             continue
         if not (isinstance(b["done"], int) and isinstance(b["total"], int)) or b["done"] < 0 or b["done"] > b["total"]:
-            p.append(f"{key}: neplatné hodnoty done/total ({b['done']}/{b['total']}).")
+            p.append(msg("{key}: invalid done/total values ({done}/{total}).", key=key, done=b['done'], total=b['total']))
         if b["percent"] is not None and not (0 <= b["percent"] <= 100):
             p.append(f"{key}: procenta mimo rozsah ({b['percent']}).")
     eps, seasons = data.get("episodes"), data.get("seasons")
     if not isinstance(eps, list) or not isinstance(seasons, list):
-        return p + ["Chybí seznam epizod nebo sezón."]
+        return p + [msg("The list of episodes or seasons is missing.")]
     nums = [e.get("n") for e in eps]
     if nums != list(layout.ACTIVE_EPISODES):
-        p.append(f"Epizody {nums} neodpovídají aktivnímu rozsahu {list(layout.ACTIVE_EPISODES)}.")
+        p.append(msg("The episodes {nums} do not match the active range {active}.", nums=nums, active=list(layout.ACTIVE_EPISODES)))
     for e in eps:
         if e.get("season") != layout.season_of(e.get("n")):
-            p.append(f"Epizoda {e.get('n')} je v sezóně {e.get('season')}, správně {layout.season_of(e.get('n'))}.")
+            p.append(msg("Episode {n} is in season {season}, correct is {expected}.", n=e.get('n'), season=e.get('season'), expected=layout.season_of(e.get('n'))))
         t = e.get("translation", {})
         if t.get("done", 0) > t.get("total", 0):
-            p.append(f"Epizoda {e.get('n')}: přeloženo víc než celkem.")
+            p.append(msg("Episode {n}: more translated than the total.", n=e.get('n')))
     by_n = {s.get("n"): s for s in seasons}
     for s in layout.SEASONS:
         got = by_n.get(s["n"])
         if got is None:
-            p.append(f"Chybí sezóna {s['n']}.")
+            p.append(msg("Season {n} is missing.", n=s['n']))
         elif got.get("status") != s["status"]:
-            p.append(f"Sezóna {s['n']} má stav {got.get('status')}, správně {s['status']}.")
+            p.append(msg("Season {n} has the state {got}, correct is {expected}.", n=s['n'], got=got.get('status'), expected=s['status']))
         elif s["status"] == "planned" and set(got) - {"n", "status"}:
-            p.append(f"Plánovaná sezóna {s['n']} nesmí mít žádná čísla.")
+            p.append(msg("The planned season {n} must not have any numbers.", n=s['n']))
     for s in seasons:
         if s.get("status") == "active":
             mine = [e for e in eps if e.get("season") == s["n"]]
             if sum(e["translation"]["done"] for e in mine) != s["translation"]["done"] \
                     or sum(e["translation"]["total"] for e in mine) != s["translation"]["total"]:
-                p.append(f"Sezóna {s['n']}: součet epizod nesedí se sezónou.")
+                p.append(msg("Season {n}: the sum of the episodes does not match the season.", n=s['n']))
     try:
         parts_done = sum(e["translation"]["done"] for e in eps) + data["general"]["translation"]["done"] \
             + data["unassigned"]["translation"]["done"]
         parts_total = sum(e["translation"]["total"] for e in eps) + data["general"]["translation"]["total"] \
             + data["unassigned"]["translation"]["total"]
         if (parts_done, parts_total) != (data["translation"]["done"], data["translation"]["total"]):
-            p.append(f"Součet epizod + obecné + nezařazené ({parts_done}/{parts_total}) nesedí s celkem "
-                     f"({data['translation']['done']}/{data['translation']['total']}).")
+            p.append(msg("The sum of episodes + general + unassigned ({a}/{b}) does not match the total ({c}/{d}).", a=parts_done, b=parts_total, c=data['translation']['done'], d=data['translation']['total']))
     except (KeyError, TypeError):
-        p.append("Chybí bloky general / unassigned.")
+        p.append(msg("The blocks general / unassigned are missing."))
     try:
         text = json.dumps(data, ensure_ascii=False)
     except (TypeError, ValueError) as e:
-        return p + [f"Data nelze zapsat jako JSON: {e}"]
+        return p + [msg("The data cannot be written as JSON: {e}", e=e)]
     if re.search(r"\.rpy\b", text):
-        p.append("Veřejná data nesmí obsahovat názvy souborů (.rpy).")
+        p.append(msg("Public data must not contain file names (.rpy)."))
     return p
 
 
@@ -204,5 +204,5 @@ def write_local(path, data, backup_dir=None):
     """Validate and write progress.json atomically. Raises ValueError (invalid) / WriteFailed."""
     problems = validate_progress(data)
     if problems:
-        raise ValueError("Export neprošel kontrolou: " + "; ".join(problems))
+        raise ValueError(msg("The export did not pass the check: {problems}", problems="; ".join(problems)))
     atomic_write_text(path, render(data), newline="\n", backup_dir=backup_dir)

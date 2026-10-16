@@ -24,6 +24,7 @@ import time
 from pathlib import Path
 
 from . import lint, rpa
+from .messages import msg
 
 NOWIN = lint.NOWIN
 TIMEOUT = 1800
@@ -72,7 +73,7 @@ def extract_rpa(archive, dest, only=None, overwrite=False, max_file=DEFAULT_MAX_
     when `dest` is a file."""
     dest = Path(dest)
     if dest.exists() and not dest.is_dir():
-        raise ToolError(f"Cíl není složka: {dest}")
+        raise ToolError(msg("The target is not a folder: {dest}", dest=dest))
     _ver, index = rpa.read_index(archive)
     dest.mkdir(parents=True, exist_ok=True)
     written, skipped, total = [], [], 0
@@ -83,16 +84,16 @@ def extract_rpa(archive, dest, only=None, overwrite=False, max_file=DEFAULT_MAX_
                 continue
             target = safe_target(dest, name)
             if target is None:
-                skipped.append((name, "cesta by vedla mimo cílovou složku"))
+                skipped.append((name, msg("the path would lead outside the target folder")))
                 continue
             if length > max_file:
-                skipped.append((name, "soubor je příliš velký"))
+                skipped.append((name, msg("the file is too large")))
                 continue
             if total + length > max_total:
-                skipped.append((name, "překročen celkový limit rozbalení"))
+                skipped.append((name, msg("the total limit of the extraction was exceeded")))
                 continue
             if target.exists() and not overwrite:
-                skipped.append((name, "soubor už existuje"))
+                skipped.append((name, msg("the file already exists")))
                 continue
             target.parent.mkdir(parents=True, exist_ok=True)
             tmp = target.with_name(target.name + ".part")
@@ -104,7 +105,7 @@ def extract_rpa(archive, dest, only=None, overwrite=False, max_file=DEFAULT_MAX_
                     while left:
                         chunk = src.read(min(CHUNK, left))
                         if not chunk:
-                            raise OSError("archiv končí dřív, než index slibuje")
+                            raise OSError(msg("the archive ends earlier than the index promises"))
                         out.write(chunk)
                         left -= len(chunk)
                 tmp.replace(target)
@@ -123,7 +124,7 @@ def copy_scripts(game_dir, workspace):
     Returns the number of copied files."""
     game_dir, workspace = Path(game_dir).resolve(), Path(workspace).resolve()
     if workspace == game_dir or game_dir in workspace.parents:
-        raise ToolError("Pracovní složka nesmí být uvnitř složky hry.")
+        raise ToolError(msg("The workspace must not be inside the game folder."))
     n = 0
     for f in sorted(game_dir.rglob("*")):
         if f.is_file() and f.suffix.lower() in SCRIPT_SUFFIXES:
@@ -138,20 +139,20 @@ def _run_process(argv, cwd, timeout=TIMEOUT):
     try:
         p = subprocess.run(argv, cwd=str(cwd), capture_output=True, timeout=timeout, **NOWIN)
     except subprocess.TimeoutExpired as e:
-        raise ToolError(f"Příkaz trval déle než {timeout} s a byl přerušen.") from e
+        raise ToolError(msg("The command took longer than {timeout} s and was stopped.", timeout=timeout)) from e
     except OSError as e:
-        raise ToolError(f"Příkaz se nepodařilo spustit: {e.strerror or e}") from e
+        raise ToolError(msg("The command could not be started: {reason}", reason=e.strerror or e)) from e
     return p.returncode, (p.stdout or b"").decode("utf-8", errors="replace") + (p.stderr or b"").decode("utf-8", errors="replace")
 
 
 def build_unrpyc_command(python, unrpyc_script, target, clobber=False, try_harder=False, no_init_offset=False):
     python, script, target = Path(python), Path(unrpyc_script), Path(target)
     if not python.is_file():
-        raise ToolError(f"Python pro unrpyc neexistuje: {python}")
+        raise ToolError(msg("The Python for unrpyc does not exist: {python}", python=python))
     if not script.is_file():
-        raise ToolError(f"Skript unrpyc.py neexistuje: {script}")
+        raise ToolError(msg("The script unrpyc.py does not exist: {script}", script=script))
     if not target.is_dir():
-        raise ToolError(f"Pracovní složka neexistuje: {target}")
+        raise ToolError(msg("The workspace folder does not exist: {target}", target=target))
     argv = [str(python), str(script)]
     if clobber:
         argv.append("-c")
@@ -180,7 +181,7 @@ def decompile(python, unrpyc_script, workspace, clobber=False, try_harder=False,
 def plan_translation(base, language):
     """What generate_translation would do, without doing it: {folder, exists}."""
     if not LANGUAGE_RE.fullmatch(language or ""):
-        raise ToolError("Název jazyka smí obsahovat jen písmena, číslice a podtržítko a nesmí začínat číslicí.")
+        raise ToolError(msg("The language name may contain only letters, digits and an underscore and must not start with a digit."))
     folder = Path(base) / "game" / "tl" / language
     return {"folder": str(folder), "exists": folder.exists()}
 
@@ -190,11 +191,11 @@ def generate_translation(sdk, base, language, write_into_project=False, runner=N
     It writes INTO the project, so the caller must pass write_into_project=True, and an existing language folder is never touched."""
     plan = plan_translation(base, language)
     if not (Path(base) / "game").is_dir():
-        raise ToolError(f"Ve složce není podsložka game: {base}")
+        raise ToolError(msg("There is no game subfolder in the folder: {base}", base=base))
     if not write_into_project:
-        raise ToolError("Generování zapisuje do projektu (game/tl/" + language + "); je potřeba to výslovně potvrdit.")
+        raise ToolError(msg("Generating writes into the project (game/tl/{language}); it must be confirmed explicitly.", language=language))
     if plan["exists"]:
-        raise ToolError(f"Složka {plan['folder']} už existuje a nebudu ji přepisovat.")
+        raise ToolError(msg("The folder {folder} already exists and I will not overwrite it.", folder=plan['folder']))
     try:
         argv, cwd = lint.build_command(sdk, base, ("translate", language))
     except lint.LintError as e:

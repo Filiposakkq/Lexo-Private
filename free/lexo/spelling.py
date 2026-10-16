@@ -14,6 +14,7 @@ from collections import Counter
 
 from .util import fold
 from .validator import Issue, plain_text
+from .messages import msg
 
 WORD_RE = re.compile(r"[^\W\d_]{3,}", re.UNICODE)
 MIN_FREQUENT = 5            # a "correct" word must occur at least this often
@@ -83,12 +84,12 @@ class Spelling:
                 continue
             kind, better = hit
             if kind == "diacritics":
-                msg = f"Chybí diakritika? „{w}“ → „{better}“."
+                text = msg("Missing diacritics? “{w}” → “{better}”.", w=w, better=better)
                 sev = "warning" if len(w) >= 6 else "info"
             else:
-                msg = f"Překlep? „{w}“ → „{better}“."
+                text = msg("A typo? “{w}” → “{better}”.", w=w, better=better)
                 sev = "warning"
-            out.append(Issue(sev, "typo-suspect", msg, category="text",
+            out.append(Issue(sev, "typo-suspect", text, category="text",
                              extra={"fixable": True, "kind": "typo", "word": w, "better": better, "typo_kind": kind}))
             if len(out) >= 3:
                 break

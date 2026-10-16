@@ -34,9 +34,8 @@ Status of every row is "to do" until a step in the roadmap handles it.
 | package name `prehled` (Czech for "overview") | Rename to the real package name |
 
 ## 4. UI language
-- **Done:** the browser UI (`ui/js`, `index.html`) has no Czech literals any more: English is the source text, Czech is a pack (`packs/cs/ui.json`, ~1 040 texts), the language is chosen in Settings (or `?lang=`). See UI-TEXTS.md.
-- **Open:** the Python side still returns Czech sentences (`app.py`, `validator.py`, `project.py` labels such as "Nezačato", `export.py` hints, history labels). They must return message keys with parameters that the UI translates.
-- **Open:** a few places where the UI depends on Czech server text (the publishing warning regex looks for "ostro") or sends a Czech keyword ("ano").
+**Done.** The browser UI and the Python-side messages are English source text with Czech as a pack (`packs/cs/ui.json`, ~1 400 texts); the language is chosen in Settings (or `?lang=`).
+See UI-TEXTS.md. Open: the "About" text of the settings, the Czech input keyword "ano", and the data labels (CSV status labels etc.) that move with the new data layout.
 
 ## 5. Things that are fine as they are
 Atomic writes and the one-writer rule (`fixes.py`), the incremental project refresh, snapshots, text history, lock file, the line parser structure, the `.rpa` reader and the font width logic are not tied to the game.

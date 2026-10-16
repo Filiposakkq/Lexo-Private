@@ -13,6 +13,7 @@ import re
 from dataclasses import dataclass, field
 
 from .util import norm_ws
+from .messages import msg
 
 OLD_RE = re.compile(r'^\s*old\s+"(.*)"\s*$')
 NEW_RE = re.compile(r'^\s*new\s+"(.*)"\s*$')
@@ -170,7 +171,7 @@ def parse_text(text, digest=""):
     def close_old(at_line):
         nonlocal old_text
         if old_text is not None:
-            out.structure.append((old_no, "old-without-new", 'Za řádkem "old" chybí odpovídající "new".'))
+            out.structure.append((old_no, "old-without-new", msg("After the \"old\" line the matching \"new\" line is missing.")))
             old_text = None
 
     for lineno, raw in enumerate(lines, 1):
@@ -211,7 +212,7 @@ def parse_text(text, digest=""):
         if m_new:
             new_text = m_new.group(1)
             if old_text is None:
-                out.structure.append((lineno, "new-without-old", 'Řádek "new" nemá před sebou "old".'))
+                out.structure.append((lineno, "new-without-old", msg("The \"new\" line has no \"old\" line before it.")))
             cat = classify(new_text) if (new_text == "" or new_text == old_text) else ""
             entries.append(Entry(line=lineno, src_line=old_no if old_text is not None else 0,
                                  block="strings", unit="string", ref=old_ref, who="", suffix="",
@@ -236,8 +237,7 @@ def parse_bytes(data):
         text, bad = data.decode("utf-8-sig", errors="replace"), True
     out = parse_text(text, hashlib.sha1(data).hexdigest())
     if bad:
-        out.structure.append((1, "bad-encoding", "Soubor není platné UTF-8 (nějaké znaky se nepodařilo přečíst). "
-                              "Ren'Py čte skripty jako UTF-8 – ulož ho v editoru jako „UTF-8“."))
+        out.structure.append((1, "bad-encoding", msg("The file is not valid UTF-8 (some characters could not be read). Ren'Py reads scripts as UTF-8 – save it in the editor as “UTF-8”.")))
     return out
 
 

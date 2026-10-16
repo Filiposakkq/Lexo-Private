@@ -19,6 +19,7 @@ import urllib.parse
 import urllib.request
 
 from .textedit import TOKEN_RE
+from .messages import msg
 
 PROVIDERS = ("deepl", "openai", "libretranslate")
 TIMEOUT = 30
@@ -26,6 +27,9 @@ PLACEHOLDER_RE = re.compile(r"<\s*x\s+id\s*=\s*[\"']?(\d+)[\"']?\s*/?\s*>", re.I
 SYSTEM_PROMPT = ("You translate dialogue of a visual novel (Ren'Py game) from {src} to {dst}. Keep every <x id=\"N\"/> element "
                  "exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. "
                  "Return only the translated text, no explanations and no quotes.")
+
+
+NO_TEXT = msg("The line has no text to translate.")      # the one failure that must not stop a batch
 
 
 class MTError(Exception):
@@ -60,9 +64,9 @@ def restore(text, tokens, unescape=False):
     lost = [i for i in range(1, len(tokens) + 1) if i not in seen]
     dup = sorted({i for i in seen if seen.count(i) > 1})
     if lost:
-        warnings.append("Službě se nepodařilo zachovat: " + ", ".join(tokens[i - 1] for i in lost) + " – doplň to ručně.")
+        warnings.append(msg("The service did not keep: {tokens} – add them by hand.", tokens=", ".join(tokens[i - 1] for i in lost)))
     if dup:
-        warnings.append("Tyto značky se v návrhu opakují: " + ", ".join(tokens[i - 1] for i in dup) + ".")
+        warnings.append(msg("These tags are repeated in the suggestion: {tokens}.", tokens=", ".join(tokens[i - 1] for i in dup)))
     return out.strip(), warnings
 
 
@@ -74,29 +78,29 @@ def _post(url, headers, data, timeout=TIMEOUT):
     except urllib.error.HTTPError as e:
         return e.code, e.read().decode("utf-8", errors="replace")
     except (urllib.error.URLError, OSError) as e:
-        raise MTError(f"Spojení se službou se nezdařilo: {getattr(e, 'reason', e)}") from e
+        raise MTError(msg("The connection to the service failed: {reason}", reason=getattr(e, 'reason', e))) from e
 
 
-HTTP_HINTS = {400: "služba požadavek odmítla (zkontroluj jazyky a nastavení)", 401: "klíč byl odmítnut", 403: "klíč byl odmítnut nebo nemá oprávnění",
-              404: "adresa služby neexistuje (zkontroluj adresu / model)", 429: "překročený limit požadavků, zkus to za chvíli",
-              456: "vyčerpaná kvóta služby", 500: "chyba na straně služby", 503: "služba je dočasně nedostupná"}
+HTTP_HINTS = {400: msg("the service rejected the request (check the languages and the settings)"), 401: msg("the key was rejected"), 403: msg("the key was rejected or lacks permission"),
+              404: msg("the service address does not exist (check the address / model)"), 429: msg("the request limit was exceeded, try again in a moment"),
+              456: msg("the service quota is used up"), 500: msg("an error on the service side"), 503: msg("the service is temporarily unavailable")}
 
 
 def _check_url(url):
     p = urllib.parse.urlparse(url)
     if p.scheme not in ("http", "https") or not p.netloc:
-        raise MTError("Adresa služby musí začínat http:// nebo https://.")
+        raise MTError(msg("The service address must start with http:// or https://."))
     return url.rstrip("/")
 
 
 def _call(url, headers, data, http):
     status, body = (http or _post)(url, headers, data)
     if status >= 400:
-        raise MTError(f"Služba odpověděla chybou {status}: {HTTP_HINTS.get(status, 'neznámá chyba')}.")
+        raise MTError(msg("The service answered with the error {status}: {hint}.", status=status, hint=HTTP_HINTS.get(status, msg("unknown error"))))
     try:
         return json.loads(body)
     except ValueError as e:
-        raise MTError("Služba vrátila odpověď, které nerozumím.") from e
+        raise MTError(msg("The service returned an answer I do not understand.")) from e
 
 
 def translate(cfg, text, glossary=None, context=None, http=None):
@@ -107,15 +111,15 @@ def translate(cfg, text, glossary=None, context=None, http=None):
     http(url, headers, data_bytes) -> (status, body) can be replaced in tests."""
     provider = cfg.get("provider", "")
     if provider not in PROVIDERS:
-        raise MTError("Strojový překlad není nastavený.")
+        raise MTError(msg("Machine translation is not set up."))
     if not cfg.get("consent"):
-        raise MTError("Chybí souhlas s odesíláním textu externí službě (Nastavení → Strojový překlad).")
+        raise MTError(msg("Missing consent to send text to an external service (Settings → Machine translation)."))
     key = str(cfg.get("api_key", "")).strip()
     base = str(cfg.get("base_url", "")).strip()
     if not key and not (provider in ("openai", "libretranslate") and base):
-        raise MTError("Chybí klíč k API.")
+        raise MTError(msg("The API key is missing."))
     if not text.strip():
-        raise MTError("Řádek nemá žádný text k překladu.")
+        raise MTError(NO_TEXT)
     src, dst = cfg.get("source_lang", "EN") or "EN", cfg.get("target_lang", "CS") or "CS"
     markup = provider in ("deepl", "libretranslate")          # these two parse the text as XML / HTML
     protected, tokens = protect(text, escape=markup)
@@ -127,7 +131,7 @@ def translate(cfg, text, glossary=None, context=None, http=None):
         try:
             out = res["translations"][0]["text"]
         except (KeyError, IndexError, TypeError) as e:
-            raise MTError("Odpověď DeepL nemá očekávaný tvar.") from e
+            raise MTError(msg("The DeepL answer does not have the expected shape.")) from e
         result, warnings = restore(out, tokens, unescape=True)
     elif provider == "libretranslate":
         host = _check_url(base or "https://libretranslate.com")
@@ -138,7 +142,7 @@ def translate(cfg, text, glossary=None, context=None, http=None):
         try:
             out = res["translatedText"]
         except (KeyError, TypeError) as e:
-            raise MTError("Odpověď LibreTranslate nemá očekávaný tvar.") from e
+            raise MTError(msg("The LibreTranslate answer does not have the expected shape.")) from e
         result, warnings = restore(out, tokens, unescape=True)
     else:
         host = _check_url(base or "https://api.openai.com/v1")
@@ -155,6 +159,6 @@ def translate(cfg, text, glossary=None, context=None, http=None):
         try:
             out = res["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as e:
-            raise MTError("Odpověď služby nemá očekávaný tvar.") from e
+            raise MTError(msg("The answer of the service does not have the expected shape.")) from e
         result, warnings = restore(out.strip().strip('"'), tokens)
     return {"text": result, "warnings": warnings, "provider": provider}

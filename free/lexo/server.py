@@ -16,7 +16,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from . import __version__, lang
-from .messages import text_of, wire
+from .messages import msg, text_of, wire
 from .app import AppError, ProjectBusy
 from .config import config_dir
 from .project import check_project_dir
@@ -131,12 +131,12 @@ def make_handler(sess):
             except AppError as e:
                 self._json({"ok": False, "error": text_of(e)}, 400)
             except KeyError as e:
-                self._json({"ok": False, "error": f"Chybí údaj: {e}"}, 400)
+                self._json({"ok": False, "error": msg("Missing value: {e}", e=e)}, 400)
             except WriteFailed as e:
-                self._json({"ok": False, "error": f"Nelze uložit: {e.reason} ({e.path.name})"}, 409)
+                self._json({"ok": False, "error": msg("Cannot save: {reason} ({name})", reason=e.reason, name=e.path.name)}, 409)
             except Exception as e:  # noqa: BLE001
                 log_exception()
-                self._json({"ok": False, "error": f"Neočekávaná chyba: {e}"}, 500)
+                self._json({"ok": False, "error": msg("Unexpected error: {e}", e=e)}, 500)
 
         # ---------------------------------------------------------- GET
         def do_GET(self):
@@ -181,7 +181,7 @@ def make_handler(sess):
                 except lang.PackError as e:
                     return self._json({"ok": False, "error": str(e)}, 404)
             if not app.ready:
-                return self._json({"ok": False, "error": "Není otevřený žádný projekt."}, 400)
+                return self._json({"ok": False, "error": msg("No project is open.")}, 400)
             if r == "game/font":              # a font of the game by file name (never a path)
                 try:
                     with app.lock:
@@ -239,7 +239,7 @@ def make_handler(sess):
             }
             fn = routes.get(r)
             if fn is None:
-                return self._json({"ok": False, "error": "Neznámá adresa."}, 404)
+                return self._json({"ok": False, "error": msg("Unknown address.")}, 404)
             self._run(fn)
 
         # ---------------------------------------------------------- POST
@@ -261,21 +261,21 @@ def make_handler(sess):
                 return self._send(200, "ok", "text/plain")
             if self.headers.get("X-Token") != sess.token:
                 self._drain()
-                return self._json({"ok": False, "error": "Zakázáno (neplatný token)."}, 403)
+                return self._json({"ok": False, "error": msg("Forbidden (invalid token).")}, 403)
             try:
                 length = int(self.headers.get("Content-Length", 0))
                 if length > MAX_BODY:
-                    return self._json({"ok": False, "error": "Požadavek je příliš velký."}, 413)
+                    return self._json({"ok": False, "error": msg("The request is too large.")}, 413)
                 body = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
             except (ValueError, UnicodeDecodeError):
-                return self._json({"ok": False, "error": "Neplatný požadavek."}, 400)
+                return self._json({"ok": False, "error": msg("Invalid request.")}, 400)
             sess.last_ping = time.time()
             r = url.path[5:] if url.path.startswith("/api/") else ""
             d = body if isinstance(body, dict) else {}
 
             def need_project():
                 if not app.ready:
-                    raise AppError("Není otevřený žádný projekt.")
+                    raise AppError(msg("No project is open."))
 
             def project_set():
                 path = str(d.get("path", "")).strip().strip('"')
@@ -285,7 +285,7 @@ def make_handler(sess):
 
             def project_pick():
                 if sess.pick_folder is None:
-                    raise AppError("Výběr složky v tomto režimu není k dispozici – zadej cestu ručně.")
+                    raise AppError(msg("Choosing a folder is not available in this mode – enter the path by hand."))
                 chosen = sess.pick_folder()
                 if not chosen:
                     return {"ok": True, "cancelled": True}
@@ -310,7 +310,7 @@ def make_handler(sess):
             def open_window():
                 """One more app window with its own list / filter state, e.g. to read the scene next to the editor."""
                 if sess.open_window is None:
-                    return {"ok": False, "fallback": True, "error": "Nové okno tu nejde otevřít z aplikace."}
+                    return {"ok": False, "fallback": True, "error": msg("A new window cannot be opened from the application here.")}
                 q = {"win": "2"}
                 if str(d.get("companion", "")) == "1":
                     q["companion"] = "1"
@@ -328,7 +328,7 @@ def make_handler(sess):
                 try:
                     sess.open_window(url)
                 except Exception as e:  # noqa: BLE001
-                    return {"ok": False, "fallback": True, "error": f"Okno se nepodařilo otevřít ({e})."}
+                    return {"ok": False, "fallback": True, "error": msg("The window could not be opened ({e}).", e=e)}
                 return {"ok": True, "url": url}
 
             routes = {
@@ -386,7 +386,7 @@ def make_handler(sess):
             }
             fn = routes.get(r)
             if fn is None:
-                return self._json({"ok": False, "error": "Neznámá adresa."}, 404)
+                return self._json({"ok": False, "error": msg("Unknown address.")}, 404)
             if r not in ("project/set", "project/pick", "prefs", "settings", "open-url"):
                 try:
                     need_project()

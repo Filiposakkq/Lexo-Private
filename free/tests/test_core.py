@@ -84,7 +84,7 @@ class AtomicWriteTests(TempCase):
         with mock.patch("os.replace", side_effect=PermissionError):
             with self.assertRaises(util.WriteFailed) as cm:
                 util.atomic_write_text(target, "new", )
-        self.assertIn("zamčený", cm.exception.reason)
+        self.assertIn("locked", cm.exception.reason)
         self.assertEqual(target.read_text(), "original")
         self.assertEqual(list(self.tmp.glob("*.tmp")), [])
 

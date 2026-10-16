@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from .messages import msg
 
 NOWIN = {"creationflags": 0x08000000} if sys.platform.startswith("win") else {}
 SHELL_UNSAFE = set('&|<>^%"\r\n')
@@ -64,7 +65,7 @@ def custom_command(template, path, line):
     argv = shlex.split(template, posix=not sys.platform.startswith("win"))
     argv = [a.strip('"') for a in argv]
     if not argv:
-        raise ValueError("Vlastní příkaz je prázdný.")
+        raise ValueError(msg("The custom command is empty."))
     if not any("{file}" in a for a in argv):
         argv.append("{file}")
     return [a.replace("{file}", str(path)).replace("{line}", str(line)) for a in argv]
@@ -73,13 +74,13 @@ def custom_command(template, path, line):
 def _validate_target(path, root):
     p = Path(path).resolve()
     if not p.is_file():
-        raise ValueError(f"Soubor neexistuje: {p}")
+        raise ValueError(msg("The file does not exist: {path}", path=p))
     if p.suffix.lower() != ".rpy":
-        raise ValueError("Otevřít lze jen soubory .rpy.")
+        raise ValueError(msg("Only .rpy files can be opened."))
     if root is not None:
         r = Path(root).resolve()
         if r != p and r not in p.parents:
-            raise ValueError("Soubor není uvnitř složky projektu.")
+            raise ValueError(msg("The file is not inside the project folder."))
     return p
 
 
@@ -123,37 +124,36 @@ def open_in_editor(path, line, editor_cfg=None, root=None, runner=None, finder=N
         try:
             if kind == "custom":
                 if not cfg["custom"].strip():
-                    tried.append("vlastní příkaz není nastaven")
+                    tried.append(msg("the custom command is not set"))
                     continue
                 argv = custom_command(cfg["custom"], p, line)
                 exe = argv[0]
                 if not (Path(exe).is_file() or shutil.which(exe)):
-                    tried.append(f"vlastní příkaz: {exe} nenalezen")
+                    tried.append(msg("custom command: {exe} not found", exe=exe))
                     continue
             else:
                 exe = finder(kind) if callable(finder) else None
                 label = "VS Code" if kind == "vscode" else "Notepad++"
                 if not exe:
-                    tried.append(f"{label} nenalezen")
+                    tried.append(msg("{label} not found", label=label))
                     continue
                 if Path(exe).suffix.lower() in (".cmd", ".bat") and (set(str(p)) & SHELL_UNSAFE):
-                    tried.append(f"{label}: cesta obsahuje znaky nebezpečné pro cmd.exe")
+                    tried.append(msg("{label}: the path contains characters that are dangerous for cmd.exe", label=label))
                     continue
                 argv = build_command(kind, exe, p, line)
             runner(argv)
-            name = {"vscode": "VS Code", "notepadpp": "Notepad++", "custom": "vlastní editor"}[kind]
+            name = {"vscode": "VS Code", "notepadpp": "Notepad++", "custom": msg("custom editor")}[kind]
             return {"ok": True, "editor": kind, "command": argv, "jumped": True,
-                    "message": f"Otevřeno v {name} na řádku {line}."}
+                    "message": msg("Opened in {name} at line {line}.", name=name, line=line)}
         except (OSError, ValueError) as e:
             tried.append(f"{kind}: {e}")
     # fallback: system default, no line number possible
     try:
         opener(p)
         return {"ok": True, "editor": "system", "command": [str(p)], "jumped": False,
-                "message": "VS Code ani Notepad++ se nepodařilo spustit (" + "; ".join(tried or ["nenastaveno"]) +
-                           "). Soubor je otevřený ve výchozím programu, ale bez skoku na řádek "
-                           f"{line} – nastav editor v Nastavení."}
+                "message": msg("VS Code and Notepad++ could not be started ({tried}). The file is open in the default program, but without jumping to line {line} – set the editor in Settings.",
+                           tried="; ".join(tried or ["not set"]), line=line)}
     except OSError as e:
-        tried.append(f"výchozí program: {e}")
+        tried.append(msg("default program: {e}", e=e))
     return {"ok": False, "editor": "", "command": [], "jumped": False,
-            "message": "Soubor se nepodařilo otevřít: " + "; ".join(tried)}
+            "message": msg("The file could not be opened: {tried}", tried="; ".join(tried))}

@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 from pathlib import Path
+from .messages import msg
 
 NOWIN = {"creationflags": 0x08000000} if sys.platform.startswith("win") else {}
 TIMEOUT = 300
@@ -41,14 +42,14 @@ def build_command(sdk, base, command=("lint",)):
     """(argv, cwd) that runs a Ren'Py command (default `lint`) for the game folder `base` (the folder that contains game/)."""
     sdk = Path(sdk)
     if not sdk.is_dir():
-        raise LintError(f"Složka Ren'Py SDK neexistuje: {sdk}")
+        raise LintError(msg("The Ren'Py SDK folder does not exist: {sdk}", sdk=sdk))
     py, entry = find_python(sdk), sdk / "renpy.py"
     if py and entry.is_file():
         return [str(py), "-EO", str(entry), str(base), *command], sdk
     sh = sdk / "renpy.sh"
     if sh.is_file() and not sys.platform.startswith("win"):
         return [str(sh), str(base), *command], sdk
-    raise LintError("V SDK jsem nenašel renpy.py a vestavěný Python (lib/py3-…, lib/windows-x86_64 …) ani renpy.sh. Je to složka rozbaleného Ren'Py SDK?")
+    raise LintError(msg("I did not find renpy.py and the built-in Python (lib/py3-…, lib/windows-x86_64 …) nor renpy.sh in the SDK. Is it the folder of an unpacked Ren'Py SDK?"))
 
 
 def parse(output):
@@ -70,9 +71,9 @@ def run(sdk, base, runner=None):
             try:
                 p = subprocess.run(a, cwd=str(c), capture_output=True, timeout=TIMEOUT, **NOWIN)
             except subprocess.TimeoutExpired as e:
-                raise LintError(f"Lint trval déle než {TIMEOUT} s a byl přerušen.") from e
+                raise LintError(msg("Lint took longer than {timeout} s and was stopped.", timeout=TIMEOUT)) from e
             except OSError as e:
-                raise LintError(f"Lint se nepodařilo spustit: {e.strerror or e}") from e
+                raise LintError(msg("Lint could not be started: {reason}", reason=e.strerror or e)) from e
             return p.returncode, (p.stdout or b"").decode("utf-8", errors="replace") + (p.stderr or b"").decode("utf-8", errors="replace")
     code, text = runner(argv, cwd)
     text = text[:MAX_OUTPUT]
@@ -89,7 +90,7 @@ class Linter:
     def start(self, sdk, base, runner=None):
         with self.lock:
             if self.state.get("state") == "running":
-                raise LintError("Lint už běží.")
+                raise LintError(msg("Lint is already running."))
             build_command(sdk, base)                                   # fail early with a readable message
             self.state = {"state": "running", "started": time.time()}
 
@@ -100,7 +101,7 @@ class Linter:
             except LintError as e:
                 new = {"state": "error", "error": str(e)}
             except Exception as e:                                      # noqa: BLE001
-                new = {"state": "error", "error": f"Neočekávaná chyba: {e}"}
+                new = {"state": "error", "error": msg("Unexpected error: {e}", e=e)}
             with self.lock:
                 self.state = new
         threading.Thread(target=work, daemon=True).start()

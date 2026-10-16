@@ -27,13 +27,22 @@ Rules: the key is a plain string literal, never a template literal or a concaten
 every `t()` text has a Czech translation, the pack has no stale texts, placeholders match, and the modules listed in `CONVERTED` contain no Czech string literal.
 **Converting a module** = move its Czech literals to `t()` and add them to `ui.json`, then add the module to `CONVERTED`.
 
-## State
-**Every module of the browser UI is converted** (the test `CONVERTED` list is all files of `ui/js`). What is still Czech:
-- `selftest.js` (it checks Czech texts on purpose and runs with `?lang=cs`);
-- the **messages of the Python side** (errors, validator findings, labels such as the episode states, history labels, the text of `progress.json` hints); they will become message keys. In an English UI these still appear in Czech;
-- places where the UI compares server text (for example the publishing warning regex looks for the Czech word "ostro") and an input keyword ("ano" is sent to the server to mark a whole file as proofread);
-- the "About" text of the settings (it still describes the first game) and a few product constants (links to the BaDIK site);
-- Czech typographic snippets (quotation marks) in the translation editor belong in the language pack later.
+## Messages from Python (`free/lexo/messages.py`)
+Every sentence the Python side shows to the user is written once, in English, as a template: `msg("Cannot save {name}: {reason}", name=n, reason=r)`;
+counted messages `msgn(n, "{n} line", "{n} lines")`; several messages one after another `join([...], ", ", ".")`. `str(message)` is the English text
+(logs, the command line, tests). On its way to the browser the server turns messages into `{"$m": template, "p": values}` (`wire`), and `api.js` translates
+them with the same `ui.json` as the UI texts (`fromWire`), so the rest of the UI sees ordinary texts. Rules: the template is a plain string literal; values
+(also tags such as "{/b}" and paths) go in placeholders; an exception carries its message as `AppError(msg(...))` (use `text_of(e)` to re-raise without losing it).
+Tests in Python use `render(...)` to read what the server sent.
 
-Tools used for the conversion live outside the repository (a scanner, a converter that wraps literals and writes `ui.json`); the tests keep the result honest: `test_ui_i18n.py`
-(keys, translations, placeholders, no Czech literals), `test_ui_i18n_load_time.py` (nothing is translated while a module loads).
+**What stays Czech in the code on purpose** (data stored in files or identifiers, listed in `tests/test_python_messages.py`): the status labels in the CSV files, the
+kinds of lines, the sources of the text history. They move with the new data layout (docs/DATA-LAYOUT.md).
+
+## State
+Everything the user sees is translatable: all modules of the browser UI, `index.html`, and the Python-side messages. The English UI shows no Czech except the language names.
+Still open: `selftest.js` checks Czech texts on purpose (it runs with `?lang=cs`); the "About" text of the settings still describes the first game; Czech typographic snippets
+(quotation marks) in the translation editor belong in the language pack; the command line prints English only; an input keyword ("ano" to mark a whole file as proofread) is Czech.
+
+Tools used for the conversion live outside the repository (a scanner, converters that wrap literals / f-strings and write `ui.json`); the tests keep the result honest:
+`test_ui_i18n.py` (keys, translations, placeholders, no Czech literals in the UI; also the templates of Python messages), `test_ui_i18n_load_time.py` (nothing is translated
+while a module loads), `test_python_messages.py` (no Czech sentences in Python), `test_messages.py`.
