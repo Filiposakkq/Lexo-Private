@@ -1,7 +1,12 @@
-"use strict";
+import { $, h, plural } from './00-core.js';
+import { get, post } from './10-api.js';
+import { speakerLabel } from './11-state.js';
+import { dialog, fail, toast } from './13-feedback.js';
+import { chip, fmtText, fname } from './14-renderers.js';
+import { go } from './16-tabs.js';
 /* Machine translation of several lines. Suggestions come in small batches (progress, Stop), are shown in a table you can edit and
    tick, and only the ticked ones are written, as one undoable step. Approved lines are never overwritten. */
-async function mtDialog({ picked = [], anchor = null, file = '', scope = '' }, done) {
+export async function mtDialog({ picked = [], anchor = null, file = '', scope = '' }, done) {
   let cfg;
   try { cfg = (await get('settings')).mt || {}; } catch (e) { return fail(e); }
   if (!cfg.provider || !cfg.consent || !cfg.has_key) {

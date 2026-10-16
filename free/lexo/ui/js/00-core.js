@@ -1,9 +1,8 @@
-"use strict";
 /* Lexo – UI. Vanilla JS, no build step. All data is inserted with textContent
    (the h() helper), never innerHTML, so file contents can never inject markup. */
 
-const TOKEN = document.querySelector('meta[name=token]').content;
-const $ = (s, r = document) => r.querySelector(s);
+export const TOKEN = document.querySelector('meta[name=token]').content;
+export const $ = (s, r = document) => r.querySelector(s);
 
 /* append()/replaceChildren() turn null into the text "null"; conditional children are common here,
    so skip null / undefined / false everywhere. */
@@ -14,7 +13,7 @@ for (const m of ['append', 'prepend', 'replaceChildren']) {
   };
 }
 
-function h(tag, props, ...kids) {
+export function h(tag, props, ...kids) {
   const el = document.createElement(tag);
   if (props) {
     for (const [k, v] of Object.entries(props)) {
@@ -36,10 +35,11 @@ function h(tag, props, ...kids) {
   return el;
 }
 
-const nf = new Intl.NumberFormat('cs-CZ');
-const plural = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);     // Czech: 1 řádek, 2–4 řádky, 5 řádků
-const fmtN = (n) => nf.format(n ?? 0);
-const fmtPct = (p) => (p === null || p === undefined ? '–' : p.toFixed(1).replace('.', ',') + ' %');
-const clamp01 = (v) => Math.max(0, Math.min(100, v || 0));
-const dateCz = (iso) => iso ? new Date(iso + 'T12:00:00').toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+export const nf = new Intl.NumberFormat('cs-CZ');
+export const plural = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);     // Czech: 1 řádek, 2–4 řádky, 5 řádků
+export const fmtN = (n) => nf.format(n ?? 0);
+export const fmtPct = (p) => (p === null || p === undefined ? '–' : p.toFixed(1).replace('.', ',') + ' %');
+export const clamp01 = (v) => Math.max(0, Math.min(100, v || 0));
+export const dateCz = (iso) => iso ? new Date(iso + 'T12:00:00').toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
+export const TABS = [['overview', 'Přehled'], ['files', 'Soubory'], ['entries', 'Řádky'], ['validation', 'Kontrola'], ['glossary', 'Slovník'], ['publish', 'Publikace'], ['settings', 'Nastavení']];

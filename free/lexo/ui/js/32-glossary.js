@@ -1,6 +1,14 @@
-"use strict";
+import { $, h } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S } from './11-state.js';
+import { pref, setPref, speakerModeSelect } from './12-chrome.js';
+import { dialog, fail, status, toast } from './13-feedback.js';
+import { buildTable, chip, empty } from './14-renderers.js';
+import { filterGroup } from './15-filterbar.js';
+import { go } from './16-tabs.js';
+import { occurrencesDialog } from './27-glossary-terms.js';
 /* ================================================================ GLOSSARY */
-async function viewGlossary() {
+export async function viewGlossary() {
   let data = await get('glossary');
   S.gl = data.names;
   const f = pref('glossary', {});

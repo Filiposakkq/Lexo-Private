@@ -1,4 +1,12 @@
-"use strict";
+import { $, fmtN, fmtPct, h } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S } from './11-state.js';
+import { COMPANION, pref, setPref } from './12-chrome.js';
+import { dialog, fail, status, toast } from './13-feedback.js';
+import { STATUS_LABEL, bar, buildTable, chip, empty, fname, makeSplitter } from './14-renderers.js';
+import { filterGroup } from './15-filterbar.js';
+import { go, render } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
 /* ================================================================ FILES */
 const FL_COLS = [
   { k: 'pick', w: 38, label: '', resize: false }, { k: 'name', w: 430, label: 'Soubor', sortable: true },
@@ -19,7 +27,7 @@ function fileView() {
   rows = rows.slice().sort((a, b) => { const x = val[sk](a), y = val[sk](b); return (x < y ? -1 : x > y ? 1 : a.name.localeCompare(b.name, 'cs', { numeric: true })) * dir; });
   return rows;
 }
-async function viewFiles() {
+export async function viewFiles() {
   S.files = await get('files').then((r) => r.files);
   S.overview = S.overview || await get('overview');
   const f = pref('files', {});
@@ -189,7 +197,7 @@ async function openWindow(opts = {}) {
   }
 }
 /* Companion window: follows the line open in the main window (polls the shared focus once a second; edits stay safe: an unsaved text is never replaced). */
-function startFollowing() {
+export function startFollowing() {
   let seen = -1, pending = null;
   const apply = (f) => {
     if (!f || !f.file) return;
@@ -215,26 +223,26 @@ function startFollowing() {
   setInterval(() => { if (pending && $('#editTarget')?.dataset.dirty !== '1') apply(pending); }, 800);
 }
 const FOCUS_BC = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('badik-focus') : null;
-function announceFocus(it) {
+export function announceFocus(it) {
   FOCUS_BC?.postMessage({ file: it.file, line: it.line, text: null });
   post('focus', { file: it.file, line: it.line }).catch(() => {});
 }
 /* What is typed in the main editor goes to the detail window's preview (debounced for the server path, at once through the channel). */
-function announceDraft(d, text) {
+export function announceDraft(d, text) {
   FOCUS_BC?.postMessage({ file: d.file, line: d.line, text });
   clearTimeout(S.draftT);
   S.draftT = setTimeout(() => post('focus', { file: d.file, line: d.line, text }).catch(() => {}), 150);
 }
 /* The only extra window: the line detail alone (scene, check, proofreading…), following the line chosen in the main window. */
-function openDetailWindow() {
+export function openDetailWindow() {
   const cur = S.ent?.items?.[S.ent.sel];
   if (!COMPANION) { S.companionOpen = true; S.ent?.api?.redraw?.(); }       // the next ping corrects it when the window did not open
   openWindow({ view: 'entries', companion: '1', tab: 'scene', status: 'all', ...(cur ? { file: cur.file, line: cur.line } : {}) });
 }
-async function openEditor(file, line) {
+export async function openEditor(file, line) {
   try { const r = await post('open-editor', { file, line }); toast(r.message, r.ok ? 'ok' : 'bad', 7000); } catch (e) { fail(e); }
 }
-async function copy(text) {
+export async function copy(text) {
   try { await navigator.clipboard.writeText(text); toast('Zkopírováno.'); } catch { toast('Kopírování se nepodařilo.', 'bad'); }
 }
 

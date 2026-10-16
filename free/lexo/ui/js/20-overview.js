@@ -1,6 +1,13 @@
-"use strict";
+import { $, dateCz, fmtN, fmtPct, h, plural } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S } from './11-state.js';
+import { enterProof, enterQuick, pref } from './12-chrome.js';
+import { fail, status, toast } from './13-feedback.js';
+import { STATUS_LABEL, bar, chip, empty } from './14-renderers.js';
+import { go } from './16-tabs.js';
+import { refreshHeader, renderStatusRight } from './17-project.js';
 /* ================================================================ OVERVIEW */
-async function viewOverview() {
+export async function viewOverview() {
   const o = (S.overview = await get('overview'));
   renderStatusRight();
   const t = o.totals;

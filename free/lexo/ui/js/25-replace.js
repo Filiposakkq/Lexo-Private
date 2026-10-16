@@ -1,6 +1,13 @@
-"use strict";
+import { $, h, plural } from './00-core.js';
+import { post, request } from './10-api.js';
+import { S } from './11-state.js';
+import { dialog, fail, toast } from './13-feedback.js';
+import { empty, fname, loading } from './14-renderers.js';
+import { go } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
+import { diffSpans } from './23-fixes.js';
 /* Find and replace in the translated texts of all or chosen files, with a preview you tick line by line. */
-async function replaceDialog(done, preselected = []) {
+export async function replaceDialog(done, preselected = []) {
   const allFiles = (S.files || []).map((x) => x.name);
   const chosen = new Set(preselected.filter((n) => allFiles.includes(n)));
   const st = { mode: 'plain', scope: chosen.size ? 'chosen' : 'all', armed: false };

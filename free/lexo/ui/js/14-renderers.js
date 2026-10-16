@@ -1,6 +1,8 @@
-"use strict";
+import { $, clamp01, h } from './00-core.js';
+import { S } from './11-state.js';
+import { icon, pref, setPref } from './12-chrome.js';
 /* ---------------------------------------------------------------- shared renderers */
-function fname(rel, { link = false, onclick } = {}) {
+export function fname(rel, { link = false, onclick } = {}) {
   const p = String(rel);
   const i = Math.max(p.lastIndexOf('\\'), p.lastIndexOf('/'));
   const wrapBreaks = (s) => s.split(/([\\/_])/).map((t) => (/[\\/_]/.test(t) ? [t, h('wbr')] : t));
@@ -9,7 +11,7 @@ function fname(rel, { link = false, onclick } = {}) {
   return el;
 }
 const TOKEN_RE = /(\{\{|\[\[|\{[^}]*\}|\[[^\]]*\]|\\n|\\")/g;
-function fmtText(text) {
+export function fmtText(text) {
   const frag = document.createDocumentFragment();
   for (const part of String(text ?? '').split(TOKEN_RE)) {
     if (!part) continue;
@@ -22,7 +24,7 @@ function fmtText(text) {
 }
 /* Renders Ren'Py text markup as it would read in the game: {i}{b}{u}{s}{color=..}, \n and {p} as line breaks, [variables] as XXXXX;
    waits and other tags are dropped. Only text nodes and a few styled elements are created, so nothing from the text is ever run as HTML. */
-function gameText(text) {
+export function gameText(text) {
   const root = document.createElement('span');
   const stack = [root];
   const top = () => stack[stack.length - 1];
@@ -49,23 +51,23 @@ function gameText(text) {
   if (last < text.length) top().append(text.slice(last));
   return root;
 }
-const STATUS_LABEL = { done: 'Hotovo', rev: 'Korektura', proof: 'V korekci', tr: 'Přeloženo', wip: 'Rozpracováno', none: 'Nezačato', planned: 'Plánováno' };
-const ENTRY_LABEL = { translated: 'Přeloženo', approved: 'Schváleno', todo: 'Nepřeloženo' };
-const KIND_LABEL = { empty: 'prázdný', english: 'anglicky', same: 'shodné', symbols: 'jen znaky' };
-const SEV_LABEL = { error: 'Chyba', warning: 'Varování', info: 'Info' };
-const proofChip = (p) => (p === 'ok' ? chip('proof', '✓ Zkontrolováno') : p === 'fix' ? chip('warning', '⚑ k opravě')
+export const STATUS_LABEL = { done: 'Hotovo', rev: 'Korektura', proof: 'V korekci', tr: 'Přeloženo', wip: 'Rozpracováno', none: 'Nezačato', planned: 'Plánováno' };
+export const ENTRY_LABEL = { translated: 'Přeloženo', approved: 'Schváleno', todo: 'Nepřeloženo' };
+export const KIND_LABEL = { empty: 'prázdný', english: 'anglicky', same: 'shodné', symbols: 'jen znaky' };
+export const SEV_LABEL = { error: 'Chyba', warning: 'Varování', info: 'Info' };
+export const proofChip = (p) => (p === 'ok' ? chip('proof', '✓ Zkontrolováno') : p === 'fix' ? chip('warning', '⚑ k opravě')
   : p === 'stale' ? chip('info', '↻ změněno po korektuře') : null);
-const chip = (cls, text) => h('span', { class: 'chip ' + cls }, text);
-function bar(pct, cls = '') { return h('div', { class: 'bar ' + cls }, h('i', { style: { width: clamp01(pct) + '%' } })); }
-function empty(title, text) { return h('div', { class: 'empty' }, h('div', { class: 'empty-ico' }, icon('empty', 28)), h('b', null, title), text); }
-function loading(text = 'Načítám…') { return h('div', { class: 'loading' }, h('span', { class: 'spin' }), ' ' + text); }
-const isTyping = (t) => t && (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable);
+export const chip = (cls, text) => h('span', { class: 'chip ' + cls }, text);
+export function bar(pct, cls = '') { return h('div', { class: 'bar ' + cls }, h('i', { style: { width: clamp01(pct) + '%' } })); }
+export function empty(title, text) { return h('div', { class: 'empty' }, h('div', { class: 'empty-ico' }, icon('empty', 28)), h('b', null, title), text); }
+export function loading(text = 'Načítám…') { return h('div', { class: 'loading' }, h('span', { class: 'spin' }), ' ' + text); }
+export const isTyping = (t) => t && (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable);
 
 /* resizable, sortable table with a persisted column layout */
 /* Draggable divider between a list and its detail pane. axis 'v': detail below (height), 'h': detail on the right
    (width). The size is clamped (min px, max share of the area), saved as a preference, double-click resets it,
    arrow keys resize it when it has focus. */
-function makeSplitter(root, axis, { key, def, min, maxFrac }) {
+export function makeSplitter(root, axis, { key, def, min, maxFrac }) {
   const vertical = axis === 'v';
   const prop = vertical ? '--detail-h' : '--detail-w';
   const bar = h('div', { class: 'splitter ' + (vertical ? 'sp-v' : 'sp-h'), role: 'separator', tabindex: '0',
@@ -97,7 +99,7 @@ function makeSplitter(root, axis, { key, def, min, maxFrac }) {
 }
 window.addEventListener('resize', () => S.splitSync?.());
 
-function buildTable({ key, cols, sort, onSort, className = '' }) {
+export function buildTable({ key, cols, sort, onSort, className = '' }) {
   const saved = pref(key + '.colw', {});
   const colgroup = h('colgroup', null, cols.map((c) => h('col', { style: { width: (saved[c.k] || c.w) + 'px' } })));
   const total = () => cols.reduce((s, c, i) => s + parseInt(colgroup.children[i].style.width, 10), 0);
@@ -134,7 +136,7 @@ function buildTable({ key, cols, sort, onSort, className = '' }) {
 }
 
 /* A button that opens a small menu of actions (keeps toolbars short). items: [{ label, hint?, run }] */
-function menuButton(label, items, { primary = false, title = '' } = {}) {
+export function menuButton(label, items, { primary = false, title = '' } = {}) {
   const wrap = h('span', { class: 'menuwrap' });
   const btn = h('button', { class: 'btn small' + (primary ? ' primary' : ''), 'aria-haspopup': 'menu', 'aria-expanded': 'false', title }, label, ' ▾');
   const menu = h('div', { class: 'menu', role: 'menu' });

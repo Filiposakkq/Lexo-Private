@@ -1,4 +1,17 @@
-"use strict";
+import { $, TABS, h } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S } from './11-state.js';
+import { enterProof, enterQuick, pref, setFocus, setPref } from './12-chrome.js';
+import { confirmDialog, dialog, dialogOpen, fail, status, toast } from './13-feedback.js';
+import { isTyping } from './14-renderers.js';
+import { cycleTheme, go, render, toggleDensity } from './16-tabs.js';
+import { pickProject, refreshHeader } from './17-project.js';
+import { doRefresh, doUndo } from './18-refresh.js';
+import { openDetailWindow, openEditor } from './21-files.js';
+import { fixDialog } from './23-fixes.js';
+import { replaceDialog } from './25-replace.js';
+import { ruleApproveDialog } from './26-approve-rules.js';
+import { fmtSize } from './29-snapshots.js';
 /* ================================================================ keyboard */
 /* ================================================================ keyboard: actions, shortcuts (customizable), command palette */
 const foldText = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -8,11 +21,11 @@ const entriesApi = () => (S.view === 'entries' && S.ent.api ? S.ent.api : null);
 const moveSel = (n) => { const api = entriesApi(); if (!api) return; const i = S.ent.sel, last = S.ent.items.length - 1; api.select(Math.max(0, Math.min(last, i < 0 ? 0 : i + n))); };
 /* id (no dots: it is a preference key), label, default keys, typing (works while typing in a field), entries (only in Řádky) */
 /* Full screen: the desktop window is asked through the app (F11 does not reach it), a browser tab uses the Fullscreen API. */
-async function toggleFullscreen() {
+export async function toggleFullscreen() {
   try { const r = await post('window/fullscreen', {}); if (r.ok) return; } catch { /* use the browser way */ }
   try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) { fail(e); }
 }
-const ACTIONS = [
+export const ACTIONS = [
   { id: 'focus', label: 'Režim soustředění (skrýt horní lištu a záložky)', keys: ['Ctrl+Shift+F'], typing: true, run: () => setFocus(!S.focus) },
   { id: 'quick', label: 'Rychlé překládání (scéna + editor, jen nepřeložené)', keys: [], run: () => enterQuick() },
   { id: 'proofmode', label: 'Rychlá korektura (scéna + editor, jen ke kontrole)', keys: [], run: () => enterProof() },
@@ -50,8 +63,8 @@ const ACTIONS = [
   { id: 'new_window', label: 'Otevřít druhé okno s detailem řádku', keys: [], run: () => openDetailWindow() },
   { id: 'change_project', label: 'Změnit složku s překladem…', keys: [], run: () => pickProject() },
 ];
-const keysOf = (a) => { const o = pref('keys', {}); return Array.isArray(o[a.id]) ? o[a.id] : a.keys; };
-function comboOf(e) {
+export const keysOf = (a) => { const o = pref('keys', {}); return Array.isArray(o[a.id]) ? o[a.id] : a.keys; };
+export function comboOf(e) {
   const k = e.key;
   if (!k || ['Control', 'Shift', 'Alt', 'Meta', 'AltGraph', 'CapsLock', 'Dead'].includes(k)) return '';
   const letter = k.length === 1 && /\p{L}/u.test(k);
@@ -62,7 +75,7 @@ function comboOf(e) {
   parts.push(k === ' ' ? 'Space' : k.length === 1 ? k.toUpperCase() : k);
   return parts.join('+');
 }
-function findAction(combo, typing) {
+export function findAction(combo, typing) {
   const inEntries = !!entriesApi();
   return ACTIONS.find((a) => keysOf(a).includes(combo) && (!typing || a.typing) && (!a.entries || inEntries));
 }
@@ -79,7 +92,7 @@ document.addEventListener('keydown', (e) => {
   act.run(e);
 });
 
-function helpDialog() {
+export function helpDialog() {
   const group = (title, list) => [h('dt', { style: { gridColumn: '1 / -1', marginTop: '8px' } }, h('b', null, title)),
     ...list.flatMap((a) => [h('dt', null, ...(keysOf(a).length ? keysOf(a).map((k, i) => [i ? ' nebo ' : '', h('kbd', null, k)]).flat() : [h('span', { class: 'muted' }, '—')])), h('dd', { style: { textAlign: 'left' } }, a.label)])];
   const fixed = [['Ctrl+Enter', 'V poli překladu: uložit do souboru a přejít na další nepřeložený řádek'], ['Esc', 'V poli překladu: zahodit změny; jinde zruší výběr pole']];
@@ -89,7 +102,7 @@ function helpDialog() {
       h('dt', { style: { gridColumn: '1 / -1', marginTop: '8px' } }, h('b', null, 'Pevné')), ...fixed.flatMap(([k, d]) => [h('dt', null, h('kbd', null, k)), h('dd', { style: { textAlign: 'left' } }, d)]))),
     buttons: [{ label: 'Zavřít', kind: 'primary' }] });
 }
-const closeAllDialogs = () => { const d = $('#dlg'); if (d.open) d.close(); };
+export const closeAllDialogs = () => { const d = $('#dlg'); if (d.open) d.close(); };
 
 /* Command palette: type to find an action or a file. Enter runs the selected one, arrows move, Esc closes. */
 function openPalette() {
@@ -131,7 +144,7 @@ function captureCombo() {
     dialog({ title: 'Nová zkratka', narrow: true, body: h('p', null, 'Stiskni klávesu nebo kombinaci, kterou chceš použít. ', h('kbd', null, 'Esc'), ' zruší.'), buttons: [{ label: 'Zrušit', onclick: () => { finish(null); return false; } }], onclose: () => finish(null) });
   });
 }
-function keysPanel() {
+export function keysPanel() {
   const box = h('div');
   const save = (map) => { setPref('keys', map); paint(); };
   const current = () => { const m = {}; ACTIONS.forEach((a) => { m[a.id] = [...keysOf(a)]; }); return m; };

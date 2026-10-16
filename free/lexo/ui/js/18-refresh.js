@@ -1,7 +1,12 @@
-"use strict";
+import { $, h } from './00-core.js';
+import { post } from './10-api.js';
+import { S } from './11-state.js';
+import { confirmDialog, dialog, fail, status, toast } from './13-feedback.js';
+import { render } from './16-tabs.js';
+import { refreshHeader } from './17-project.js';
 /* ---------------------------------------------------------------- refresh / undo */
 const isDirty = () => !!document.querySelector('.ed[data-dirty="1"]') || !!S.dlgDirty;
-async function doRefresh(force = false) {
+export async function doRefresh(force = false) {
   if (!S.ready) return;
   const btn = $('#refreshBtn');
   btn.disabled = true; btn.replaceChildren(h('span', { class: 'spin' }), ' Obnovuji…');
@@ -30,7 +35,7 @@ function showRefreshReport(r) {
     r.save_problems?.length ? h('div', { class: 'notice warn' }, r.save_problems.join(' | ')) : null),
     buttons: [{ label: 'Zavřít', kind: 'primary' }] });
 }
-async function doUndo() {
+export async function doUndo() {
   if (!S.ready) return;
   try {
     const r = await post('undo');

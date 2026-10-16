@@ -1,4 +1,15 @@
-"use strict";
+import { $, TABS, TOKEN, h } from './00-core.js';
+import { get, post } from './10-api.js';
+import { S, loadGlossary } from './11-state.js';
+import { COMPANION, SECONDARY, URL_Q, WIN_ID, enterProof, pref, readableOn, setFocus, setIcon, setPref, speakerBadge } from './12-chrome.js';
+import { fail, status } from './13-feedback.js';
+import { gameText } from './14-renderers.js';
+import { applyDensity, applyTheme, cycleTheme, go, render, renderTabs, toggleDensity } from './16-tabs.js';
+import { pickProject, refreshHeader } from './17-project.js';
+import { doRefresh, doUndo } from './18-refresh.js';
+import { openDetailWindow, startFollowing } from './21-files.js';
+import { mtDialog } from './24-machine-translation.js';
+import { ACTIONS, comboOf, findAction, helpDialog, keysOf, toggleFullscreen } from './35-keyboard.js';
 /* ================================================================ boot */
 $('#refreshBtn').addEventListener('click', () => doRefresh());
 $('#undoBtn').addEventListener('click', doUndo);
@@ -53,3 +64,7 @@ if (new URLSearchParams(location.search).has('selftest')) {      // UI self-test
   }), 4000);
   addEventListener('pagehide', () => { try { navigator.sendBeacon('/api/bye?t=' + TOKEN + '&w=' + WIN_ID); } catch { /* ignore */ } });
 })();
+
+
+// the UI self-test (selftest.js) is a classic script and reads these names from the global scope
+Object.assign(window, { $, ACTIONS, S, SECONDARY, applyDensity, applyTheme, comboOf, cycleTheme, enterProof, findAction, gameText, get, go, helpDialog, keysOf, mtDialog, post, pref, readableOn, setFocus, setPref, speakerBadge, status, toggleDensity });
