@@ -36,7 +36,7 @@ class EventLogTests(TempCase):
         new = self.lines(app)[before:]
         self.assertEqual([(e["kind"], e["key"], e["value"]) for e in new], [("assign", ["header.rpy"], "gen")])
         self.assertEqual(new[0]["a"], app.config.get("author"))
-        self.assertTrue(app.store.events.path.parent == self.events_dir)
+        self.assertEqual(app.store.events.path.parent.resolve(), self.events_dir.resolve())
 
     def test_the_first_open_writes_the_existing_state_as_events(self):
         d = self.root / ".lexo"
