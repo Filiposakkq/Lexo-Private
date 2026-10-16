@@ -30,6 +30,8 @@ def load_serve_module():
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):      # the Windows runner prints with cp1252, which cannot encode names like "Řádky"
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -62,6 +64,8 @@ def main():
     print(f"UI self-test: {len(results) - len(failed)}/{len(results)} checks passed")
     for r in failed:
         print(f"  FAIL  {r['name']}  {r.get('detail', '')}")
+    if results:
+        print(f"  last check that ran: {results[-1]['name']}")
     for e in result.get("errors", []) + page_errors:
         print(f"  JS ERROR  {e}")
     if failed or result.get("errors") or page_errors:
