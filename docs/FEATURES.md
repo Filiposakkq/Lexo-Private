@@ -54,6 +54,7 @@ The app and its UI are **English first**. Everything that depends on the languag
 - **Limits, not a locked button.** A Pro feature in Free works on a small amount (for example batch translation or safe fixes for 20 lines per run) so that the user sees it works; Pro lifts the limit.
 - **Show the value before the price.** Example text in the UI: "This line has 37 identical originals, Pro approves them at once." The number is the sales argument.
 - The limit is applied in the Pro module, not scattered through Core: Core only asks "which features are available, and with which limit?".
+- A limit per run is only a taste: the user can click again. It is not protection. What makes removing a limit costly is that **the free version is a simpler, separate implementation** (for example batch translation without context, glossary or parallel batches), not the Pro code with a constant `limit=20`. Free code must not contain the full logic.
 
 ## Licensing and protection (decision)
 Status: **decided in principle, built at release (roadmap step 6)**. The source code stays **private** for now; whether any
@@ -84,4 +85,4 @@ Moving a feature from Free to Pro after users have it is unpopular, so decide be
 ## Open questions
 - Price and form of the licence (one-off vs yearly).
 - LLM features need an API key; the user brings it (no cost for us), or a hosted option later.
-- Licence of the public part (e.g. MIT or GPL); it decides how much of Free others can reuse.
+- Licence of the public part (e.g. MIT or GPL); it decides how much of Free others can reuse. **Decide before the first public release**, because it also decides what may be in the Free code (licence logic, limits).
