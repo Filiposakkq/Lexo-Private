@@ -17,7 +17,7 @@ from datetime import datetime
 
 from . import history as hist
 from .project import STATUS_LABELS, file_status, totals_of
-from .seasons import ACTIVE_EPISODES, SEASONS, season_of
+from . import layout
 from .store import ep_of
 from .util import atomic_write_text
 
@@ -39,7 +39,7 @@ def _accumulate(rows):
 
 def _group(rows, store):
     groups = {"general": [], "unassigned": []}
-    eps = {n: [] for n in ACTIVE_EPISODES}
+    eps = {n: [] for n in layout.ACTIVE_EPISODES}
     for r in rows:
         v = store.assign.get(r.name, "")
         n = ep_of(v)
@@ -56,13 +56,13 @@ def stats_for(rows, store):
     """Structured statistics used by both the exporter and the manager's overview."""
     eps_rows, groups = _group(rows, store)
     episodes = []
-    for n in ACTIVE_EPISODES:
+    for n in layout.ACTIVE_EPISODES:
         d, t, c, nf, nf_done, nf_proof = _accumulate(eps_rows[n])
-        episodes.append({"n": n, "season": season_of(n), "status": store.episodes.get(n, "none"),
+        episodes.append({"n": n, "season": layout.season_of(n), "status": store.episodes.get(n, "none"),
                          "translation": block(d, t), "proofreading": block(c, t),
                          "files": nf, "files_done": nf_done, "files_proofread": nf_proof})
     seasons = []
-    for s in SEASONS:
+    for s in layout.SEASONS:
         if s["status"] != "active":
             seasons.append({"n": s["n"], "status": s["status"]})
             continue
@@ -124,9 +124,9 @@ def build_progress(rows, store, history, title="", now=None, today=None):
         "translation": block(t_done, total),
         "proofreading": block(c_done, total),
         "files": dict(counts, total=len(rows)),
-        "scope": {"seasons": [s["n"] for s in SEASONS if s["status"] == "active"],
-                  "episodes": list(ACTIVE_EPISODES),
-                  "planned_seasons": [s["n"] for s in SEASONS if s["status"] == "planned"]},
+        "scope": {"seasons": [s["n"] for s in layout.SEASONS if s["status"] == "active"],
+                  "episodes": list(layout.ACTIVE_EPISODES),
+                  "planned_seasons": [s["n"] for s in layout.SEASONS if s["status"] == "planned"]},
         "seasons": st["seasons"],
         "episodes": episodes,
         "general": st["general"],
@@ -154,16 +154,16 @@ def validate_progress(data):
     if not isinstance(eps, list) or not isinstance(seasons, list):
         return p + ["Chybí seznam epizod nebo sezón."]
     nums = [e.get("n") for e in eps]
-    if nums != list(ACTIVE_EPISODES):
-        p.append(f"Epizody {nums} neodpovídají aktivnímu rozsahu {list(ACTIVE_EPISODES)}.")
+    if nums != list(layout.ACTIVE_EPISODES):
+        p.append(f"Epizody {nums} neodpovídají aktivnímu rozsahu {list(layout.ACTIVE_EPISODES)}.")
     for e in eps:
-        if e.get("season") != season_of(e.get("n")):
-            p.append(f"Epizoda {e.get('n')} je v sezóně {e.get('season')}, správně {season_of(e.get('n'))}.")
+        if e.get("season") != layout.season_of(e.get("n")):
+            p.append(f"Epizoda {e.get('n')} je v sezóně {e.get('season')}, správně {layout.season_of(e.get('n'))}.")
         t = e.get("translation", {})
         if t.get("done", 0) > t.get("total", 0):
             p.append(f"Epizoda {e.get('n')}: přeloženo víc než celkem.")
     by_n = {s.get("n"): s for s in seasons}
-    for s in SEASONS:
+    for s in layout.SEASONS:
         got = by_n.get(s["n"])
         if got is None:
             p.append(f"Chybí sezóna {s['n']}.")

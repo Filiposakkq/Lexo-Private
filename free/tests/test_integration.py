@@ -126,7 +126,7 @@ class WebJsonMigrationTests(TempCase):
     def test_open_project_imports_legacy_file_from_data_dir(self):
         self.basic_project()
         data = self.root / "_progress_data"
-        data.mkdir()
+        data.mkdir(exist_ok=True)
         (data / "web.json").write_text(json.dumps({"repo": "a/b", "path": "web/progress.json", "push": True}), encoding="utf-8")
         app = self.new_app()
         self.assertEqual(app.config.get("web.repo"), "a/b")
