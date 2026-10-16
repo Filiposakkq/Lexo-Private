@@ -70,6 +70,7 @@ Stop self-test servers when done (they are `python ... serve_selftest.py` proces
 The shell is Git Bash / PowerShell: for multi-line scripts write a file instead of a heredoc with tricky quoting; set `PYTHONIOENCODING=utf-8`.
 
 ## 7. Where things are
+- `App` (`free/lexo/app.py`) is assembled from parts by area: `app_core.py` (open/refresh/settings), `app_validation.py`, `app_entries.py`, `app_glossary.py`, `app_proof.py`, `app_assign.py`, `app_memory.py`, `app_game.py`, `app_snapshots.py`, `app_lint.py`, `app_fixes.py`, `app_mt.py`, `app_publish.py`; exceptions and shared constants in `app_base.py`. A test keeps every part under 450 lines. New methods go to the part of their area (or a new part), never back into `app.py`.
 - Server messages: `free/lexo/messages.py`; wire format `{"$m","p","$n"}` / `{"$j"}`; browser side `ui/js/05-i18n.js` (`fromWire`), `ui/js/10-api.js`.
 - Project layout: `layout.py` (reads `_progress_data/project.json`), languages: `lang.py`, features: `features.py`, game tools: `gametools.py`, `rpa.py`.
 - Tests that guard conventions: `test_ui_i18n.py`, `test_ui_i18n_load_time.py`, `test_python_messages.py` (allowlist of Czech data constants), `test_messages.py`.

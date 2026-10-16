@@ -1501,6 +1501,7 @@
   "{rel}:{line}: there is no text in quotes on the line.": "{rel}:{line}: na řádku není text v uvozovkách.",
   "±{n} lines": "±{n} řádků",
   "– edited directly in the file": "– upravuje se přímo v souboru",
+  "“{title}” is a Pro feature.": "„{title}“ je funkce verze Pro.",
   "↶ Undo": "↶ Zpět",
   "↶ Undo the last file change": "↶ Vrátit poslední změnu souboru",
   "↶ Undo: {what}": "↶ Vrátit: {what}",
