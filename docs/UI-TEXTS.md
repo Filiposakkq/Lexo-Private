@@ -35,8 +35,8 @@ them with the same `ui.json` as the UI texts (`fromWire`), so the rest of the UI
 (also tags such as "{/b}" and paths) go in placeholders; an exception carries its message as `AppError(msg(...))` (use `text_of(e)` to re-raise without losing it).
 Tests in Python use `render(...)` to read what the server sent.
 
-**What stays Czech in the code on purpose** (data stored in files or identifiers, listed in `tests/test_python_messages.py`): the kinds of lines in `rpy.py`
-(shown in the UI and used in filters; they change together with the UI in step 2b). The CSV status words and the text-history sources are already English / messages (see DATA-LAYOUT.md).
+**What stays Czech in the code on purpose** (data stored in files or identifiers, listed in `tests/test_python_messages.py`): the Czech letters in `rpy.py` that the line classifier looks for
+(language pack material, step 3). The kinds of pending lines are codes (`empty`, `english`, `same`, `symbols`) that the UI words; the CSV status words and the text-history sources are already English / messages (see DATA-LAYOUT.md).
 
 ## State
 Everything the user sees is translatable: all modules of the browser UI, `index.html`, and the Python-side messages. The English UI shows no Czech except the language names.

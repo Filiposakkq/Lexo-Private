@@ -64,7 +64,7 @@ class EntriesPart:
                 member = {"all": True, "todo": st == "todo", "approved": st == "approved", "translated": st == "translated",
                           "review": st != "todo" and pf not in ("ok", "fix"), "proofed": pf == "ok", "fix": pf == "fix",
                           "stale": pf == "stale"}
-                kinds = rpy.KIND_CODE.get(e.category, "")
+                kinds = e.category
                 if kind and kinds != kind:
                     continue
                 if unit and e.unit != unit:
@@ -104,7 +104,7 @@ class EntriesPart:
         return {"total": total, "offset": offset, "counts": counts, "items": [{
             "file": rel, "line": e.line, "src_line": e.src_line, "block": e.block, "who": e.who,
             "source": e.source, "target": e.target, "status": st,
-            "kind": rpy.KIND_CODE.get(e.category, ""), "proof": pf, "unit": e.unit, "ref": e.ref,
+            "kind": e.category, "proof": pf, "unit": e.unit, "ref": e.ref,
             "issues": [{"severity": i.severity, "code": i.code} for i in shown],
         } for rel, e, st, shown, pf in page]}
 
@@ -128,11 +128,11 @@ class EntriesPart:
         return {"file": rel, "path": str(self.project.root / rel), "line": e.line, "src_line": e.src_line,
                 "block": e.block, "who": e.who, "unit": e.unit, "ref": e.ref, "source": e.source, "target": e.target,
                 "src_raw": e.src_raw, "cur_raw": e.cur_raw,
-                "status": self._entry_row(rel, e), "kind": rpy.KIND_CODE.get(e.category, ""),
+                "status": self._entry_row(rel, e), "kind": e.category,
                 "proof": self.project.proof_state(rel, e) if self.project.is_translated(rel, e) else "",
                 "proof_note": self.store.proof.get(rel, {}).get(e.key, {}).get("n", ""),
                 "proof_date": self.store.proof.get(rel, {}).get(e.key, {}).get("d", ""),
-                "kind_label": e.category, "key": [e.block, norm_ws(e.source if e.source is not None else e.target)],
+                "key": [e.block, norm_ws(e.source if e.source is not None else e.target)],
                 "terms": [{"en": en, "cz": cz, "used": validator.term_used(e.target, cz)} for en, cz in self._terms().items()
                           if e.source is not None and validator.term_in_text(e.source, en)],
                 "issues": [dict(i.to_dict(), ignored=False) for i in iss]

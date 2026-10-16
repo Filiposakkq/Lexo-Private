@@ -13,8 +13,7 @@ CZECH = re.compile(r"[ěščřžýáíéůúťďňĚŠČŘŽÝÁÍÉŮÚŤĎŇ]"
 
 # (module, text) pairs that are data, not messages
 DATA = {
-    ("rpy.py", "áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ"), ("rpy.py", "Prázdný překlad"), ("rpy.py", "Anglicky (nepřeloženo?)"),
-    ("rpy.py", "Shodné – možná OK"), ("rpy.py", "Jen znaky (…, ?!)"),
+    ("rpy.py", "áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ"),   # the Czech letters the line classifier looks for (language pack material, step 3)
     ("migrate.py", "Obecné"),
 }
 
