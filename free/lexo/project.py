@@ -98,6 +98,21 @@ def check_project_dir(path):
         return False, msg("The folder cannot be read: {reason}", reason=e)
 
 
+def find_translation_folder(path):
+    """When `path` is a game folder (or its `game` folder, or `tl`) instead of one language folder, the language folder inside it.
+    Returns (folder, note); note is "" when nothing changed. Several languages -> ValueError with the names (the user must choose)."""
+    p = Path(path)
+    for tl in (p if p.name.lower() == "tl" else None, p / "tl", p / "game" / "tl"):
+        if tl is None or not tl.is_dir():
+            continue
+        langs = sorted(d for d in tl.iterdir() if d.is_dir() and d.name not in IGNORED_DIRS and any(d.rglob("*.rpy")))
+        if len(langs) == 1:
+            return langs[0], msg("The folder {chosen} is a game folder; its translation {folder} was opened.", chosen=p.name or str(p), folder=langs[0].name)
+        if len(langs) > 1:
+            raise ValueError(msg("The folder holds several translations ({names}); choose one of them.", names=", ".join(d.name for d in langs)))
+    return p, ""
+
+
 class Project:
     def __init__(self, root, store, skip=(), symbols_as_done=None):
         self.root = Path(root)

@@ -36,7 +36,7 @@ def episode_hint(n, rows):
 
 def _signals(rel):
     p = _posix(rel)
-    eps = sorted({int(m) for m in EP_RE.findall(p)})
+    eps = sorted({int(m) for m in layout.group_regex().findall(p)})
     updates = sorted({int(m) for m in UPDATE_RE.findall(p)})
     seasons = sorted({int(m) for m in SEASON_RE.findall(p)})
     return eps, updates, seasons

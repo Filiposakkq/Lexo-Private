@@ -128,5 +128,15 @@ class PluralTests(unittest.TestCase):
             self.assertRegex(js, rf"\b{rule}: \[{lang.PLURAL_RULES[rule][0]},", f"rule {rule} missing or different in 05-i18n.js")
 
 
+class UiNamesTests(unittest.TestCase):
+    def test_a_module_that_calls_T_imports_it(self):
+        bad = []
+        for path in sorted((UI / "js").glob("*.js")):
+            text = path.read_text(encoding="utf-8")
+            if re.search(r"(?<![\w.])T\(", text) and not re.search(r"\bt as T\b", text):
+                bad.append(path.name)
+        self.assertEqual(bad, [], "these modules call T() without importing it as `t as T`")
+
+
 if __name__ == "__main__":
     unittest.main()

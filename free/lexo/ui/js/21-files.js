@@ -4,7 +4,8 @@ import { get, post } from './10-api.js';
 import { S } from './11-state.js';
 import { COMPANION, pref, setPref } from './12-chrome.js';
 import { dialog, fail, status, toast } from './13-feedback.js';
-import { STATUS_LABEL, bar, buildTable, chip, empty, fname, makeSplitter } from './14-renderers.js';
+import { STATUS_LABEL, bar, buildTable, chip, empty, fname, groupName, groupNumbers, makeSplitter } from './14-renderers.js';
+import { groupsDialog } from './37-groups.js';
 import { filterGroup } from './15-filterbar.js';
 import { go, render } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
@@ -12,7 +13,7 @@ import { refreshHeader } from './17-project.js';
 const FL_COLS = () => [
   { k: 'pick', w: 38, label: '', resize: false }, { k: 'name', w: 430, label: T('File'), sortable: true },
   { k: 'assign', w: 140, label: T('Assignment'), sortable: true }, { k: 'tp', w: 250, label: T('Translation'), sortable: true },
-  { k: 'cp', w: 230, label: T('Proofreading'), sortable: true }, { k: 'todo', w: 110, label: T('Left to translate'), sortable: true }, { k: 'rev', w: 130, label: T('Left to check'), sortable: true },
+  { k: 'cp', w: 230, label: T('Proofreading'), sortable: true }, { k: 'todo', w: 110, label: T('Left to translate'), sortable: true }, { k: 'rev', w: 130, label: T('Left to proofread'), sortable: true },
   { k: 'order', w: 112, label: T('State'), sortable: true }, { k: 'warn', w: 84, label: T('Check'), sortable: true },
 ];
 const assignKey = (a) => (!a ? 1000 : a === 'gen' ? 900 : parseInt(a.slice(3), 10));
@@ -43,10 +44,11 @@ export async function viewFiles() {
     h('button', { class: (f.filter || 'all') === k ? 'on' : '', onclick: () => { setPref('files.filter', k); seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === event.currentTarget)); draw(); } }, l)));
   const asel = h('select', { title: T('Filter by assignment'), onchange: (e) => { setPref('files.assign', e.target.value); draw(); } },
     h('option', { value: '*' }, T('Assignment: all')), h('option', { value: '' }, T('Unassigned')), h('option', { value: 'gen' }, T('General')),
-    ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => h('option', { value: 'ep:' + n }, T('Episode {n}', { n }))));
+    ...groupNumbers().map((n) => h('option', { value: 'ep:' + n }, groupName(n))));
   asel.value = f.assign === undefined ? '*' : f.assign;
   main.append(h('div', { class: 'pane-head' }, h('div', { class: 'toolbar filterbar' }, search, filterGroup(T('State'), seg), filterGroup(T('Assignment'), asel),
-    h('button', { class: 'btn', onclick: () => bulkAssignDialog(null) }, T('Suggest assignment…')), pickBtn, h('span', { class: 'spacer' }), counter)));
+    h('button', { class: 'btn', onclick: () => bulkAssignDialog(null) }, T('Suggest assignment…')), pickBtn,
+    h('button', { class: 'btn', title: T('What the groups (episodes, chapters…) are called and which numbers exist'), onclick: () => groupsDialog(() => render()) }, T('Groups…')), h('span', { class: 'spacer' }), counter)));
   const wrap = h('div', { class: 'pane-body' });
   main.append(wrap);
   root.append(main, makeSplitter(root, 'h', { key: 'files.detailw', def: 350, min: 260, maxFrac: 0.6 }), detail);
@@ -73,7 +75,7 @@ export async function viewFiles() {
         h('td', null, fname(r.name, { link: true, onclick: (e) => { if (e.detail === 2) go('entries', { file: r.name }); } }), r.proof_stale ? chip('info', `↻ ${r.proof_stale}`) : null),
         h('td', null, h('select', { class: 'asg', value: r.assign, onclick: (e) => e.stopPropagation(), onchange: async (e) => {
           try { await post('assign', { name: r.name, v: e.target.value }); r.assign = e.target.value; toast(T('Assignment: {name} → {value}', { name: r.name.split(/[\\/]/).pop(), value: e.target.selectedOptions[0].text })); refreshHeader(); draw(); drawDetail(); } catch (err) { fail(err); e.target.value = r.assign; }
-        } }, h('option', { value: '' }, T('Unassigned')), h('option', { value: 'gen' }, T('General')), [1, 2, 3, 4, 5, 6, 7, 8].map((n) => h('option', { value: 'ep:' + n }, T('Episode {n}', { n }))))),
+        } }, h('option', { value: '' }, T('Unassigned')), h('option', { value: 'gen' }, T('General')), groupNumbers().map((n) => h('option', { value: 'ep:' + n }, groupName(n))))),
         h('td', null, numCell(r, 't')), h('td', null, numCell(r, 'c')),
         h('td', { class: 'num' }, fmtN(r.todo)), h('td', { class: 'num' }, fmtN(Math.max(0, r.total - r.corr))), h('td', null, chip(r.status, STATUS_LABEL[r.status])),
         h('td', null, r.errors ? h('span', { class: 'badge', title: T('Errors') }, r.errors) : null, ' ', r.warnings ? h('span', { class: 'badge warn', title: T('Warnings') }, r.warnings) : null));
@@ -120,13 +122,13 @@ export async function viewFiles() {
         h('button', { class: 'btn small', onclick: () => openEditor(r.name, 1) }, T('Open in the editor')),
         h('button', { class: 'btn small', onclick: () => copy(r.name) }, T('Copy the path'))),
       h('dl', { class: 'kv' },
-        h('dt', null, T('Assignment')), h('dd', null, r.assign === '' ? T('Unassigned') : r.assign === 'gen' ? T('General') : T('Episode ') + r.assign.slice(3)),
+        h('dt', null, T('Assignment')), h('dd', null, r.assign === '' ? T('Unassigned') : r.assign === 'gen' ? T('General') : groupName(+r.assign.slice(3))),
         h('dt', null, T('Lines in total')), h('dd', null, fmtN(total)),
         h('dt', null, T('Translated')), h('dd', null, `${fmtN(r.done)} (${fmtPct(total ? r.done / total * 100 : 0)})`),
         h('dt', null, T('of which approved by hand')), h('dd', null, fmtN(r.approved)),
         h('dt', null, T('Counted automatically')), h('dd', null, fmtN(r.auto)),
         h('dt', null, T('Left to translate')), h('dd', null, fmtN(r.todo)),
-        h('dt', null, T('Left to check')), h('dd', null, fmtN(Math.max(0, total - r.corr))),
+        h('dt', null, T('Left to proofread')), h('dd', null, fmtN(Math.max(0, total - r.corr))),
         h('dt', null, T('Proofread')), h('dd', null, `${fmtN(r.corr)} (${fmtPct(total ? r.corr / total * 100 : 0)})`),
         h('dt', null, T('of which line by line')), h('dd', null, fmtN(r.proof_marked)),
         h('dt', null, T('To fix')), h('dd', null, r.proof_fix ? h('button', { class: 'btn small', onclick: () => go('entries', { file: r.name, status: 'fix' }) }, fmtN(r.proof_fix)) : '0'),
@@ -152,9 +154,9 @@ async function bulkAssignDialog(names) {
   const upd = () => { const n = rows.filter((r) => r.apply && r.value !== r.current).length; summary.textContent = tn(n, 'To write: {n} file', 'To write: {n} files'); applyBtn.disabled = !n; };
   const filterSel = h('select', { onchange: () => paint() }, h('option', { value: 'all' }, T('Show all')), h('option', { value: 'change' }, T('Only changes')), h('option', { value: 'problem' }, T('Only conflicts and unclear ones')));
   const tbody = h('tbody');
-  const table = h('table', { class: 'data' }, h('colgroup', null, [40, 400, 130, 190, 90, 120, 330].map((w) => h('col', { style: { width: w + 'px' } }))),
+  const table = h('table', { class: 'data' }, h('colgroup', null, [40, 380, 140, 270, 90, 130, 320].map((w) => h('col', { style: { width: w + 'px' } }))),
     h('thead', null, h('tr', null, ['', T('File'), T('So far'), T('Suggested assignment'), T('Confidence'), T('State'), T('Reason')].map((t, i) => h('th', { class: i === 0 ? 'center' : '' }, t)))), tbody);
-  table.style.width = '1300px';
+  table.style.width = '1370px';
   function paint() {
     tbody.replaceChildren();
     for (const r of rows) {
@@ -164,7 +166,7 @@ async function bulkAssignDialog(names) {
       tbody.append(h('tr', null,
         h('td', { class: 'center' }, h('input', { type: 'checkbox', checked: r.apply, title: needsOw ? T('Overwrites an assignment set by hand – ticking confirms the overwrite') : T('Apply'), onchange: (e) => { r.apply = e.target.checked; r.overwrite = e.target.checked && !!needsOw; upd(); } })),
         h('td', null, fname(r.name)), h('td', null, r.current ? optLabel(data.options, r.current) : h('span', { class: 'muted' }, T('unassigned'))),
-        h('td', null, h('select', { value: r.value, onchange: (e) => { r.value = e.target.value; r.apply = r.value !== r.current; r.overwrite = !!(r.current && r.apply); paint(); upd(); } },
+        h('td', null, h('select', { style: { width: '100%' }, value: r.value, onchange: (e) => { r.value = e.target.value; r.apply = r.value !== r.current; r.overwrite = !!(r.current && r.apply); paint(); upd(); } },
           data.options.map((o) => h('option', { value: o.value }, o.label)))),
         h('td', null, CONF[r.confidence]), h('td', null, chip(STATE[r.state][1], STATE[r.state][0]), needsOw ? h('div', { class: 'sugg-state muted' }, T('overwrites a manual value')) : null),
         h('td', null, h('span', { class: 'reason' }, r.reason))));
@@ -180,8 +182,8 @@ async function bulkAssignDialog(names) {
   } }, T('Write the assignment'));
   let closeFn = () => {};
   paint(); upd();
-  closeFn = dialog({ title: names ? tn(rows.length, 'Assignment of {n} selected file', 'Assignment of {n} selected files') : T('Suggested assignment of files to episodes'),
-    body: h('div', null, h('p', { class: 'muted' }, T('The suggestion is based on file and folder names (epN, updateN, folder seasonN) and on the assignment of the other files in the same folder. Nothing is written until you confirm. A manually set assignment is overwritten only in the rows you tick yourself.')),
+  closeFn = dialog({ title: names ? tn(rows.length, 'Assignment of {n} selected file', 'Assignment of {n} selected files') : T('Suggested assignment of files to groups'),
+    body: h('div', null, data.groups_defined ? null : h('div', { class: 'notice warn' }, T('The project has no groups yet, so nothing can be suggested except “General”. Set the groups first.'), ' ', h('button', { class: 'btn small', onclick: () => { closeFn(); groupsDialog(() => render()); } }, T('Set up groups…'))), h('p', { class: 'muted' }, T('The suggestion is based on file and folder names (epN, updateN, folder seasonN) and on the assignment of the other files in the same folder. Nothing is written until you confirm. A manually set assignment is overwritten only in the rows you tick yourself.')),
       h('div', { class: 'toolbar' }, filterSel, summary), h('div', { class: 'tablewrap', style: { maxHeight: '55vh' } }, table)),
     buttons: [{ label: T('Cancel') }, { node: applyBtn }] });
 }

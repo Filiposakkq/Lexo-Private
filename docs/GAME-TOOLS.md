@@ -41,3 +41,10 @@ The chosen texts are appended to `<translation folder>/extra_strings.rpy` (untra
 Checked on Being a DIK: of the 27 strings the translator had added by hand, 24 are found (all as `likely`); the other 3 are not missed texts (the generator did extract two
 of them, one is built from pieces in the code). The list has 185 likely texts for that game, mostly more `show text` lines the translator had not reached yet.
 It is a heuristic: review the list, untick what the player never sees (a build name, a file label).
+
+### The project's own functions and ignored texts (`.lexo/missed.json`)
+- **Functions that show text:** a game may show text through its own function (`notify("Item added")`, `show_message(...)`, `Item("Spy Camera")`). The dialog has a field for them (comma separated)
+  and "Find functions…", which lists the functions of the game that are called again and again with a text as their first argument (at least three times; methods of objects and lists, exceptions, `renpy.*` and
+  similar are left out). A click adds a name. Texts passed to these functions become `likely`.
+- **Ignored texts:** "Ignore selected" puts texts that the player never sees (a build name, a label) into the project's ignore list; they stay out of every later search until "Forget the ignored texts".
+- The file is `<translation folder>/.lexo/missed.json`, shared like the other project files. Built-in: any `<name>.say("...")` call counts as a text sink.

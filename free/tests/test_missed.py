@@ -107,6 +107,40 @@ class MissedTests(TempCase):
         self.assertEqual(again["added"], 0)
         self.assertEqual((self.tl / missed.FILE_NAME).read_text(encoding="utf-8"), text)
 
+    def test_own_functions_make_their_texts_likely(self):
+        (self.game / "extra.rpy").write_text('label x:\n    $ notify("Item added to the bag")\n    $ other("Not shown to anyone")\n', encoding="utf-8")
+        self.assertEqual(self.scan()["Item added to the bag"]["level"], "maybe")
+        strings, dialogue, places = missed.known_texts(self.tl)
+        res = missed.find_missed(self.game, strings, dialogue, places, functions=["notify"])
+        by = {i["text"]: i for i in res["items"]}
+        self.assertEqual((by["Item added to the bag"]["level"], by["Not shown to anyone"]["level"]), ("likely", "maybe"))
+
+    def test_ignored_texts_are_left_out(self):
+        strings, dialogue, places = missed.known_texts(self.tl)
+        res = missed.find_missed(self.game, strings, dialogue, places, ignored=["Maggot Brothers", "A line the generator forgot."])
+        texts = {i["text"] for i in res["items"]}
+        self.assertNotIn("Maggot Brothers", texts)
+        self.assertNotIn("A line the generator forgot.", texts)
+        self.assertIn("What is your name?", texts)
+
+    def test_functions_called_again_and_again_with_a_text_are_suggested(self):
+        lines = "label x:\n" + "".join(f'    $ popup("Something happened number {n}")\n' for n in range(4))
+        lines += '    $ x.append("Some text appended")\n    $ raise ValueError("A problem with the data here")\n    $ rare("Only once is not a pattern")\n'
+        (self.game / "popups.rpy").write_text(lines, encoding="utf-8")
+        known = missed.known_strings(self.tl)
+        names = {f["name"]: f for f in missed.suggest_functions(self.game, known)}
+        self.assertEqual(names["popup"]["calls"], 4)
+        for noise in ("ValueError", "rare", "x.append"):
+            self.assertNotIn(noise, names)
+        self.assertNotIn("popup", {f["name"] for f in missed.suggest_functions(self.game, known, functions=["popup"])})
+
+    def test_settings_file_round_trip_and_damage(self):
+        saved = missed.save_settings(self.tl, ["notify", "bad name", "ui.popup", "notify"], ["b", "a", "a"])
+        self.assertEqual(saved, {"functions": ["notify", "ui.popup"], "ignored": ["a", "b"]})
+        self.assertEqual(missed.load_settings(self.tl), saved)
+        (self.tl / missed.SETTINGS_FILE).write_text("{not json", encoding="utf-8")
+        self.assertEqual(missed.load_settings(self.tl), {"functions": [], "ignored": []})
+
 
 class MissedInTheAppTests(TempCase):
     def setUp(self):
@@ -130,6 +164,22 @@ class MissedInTheAppTests(TempCase):
         self.assertEqual(self.app.overview()["totals"]["total"], before + 2)
         self.assertEqual({i["text"] for i in self.app.missed_scan()["items"]} & {"Maggot Brothers", "What is your name?"}, set())
 
+    def test_settings_and_ignoring_in_the_app(self):
+        self.app.missed_settings(["notify"])
+        self.app.missed_ignore(["Maggot Brothers"])
+        res = self.app.missed_scan()
+        self.assertEqual(res["settings"], {"functions": ["notify"], "ignored": ["Maggot Brothers"]})
+        self.assertNotIn("Maggot Brothers", {i["text"] for i in res["items"]})
+        self.app.missed_ignore([], clear=True)
+        self.assertIn("Maggot Brothers", {i["text"] for i in self.app.missed_scan()["items"]})
+        self.assertEqual(self.app.missed_settings([])["functions"], [])
+        with self.assertRaises(AppError):
+            self.app.missed_ignore([])
+
+    def test_function_suggestions_in_the_app(self):
+        (self.game / "popups.rpy").write_text("label x:\n" + "".join(f'    $ popup("Something happened number {n}")\n' for n in range(3)), encoding="utf-8")
+        self.assertEqual([f["name"] for f in self.app.missed_functions()["suggested"]], ["popup"])
+
     def test_http_api(self):
         srv, sess, _ = server.start_server(self.app)
         self.addCleanup(srv.shutdown)
@@ -145,6 +195,9 @@ class MissedInTheAppTests(TempCase):
         self.assertEqual(call("POST", "/api/missed/add", {"items": []})[0], 400)
         st, r = call("POST", "/api/missed/add", {"items": [i for i in r["items"] if i["text"] == "Maggot Brothers"]})
         self.assertEqual((st, r["added"]), (200, 1))
+        self.assertEqual(call("POST", "/api/missed/settings", {"functions": ["notify"]})[1]["functions"], ["notify"])
+        self.assertEqual(call("POST", "/api/missed/ignore", {"texts": ["What is your name?"]})[1]["ignored"], ["What is your name?"])
+        self.assertEqual(call("GET", "/api/missed/functions")[0], 200)
 
     def test_nothing_chosen_is_an_error(self):
         with self.assertRaises(AppError):

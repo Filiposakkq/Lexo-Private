@@ -10,6 +10,14 @@ from .app_base import AppError
 
 
 class GamePart:
+    def _game_dir(self):
+        """The game's own `game` folder: the nearest folder called `game` above the translation folder (None when there is none, e.g. a
+        translation kept somewhere else). Searches never go above it, so they cannot wander into other games next to this one."""
+        for parent in self.project.root.parents:
+            if parent.name.lower() == "game":
+                return parent
+        return None
+
     def _game_root(self):
         """Folder that contains `game/` (references look like game/script.rpy:123), found above the translation folder."""
         for parent in self.project.root.parents:

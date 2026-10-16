@@ -20,6 +20,7 @@ from .project import DATA_DIR_NAME
 from .project import Project
 from .project import ProjectUnavailable
 from .project import check_project_dir
+from .project import find_translation_folder
 from .project import totals_of
 from .store import Store
 from .util import WriteFailed
@@ -59,6 +60,12 @@ class CorePart:
         ok, problem = check_project_dir(path)
         if not ok:
             raise AppError(problem)
+        try:
+            path, redirected = find_translation_folder(path)
+        except ValueError as e:
+            raise AppError(text_of(e)) from e
+        if redirected:
+            self.notices.append(redirected)
         root = Path(path).resolve()
         data_dir = root / DATA_DIR_NAME
         try:

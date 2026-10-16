@@ -13,6 +13,7 @@ It is a heuristic and says so: every finding has a `level`:
 and a `kind`: `text` or `dialogue`. Nothing is changed by the search. Menu choices and everything inside `screen` blocks are skipped, because
 Ren'Py extracts those itself.
 """
+import json
 import re
 from pathlib import Path
 
@@ -33,8 +34,26 @@ STATEMENT_SKIP = ("translate ", "image ", "transform ", "style ", "label ", "jum
                   "build.", "config.", "gui.", "$ config.", "$ gui.")
 # top-level statements whose indented body is not text for the player (image definitions, transforms, styles, translations)
 BLOCK_SKIP = ("image ", "transform ", "style ", "translate ", "layeredimage ", "init python in ")
-SINK_RE = re.compile(r"\b(?:show\s+text|renpy\.input|renpy\.notify|renpy\.confirm|renpy\.say|renpy\.display_say|Notify|Text|ui\.text|"
-                     r"renpy\.show_screen|tooltip)\b")
+SINK_NAMES = r"show\s+text|renpy\.input|renpy\.notify|renpy\.confirm|renpy\.say|renpy\.display_say|Notify|Text|ui\.text|renpy\.show_screen|tooltip|[A-Za-z_]\w*\.say"
+SINK_RE = re.compile(rf"\b(?:{SINK_NAMES})\b")
+CALL_RE = re.compile(rf"([A-Za-z_][\w.]*)\s*\(\s*(?:{STRING})")
+# callables that take a string but are not text for the player: never suggested as "functions that show text"
+NOT_TEXT_FUNCTIONS = {"Character", "DynamicCharacter", "Image", "Transform", "Solid", "Color", "Movie", "Play", "Queue", "Stop", "Show", "Hide", "Jump",
+                      "Call", "SetVariable", "SetField", "ToggleVariable", "Function", "Return", "Action", "Fixed", "Frame", "LiveComposite", "Null",
+                      "AlphaMask", "ConditionSwitch", "DynamicImage", "FileSave", "FileLoad", "OpenURL", "Preference", "Notify", "Text", "SetDict",
+                      "getattr", "setattr", "hasattr", "isinstance", "len", "str", "int", "float", "print", "open", "range", "list", "dict", "set"}
+
+
+NOISE_NAME_RE = re.compile(r"(?:Error|Exception|Warning)$|^self\.|\.(?:write|log|debug|info|warning|error|print|join|format|get|pop|startswith|endswith|replace|split|say)$|_indent$")
+
+
+LIST_METHODS = {"append", "remove", "insert", "extend", "add", "update", "discard", "setdefault", "index", "count", "get", "pop", "join"}
+
+
+def sink_regex(functions=()):
+    """The pattern for "this text is shown to the player": the built-in functions plus the project's own (`functions`, e.g. ["notify", "popup"])."""
+    extra = [re.escape(f.strip()) for f in functions if f and re.fullmatch(r"[A-Za-z_][\w.]*", f.strip())]
+    return re.compile(rf"\b(?:{SINK_NAMES}{'|' + '|'.join(extra) if extra else ''})\b")
 NAME_HINT_RE = re.compile(r"\w*(?:title|name|text|message|msg|caption|label|desc|prompt|hint|tip|header|heading)\w*\s*=(?!=)", re.I)
 CHARACTER_DEF_RE = re.compile(r"\bCharacter\s*\(")
 PATHLIKE_RE = re.compile(r"/|\\(?![ntr\"'\\])|\.(?:png|jpg|jpeg|webp|webm|mp4|mp3|ogg|opus|wav|rpy|rpyc|ttf|otf|py|json|txt)\b", re.I)
@@ -111,12 +130,14 @@ def known_strings(tl_dir):
     return known_texts(tl_dir)[0]
 
 
-def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5000):
+def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5000, functions=(), ignored=()):
     """Texts in the game's scripts that the translation does not have. `known` = the string table; `known_places` = the places its dialogue
     blocks point to (a dialogue line at any other place has no block); `known_dialogue` = the texts of the dialogue blocks, used when the places are
     not known; with neither, dialogue is not examined. Returns {items, truncated}; each item is {text, kind, file, line, level, context, count}, the
-    likely ones first."""
+    likely ones first. `functions`: names of the project's own functions that show text; `ignored`: texts the translator chose to leave out."""
     found = {}
+    sink = sink_regex(functions)
+    skip_texts = set(ignored)
 
     def add(text, kind, level, rel, no, context):
         old = found.get(text)
@@ -155,15 +176,15 @@ def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5
                     without_block = text not in known_dialogue
                 else:
                     continue
-                if without_block and text not in known and looks_like_text(text):
+                if without_block and text not in known and text not in skip_texts and looks_like_text(text):
                     add(text, "dialogue", "likely", rel, no, s[:100])
                 continue
             for m in LITERAL_RE.finditer(line):
                 text = _literal(m)
-                if text in known or not looks_like_text(text):
+                if text in known or text in skip_texts or not looks_like_text(text):
                     continue
                 before = line[:m.start()]
-                level = "likely" if (SINK_RE.search(before) or NAME_HINT_RE.search(before)) else "maybe"
+                level = "likely" if (sink.search(before) or NAME_HINT_RE.search(before)) else "maybe"
                 add(text, "text", level, rel, no, s[:100])
     items = sorted(found.values(), key=lambda i: (i["level"] != "likely", i["file"].lower(), i["line"]))
     return {"items": items[:limit], "truncated": len(items) > limit}
@@ -197,3 +218,60 @@ def write_strings(tl_dir, language, items, backup_dir=None):
     new_text = (old_text.rstrip("\n") + "\n\n" if old_text.strip() else "") + block
     atomic_write_text(path, new_text, backup_dir=backup_dir)
     return {"file": str(path), "added": len(fresh), "skipped": skipped}
+
+
+def suggest_functions(game_dir, known, functions=(), ignored=(), min_calls=3):
+    """Functions of the game that are called again and again with a text as their first argument (`notify("Item added")`): the translator
+    may add them to the project's list of functions that show text. Returns [{name, calls, example}], the most called first."""
+    have = set(functions)
+    skip_texts = set(ignored)
+    count, example = {}, {}
+    for path, rel in _scripts(game_dir):
+        try:
+            lines = path.read_text(encoding="utf-8-sig", errors="replace").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            s = line.strip()
+            if not s or s.startswith("#") or s.startswith(STATEMENT_SKIP) or CHARACTER_DEF_RE.search(line):
+                continue
+            for m in CALL_RE.finditer(line):
+                name = m.group(1)
+                if "." in name or name in LIST_METHODS:        # methods of objects and lists are not "functions of the game"
+                    continue
+                if name in have or name in NOT_TEXT_FUNCTIONS or NOISE_NAME_RE.search(name) or name.split(".")[0] in {"renpy", "persistent", "store", "im", "config", "gui", "style"}:
+                    continue
+                lit = LITERAL_RE.match(line[m.end() - len(m.group(0)) + m.group(0).index("(") + 1:].lstrip())
+                if not lit:
+                    continue
+                text = _literal(lit)
+                if text in known or text in skip_texts or not looks_like_text(text) or " " not in text.strip():
+                    continue
+                count[name] = count.get(name, 0) + 1
+                example.setdefault(name, text)
+    out = [{"name": n, "calls": c, "example": example[n]} for n, c in count.items() if c >= min_calls]
+    return sorted(out, key=lambda i: (-i["calls"], i["name"]))[:20]
+
+
+SETTINGS_FILE = "missed.json"
+
+
+def load_settings(data_dir):
+    """{functions: [...], ignored: [...]} of the project (`<data dir>/missed.json`); a missing or damaged file means the defaults."""
+    try:
+        raw = json.loads((Path(data_dir) / SETTINGS_FILE).read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        raw = {}
+    raw = raw if isinstance(raw, dict) else {}
+
+    def strings(key):
+        return sorted({str(x) for x in raw.get(key, []) if isinstance(x, str) and x}) if isinstance(raw.get(key), list) else []
+    return {"functions": [f for f in strings("functions") if re.fullmatch(r"[A-Za-z_][\w.]*", f)], "ignored": strings("ignored")}
+
+
+def save_settings(data_dir, functions, ignored):
+    """Write the lists (sorted, without duplicates); returns what was saved."""
+    clean = {"version": 1, "functions": sorted({f.strip() for f in functions if re.fullmatch(r"[A-Za-z_][\w.]*", str(f).strip())}),
+             "ignored": sorted({str(t) for t in ignored if str(t)})}
+    atomic_write_text(Path(data_dir) / SETTINGS_FILE, json.dumps(clean, ensure_ascii=False, indent=1) + "\n")
+    return {"functions": clean["functions"], "ignored": clean["ignored"]}

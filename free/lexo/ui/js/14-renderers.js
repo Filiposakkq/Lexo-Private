@@ -159,4 +159,12 @@ export function menuButton(label, items, { primary = false, title = '' } = {}) {
   wrap.append(btn, menu);
   return wrap;
 }
-
+/* "Episode 3" / "Chapter 3" ...: the word is the project's group label (layout.labels.group); a word without a translation is shown as it is. */
+export function groupName(n) {
+  const word = S.overview?.labels?.group || 'Episode';
+  const f = { Episode: () => t('Episode {n}', { n }), Chapter: () => t('Chapter {n}', { n }), Part: () => t('Part {n}', { n }),
+    Day: () => t('Day {n}', { n }), Update: () => t('Update {n}', { n }), Act: () => t('Act {n}', { n }) }[word];
+  return f ? f() : `${word} ${n}`;
+}
+/* the group numbers of the open project (from the overview) */
+export const groupNumbers = () => (S.overview?.episodes || []).map((e) => e.n);
