@@ -40,7 +40,7 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 ## Open questions
 - Final name and its availability (Lexo is a working choice).
 - Licence of the public part and of Pro.
-- Which features are Pro: proposal in ARCHITECTURE.md.
+- Which features are Pro: proposal in docs/FEATURES.md (revision 2).
 
 ## Status
 - Step 1.0 done: the Python app is imported into `free/` (package `lexo`, launcher `run_lexo.py`), renamed from BaDIK, 406 tests green (the 24 tests of the BaDIK website stayed in the old repo). Game-specific parts are still in place; see HARDCODED-AUDIT.md.

@@ -1,38 +1,67 @@
-# Features: Free or Pro (proposal, to be decided by the owner)
+# Features: Free or Pro (proposal, revision 2)
 
-Principle: the **whole translating workflow is free** (so people can really use and recommend the app); Pro sells
-**time savers, automation, publishing and teamwork**. A feature goes to Pro only if the free app still works fully without it.
+Principle: the **whole translating workflow is free** (so people can really use and recommend the app). Pro sells
+**time savers for big or long projects, automation, release tooling and teamwork**. A feature goes to Pro only if the free
+app still works fully without it, and nothing that users see as a basic right is locked (find & replace, spelling, history).
 
-Module = where the code lives today in `free/lexo/`. "Coupling" says how hard it is to pull the feature out later.
+Revision 2 follows a review of revision 1 (find & replace, spelling and line diff move to Free; four pain points are added to Pro).
+Module = where the code lives today in `free/lexo/`. "Coupling" = how hard it is to pull the feature out later.
 
-| Feature | Module | Proposal | Coupling today |
+## Free
+| Feature | Module | Coupling |
+|---|---|---|
+| Open project, file list, line editor, filters, search, undo, backups (snapshots) | `project`, `store`, `rpy`, `snapshots` | core |
+| History of a line **and the diff between its versions** | `history`, `texthistory` | core |
+| Proofreading state, quick translate/proofread mode, focus mode | `store`, `app`, UI | core |
+| Validation: tags, variables, brackets, length, dialogue-box fit; language packs | `validator`, `fontmetrics`, `lang` | core |
+| **Find & replace across the project** (plain text) | `textedit` | only `app.py` |
+| **Spelling hints** from the project's own vocabulary (basic) | `spelling` | `app.py` |
+| Scene preview with game images and fonts | `gameimages`, `rpa`, `fontmetrics` | only `app.py` |
+| Glossary, import of character names, term check | `app`, `validator` | core |
+| Ren'Py lint with the SDK, open in editor | `lint`, `editor` | only `app.py` |
+| Weekly goals, completion estimate, per-group progress | `goals`, `export` | `export` |
+| Machine translation of single lines (own API key) | `mt` | only `app.py` |
+| Approve identical lines (the basic form) | `bulk` | only `app.py` |
+| Translation file generator, unrpa / unrpyc helpers (planned) | new | new |
+
+## Pro
+Aimed at people with bigger projects, a website or Patreon, or a team. Priced low: a one-off licence or a small yearly one.
+
+| Feature | Why people pay for it | Module | Coupling |
 |---|---|---|---|
-| Open project, file list, line editor, filters, search, undo, history of a line, backups (snapshots) | `project`, `store`, `rpy`, `history`, `texthistory`, `snapshots` | **Free** | core |
-| Proofreading state (✓, ⚑, stale marks), quick translate/proofread mode, focus mode | `store`, `app`, UI | **Free** | core |
-| Validation: tags, variables, brackets, length, dialogue-box fit | `validator`, `fontmetrics` | **Free** | core |
-| Language rules (repeated words, stems) | `lang` | **Free** (packs for more languages) | core |
-| Scene preview with game images and fonts | `gameimages`, `rpa`, `fontmetrics` | **Free** (the showpiece) | only `app.py` |
-| Glossary, import of character names, term check | `app`, `validator` | **Free** | core |
-| Ren'Py lint with the SDK, open in editor | `lint`, `editor` | **Free** | only `app.py` |
-| Weekly goals, completion estimate, per-group progress | `goals`, `export` | **Free** (basic) | `export` |
-| Translation file generator, unrpa / unrpyc helpers (planned) | new | **Free** | new |
-| Machine translation (single line) | `mt` | **Free**, bring your own key | only `app.py` |
-| Machine translation in batches with glossary and context | `mt`, `bulk` | **Pro** | only `app.py` |
-| Translation memory and consistency by identical original, "approve all identical" | `memory`, `bulk` | **Pro** (memory), basic approve **Free** | only `app.py` |
-| Safe fixes and find & replace across the project | `fixes`, `textedit` | **Pro** | only `app.py` |
-| Bulk categorisation suggestions (assign files to groups) | `bulk` | **Pro** | only `app.py` |
-| Spelling hints from the project's own vocabulary | `spelling` | **Pro** (language packs make it better) | `app.py` |
-| Publishing progress to a website / JSON export | `export`, `publish` | **Pro** | only `app.py` |
-| Team work: several translators, assignments, who did what, merge of changes (planned) | new | **Pro** | new |
-| Statistics reports (CSV/PDF), saved filter views, diff of line versions (ideas) | new | **Pro** | new |
+| **Carry a translation over to a new game version** (fuzzy matching of old translations to changed or moved originals, marked "check") | A game update shifts lines and the translator redoes it by hand; this saves the most work of all | new (builds on `memory`, `rpy`) | new |
+| **Fuzzy matches in translation memory** (not only identical originals) | Repeated and similar lines across a long game | `memory` | only `app.py` |
+| **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Czech machine translation mixes tykání and vykání | new, builds on `mt` | new |
+| **Character profiles** (who addresses whom how, gender, speech style) passed to batch machine translation | Makes the batch output usable | new + `mt` | new |
+| Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` |
+| **Release builder**: translation -> installable patch (zip or rpa), version, changelog | "From translation to release" in one tool, together with publishing | new | new |
+| Publishing progress (website / JSON) | Translators with a site or Patreon | `export`, `publish` | only `app.py` |
+| **Safe bulk fixes** (tag- and variable-aware, with a preview of every change) and **regex batches** | Big clean-ups without breaking tags | `fixes` | only `app.py` |
+| Bulk categorisation suggestions (assign files to groups) | Large multi-episode projects | `bulk` | only `app.py` |
+| Smarter spelling: extra language packs and better suggestions | Quality for more languages | `spelling`, `lang` | `app.py` |
+| Team work: several translators, assignments, who did what, merging changes (planned) | Teams | new | new |
+| Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new |
+
+## Taste before paying
+- **Limits, not a locked button.** A Pro feature in Free works on a small amount (for example batch translation or safe fixes for 20 lines per run) so that the user sees it works; Pro lifts the limit.
+- **Show the value before the price.** Example text in the UI: "This line has 37 identical originals, Pro approves them at once." The number is the sales argument.
+- The limit is applied in the Pro module, not scattered through Core: Core only asks "which features are available, and with which limit?".
+
+## Licensing and protection (decision)
+- If Core is open source, a licence check can always be bypassed, so **no heavy protection**. Pro value is convenience, updates and support, not a lock.
+- Keep: a signed licence key verified offline, Pro code in a private repo and distributed as a separate module.
+- Do not keep: obfuscation, hardware binding, always-online checks (they annoy honest buyers more than they stop anyone).
 
 ## Can it be separated later?
-Yes, and it is cheap for the rows above: every module marked "only `app.py`" is imported from nowhere else, so it can be
-moved to `pro/` and loaded through a registry instead of a direct import. What has to be built first (roadmap step 2):
-1. a **feature registry** in Core (`register("mt.batch", handler)`), so `app.py` and the UI ask "is this feature available?"
-   instead of importing the module;
-2. **UI hooks**: the UI shows a Pro feature only when the registry has it (otherwise a short "Pro" hint);
-3. the **licence check** in the Pro loader only. Core and Free never contain licence code beyond "is Pro present".
+Yes. Every module marked "only `app.py`" is imported from nowhere else, so it can move to `pro/` and be loaded through a registry
+instead of a direct import. What has to be built first (roadmap step 2):
+1. a **feature registry** in Core (`register("mt.batch", handler, limit=...)`) so `app.py` and the UI ask "is this available, and with which limit?";
+2. **UI hooks**: a Pro feature shows when the registry has it, otherwise a short hint with the value ("37 identical originals");
+3. the **licence check** only in the Pro loader.
 
-Until then everything lives together in `free/`; nothing needs to be decided now. The table can be changed any time before release,
-but moving a feature from Free to Pro after users have it free is unpopular, so decide before the first public release.
+Moving a feature from Free to Pro after users have it is unpopular, so decide before the first public release.
+
+## Open questions
+- Price and form of the licence (one-off vs yearly).
+- LLM features need an API key; the user brings it (no cost for us), or a hosted option later.
+- Licence of the public part (e.g. MIT or GPL); it decides how much of Free others can reuse.

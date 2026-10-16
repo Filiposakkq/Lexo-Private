@@ -24,8 +24,8 @@ Language packs ──────────┘         │
 A Pro module only adds an implementation; the UI shows the feature when the module is present and licensed.
 
 ## Free / Pro split (proposal)
-- **Free**: editor, proofreading state, lint and line checks, scene preview, search and replace, snapshots, statistics, translation generator, unpack helpers.
-- **Pro**: batch machine translation, translation memory with fuzzy matches, team work (assignments, who did what), bulk fixes, progress publishing.
+- **Free**: the whole translating workflow (see docs/FEATURES.md): editor, proofreading, validation, find & replace, spelling, history with diff, scene preview, statistics, translation generator.
+- **Pro**: carrying translations over to a new game version, fuzzy translation memory, LLM style check, character profiles, batch machine translation, release builder, safe bulk fixes and regex batches, publishing, teamwork.
 
 ## Licensing and basic protection
 Signed licence key (public key in the app, private key only with the author), checked offline, optional online refresh later.
