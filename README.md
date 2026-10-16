@@ -16,6 +16,7 @@ Working name; the product grows out of the BaDIK Translation Manager (a Python t
 | `docs/` | Architecture, plan, audit of what is still tied to one game | yes (curated) |
 
 ## Where to start
+0. [docs/HANDOFF.md](docs/HANDOFF.md) – start here in a new chat: decisions, rules, the step loop, commands.
 1. [docs/ROADMAP.md](docs/ROADMAP.md) – the plan, in order, with what "done" means for each step.
 2. [docs/HARDCODED-AUDIT.md](docs/HARDCODED-AUDIT.md) – everything in the old tool that is tied to Being a DIK or to Czech.
 3. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) – layers, the Core interface, how Free and Pro attach.
