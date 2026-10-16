@@ -13,7 +13,7 @@ UI = Path(__file__).resolve().parent.parent / "lexo" / "ui"
 PACK = Path(__file__).resolve().parent.parent / "lexo" / "packs" / "cs"
 
 # Modules whose Czech literals have all been moved to t() / tn() / tx(). Add a module here when it is done.
-CONVERTED = ["00-core.js", "10-api.js", "13-feedback.js", "15-filterbar.js", "16-tabs.js", "17-project.js", "18-refresh.js", "99-boot.js"]
+CONVERTED = ["00-core.js", "10-api.js", "13-feedback.js", "14-renderers.js", "15-filterbar.js", "16-tabs.js", "17-project.js", "18-refresh.js", "99-boot.js"]
 
 CZECH = re.compile(r"[ěščřžýáíéůúťďňĚŠČŘŽÝÁÍÉŮÚŤĎŇ]")
 STR = r"""(?:'((?:\\.|[^'\\\n])*)'|"((?:\\.|[^"\\\n])*)")"""
