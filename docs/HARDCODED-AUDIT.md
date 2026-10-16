@@ -43,3 +43,8 @@ Atomic writes and the one-writer rule (`fixes.py`), the incremental project refr
 ## 6. New features planned for after the generalisation
 - Extracting scripts from `.rpyc` (unrpyc), unpacking `.rpa` archives (unrpa) – both already exist in the Python world; on disk: `D:\RenPy Stuff\unrpyc-2.0.4`. In Rust these are separate modules and have to be ported or called as helpers.
 - Generating translation files like the Ren'Py SDK does (`renpy.sh <game> translate <language>`): first by calling an installed SDK (one of them is at `D:\RenPy Stuff\renpy-7.4.10-sdk`), later with an own generator.
+
+## Update after the tests on five games (docs/GAME-TESTS.md)
+- Character files were looked up as `characters*.rpy` only: now any script with a `define x = Character(...)` line counts when there is no such file.
+- `old`/`new` were treated as string-pair keywords everywhere: now only inside `translate <lang> strings:`.
+- Still open: the Czech letters in the line classifier (`rpy.classify`), `ep1` name hints, wording of "episode/season" from `labels`.

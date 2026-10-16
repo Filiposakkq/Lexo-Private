@@ -168,7 +168,7 @@ class GlossaryImportTests(TempCase):
         with self.assertRaises(AppError):
             self.app.glossary_import_preview(str(other))
         big = self.tmp / "big.rpy"
-        big.write_bytes(b"#" * (3 * 1024 * 1024))
+        big.write_bytes(b"#" * (17 * 1024 * 1024))
         with self.assertRaises(AppError):
             self.app.glossary_import_preview(str(big))
 
@@ -176,7 +176,16 @@ class GlossaryImportTests(TempCase):
         (self.game / "characters.rpy").unlink()
         pv = self.app.glossary_import_preview()
         self.assertEqual(pv["items"], [])
-        self.assertIn("were not found", pv["message"])
+        self.assertIn("No character definitions", pv["message"])
+
+    def test_characters_defined_in_an_ordinary_script_are_found_too(self):
+        (self.game / "characters.rpy").unlink()
+        (self.game / "script.rpy").write_text("label start:\n    return\n", encoding="utf-8")
+        (self.game / "definitions.rpy").write_text("init:\n    define my = Character('Maya', color='#fff')\n    define who = DynamicCharacter('player')\n",
+                                                   encoding="utf-8")
+        self.assertEqual([p.name for p in self.app.find_characters_files()], ["definitions.rpy"])
+        items = {i["code"]: i for i in self.app.glossary_import_preview()["items"]}
+        self.assertEqual((items["my"]["name"], items["who"]["state"]), ("Maya", "dynamic"))
 
     def test_http_api(self):
         srv, sess, _ = server.start_server(self.app)

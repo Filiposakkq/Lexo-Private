@@ -70,19 +70,36 @@ class GlossaryPart:
             return {"ok": True, **self.glossary_payload()}
 
     def find_characters_files(self):
-        """All character definition files of the game: characters.rpy, season2/scripts/characters_season2.rpy ...
+        """All files of the game that define characters: the files named characters*.rpy (BaDIK keeps them there) and, when there are none,
+        every other script that has a `define x = Character(...)` line (most games put them in script.rpy or a definitions file).
         The translation folder is usually <game>/game/tl/<lang>, so the game folder is searched upwards."""
         root = self.project.root
+        skip = ("tl", "cache", "saves", "_progress_data", ".lexo", ".git")
         for base in (root.parent.parent, root.parent, root, root.parent.parent.parent):
             if not base.is_dir():
                 continue
-            found = []
+            named, scripts = [], []
             for dirpath, dirs, files in os.walk(base):
-                dirs[:] = [d for d in dirs if d.lower() not in ("tl", "cache", "saves", "_progress_data", ".git")]
-                found += [Path(dirpath) / f for f in files if f.lower().startswith("characters") and f.lower().endswith(".rpy")]
-            if found:
-                return sorted(found, key=lambda x: str(x).lower())      # Ren'Py loads files in path order
+                dirs[:] = [d for d in dirs if d.lower() not in skip]
+                for f in files:
+                    if f.lower().endswith(".rpy"):
+                        (named if f.lower().startswith("characters") else scripts).append(Path(dirpath) / f)
+            if named:
+                return sorted(named, key=lambda x: str(x).lower())      # Ren'Py loads files in path order
+            defining = [f for f in scripts if self._defines_characters(f)]
+            if defining:
+                return sorted(defining, key=lambda x: str(x).lower())
         return []
+
+    @staticmethod
+    def _defines_characters(path):
+        """Does the script have at least one `define x = Character(...)` line? (a quick text test, no parsing)"""
+        try:
+            if path.stat().st_size > CHARACTERS_MAX_BYTES:
+                return False
+            return any(CHARACTER_RE.match(line) for line in path.read_text(encoding="utf-8-sig", errors="replace").splitlines())
+        except OSError:
+            return False
 
     def glossary_import_preview(self, path=""):
         """Read `define xx = Character("Name", ...)` lines of the game's character files and compare with the
@@ -97,13 +114,16 @@ class GlossaryPart:
             if target.is_dir():
                 files = sorted((p for p in target.rglob("characters*.rpy") if "tl" not in p.relative_to(target).parts),
                                key=lambda x: str(x).lower())
+                if not files:
+                    files = sorted((p for p in target.rglob("*.rpy") if not {"tl", "cache", "saves"} & set(p.relative_to(target).parts)
+                                    and self._defines_characters(p)), key=lambda x: str(x).lower())
             else:
                 files = [target]
         else:
             files = self.find_characters_files()
         if not files:
             return {"path": given, "files": [], "items": [], "missing": [], "duplicates": [],
-                    "message": msg("The characters*.rpy files were not found – give the path to a file or to the game folder.")}
+                    "message": msg("No character definitions were found – give the path to a file or to the game folder.")}
         defs = {}          # code -> list of (name, dynamic, file)
         for f in files:
             if f.suffix.lower() != ".rpy":

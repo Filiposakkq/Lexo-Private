@@ -201,14 +201,16 @@ def parse_text(text, digest=""):
                 comments[norm_ws(ctext)] = (ctext, lineno)
                 comment_list.append((norm_ws(ctext), ctext, lineno))
             continue
-        m_old = OLD_RE.match(raw)
+        # `old` / `new` are string-pair keywords only inside `translate <lang> strings:`; in a dialogue block they can be a character's name
+        in_strings = block == "" or block.endswith(" strings")
+        m_old = OLD_RE.match(raw) if in_strings else None
         if m_old:
             close_old(lineno)
             old_text = m_old.group(1)
             old_no = lineno
             old_ref, ref_pending = ref_pending, ""
             continue
-        m_new = NEW_RE.match(raw)
+        m_new = NEW_RE.match(raw) if in_strings else None
         if m_new:
             new_text = m_new.group(1)
             if old_text is None:
