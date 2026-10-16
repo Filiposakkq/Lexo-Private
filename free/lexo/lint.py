@@ -37,17 +37,17 @@ def find_python(sdk):
     return None
 
 
-def build_command(sdk, base):
-    """(argv, cwd) that runs `lint` for the game folder `base` (the folder that contains game/)."""
+def build_command(sdk, base, command=("lint",)):
+    """(argv, cwd) that runs a Ren'Py command (default `lint`) for the game folder `base` (the folder that contains game/)."""
     sdk = Path(sdk)
     if not sdk.is_dir():
         raise LintError(f"Složka Ren'Py SDK neexistuje: {sdk}")
     py, entry = find_python(sdk), sdk / "renpy.py"
     if py and entry.is_file():
-        return [str(py), "-EO", str(entry), str(base), "lint"], sdk
+        return [str(py), "-EO", str(entry), str(base), *command], sdk
     sh = sdk / "renpy.sh"
     if sh.is_file() and not sys.platform.startswith("win"):
-        return [str(sh), str(base), "lint"], sdk
+        return [str(sh), str(base), *command], sdk
     raise LintError("V SDK jsem nenašel renpy.py a vestavěný Python (lib/py3-…, lib/windows-x86_64 …) ani renpy.sh. Je to složka rozbaleného Ren'Py SDK?")
 
 
