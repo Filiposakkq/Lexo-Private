@@ -31,7 +31,7 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 |---|---|---|---|
 | **Carry a translation over to a new game version** (fuzzy matching of old translations to changed or moved originals, marked "check") | A game update shifts lines and the translator redoes it by hand; this saves the most work of all | new (builds on `memory`, `rpy`) | new |
 | **Fuzzy matches in translation memory** (not only identical originals) | Repeated and similar lines across a long game | `memory` | only `app.py` |
-| **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Czech machine translation mixes tykání and vykání | new, builds on `mt` | new |
+| **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Machine translation often mixes formal and informal address; where the language has such rules (for example Czech tykání/vykání) the check knows them through the language pack | new, builds on `mt` and `lang` | new |
 | **Character profiles** (who addresses whom how, gender, speech style) passed to batch machine translation | Makes the batch output usable | new + `mt` | new |
 | Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` |
 | **Release builder**: translation -> installable patch (zip or rpa), version, changelog | "From translation to release" in one tool, together with publishing | new | new |
@@ -42,15 +42,35 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 | Team work: several translators, assignments, who did what, merging changes (planned) | Teams | new | new |
 | Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new |
 
+## Language packs
+The app and its UI are **English first**. Everything that depends on the language of the translation lives in a **language pack**
+(`free/lexo/lang.py` today: repeated words, number words, stems; later also address rules for the style check, spelling data, UI texts).
+- **Czech is the first pack**, built the same way as any other, not special-cased in the app. It is the reference for how a pack is made.
+- Packs are **separate downloadable modules** (installed on demand, updated independently of the app). The app works with the neutral rules when no pack is installed.
+- Basic packs (rules for the free checks) are free; packs with the style check data (address, gender, voice) belong to the Pro style check.
+- To do before this works: a pack format and loader (data files plus rules), a pack list and download in the app, and a UI string table (English default; the Czech UI becomes the first translation of the app itself).
+
 ## Taste before paying
 - **Limits, not a locked button.** A Pro feature in Free works on a small amount (for example batch translation or safe fixes for 20 lines per run) so that the user sees it works; Pro lifts the limit.
 - **Show the value before the price.** Example text in the UI: "This line has 37 identical originals, Pro approves them at once." The number is the sales argument.
 - The limit is applied in the Pro module, not scattered through Core: Core only asks "which features are available, and with which limit?".
 
 ## Licensing and protection (decision)
-- If Core is open source, a licence check can always be bypassed, so **no heavy protection**. Pro value is convenience, updates and support, not a lock.
-- Keep: a signed licence key verified offline, Pro code in a private repo and distributed as a separate module.
-- Do not keep: obfuscation, hardware binding, always-online checks (they annoy honest buyers more than they stop anyone).
+Status: **decided in principle, built at release (roadmap step 6)**. The source code stays **private** for now; whether any
+part becomes public is decided before the first release.
+
+- **Goal:** make bypassing cost more than the licence. A crack will appear if the app becomes popular; that is accepted. Pro value is convenience, updates (new language packs) and support.
+- **Pro code is not shipped without a licence.** The Pro module is downloaded after a valid key is entered. Free contains only the deliberately limited version of a feature (e.g. 20 lines), so removing the limit means rewriting the feature, not flipping a flag.
+- **Licence key:** signed (Ed25519), verified offline by the app.
+- **Check every 30 days:** at start-up the app asks the licence server whether the key is still valid and stores the answer, signed by the server, so that it cannot be forged with a file.
+  - If the check cannot be made (no internet), a **14-day grace period** applies with a notice; Pro never switches off in the middle of the work of an honest user.
+  - If the licence is cancelled or refunded, only the Pro features switch off. Projects and data are never locked or deleted, and Free keeps working.
+- **Two devices per key:** a device registers on activation (anonymous installation id stored at activation, no personal data and no hardware serial number, so a new disk or a Windows update does not break it). The user can **deactivate a device** in the app and on a small web page, so a new computer never leaves them locked out.
+- **Server:** a small service (for example a Cloudflare Worker with storage) holds key, devices, last check and status; a payment provider that issues keys and sends webhooks (Lemon Squeezy, Gumroad, Paddle and similar) handles payment and cancellation. This is the first part that needs operation (availability, backups, privacy and terms of use) - plan for it before release.
+- **Not doing:** obfuscation or packers (antivirus false positives hit honest users), hardware binding, always-online checks.
+
+In the code (already built): `features.py` is the catalog of gated features and the `Entitlements` object; the application asks it at the few
+places where a Pro feature is used. Today the default is everything on (development); the licence loader will later provide the real answer.
 
 ## Can it be separated later?
 Yes. Every module marked "only `app.py`" is imported from nowhere else, so it can move to `pro/` and be loaded through a registry

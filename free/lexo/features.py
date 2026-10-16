@@ -1,0 +1,71 @@
+"""Feature registry: which features exist, which tier they belong to, and what the current licence allows.
+
+The application never decides "is this Pro?" on its own. At the few places where a Pro feature is used it asks
+`Entitlements.decide(feature)` and gets an answer:
+
+    available   the feature may be used
+    limit       None = unlimited, N = at most N items per action (the free "taste": it works, on a small amount)
+    total_hint  not here: the application knows how many items there are and tells the user ("37 lines, Free does 20")
+
+The catalog below is the single list of gated features (see docs/FEATURES.md). Everything not in the catalog is free.
+Where the entitlements come from is the only thing that changes when licensing exists: today `current()` is a
+development default (everything on), later the Pro loader provides a licence-based `Entitlements`.
+"""
+import os
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Feature:
+    id: str
+    title: str
+    free_limit: object = "locked"       # "locked" or the number of items per action Free may use
+
+
+CATALOG = {f.id: f for f in (
+    Feature("mt.batch", "Batch machine translation", 20),
+    Feature("fixes.safe", "Safe bulk fixes with preview", 20),
+    Feature("replace.regex", "Regex find & replace", "locked"),
+    Feature("bulk.categorize", "Bulk categorisation suggestions", 20),
+    Feature("publish.web", "Publishing progress to a website", "locked"),
+)}
+
+
+@dataclass(frozen=True)
+class Decision:
+    feature: str
+    available: bool
+    limit: object = None                # None = unlimited
+
+
+class Entitlements:
+    """What the user may use. `pro=True` unlocks every catalog feature without limits."""
+
+    def __init__(self, pro=False, source=""):
+        self.pro = pro
+        self.source = source
+
+    def decide(self, feature):
+        spec = CATALOG.get(feature)
+        if spec is None:
+            return Decision(feature, True)                    # not gated
+        if self.pro:
+            return Decision(feature, True)
+        if spec.free_limit == "locked":
+            return Decision(feature, False)
+        return Decision(feature, True, int(spec.free_limit))
+
+    def status(self):
+        """For the UI: every gated feature with its decision."""
+        return {fid: {"title": spec.title, "available": d.available, "limit": d.limit, "pro": self.pro}
+                for fid, spec in CATALOG.items() for d in [self.decide(fid)]}
+
+
+FREE = Entitlements(False, "free")
+PRO = Entitlements(True, "pro")
+
+
+def default():
+    """DEVELOPMENT default: everything on. It becomes FREE when the licence loader exists (roadmap step 6).
+    LEXO_TIER=free lets a developer try the free behaviour."""
+    return FREE if os.environ.get("LEXO_TIER", "").lower() == "free" else Entitlements(True, "dev")
