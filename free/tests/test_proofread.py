@@ -120,8 +120,8 @@ class ProofreadTests(TempCase):
         self.assertEqual(self.corr(), 1)
         stored = Store(self.app.data_dir).load().proof["a.rpy"]
         self.assertEqual(len(stored), 1)
-        raw = (self.app.data_dir / "korektura_radky.csv").read_text(encoding="utf-8-sig").splitlines()
-        self.assertEqual(raw[0], "soubor;blok;original;stav;hash;poznamka;datum")
+        raw = (self.app.data_dir / "line_marks.csv").read_text(encoding="utf-8-sig").splitlines()
+        self.assertEqual(raw[0], "file;block;original;state;hash;note;date")
         self.assertIn(";ok;", raw[1])
         app2 = self.new_app()                                  # next launch
         self.assertEqual(app2.project.row("a.rpy").corr, 1)

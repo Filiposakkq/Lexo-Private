@@ -35,14 +35,14 @@ class GlossaryTests(TempCase):
 
     def test_nothing_is_invented(self):
         self.assertEqual(self.app.glossary_payload()["names"], {})
-        self.assertFalse((self.app.data_dir / "slovnik.csv").exists())
+        self.assertFalse((self.app.data_dir / "glossary.csv").exists())
 
     def test_set_names_persist_in_the_csv_and_come_back(self):
         r = self.app.glossary_set([{"code": "mc", "name": "Hlavní hrdina"}, {"code": "de", "name": "Dee Test", "note": "kamarád"}])
         self.assertEqual(r["names"], {"mc": "Hlavní hrdina", "de": "Dee Test"})
         self.assertEqual(r["unnamed"], 1)
-        raw = (self.app.data_dir / "slovnik.csv").read_text(encoding="utf-8-sig").splitlines()
-        self.assertEqual(raw[0], "kod;jmeno;typ;poznamka")
+        raw = (self.app.data_dir / "glossary.csv").read_text(encoding="utf-8-sig").splitlines()
+        self.assertEqual(raw[0], "code;name;type;note")
         self.assertIn("de;Dee Test;speaker;kamarád", raw)
         again = self.new_app()
         self.assertEqual(again.glossary_payload()["names"]["de"], "Dee Test")
@@ -142,7 +142,7 @@ class GlossaryImportTests(TempCase):
         self.assertEqual(items["esc"]["name"], 'Say "hi"')
         self.assertEqual(items["js"]["state"], "new")
         self.assertEqual(pv["missing"], ["xx"])                                 # used in the translation, not defined
-        self.assertFalse((self.app.data_dir / "slovnik.csv").exists())
+        self.assertFalse((self.app.data_dir / "glossary.csv").exists())
 
     def test_apply_stores_names_keeps_notes_and_is_undoable(self):
         self.app.glossary_set([{"code": "de", "name": "", "note": "kamarád"}])

@@ -15,9 +15,7 @@ IGNORED_DIRS = {DATA_DIR_NAME, ".git", "__pycache__", "node_modules"}
 # name, translated (incl. manual override), remaining, total, proofread, automatic translated count
 Row = namedtuple("Row", "name done todo total corr auto")
 
-EPISODE_STATUS_LABELS = {"none": "Nezačato", "wip": "Rozpracováno", "tr": "Přeloženo", "proof": "V korekci", "done": "Hotovo"}
-STATUS_LABELS = {"done": "Hotovo", "rev": "Korektura", "tr": "Přeloženo", "wip": "Rozpracováno", "none": "Nezačato"}
-STATUS_ORDER = {"none": 0, "wip": 1, "tr": 2, "rev": 3, "done": 4}
+STATUS_ORDER = {"none": 0, "wip": 1, "tr": 2, "rev": 3, "done": 4}      # file states; the UI words them
 
 
 class ProjectUnavailable(Exception):
@@ -279,7 +277,7 @@ class Project:
                    if e.key in marks and self.is_translated(rel, e) and self.proof_state(rel, e) == "stale")
 
     def rows(self):
-        """One Row per file. Proofread = the hand-typed baseline (korekce.csv) + lines marked one by one."""
+        """One Row per file. Proofread = the hand-typed baseline (proofread.csv) + lines marked one by one."""
         out = []
         for rel in sorted(self.files, key=lambda r: r.lower()):
             done, todo, _appr = self.counts(rel)

@@ -1,6 +1,6 @@
-"""historie.csv: the progress log, and completion estimates computed from it.
+"""history.csv: the progress log, and completion estimates computed from it.
 
-historie.csv columns:  datum;prelozeno;celkem;procenta;korekce;korekce_procenta
+history.csv columns:  date;translated;total;percent;proofread;proofread_percent
 Existing rows are never edited except the newest one of the running session (a session keeps
 refreshing "its" row while the translator works, exactly as the original tool did).
 """
@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 from .util import read_rows, write_csv
 from .messages import msg, msgn
 
-HEADER = ["datum", "prelozeno", "celkem", "procenta", "korekce", "korekce_procenta"]
+HEADER = ["date", "translated", "total", "percent", "proofread", "proofread_percent"]
 STAMP_FORMAT = "%Y-%m-%d %H:%M"
 
 # Estimate requirements — deliberately conservative.

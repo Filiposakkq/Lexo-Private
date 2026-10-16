@@ -1,15 +1,15 @@
-"""Translator-maintained metadata, stored in the same CSV files as before.
+"""Translator-maintained metadata, stored in small CSV files in the data folder (Excel-friendly).
 
-  korekce.csv    soubor;zkontrolovano;prelozeno_rucne   proofread lines / manual translated override
-  prirazeni.csv  soubor;zarazeni                        file -> 'Obecné' | 'Epizoda N'
-  schvaleno.csv  soubor;blok;original                   manually approved pending lines
-  epizody.csv    epizoda;stav                           hand-set episode status
-  korektura_radky.csv  soubor;blok;original;stav;hash;poznamka;datum   per-line proofreading marks
-  ignorovano.csv soubor;blok;original;kod;hash;poznamka;datum   validator findings the translator chose to ignore
-  slovnik.csv    kod;jmeno;typ;poznamka                glossary: speaker code -> full name (type "term" for later entries)
-  historie.csv   see history.py
+  proofread.csv       file;proofread;translated_manual            proofread lines / manual translated override
+  assignments.csv     file;group                                  file -> 'general' | 'episode N'
+  approved.csv        file;block;original                         manually approved pending lines
+  episode_states.csv  episode;state                               hand-set episode status (none, wip, tr, proof, done)
+  line_marks.csv      file;block;original;state;hash;note;date    per-line proofreading marks
+  ignored.csv         file;block;original;code;hash;note;date     validator findings the translator chose to ignore
+  glossary.csv        code;name;type;note                         speaker code -> full name (type "term" for later entries)
+  history.csv         see history.py
 
-Formats are unchanged, so existing data keeps working and can still be edited in Excel.
+Data written by the BaDIK tool (Czech file names) is copied to these names once by migrate.py.
 Every write is atomic and backed up (<data dir>/backups). Mutations go through `change()`,
 which keeps an undo stack of the most recent changes.
 """
@@ -22,8 +22,14 @@ from . import layout
 from .util import WriteFailed, fold, norm_ws, read_rows, write_csv
 from .messages import msg
 
-EP_STATES = [("none", "Nezačato"), ("wip", "Rozpracováno"), ("tr", "Přeloženo"), ("proof", "V korekci"), ("done", "Hotovo")]
-YES_WORDS = {"ano", "a", "x", "hotovo", "ok", "yes", "y", "1x"}
+EP_STATE_KEYS = ("none", "wip", "tr", "proof", "done")
+
+
+def ep_states():
+    """[(key, label)] of the episode states; labels are messages, so call this at run time."""
+    return list(zip(EP_STATE_KEYS, (msg("Not started"), msg("In progress"), msg("Translated"), msg("In proofreading"), msg("Done"))))
+
+YES_WORDS = {"yes", "y", "x", "done", "ok", "1x", "ano", "a", "hotovo"}      # the Czech words stay accepted for people who type them
 UNDO_LIMIT = 30
 
 KINDS = ("corr", "assign", "approved", "episodes", "proof", "glossary", "ignored")
@@ -65,15 +71,15 @@ def valid_assign(v):
 
 def assign_to_text(v):
     if v == "gen":
-        return "Obecné"
+        return "general"
     if v.startswith("ep:"):
-        return "Epizoda " + v[3:]
+        return "episode " + v[3:]
     return ""
 
 
 def assign_from_text(t):
     f = fold(t)
-    if f in ("obecne", "gen", "general"):
+    if f in ("general", "gen", "obecne"):
         return "gen"
     digits = "".join(ch for ch in f if ch.isdigit())
     return f"ep:{int(digits)}" if digits else ""
@@ -105,10 +111,10 @@ class Store:
 
     # ------------------------------------------------------------ paths
     def path(self, kind):
-        return self.dir / {"corr": "korekce.csv", "assign": "prirazeni.csv",
-                           "approved": "schvaleno.csv", "episodes": "epizody.csv",
-                           "proof": "korektura_radky.csv", "glossary": "slovnik.csv",
-                           "ignored": "ignorovano.csv"}[kind]
+        return self.dir / {"corr": "proofread.csv", "assign": "assignments.csv",
+                           "approved": "approved.csv", "episodes": "episode_states.csv",
+                           "proof": "line_marks.csv", "glossary": "glossary.csv",
+                           "ignored": "ignored.csv"}[kind]
 
     # ------------------------------------------------------------ load
     def load(self):
@@ -133,7 +139,7 @@ class Store:
                 if v and valid_assign(v):
                     self.assign[r[0]] = v
                 elif v:
-                    self.warnings.append(msg("prirazeni.csv: {a} → {b} is not a valid assignment, ignoring it.", a=r[0], b=r[1]))
+                    self.warnings.append(msg("assignments.csv: {a} → {b} is not a valid assignment, ignoring it.", a=r[0], b=r[1]))
 
     def _load_approved(self):
         self.approved = {}
@@ -164,10 +170,7 @@ class Store:
                     "h": r[4], "n": r[5] if len(r) > 5 else "", "d": r[6] if len(r) > 6 else ""}
 
     def _load_episodes(self):
-        names = {}
-        for key, label in EP_STATES:
-            names[key] = key
-            names[fold(label)] = key
+        names = {key: key for key in EP_STATE_KEYS}
         self.episodes = {}
         for r in read_rows(self.path("episodes"))[1:]:
             if len(r) < 2:
@@ -188,45 +191,44 @@ class Store:
 
     def _save_corr(self):
         data = sorted(self.corr.items(), key=lambda kv: kv[0].lower())
-        rows = [["soubor", "zkontrolovano", "prelozeno_rucne"]]
+        rows = [["file", "proofread", "translated_manual"]]
         rows += [[n, v.get("c", ""), v.get("t", "")] for n, v in data]
         write_csv(self.path("corr"), rows, self.backups)
 
     def _save_assign(self):
         data = sorted(((k, v) for k, v in self.assign.items() if v), key=lambda kv: kv[0].lower())
-        rows = [["soubor", "zarazeni"]] + [[n, assign_to_text(v)] for n, v in data]
+        rows = [["file", "group"]] + [[n, assign_to_text(v)] for n, v in data]
         write_csv(self.path("assign"), rows, self.backups)
 
     def _save_approved(self):
         data = sorted((f, b, o) for f, keys in self.approved.items() for b, o in keys)
-        write_csv(self.path("approved"), [["soubor", "blok", "original"]] + [list(r) for r in data],
+        write_csv(self.path("approved"), [["file", "block", "original"]] + [list(r) for r in data],
                   self.backups)
 
     def _save_glossary(self):
-        rows = [["kod", "jmeno", "typ", "poznamka"]]
+        rows = [["code", "name", "type", "note"]]
         for code in sorted(self.glossary, key=str.lower):
             g = self.glossary[code]
             rows.append([code, g["n"], g["t"], g["c"]])
         write_csv(self.path("glossary"), rows, self.backups)
 
     def _save_proof(self):
-        rows = [["soubor", "blok", "original", "stav", "hash", "poznamka", "datum"]]
+        rows = [["file", "block", "original", "state", "hash", "note", "date"]]
         for f in sorted(self.proof, key=str.lower):
             for (b, o), m in sorted(self.proof[f].items()):
                 rows.append([f, b, o, m["s"], m.get("h", ""), m.get("n", ""), m.get("d", "")])
         write_csv(self.path("proof"), rows, self.backups)
 
     def _save_ignored(self):
-        rows = [["soubor", "blok", "original", "kod", "hash", "poznamka", "datum"]]
+        rows = [["file", "block", "original", "code", "hash", "note", "date"]]
         for f in sorted(self.ignored, key=str.lower):
             for (b, o, code), m in sorted(self.ignored[f].items()):
                 rows.append([f, b, o, code, m.get("h", ""), m.get("n", ""), m.get("d", "")])
         write_csv(self.path("ignored"), rows, self.backups)
 
     def _save_episodes(self):
-        labels = dict(EP_STATES)
-        rows = [["epizoda", "stav"]]
-        rows += [[n, labels[self.episodes.get(n, "none")]] for n in layout.ACTIVE_EPISODES]
+        rows = [["episode", "state"]]
+        rows += [[n, self.episodes.get(n, "none")] for n in layout.ACTIVE_EPISODES]
         write_csv(self.path("episodes"), rows, self.backups)
 
     def ensure_files(self, names):

@@ -1,4 +1,23 @@
-# Data layout (target design, not built yet)
+# Data layout (target design; part 2a built)
+
+**Built (step 2a):** the files in `_progress_data` have English names, English column headers and English values, and the Czech names are read only by
+`free/lexo/migrate.py`, which copies them once when a project is opened (old files stay untouched, nothing is overwritten):
+
+| Old (BaDIK tool) | New | Columns |
+|---|---|---|
+| korekce.csv | proofread.csv | file;proofread;translated_manual |
+| prirazeni.csv | assignments.csv | file;group (`general`, `episode N`) |
+| schvaleno.csv | approved.csv | file;block;original |
+| epizody.csv | episode_states.csv | episode;state (`none wip tr proof done`) |
+| korektura_radky.csv | line_marks.csv | file;block;original;state;hash;note;date |
+| ignorovano.csv | ignored.csv | file;block;original;code;hash;note;date |
+| slovnik.csv | glossary.csv | code;name;type;note |
+| historie.csv | history.csv | date;translated;total;percent;proofread;proofread_percent |
+| historie_textu.jsonl | text_history.jsonl | (JSON lines, unchanged) |
+
+The BaDIK layout is still detected from the old marker files (`prirazeni.csv`, `epizody.csv`), so a migrated legacy project keeps its groups.
+**Not built yet (2b, 2c):** the folder `.lexo/` instead of `_progress_data` with `local/` data moved to `%APPDATA%`, the per-author event log, `lexo.json` replacing `project.json`.
+The rest of this document is the target design.
 
 Where Lexo writes, and why. Today (imported BaDIK tool) the data is in `<translation folder>/_progress_data/` as seven Czech-named CSV files.
 This is the target; the move is a separate step with a migration (see the end).

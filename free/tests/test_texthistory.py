@@ -28,8 +28,8 @@ class HistoryTests(TempCase):
         v = self.versions()
         self.assertEqual([x["text"] for x in v], ["Čau všem.", "Čau tam.", "Ahoj tam."])
         self.assertEqual([x["current"] for x in v], [True, False, False])
-        self.assertEqual(v[0]["via"], "úprava v aplikaci")
-        self.assertIn("původní", v[-1]["via"])
+        self.assertEqual(v[0]["via"], "edit in the app")
+        self.assertIn("original", v[-1]["via"])
         self.assertEqual(self.app.entry_history("a.rpy", self.line)["count"], 2)
 
     def test_history_survives_a_restart_and_follows_the_line(self):
@@ -44,21 +44,21 @@ class HistoryTests(TempCase):
         self.app.fix_apply(selections=sel)
         self.app.replace_apply([{"file": "a.rpy", "line": self.line}], "tam", "všem", "word")
         vias = [x["via"] for x in self.versions()]
-        self.assertEqual(vias[:2], ["nahrazení", "oprava"])
+        self.assertEqual(vias[:2], ["replace", "fix"])
 
     def test_undo_is_logged_too(self):
         self.app.entry_save("a.rpy", self.line, "Čau tam.")
         self.app.fix_undo()
         v = self.versions()
         self.assertEqual(v[0]["text"], "Ahoj tam.")
-        self.assertEqual(v[0]["via"], "vrácení změny")
+        self.assertEqual(v[0]["via"], "undo")
 
     def test_changes_made_outside_the_app_are_noticed_at_the_next_refresh(self):
         self.path.write_text(dialog("a1", "mc", "Hello there.", "Ahoj všichni.", 5) + dialog("a2", "mc", "Fine.", "Dobře.", 9),
                              encoding="utf-8")
         self.app.refresh(force=True)
         v = self.versions()
-        self.assertEqual([(x["text"], x["via"]) for x in v][:2], [("Ahoj všichni.", "změna mimo aplikaci"), ("Ahoj tam.", "původní text před první zaznamenanou změnou")])
+        self.assertEqual([(x["text"], x["via"]) for x in v][:2], [("Ahoj všichni.", "change outside the app"), ("Ahoj tam.", "original text before the first recorded change")])
         self.app.refresh(force=True)                                                # nothing new: no duplicate entry
         self.assertEqual(len(self.versions()), 2)
 

@@ -72,9 +72,9 @@ class EpisodeProofStatusTests(TempCase):
         d = app.build_export()
         self.assertEqual(d["episodes"][0]["status"], "proof")
         self.assertEqual(export.validate_progress(d), [])
-        again = self.new_app()                                       # persisted in epizody.csv
+        again = self.new_app()                                       # persisted in episode_states.csv
         self.assertEqual(again.store.episodes[1], "proof")
-        self.assertIn("V korekci", (again.data_dir / "epizody.csv").read_text(encoding="utf-8-sig"))
+        self.assertIn("proof", (again.data_dir / "episode_states.csv").read_text(encoding="utf-8-sig"))
 
     def test_old_files_with_four_states_still_load(self):
         self.basic_project()

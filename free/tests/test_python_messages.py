@@ -13,13 +13,9 @@ CZECH = re.compile(r"[ěščřžýáíéůúťďňĚŠČŘŽÝÁÍÉŮÚŤĎŇ]"
 
 # (module, text) pairs that are data, not messages
 DATA = {
-    ("project.py", "Nezačato"), ("project.py", "Rozpracováno"), ("project.py", "Přeloženo"), ("project.py", "Hotovo"), ("project.py", "Korektura"),
-    ("project.py", "V korekci"), ("project.py", "Plánováno"),
-    ("store.py", "Nezačato"), ("store.py", "Rozpracováno"), ("store.py", "Přeloženo"), ("store.py", "Obecné"),
     ("rpy.py", "áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ"), ("rpy.py", "Prázdný překlad"), ("rpy.py", "Anglicky (nepřeloženo?)"),
     ("rpy.py", "Shodné – možná OK"), ("rpy.py", "Jen znaky (…, ?!)"),
-    ("texthistory.py", "úprava v aplikaci"), ("texthistory.py", "nahrazení"), ("texthistory.py", "sjednocení"), ("texthistory.py", "vrácení změny"),
-    ("texthistory.py", "obnovení ze zálohy"), ("texthistory.py", "změna mimo aplikaci"), ("texthistory.py", "původní text před první zaznamenanou změnou"),
+    ("migrate.py", "Obecné"),
 }
 
 
