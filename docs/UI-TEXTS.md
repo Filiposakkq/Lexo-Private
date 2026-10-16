@@ -28,6 +28,12 @@ every `t()` text has a Czech translation, the pack has no stale texts, placehold
 **Converting a module** = move its Czech literals to `t()` and add them to `ui.json`, then add the module to `CONVERTED`.
 
 ## State
-Converted: core, api, feedback, renderers, filter bar, tabs, project, refresh, boot, `index.html`. Still Czech: overview, files, lines, fixes, machine translation, replace, approval
-rules, glossary terms, ignore, snapshots, unify, validation, glossary, publishing, settings, keyboard (except the tab labels), `selftest.js`, and the **messages of the
-Python side** (they will become message keys). A language selector in Settings comes with the settings module.
+**Every module of the browser UI is converted** (the test `CONVERTED` list is all files of `ui/js`). What is still Czech:
+- `selftest.js` (it checks Czech texts on purpose and runs with `?lang=cs`);
+- the **messages of the Python side** (errors, validator findings, labels such as the episode states, history labels, the text of `progress.json` hints); they will become message keys. In an English UI these still appear in Czech;
+- places where the UI compares server text (for example the publishing warning regex looks for the Czech word "ostro") and an input keyword ("ano" is sent to the server to mark a whole file as proofread);
+- the "About" text of the settings (it still describes the first game) and a few product constants (links to the BaDIK site);
+- Czech typographic snippets (quotation marks) in the translation editor belong in the language pack later.
+
+Tools used for the conversion live outside the repository (a scanner, a converter that wraps literals and writes `ui.json`); the tests keep the result honest: `test_ui_i18n.py`
+(keys, translations, placeholders, no Czech literals), `test_ui_i18n_load_time.py` (nothing is translated while a module loads).

@@ -6,18 +6,19 @@ import unittest
 from pathlib import Path
 
 from helpers import ROOT  # noqa: F401  (puts the package on sys.path)
+import jsscan
 
 from lexo import lang
 
 UI = Path(__file__).resolve().parent.parent / "lexo" / "ui"
 PACK = Path(__file__).resolve().parent.parent / "lexo" / "packs" / "cs"
 
-# Modules whose Czech literals have all been moved to t() / tn() / tx(). Add a module here when it is done.
-CONVERTED = ["00-core.js", "10-api.js", "13-feedback.js", "14-renderers.js", "15-filterbar.js", "16-tabs.js", "17-project.js", "18-refresh.js", "99-boot.js"]
+# Every module of the UI is converted: no Czech string literal may remain (the English text of a key may contain Czech example words).
+CONVERTED = sorted(f.name for f in (UI / "js").glob("*.js"))
 
 CZECH = re.compile(r"[ěščřžýáíéůúťďňĚŠČŘŽÝÁÍÉŮÚŤĎŇ]")
 STR = r"""(?:'((?:\\.|[^'\\\n])*)'|"((?:\\.|[^"\\\n])*)")"""
-CALL_T = re.compile(r"(?<![\w$.])(?:t|T|tr|tx)\(\s*" + STR)
+CALL_T = re.compile(r"(?<![\w$.])(?:t|T|tr|tx|N_)\(\s*" + STR)
 CALL_TN = re.compile(r"(?<![\w$.])tn\(\s*[^,()]+(?:\([^()]*\))?[^,()]*,\s*" + STR + r"\s*,\s*" + STR)
 LITERAL = re.compile(r"'((?:\\.|[^'\\\n])*)'|\"((?:\\.|[^\"\\\n])*)\"|`((?:\\.|[^`\\])*)`", re.S)
 
@@ -47,8 +48,6 @@ def used_keys():
             keys.add(one + "|" + many)
         for table in re.findall(r"\blabels\(\{(.*?)\}\)", code, re.S):          # labels({ key: 'English text', ... }) is translated when read
             keys.update(unescape(a or b) for a, b in re.findall(r":\s*" + STR, table))
-        for _k, a, b in re.findall(r"\[\s*'([a-z]+)',\s*" + STR + r"\s*\]", code if name == "00-core.js" else ""):   # TABS
-            keys.add(unescape(a or b))
     html = (UI / "index.html").read_text(encoding="utf-8")
     keys.update(re.findall(r'data-i18n(?:-title|-aria)?="([^"]*)"', html))
     return keys
@@ -73,20 +72,25 @@ class UiTextTests(unittest.TestCase):
         for key, val in self.strings.items():
             want = set(re.findall(r"\{(\w+)\}", key))
             for form in ([val] if isinstance(val, str) else val):
-                self.assertEqual(set(re.findall(r"\{(\w+)\}", form)), want, f"placeholders of {key!r}")
+                got = set(re.findall(r"\{(\w+)\}", form))
+                if not isinstance(val, str):          # a plural form may leave out the number itself ("one file" instead of "1 file")
+                    got, want_here = got | ({"n"} & want), want
+                else:
+                    want_here = want
+                self.assertEqual(got, want_here, f"placeholders of {key!r}")
 
     def test_converted_modules_have_no_czech_literals(self):
         src = js_sources()
         for name in CONVERTED:
-            code = strip_comments(src[name])
-            bad = [m.group(0)[:60] for m in LITERAL.finditer(code)
-                   if CZECH.search(next(g for g in m.groups() if g is not None))]
+            # an English text may contain Czech example words (byt / být); it is fine when it is a key of the pack
+            bad = [t["body"][:60] for t in jsscan.scan(src[name])
+                   if t["kind"] in ("str", "tpl") and CZECH.search(t["body"]) and unescape(t["body"]) not in self.strings]
             self.assertEqual(bad, [], f"{name} still has Czech literals")
 
     def test_no_translated_text_is_built_from_a_template_literal(self):
         for name, text in js_sources().items():
             code = strip_comments(text)
-            self.assertEqual(re.findall(r"(?<![\w$.])(?:t|T|tr|tx|tn)\(\s*`", code), [], f"{name}: use placeholders, not a template literal")
+            self.assertEqual(re.findall(r"(?<![\w$.])(?:t|T|tr|tx|tn|N_)\(\s*`", code), [], f"{name}: use placeholders, not a template literal")
 
 
 class PluralTests(unittest.TestCase):
