@@ -1,3 +1,4 @@
+import { N_, t } from './05-i18n.js';
 import { $, h } from './00-core.js';
 import { get, post } from './10-api.js';
 import { S, speakerFull, speakerMode, speakerName } from './11-state.js';
@@ -65,23 +66,23 @@ export function setFocus(on) {
 export function paintFocusBar() {
   let bar = $('#focusbar');
   if (!S.focus) { bar?.remove(); return; }
-  if (!bar) { bar = h('div', { id: 'focusbar', class: 'focusbar', role: 'toolbar', 'aria-label': 'Soustředění' }); document.body.append(bar); }
+  if (!bar) { bar = h('div', { id: 'focusbar', class: 'focusbar', role: 'toolbar', 'aria-label': t('Focus') }); document.body.append(bar); }
   const rest = S.ent?.counts?.todo, rev = S.ent?.counts?.review;
   bar.replaceChildren(
-    h('button', { class: 'btn small', title: 'Vrátit horní lištu a záložky (Ctrl+Shift+F)', onclick: () => setFocus(false) }, '⤢ Zobrazit vše'),
+    h('button', { class: 'btn small', title: t('Bring back the top bar and the tabs (Ctrl+Shift+F)'), onclick: () => setFocus(false) }, t('⤢ Show everything')),
     layoutMenu(),
-    S.quick ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Rychlý režim' },
-      h('button', { class: S.quick === 'tr' ? 'on' : '', title: 'Jen nepřeložené řádky, editor se zaměří sám', onclick: () => S.quick !== 'tr' && enterQuick() }, 'Překlad'),
-      h('button', { class: S.quick === 'proof' ? 'on' : '', title: 'Jen řádky ke kontrole, P zkontroluje a skočí dál', onclick: () => S.quick !== 'proof' && enterProof() }, 'Korektura')) : null,
-    h('button', { class: 'btn small icon', title: 'Celá obrazovka (F11)', onclick: () => toggleFullscreen() }, icon('full', 14)),
-    h('button', { class: 'btn small icon', title: 'Vrátit poslední změnu (Ctrl+Z)', onclick: () => $('#undoBtn')?.click() }, icon('undo', 14)),
+    S.quick ? h('div', { class: 'seg', role: 'group', 'aria-label': t('Quick mode') },
+      h('button', { class: S.quick === 'tr' ? 'on' : '', title: t('Only untranslated lines, the editor focuses itself'), onclick: () => S.quick !== 'tr' && enterQuick() }, t('Translation')),
+      h('button', { class: S.quick === 'proof' ? 'on' : '', title: t('Only lines to check, P marks one as checked and moves on'), onclick: () => S.quick !== 'proof' && enterProof() }, t('Proofreading'))) : null,
+    h('button', { class: 'btn small icon', title: t('Full screen (F11)'), onclick: () => toggleFullscreen() }, icon('full', 14)),
+    h('button', { class: 'btn small icon', title: t('Undo the last change (Ctrl+Z)'), onclick: () => $('#undoBtn')?.click() }, icon('undo', 14)),
     ...(S.quick === 'proof' ? [
-      h('button', { class: 'btn small primary', title: 'Označí řádek jako zkontrolovaný a přejde na další (P)', onclick: () => S.ent?.api?.toggleProof() }, '✓ Zkontrolováno'),
-      h('button', { class: 'btn small', title: 'Označí řádek k opravě (F)', onclick: () => S.ent?.api?.flagFix() }, '⚑ K opravě'),
-      h('button', { class: 'btn small icon', title: 'Předchozí řádek (↑)', onclick: () => S.ent?.api?.select(S.ent.sel - 1) }, '↑'),
-      h('button', { class: 'btn small icon', title: 'Další řádek (↓)', onclick: () => S.ent?.api?.select(S.ent.sel + 1) }, '↓'),
-      h('span', { class: 'muted' }, 'Korektura' + (rev != null ? ` · zbývá zkontrolovat ${rev}` : ''))]
-      : S.quick ? [h('span', { class: 'muted' }, 'Rychlé překládání' + (rest != null ? ` · zbývá přeložit ${rest}` : '') + (rev != null ? ` · zkontrolovat ${rev}` : ''))] : []));
+      h('button', { class: 'btn small primary', title: t('Marks the line as checked and moves to the next one (P)'), onclick: () => S.ent?.api?.toggleProof() }, t('✓ Proofread')),
+      h('button', { class: 'btn small', title: t('Flags the line for a fix (F)'), onclick: () => S.ent?.api?.flagFix() }, t('⚑ Needs a fix')),
+      h('button', { class: 'btn small icon', title: t('Previous line (↑)'), onclick: () => S.ent?.api?.select(S.ent.sel - 1) }, '↑'),
+      h('button', { class: 'btn small icon', title: t('Next line (↓)'), onclick: () => S.ent?.api?.select(S.ent.sel + 1) }, '↓'),
+      h('span', { class: 'muted' }, t('Proofreading') + (rev != null ? ' · ' + t('left to check: {n}', { n: rev }) : ''))]
+      : S.quick ? [h('span', { class: 'muted' }, t('Quick translating') + (rest != null ? ' · ' + t('left to translate: {n}', { n: rest }) : '') + (rev != null ? ' · ' + t('to check: {n}', { n: rev }) : ''))] : []));
 }
 export function enterQuick() {
   setPref('entries.layout', 'film'); setPref('ui.detailTab', 'check');
@@ -100,7 +101,7 @@ export function enterProof() {
 }
 
 /* Layouts of the line list + detail: the built-in ones, "Dva monitory" (detail window) and the user's own saved ones. */
-const LAYOUTS = [['auto', 'Automaticky', 'podle šířky okna'], ['rows', 'Detail dole', ''], ['cols', 'Detail vpravo', ''], ['film', 'Scéna a filmový pás', 'velký obrázek, editor, pás řádků']];
+const LAYOUTS = [['auto', N_('Automatic'), N_('by window width')], ['rows', N_('Detail below'), ''], ['cols', N_('Detail on the right'), ''], ['film', N_('Scene and filmstrip'), N_('large picture, editor, strip of lines')]];
 /* Redraw the list with another layout but keep the line that is open. */
 function reopenEntries() {
   const cur = S.ent?.items?.[S.ent.sel];
@@ -110,13 +111,13 @@ function reopenEntries() {
 function applyLayout(l) { setPref('entries.layout', l); if (l === 'film') setPref('ui.detailTab', 'check'); reopenEntries(); }
 function askName(title, label, done) {
   const inp = h('input', { type: 'text', style: { width: '100%' }, placeholder: label, 'aria-label': label });
-  dialog({ title, narrow: true, body: inp, buttons: [{ label: 'Zrušit' }, { label: 'Uložit', kind: 'primary', onclick: () => { const v = inp.value.trim().slice(0, 40); if (!v) return false; done(v); } }] });
+  dialog({ title, narrow: true, body: inp, buttons: [{ label: t('Cancel') }, { label: t('Save'), kind: 'primary', onclick: () => { const v = inp.value.trim().slice(0, 40); if (!v) return false; done(v); } }] });
   setTimeout(() => inp.focus(), 0);
 }
 function savePreset() {
-  askName('Uložit rozložení', 'Název rozložení', (name) => {
+  askName(t('Save the layout'), t('Layout name'), (name) => {
     setPref(`ui.presets.${name.replace(/\./g, '·')}`, { layout: pref('entries.layout', 'auto'), tab: pref('ui.detailTab', 'check'), w: pref('entries.detailw', 620), hh: pref('entries.detailh', 380), slim: pref('ui.slimMain', true) });
-    toast(`Rozložení „${name}“ uloženo.`, 'ok', 2000);
+    toast(t('Layout “{name}” saved.', { name }), 'ok', 2000);
   });
 }
 function applyPreset(name) {
@@ -126,25 +127,25 @@ function applyPreset(name) {
 }
 function deletePreset() {
   const names = Object.keys(pref('ui.presets', {}));
-  const close = dialog({ title: 'Smazat vlastní rozložení', narrow: true, buttons: [{ label: 'Zavřít' }],
-    body: h('div', { class: 'row', style: { flexWrap: 'wrap', gap: '6px' } }, names.map((n) => h('button', { class: 'btn small', onclick: () => { const all = { ...pref('ui.presets', {}) }; delete all[n]; setPref('ui.presets', all); close(); toast(`Rozložení „${n}“ smazáno.`, 'ok', 1800); } }, `Smazat „${n}“`))) });
+  const close = dialog({ title: t('Delete a custom layout'), narrow: true, buttons: [{ label: t('Close') }],
+    body: h('div', { class: 'row', style: { flexWrap: 'wrap', gap: '6px' } }, names.map((n) => h('button', { class: 'btn small', onclick: () => { const all = { ...pref('ui.presets', {}) }; delete all[n]; setPref('ui.presets', all); close(); toast(t('Layout “{name}” deleted.', { name: n }), 'ok', 1800); } }, t('Delete “{name}”', { name: n })))) });
 }
 export function layoutMenu() {
   const cur = pref('entries.layout', 'auto');
   const custom = Object.keys(pref('ui.presets', {}));
-  return menuButton('Rozložení', [
-    ...LAYOUTS.map(([k, label, hint]) => ({ label: (cur === k ? '✓ ' : '') + label, hint, run: () => applyLayout(k) })),
-    { label: 'Rychlý režim', hint: 'překlad nebo korektura: scéna + editor, bez rušení', run: () => enterQuick() },
-    { label: 'Dva monitory', hint: 'detail ve druhém okně', run: () => openDetailWindow() },
-    ...custom.map((n) => ({ label: '★ ' + n, hint: 'vlastní', run: () => applyPreset(n) })),
-    { label: 'Uložit aktuální rozložení…', run: savePreset },
-    ...(custom.length ? [{ label: 'Smazat vlastní rozložení…', run: deletePreset }] : []),
-  ], { title: 'Rozložení seznamu a detailu' });
+  return menuButton(t('Layout'), [
+    ...LAYOUTS.map(([k, label, hint]) => ({ label: (cur === k ? '✓ ' : '') + t(label), hint: t(hint), run: () => applyLayout(k) })),
+    { label: t('Quick mode'), hint: t('translating or proofreading: scene + editor, no distractions'), run: () => enterQuick() },
+    { label: t('Two monitors'), hint: t('detail in a second window'), run: () => openDetailWindow() },
+    ...custom.map((n) => ({ label: '★ ' + n, hint: t('custom'), run: () => applyPreset(n) })),
+    { label: t('Save the current layout…'), run: savePreset },
+    ...(custom.length ? [{ label: t('Delete a custom layout…'), run: deletePreset }] : []),
+  ], { title: t('Layout of the list and the detail') });
 }
 
 export function speakerModeSelect(onchange) {
-  return h('select', { title: 'Jak zobrazovat mluvčí', onchange: (ev) => { setPref('display.speaker', ev.target.value); onchange?.(); } },
-    ...[['both', 'Mluvčí: kód i jméno (2 sloupce)'], ['code', 'Mluvčí: jen kód'], ['name', 'Mluvčí: jen jméno']].map(([v, l]) => h('option', { value: v, selected: speakerMode() === v }, l)));
+  return h('select', { title: t('How to show speakers'), onchange: (ev) => { setPref('display.speaker', ev.target.value); onchange?.(); } },
+    ...[['both', t('Speaker: code and name (2 columns)')], ['code', t('Speaker: code only')], ['name', t('Speaker: name only')]].map(([v, l]) => h('option', { value: v, selected: speakerMode() === v }, l)));
 }
 /* Several windows can be open at once (each has its own list / filter state). Only the first one saves preferences, so the
    windows never overwrite each other's settings; the app quits when the last window is closed. */

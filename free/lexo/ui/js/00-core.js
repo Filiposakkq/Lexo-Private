@@ -1,4 +1,4 @@
-import { locale } from './05-i18n.js';
+import { locale, N_ } from './05-i18n.js';
 /* Lexo – UI. Vanilla JS, no build step. All data is inserted with textContent
    (the h() helper), never innerHTML, so file contents can never inject markup. */
 
@@ -45,4 +45,4 @@ export const clamp01 = (v) => Math.max(0, Math.min(100, v || 0));
 export const dateCz = (iso) => iso ? new Date(iso + 'T12:00:00').toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
 // the labels are English texts; show them through t()
-export const TABS = [['overview', 'Overview'], ['files', 'Files'], ['entries', 'Lines'], ['validation', 'Check'], ['glossary', 'Glossary'], ['publish', 'Publishing'], ['settings', 'Settings']];
+export const TABS = [['overview', N_('Overview')], ['files', N_('Files')], ['entries', N_('Lines')], ['validation', N_('Check')], ['glossary', N_('Glossary')], ['publish', N_('Publishing')], ['settings', N_('Settings')]];

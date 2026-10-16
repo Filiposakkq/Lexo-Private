@@ -28,6 +28,6 @@ every `t()` text has a Czech translation, the pack has no stale texts, placehold
 **Converting a module** = move its Czech literals to `t()` and add them to `ui.json`, then add the module to `CONVERTED`.
 
 ## State
-Converted: core, api, feedback, renderers, filter bar, tabs, project, refresh, boot, `index.html`. Still Czech: overview, files, lines, fixes, machine translation, replace, approval
+Converted: core, api, feedback, renderers, chrome (focus bar, layouts), filter bar, tabs, project, refresh, boot, `index.html`, fixes, machine translation, find & replace, approval rules. Still Czech: overview, files, lines, fixes, machine translation, replace, approval
 rules, glossary terms, ignore, snapshots, unify, validation, glossary, publishing, settings, keyboard (except the tab labels), `selftest.js`, and the **messages of the
 Python side** (they will become message keys). A language selector in Settings comes with the settings module.

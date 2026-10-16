@@ -35,6 +35,10 @@ export function t(text, params) {
   return fill(typeof s === 'string' ? s : text, params);
 }
 
+/* Marks a text for translation where it is written down but shown later (tables built at load time): the text is returned as it is
+   and translated with t() where it is displayed. */
+export const N_ = (text) => text;
+
 export function tn(n, one, many, params) {
   const all = { n, ...params };
   const forms = strings[one + '|' + many];
