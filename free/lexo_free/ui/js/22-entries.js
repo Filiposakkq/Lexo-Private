@@ -793,7 +793,8 @@ export async function viewEntries() {
           h('div', { class: 'mline mchoice', onclick: o.entry ? () => goLine(o.entry.file, o.entry.line) : null },
             h('div', { class: 'mwho' }, h('span', { class: 'chip choice' }, T('Choice')), o.cond ? h('span', { class: 'chip', title: o.cond }, T('if {cond}', { cond: o.cond })) : null, o.current ? h('span', { class: 'mhere' }, T('this line')) : null),
             h('div', { class: 'mtxt' }, o.entry ? textOf(o.entry) : h('span', { class: 'muted' }, T('(not found in the translation)'))),
-            h('div', { class: 'msrc muted' }, fmtText(o.text))),
+            h('div', { class: 'msrc muted' }, fmtText(o.text)),
+            o.where ? h('div', { class: 'mshared muted' }, T('The same text is used in an earlier menu ({ref}): all of them share one translation, and the line is listed there.', { ref: o.where })) : null),
           !o.after.length && o.body?.length ? h('div', { class: 'mbody' }, h('div', { class: 'muted' }, T('No dialogue follows; the script continues with:')), h('pre', { class: 'ctxcode' }, o.body.join('\n'))) : null,
           o.after.length ? h('div', { class: 'mafter' }, h('div', { class: 'mafterhead muted' }, T('then:')), ...o.after.map((x) => sayRow(x, 'after'))) : null));
       }
