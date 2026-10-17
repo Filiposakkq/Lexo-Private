@@ -86,10 +86,9 @@ class MtBatchTests(TempCase):
         self.assertNotIn("X", (self.root / "a.rpy").read_text(encoding="utf-8"))
 
     def test_the_route_is_wired(self):
-        from lexo_free import server
-        src = Path(server.__file__).read_text(encoding="utf-8")
+        from lexo import api
         for name in ("mt/targets", "mt/batch", "mt/apply"):
-            self.assertIn(f'"{name}"', src)
+            self.assertIn(("POST", name), api.ROUTES)                 # the server serves every operation of Core's table
         json.dumps(self.app.mt_targets("a.rpy"))
 
 

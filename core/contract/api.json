@@ -1,0 +1,1972 @@
+[
+ {
+  "name": "approve/apply",
+  "path": "approve/apply",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Approve (or un-approve) lines.",
+  "params": [
+   {
+    "name": "selections",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "on",
+    "type": "flag",
+    "default": true,
+    "required": false
+   }
+  ],
+  "example": {
+   "selections": [],
+   "on": true
+  }
+ },
+ {
+  "name": "approve/preview",
+  "path": "approve/preview",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Preview approving identical lines.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": true
+   },
+   {
+    "name": "scope",
+    "type": "str",
+    "default": "project",
+    "required": false
+   },
+   {
+    "name": "same_speaker",
+    "type": "flag",
+    "default": true,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 11
+  }
+ },
+ {
+  "name": "approve/rules",
+  "path": "approve/rules",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Preview approving by rules (names, interjections).",
+  "params": [
+   {
+    "name": "rules",
+    "type": "any",
+    "default": null,
+    "required": false
+   },
+   {
+    "name": "files",
+    "type": "list",
+    "default": [],
+    "required": false
+   }
+  ],
+  "example": {
+   "rules": [],
+   "files": []
+  }
+ },
+ {
+  "name": "assign",
+  "path": "assign",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Assign a file to a group.",
+  "params": [
+   {
+    "name": "name",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "v",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": {
+   "name": "script.rpy",
+   "v": ""
+  }
+ },
+ {
+  "name": "assign/apply",
+  "path": "assign/apply",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Apply assignments.",
+  "params": [
+   {
+    "name": "items",
+    "type": "list",
+    "default": [],
+    "required": false
+   }
+  ],
+  "example": {
+   "items": []
+  }
+ },
+ {
+  "name": "assign/suggest",
+  "path": "assign/suggest",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Suggested group for files.",
+  "params": [
+   {
+    "name": "names",
+    "type": "list",
+    "default": [],
+    "required": false
+   }
+  ],
+  "example": {
+   "names": []
+  }
+ },
+ {
+  "name": "consistency",
+  "path": "consistency",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Originals translated in several different ways.",
+  "params": [
+   {
+    "name": "loose",
+    "type": "flag",
+    "default": false,
+    "required": false
+   },
+   {
+    "name": "by_speaker",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": {}
+ },
+ {
+  "name": "consistency/unify",
+  "path": "consistency/unify",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Make all translations of one original the same.",
+  "params": [
+   {
+    "name": "key",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "target",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "lines",
+    "type": "any",
+    "default": null,
+    "required": false
+   },
+   {
+    "name": "loose",
+    "type": "flag",
+    "default": false,
+    "required": false
+   },
+   {
+    "name": "by_speaker",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "entries",
+  "path": "entries",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "A page of translation lines, filtered and sorted on the server.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "status",
+    "type": "str",
+    "default": "all",
+    "required": false
+   },
+   {
+    "name": "kind",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "q",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "issues",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "sort",
+    "type": "str",
+    "default": "line",
+    "required": false
+   },
+   {
+    "name": "offset",
+    "type": "int",
+    "default": 0,
+    "required": false
+   },
+   {
+    "name": "limit",
+    "type": "int",
+    "default": 200,
+    "required": false
+   },
+   {
+    "name": "around",
+    "type": "int",
+    "default": 0,
+    "required": false
+   },
+   {
+    "name": "unit",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "word",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": {
+   "status": "all",
+   "limit": 5
+  }
+ },
+ {
+  "name": "entry",
+  "path": "entry",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The detail of one line (texts, state, findings, proofreading).",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": true
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5
+  }
+ },
+ {
+  "name": "entry/check",
+  "path": "entry/check",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The check of a text the translator is typing (nothing is written).",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": true
+   },
+   {
+    "name": "text",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5,
+   "text": "Ahoj."
+  }
+ },
+ {
+  "name": "entry/context",
+  "path": "entry/context",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The original game script around the line this translation comes from.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5
+  }
+ },
+ {
+  "name": "entry/history",
+  "path": "entry/history",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The versions of a line's text over time.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5
+  }
+ },
+ {
+  "name": "entry/memory",
+  "path": "entry/memory",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Other translations of the same original (translation memory).",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5
+  }
+ },
+ {
+  "name": "entry/menu",
+  "path": "entry/menu",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The menu a line belongs to: question, choices with translations, what follows each.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 23
+  }
+ },
+ {
+  "name": "entry/mt",
+  "path": "entry/mt",
+  "method": "POST",
+  "effect": "external",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "A machine translation suggestion for one line (uses the network).",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": true
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "entry/next",
+  "path": "entry/next",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The next line of a kind (todo, review, fix, over) after this one, wrapping round the file.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   },
+   {
+    "name": "kind",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5,
+   "kind": "todo"
+  }
+ },
+ {
+  "name": "entry/save",
+  "path": "entry/save",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Write a new translation of one line into the .rpy file (backup, atomic, undoable).",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": true
+   },
+   {
+    "name": "text",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5,
+   "text": "Hi, world."
+  }
+ },
+ {
+  "name": "entry/scene",
+  "path": "entry/scene",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The lines around one line (original and translation).",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   },
+   {
+    "name": "radius",
+    "type": "int",
+    "default": 6,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5,
+   "radius": 3
+  }
+ },
+ {
+  "name": "episode",
+  "path": "episode",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Set the state of a group (episode).",
+  "params": [
+   {
+    "name": "ep",
+    "type": "int",
+    "default": 0,
+    "required": true
+   },
+   {
+    "name": "state",
+    "type": "str",
+    "default": "",
+    "required": true
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "export/preview",
+  "path": "export/preview",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The public progress data and its checks (writes only the local progress.json).",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "features",
+  "path": "features",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Which gated (Pro) features are available, with which limit, and which Pro pack is installed.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "file/save",
+  "path": "file/save",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Save the counts of a file (the manual correction columns).",
+  "params": [
+   {
+    "name": "name",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "c",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "t",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": {
+   "name": "script.rpy",
+   "c": "",
+   "t": ""
+  }
+ },
+ {
+  "name": "files",
+  "path": "files",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The translation files with their counts and states.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "fix/apply",
+  "path": "fix/apply",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Apply the chosen fixes.",
+  "params": [
+   {
+    "name": "items",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "kinds",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "selections",
+    "type": "any",
+    "default": null,
+    "required": false
+   }
+  ],
+  "example": {
+   "kinds": [
+    "speaker"
+   ],
+   "items": []
+  }
+ },
+ {
+  "name": "fix/last",
+  "path": "fix/last",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "What the last bulk fix changed (for undo).",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "fix/preview",
+  "path": "fix/preview",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Preview the bulk fixes (speaker, spaces, typos ...).",
+  "params": [
+   {
+    "name": "items",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "kinds",
+    "type": "list",
+    "default": [],
+    "required": false
+   }
+  ],
+  "example": {
+   "kinds": [
+    "speaker"
+   ]
+  }
+ },
+ {
+  "name": "fix/undo",
+  "path": "fix/undo",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Undo the last bulk fix.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "game/characters",
+  "path": "game/characters",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The characters defined in the game scripts: code, name, colour.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "game/font",
+  "path": "game/font",
+  "method": "GET",
+  "effect": "read",
+  "kind": "binary",
+  "needs_project": true,
+  "doc": "A font of the game by file name (never a path): (bytes, mime).",
+  "params": [
+   {
+    "name": "k",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "game/fontmetrics",
+  "path": "game/fontmetrics",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Advance widths of a font of the game (key = file name).",
+  "params": [
+   {
+    "name": "k",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "game/image",
+  "path": "game/image",
+  "method": "GET",
+  "effect": "read",
+  "kind": "binary",
+  "needs_project": true,
+  "doc": "A picture of the game by the key an answer gave (never a path): (bytes, mime).",
+  "params": [
+   {
+    "name": "g",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "k",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "game/scene",
+  "path": "game/scene",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The picture(s) behind a line and the text box metrics for the scene preview.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5
+  }
+ },
+ {
+  "name": "glossary",
+  "path": "glossary",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The glossary: speakers and terms with counts and examples.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "glossary/delete",
+  "path": "glossary/delete",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Delete glossary items.",
+  "params": [
+   {
+    "name": "codes",
+    "type": "list",
+    "default": [],
+    "required": false
+   }
+  ],
+  "example": {
+   "codes": [
+    "nobody"
+   ]
+  }
+ },
+ {
+  "name": "glossary/import-apply",
+  "path": "glossary/import-apply",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Import character names.",
+  "params": [
+   {
+    "name": "items",
+    "type": "list",
+    "default": [],
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "glossary/import-preview",
+  "path": "glossary/import-preview",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Preview importing character names from a game file.",
+  "params": [
+   {
+    "name": "path",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "glossary/occurrences",
+  "path": "glossary/occurrences",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Where a speaker code (or a missing name) occurs.",
+  "params": [
+   {
+    "name": "code",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "missing",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": {
+   "code": "friend"
+  }
+ },
+ {
+  "name": "glossary/set",
+  "path": "glossary/set",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Set glossary items.",
+  "params": [
+   {
+    "name": "items",
+    "type": "list",
+    "default": [],
+    "required": false
+   }
+  ],
+  "example": {
+   "items": [
+    {
+     "code": "anna",
+     "name": "Anna",
+     "type": "speaker"
+    }
+   ]
+  }
+ },
+ {
+  "name": "groups/apply",
+  "path": "groups/apply",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Define the groups of the project (written to lexo.json).",
+  "params": [
+   {
+    "name": "label",
+    "type": "any",
+    "default": null,
+    "required": false
+   },
+   {
+    "name": "groups",
+    "type": "any",
+    "default": null,
+    "required": false
+   },
+   {
+    "name": "series",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "folders",
+    "type": "any",
+    "default": null,
+    "required": false
+   }
+  ],
+  "example": {
+   "label": "Episode",
+   "groups": [
+    1,
+    2
+   ]
+  }
+ },
+ {
+  "name": "groups/suggest",
+  "path": "groups/suggest",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The groups the project has now and the groups its file names suggest.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "ignore/list",
+  "path": "ignore/list",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The findings the translator told the app to ignore.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "ignore/set",
+  "path": "ignore/set",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Ignore (or stop ignoring) findings on lines.",
+  "params": [
+   {
+    "name": "items",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "on",
+    "type": "flag",
+    "default": true,
+    "required": false
+   },
+   {
+    "name": "note",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": {
+   "items": [
+    {
+     "file": "script.rpy",
+     "line": 5,
+     "code": "typo-suspect"
+    }
+   ],
+   "on": true,
+   "note": "example"
+  }
+ },
+ {
+  "name": "lint/start",
+  "path": "lint/start",
+  "method": "POST",
+  "effect": "external",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Start the Ren'Py lint of the whole game (needs the SDK).",
+  "params": [],
+  "example": null
+ },
+ {
+  "name": "lint/status",
+  "path": "lint/status",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "State and result of the Ren'Py lint run.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "missed",
+  "path": "missed",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Texts the Ren'Py generator missed, found in the game scripts.",
+  "params": [
+   {
+    "name": "level",
+    "type": "str",
+    "default": "likely",
+    "required": false
+   }
+  ],
+  "example": {}
+ },
+ {
+  "name": "missed/add",
+  "path": "missed/add",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Add texts the generator missed to the translation files.",
+  "params": [
+   {
+    "name": "items",
+    "type": "any",
+    "default": null,
+    "required": false
+   },
+   {
+    "name": "into_files",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": {
+   "items": [
+    {
+     "text": "A text the generator missed",
+     "file": "",
+     "line": 0
+    }
+   ]
+  }
+ },
+ {
+  "name": "missed/functions",
+  "path": "missed/functions",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Functions of the game that are called again and again with a text.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "missed/ignore",
+  "path": "missed/ignore",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Leave texts out of the missed-texts list for good.",
+  "params": [
+   {
+    "name": "texts",
+    "type": "any",
+    "default": null,
+    "required": false
+   },
+   {
+    "name": "clear",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": {
+   "texts": [
+    "not a text of the game"
+   ]
+  }
+ },
+ {
+  "name": "missed/settings",
+  "path": "missed/settings",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Set the project's own functions that show text.",
+  "params": [
+   {
+    "name": "functions",
+    "type": "any",
+    "default": null,
+    "required": false
+   }
+  ],
+  "example": {
+   "functions": [
+    "notify"
+   ]
+  }
+ },
+ {
+  "name": "mt/apply",
+  "path": "mt/apply",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Write the chosen machine translations.",
+  "params": [
+   {
+    "name": "selections",
+    "type": "any",
+    "default": null,
+    "required": false
+   }
+  ],
+  "example": {
+   "selections": [
+    {
+     "file": "script.rpy",
+     "line": 11,
+     "text": "Kavu?"
+    }
+   ]
+  }
+ },
+ {
+  "name": "mt/batch",
+  "path": "mt/batch",
+  "method": "POST",
+  "effect": "external",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Machine translate many lines (uses the network).",
+  "params": [
+   {
+    "name": "items",
+    "type": "any",
+    "default": null,
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "mt/targets",
+  "path": "mt/targets",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The lines a batch machine translation would take.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "lines",
+    "type": "any",
+    "default": null,
+    "required": false
+   },
+   {
+    "name": "only_todo",
+    "type": "flag",
+    "default": true,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy"
+  }
+ },
+ {
+  "name": "open-editor",
+  "path": "open-editor",
+  "method": "POST",
+  "effect": "external",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Open a file at a line in the editor.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 1,
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "open-url",
+  "path": "open-url",
+  "method": "POST",
+  "effect": "external",
+  "kind": "json",
+  "needs_project": false,
+  "doc": "Open one of the known addresses in the browser (by id).",
+  "params": [
+   {
+    "name": "id",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "overview",
+  "path": "overview",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Totals, groups, estimates and the data of the Overview tab.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "prefs",
+  "path": "prefs",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": false,
+  "doc": "Remember UI preferences (the body is the object of preferences).",
+  "params": [],
+  "example": {
+   "density": "compact"
+  }
+ },
+ {
+  "name": "project/set",
+  "path": "project/set",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": false,
+  "doc": "Open a translation folder (and remember it).",
+  "params": [
+   {
+    "name": "path",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "force",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "proof/clear-file",
+  "path": "proof/clear-file",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Clear the proofreading marks of a file.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   }
+  ],
+  "example": {
+   "file": "script.rpy"
+  }
+ },
+ {
+  "name": "proof/next",
+  "path": "proof/next",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The next line still to proofread after a line number.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "after",
+    "type": "int",
+    "default": 0,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "after": 0
+  }
+ },
+ {
+  "name": "proof/set",
+  "path": "proof/set",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Mark lines as proofread / to fix, with a note.",
+  "params": [
+   {
+    "name": "items",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "state",
+    "type": "str",
+    "default": "ok",
+    "required": false
+   },
+   {
+    "name": "note",
+    "type": "any",
+    "default": null,
+    "required": false
+   }
+  ],
+  "example": {
+   "items": [
+    {
+     "file": "script.rpy",
+     "line": 5
+    }
+   ],
+   "state": "ok",
+   "note": ""
+  }
+ },
+ {
+  "name": "proof/upto",
+  "path": "proof/upto",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Mark everything up to a line as proofread.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": true
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": true
+   },
+   {
+    "name": "state",
+    "type": "str",
+    "default": "ok",
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5,
+   "state": "ok"
+  }
+ },
+ {
+  "name": "publish/confirm",
+  "path": "publish/confirm",
+  "method": "POST",
+  "effect": "external",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Publish the progress data after the typed confirmation (a Pro feature).",
+  "params": [
+   {
+    "name": "token",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "branch",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "publish/plan",
+  "path": "publish/plan",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Preview publishing the progress data (a Pro feature).",
+  "params": [],
+  "example": null
+ },
+ {
+  "name": "refresh",
+  "path": "refresh",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Read the files again (merging what changed on disk).",
+  "params": [
+   {
+    "name": "force",
+    "type": "flag",
+    "default": false,
+    "required": false
+   },
+   {
+    "name": "dirty",
+    "type": "flag",
+    "default": false,
+    "required": false
+   },
+   {
+    "name": "discard",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": {}
+ },
+ {
+  "name": "replace/apply",
+  "path": "replace/apply",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Apply a find and replace to the chosen places.",
+  "params": [
+   {
+    "name": "selections",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "find",
+    "type": "any",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "replace",
+    "type": "any",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "mode",
+    "type": "str",
+    "default": "plain",
+    "required": false
+   },
+   {
+    "name": "case",
+    "type": "flag",
+    "default": false,
+    "required": false
+   },
+   {
+    "name": "files",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "protect",
+    "type": "flag",
+    "default": true,
+    "required": false
+   }
+  ],
+  "example": {
+   "selections": [
+    {
+     "file": "script.rpy",
+     "line": 5
+    }
+   ],
+   "find": "Hi",
+   "replace": "Hey",
+   "mode": "plain"
+  }
+ },
+ {
+  "name": "replace/preview",
+  "path": "replace/preview",
+  "method": "POST",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Preview a find and replace over the translations.",
+  "params": [
+   {
+    "name": "find",
+    "type": "any",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "replace",
+    "type": "any",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "mode",
+    "type": "str",
+    "default": "plain",
+    "required": false
+   },
+   {
+    "name": "case",
+    "type": "flag",
+    "default": false,
+    "required": false
+   },
+   {
+    "name": "files",
+    "type": "list",
+    "default": [],
+    "required": false
+   },
+   {
+    "name": "protect",
+    "type": "flag",
+    "default": true,
+    "required": false
+   }
+  ],
+  "example": {
+   "find": "Hello",
+   "replace": "Hi",
+   "mode": "plain"
+  }
+ },
+ {
+  "name": "scenes",
+  "path": "scenes",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The scenes of a file (runs of lines after the same `scene` statement) with progress.",
+  "params": [
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "line",
+    "type": "int",
+    "default": 0,
+    "required": false
+   }
+  ],
+  "example": {
+   "file": "script.rpy",
+   "line": 5
+  }
+ },
+ {
+  "name": "settings",
+  "path": "settings",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The settings (validation, text box, machine translation, publishing ...).",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "settings/update",
+  "path": "settings",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": false,
+  "doc": "Change settings (the body is the patch).",
+  "params": [],
+  "example": {
+   "web": {
+    "title": "Example"
+   }
+  }
+ },
+ {
+  "name": "snapshots",
+  "path": "snapshots",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The snapshots (zips of the .rpy files) of the project.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "snapshots/create",
+  "path": "snapshots/create",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Make a snapshot of the .rpy files now.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "snapshots/delete",
+  "path": "snapshots/delete",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Delete a snapshot.",
+  "params": [
+   {
+    "name": "name",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "snapshots/files",
+  "path": "snapshots/files",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The files inside one snapshot.",
+  "params": [
+   {
+    "name": "name",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "snapshots/restore",
+  "path": "snapshots/restore",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Restore files from a snapshot.",
+  "params": [
+   {
+    "name": "name",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "files",
+    "type": "any",
+    "default": null,
+    "required": false
+   }
+  ],
+  "example": null
+ },
+ {
+  "name": "state",
+  "path": "state",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": false,
+  "doc": "What the client needs at start: is a project open, notices, config error, UI preferences, version.",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "ui-lang",
+  "path": "ui-lang",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": false,
+  "doc": "The interface texts of one language: {code, name, plural, strings}; English is an empty table.",
+  "params": [
+   {
+    "name": "code",
+    "type": "str",
+    "default": "",
+    "required": false
+   }
+  ],
+  "example": {
+   "code": "cs"
+  }
+ },
+ {
+  "name": "ui-langs",
+  "path": "ui-langs",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": false,
+  "doc": "The interface languages (language packs that have UI texts).",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "undo",
+  "path": "undo",
+  "method": "POST",
+  "effect": "write",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "Undo the last change (approval, proofreading, glossary).",
+  "params": [],
+  "example": {}
+ },
+ {
+  "name": "validation",
+  "path": "validation",
+  "method": "GET",
+  "effect": "read",
+  "kind": "json",
+  "needs_project": true,
+  "doc": "The findings of the translation check, one item per line.",
+  "params": [
+   {
+    "name": "severity",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "category",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "file",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "q",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "offset",
+    "type": "int",
+    "default": 0,
+    "required": false
+   },
+   {
+    "name": "limit",
+    "type": "int",
+    "default": 200,
+    "required": false
+   },
+   {
+    "name": "ignored",
+    "type": "str",
+    "default": "hide",
+    "required": false
+   },
+   {
+    "name": "group",
+    "type": "str",
+    "default": "",
+    "required": false
+   },
+   {
+    "name": "word",
+    "type": "flag",
+    "default": false,
+    "required": false
+   }
+  ],
+  "example": {
+   "group": "line",
+   "limit": 5
+  }
+ }
+]

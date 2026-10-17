@@ -1,0 +1,3292 @@
+{
+ "approve/apply": {
+  "keys": {
+   "changed": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "skipped": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "approve/preview": {
+  "keys": {
+   "counts": {
+    "keys": {
+     "files": {
+      "type": "number"
+     },
+     "selected": {
+      "type": "number"
+     },
+     "total": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "approved": {
+       "type": "boolean"
+      },
+      "block": {
+       "type": "string"
+      },
+      "file": {
+       "type": "string"
+      },
+      "is_reference": {
+       "type": "boolean"
+      },
+      "key": {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      "kind": {
+       "type": "string"
+      },
+      "line": {
+       "type": "number"
+      },
+      "notes": {
+       "items": null,
+       "type": "array"
+      },
+      "selectable": {
+       "type": "boolean"
+      },
+      "selected": {
+       "type": "boolean"
+      },
+      "text": {
+       "type": "string"
+      },
+      "who": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "reference": {
+    "keys": {
+     "file": {
+      "type": "string"
+     },
+     "line": {
+      "type": "number"
+     },
+     "text": {
+      "type": "string"
+     },
+     "who": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "scope": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "approve/rules": {
+  "keys": {
+   "counts": {
+    "keys": {
+     "by_rule": {
+      "keys": {},
+      "type": "object"
+     },
+     "selectable": {
+      "type": "number"
+     },
+     "total": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "files": {
+    "type": "number"
+   },
+   "items": {
+    "items": null,
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "rules": {
+    "keys": {
+     "interjections": {
+      "type": "string"
+     },
+     "names": {
+      "type": "string"
+     },
+     "symbols": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   }
+  },
+  "type": "object"
+ },
+ "assign": {
+  "keys": {
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "assign/apply": {
+  "keys": {
+   "applied": {
+    "items": null,
+    "type": "array"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "skipped": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "assign/suggest": {
+  "keys": {
+   "groups_defined": {
+    "type": "boolean"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "candidates": {
+       "items": null,
+       "type": "array"
+      },
+      "confidence": {
+       "type": "string"
+      },
+      "current": {
+       "type": "string"
+      },
+      "name": {
+       "type": "string"
+      },
+      "overwrite": {
+       "type": "boolean"
+      },
+      "reason": {
+       "type": "string"
+      },
+      "state": {
+       "type": "string"
+      },
+      "suggested": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "options": {
+    "items": {
+     "keys": {
+      "label": {
+       "type": "string"
+      },
+      "value": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "consistency": {
+  "keys": {
+   "groups": {
+    "items": null,
+    "type": "array"
+   },
+   "lines": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "total": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "entries": {
+  "keys": {
+   "counts": {
+    "keys": {
+     "all": {
+      "type": "number"
+     },
+     "approved": {
+      "type": "number"
+     },
+     "fix": {
+      "type": "number"
+     },
+     "proofed": {
+      "type": "number"
+     },
+     "review": {
+      "type": "number"
+     },
+     "stale": {
+      "type": "number"
+     },
+     "todo": {
+      "type": "number"
+     },
+     "translated": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "block": {
+       "type": "string"
+      },
+      "file": {
+       "type": "string"
+      },
+      "issues": {
+       "items": null,
+       "type": "array"
+      },
+      "kind": {
+       "type": "string"
+      },
+      "line": {
+       "type": "number"
+      },
+      "proof": {
+       "type": "string"
+      },
+      "ref": {
+       "type": "string"
+      },
+      "source": {
+       "type": "string"
+      },
+      "src_line": {
+       "type": "number"
+      },
+      "status": {
+       "type": "string"
+      },
+      "target": {
+       "type": "string"
+      },
+      "unit": {
+       "type": "string"
+      },
+      "who": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "offset": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "total": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "entry": {
+  "keys": {
+   "after": {
+    "items": {
+     "keys": {
+      "line": {
+       "type": "number"
+      },
+      "proof": {
+       "type": "string"
+      },
+      "source": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "target": {
+       "type": "string"
+      },
+      "who": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "before": {
+    "items": null,
+    "type": "array"
+   },
+   "block": {
+    "type": "string"
+   },
+   "cur_raw": {
+    "type": "string"
+   },
+   "file": {
+    "type": "string"
+   },
+   "issues": {
+    "items": null,
+    "type": "array"
+   },
+   "key": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "kind": {
+    "type": "string"
+   },
+   "line": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "path": {
+    "type": "string"
+   },
+   "proof": {
+    "type": "string"
+   },
+   "proof_date": {
+    "type": "string"
+   },
+   "proof_note": {
+    "type": "string"
+   },
+   "ref": {
+    "type": "string"
+   },
+   "source": {
+    "type": "string"
+   },
+   "src_line": {
+    "type": "number"
+   },
+   "src_raw": {
+    "type": "string"
+   },
+   "status": {
+    "type": "string"
+   },
+   "target": {
+    "type": "string"
+   },
+   "terms": {
+    "items": {
+     "keys": {
+      "cz": {
+       "type": "string"
+      },
+      "en": {
+       "type": "string"
+      },
+      "used": {
+       "type": "boolean"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "unit": {
+    "type": "string"
+   },
+   "who": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "entry/check": {
+  "keys": {
+   "issues": {
+    "items": null,
+    "type": "array"
+   },
+   "literal_error": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "entry/context": {
+  "keys": {
+   "available": {
+    "type": "boolean"
+   },
+   "lines": {
+    "items": {
+     "keys": {
+      "hit": {
+       "type": "boolean"
+      },
+      "n": {
+       "type": "number"
+      },
+      "text": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "path": {
+    "type": "string"
+   },
+   "ref": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "entry/history": {
+  "keys": {
+   "count": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "versions": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "entry/memory": {
+  "keys": {
+   "exact": {
+    "items": null,
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "similar": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "entry/menu": {
+  "keys": {
+   "available": {
+    "type": "boolean"
+   },
+   "before": {
+    "items": {
+     "keys": {
+      "entry": {
+       "keys": {
+        "file": {
+         "type": "string"
+        },
+        "line": {
+         "type": "number"
+        },
+        "source": {
+         "type": "string"
+        },
+        "status": {
+         "type": "string"
+        },
+        "target": {
+         "type": "string"
+        },
+        "who": {
+         "type": "string"
+        }
+       },
+       "type": "object"
+      },
+      "here": {
+       "type": "boolean"
+      },
+      "n": {
+       "type": "number"
+      },
+      "script": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "options": {
+    "items": {
+     "keys": {
+      "after": {
+       "items": {
+        "keys": {
+         "entry": {
+          "type": "object"
+         },
+         "here": {
+          "type": "boolean"
+         },
+         "n": {
+          "type": "number"
+         },
+         "script": {
+          "type": "string"
+         }
+        },
+        "type": "object"
+       },
+       "type": "array"
+      },
+      "body": {
+       "items": null,
+       "type": "array"
+      },
+      "cond": {
+       "type": "string"
+      },
+      "current": {
+       "type": "boolean"
+      },
+      "entry": {
+       "keys": {
+        "file": {
+         "type": "string"
+        },
+        "line": {
+         "type": "number"
+        },
+        "source": {
+         "type": "string"
+        },
+        "status": {
+         "type": "string"
+        },
+        "target": {
+         "type": "string"
+        },
+        "who": {
+         "type": "string"
+        }
+       },
+       "type": "object"
+      },
+      "n": {
+       "type": "number"
+      },
+      "text": {
+       "type": "string"
+      },
+      "where": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "question": {
+    "items": null,
+    "type": "array"
+   },
+   "script": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "entry/next": {
+  "keys": {
+   "line": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "wrapped": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "entry/save": {
+  "keys": {
+   "backup": {
+    "type": "string"
+   },
+   "changed": {
+    "type": "boolean"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "entry/scene": {
+  "keys": {
+   "file": {
+    "type": "string"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "current": {
+       "type": "boolean"
+      },
+      "line": {
+       "type": "number"
+      },
+      "over": {
+       "type": "boolean"
+      },
+      "proof": {
+       "type": "string"
+      },
+      "source": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string"
+      },
+      "target": {
+       "type": "string"
+      },
+      "unit": {
+       "type": "string"
+      },
+      "who": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "export/preview": {
+  "keys": {
+   "data": {
+    "keys": {
+     "episodes": {
+      "items": null,
+      "type": "array"
+     },
+     "estimate": {
+      "keys": {
+       "basis_days": {
+        "type": "number"
+       },
+       "confidence": {
+        "type": "null"
+       },
+       "days_with_data": {
+        "type": "number"
+       },
+       "eta": {
+        "type": "null"
+       },
+       "eta_early": {
+        "type": "null"
+       },
+       "eta_late": {
+        "type": "null"
+       },
+       "pace_per_day": {
+        "type": "null"
+       },
+       "remaining": {
+        "type": "number"
+       },
+       "status": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "files": {
+      "keys": {
+       "done": {
+        "type": "number"
+       },
+       "none": {
+        "type": "number"
+       },
+       "rev": {
+        "type": "number"
+       },
+       "total": {
+        "type": "number"
+       },
+       "tr": {
+        "type": "number"
+       },
+       "wip": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     },
+     "general": {
+      "keys": {
+       "files": {
+        "type": "number"
+       },
+       "proofreading": {
+        "keys": {
+         "done": {
+          "type": "number"
+         },
+         "percent": {
+          "type": "null"
+         },
+         "total": {
+          "type": "number"
+         }
+        },
+        "type": "object"
+       },
+       "translation": {
+        "keys": {
+         "done": {
+          "type": "number"
+         },
+         "percent": {
+          "type": "null"
+         },
+         "total": {
+          "type": "number"
+         }
+        },
+        "type": "object"
+       }
+      },
+      "type": "object"
+     },
+     "history": {
+      "items": {
+       "keys": {
+        "date": {
+         "type": "string"
+        },
+        "proofreading": {
+         "type": "number"
+        },
+        "translation": {
+         "type": "number"
+        }
+       },
+       "type": "object"
+      },
+      "type": "array"
+     },
+     "proofreading": {
+      "keys": {
+       "done": {
+        "type": "number"
+       },
+       "percent": {
+        "type": "number"
+       },
+       "total": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     },
+     "schema": {
+      "type": "number"
+     },
+     "scope": {
+      "keys": {
+       "episodes": {
+        "items": null,
+        "type": "array"
+       },
+       "planned_seasons": {
+        "items": null,
+        "type": "array"
+       },
+       "seasons": {
+        "items": null,
+        "type": "array"
+       }
+      },
+      "type": "object"
+     },
+     "seasons": {
+      "items": null,
+      "type": "array"
+     },
+     "title": {
+      "type": "string"
+     },
+     "translation": {
+      "keys": {
+       "done": {
+        "type": "number"
+       },
+       "percent": {
+        "type": "number"
+       },
+       "total": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     },
+     "unassigned": {
+      "keys": {
+       "files": {
+        "type": "number"
+       },
+       "proofreading": {
+        "keys": {
+         "done": {
+          "type": "number"
+         },
+         "percent": {
+          "type": "number"
+         },
+         "total": {
+          "type": "number"
+         }
+        },
+        "type": "object"
+       },
+       "translation": {
+        "keys": {
+         "done": {
+          "type": "number"
+         },
+         "percent": {
+          "type": "number"
+         },
+         "total": {
+          "type": "number"
+         }
+        },
+        "type": "object"
+       }
+      },
+      "type": "object"
+     },
+     "updated": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "path": {
+    "type": "string"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "features": {
+  "keys": {
+   "features": {
+    "keys": {
+     "bulk.categorize": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "extracted": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "fixes.safe": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "extracted": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "mt.batch": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "extracted": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "publish.web": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "extracted": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "replace.regex": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "extracted": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "pack": {
+    "items": null,
+    "type": "array"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "tier": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "file/save": {
+  "keys": {
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "files": {
+  "keys": {
+   "files": {
+    "items": {
+     "keys": {
+      "approved": {
+       "type": "number"
+      },
+      "assign": {
+       "type": "string"
+      },
+      "auto": {
+       "type": "number"
+      },
+      "corr": {
+       "type": "number"
+      },
+      "done": {
+       "type": "number"
+      },
+      "errors": {
+       "type": "number"
+      },
+      "name": {
+       "type": "string"
+      },
+      "order": {
+       "type": "number"
+      },
+      "proof_fix": {
+       "type": "number"
+      },
+      "proof_marked": {
+       "type": "number"
+      },
+      "proof_stale": {
+       "type": "number"
+      },
+      "status": {
+       "type": "string"
+      },
+      "todo": {
+       "type": "number"
+      },
+      "total": {
+       "type": "number"
+      },
+      "warnings": {
+       "type": "number"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "fix/apply": {
+  "keys": {
+   "backups": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "fixed": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "skipped": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "fix/last": {
+  "keys": {
+   "last": {
+    "type": "null"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "fix/preview": {
+  "keys": {
+   "counts": {
+    "keys": {
+     "speaker": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "fixable": {
+    "type": "number"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "after": {
+       "type": "string"
+      },
+      "before": {
+       "type": "string"
+      },
+      "code": {
+       "type": "boolean"
+      },
+      "default": {
+       "type": "boolean"
+      },
+      "file": {
+       "type": "string"
+      },
+      "kind": {
+       "type": "string"
+      },
+      "line": {
+       "type": "number"
+      },
+      "note": {
+       "type": "string"
+      },
+      "skip": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "total": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "fix/undo": {
+  "keys": {
+   "label": {
+    "type": "string"
+   },
+   "lines": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "restored": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "game/characters": {
+  "keys": {
+   "characters": {
+    "keys": {},
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "game/scene": {
+  "keys": {
+   "available": {
+    "type": "boolean"
+   },
+   "flat": {
+    "type": "string"
+   },
+   "fonts_name": {
+    "type": "null"
+   },
+   "fonts_text": {
+    "type": "null"
+   },
+   "found": {
+    "type": "boolean"
+   },
+   "gui": {
+    "keys": {
+     "dialogue_width": {
+      "type": "number"
+     },
+     "dialogue_xpos": {
+      "type": "number"
+     },
+     "dialogue_ypos": {
+      "type": "number"
+     },
+     "name_text_size": {
+      "type": "number"
+     },
+     "name_xpos": {
+      "type": "number"
+     },
+     "name_ypos": {
+      "type": "number"
+     },
+     "screen_height": {
+      "type": "number"
+     },
+     "screen_width": {
+      "type": "number"
+     },
+     "source": {
+      "type": "string"
+     },
+     "text_size": {
+      "type": "number"
+     },
+     "textbox_height": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "image": {
+    "type": "string"
+   },
+   "images": {
+    "type": "number"
+   },
+   "index_errors": {
+    "items": null,
+    "type": "array"
+   },
+   "layered": {
+    "type": "boolean"
+   },
+   "layers": {
+    "items": null,
+    "type": "array"
+   },
+   "missing": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "reason": {
+    "type": "string"
+   },
+   "script": {
+    "type": "string"
+   },
+   "speaker": {
+    "type": "null"
+   },
+   "who": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "glossary": {
+  "keys": {
+   "items": {
+    "items": {
+     "keys": {
+      "code": {
+       "type": "string"
+      },
+      "count": {
+       "type": "number"
+      },
+      "example": {
+       "type": "string"
+      },
+      "file": {
+       "type": "string"
+      },
+      "in_project": {
+       "type": "boolean"
+      },
+      "line": {
+       "type": "number"
+      },
+      "name": {
+       "type": "string"
+      },
+      "note": {
+       "type": "string"
+      },
+      "type": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "names": {
+    "keys": {},
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "types": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "unnamed": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "glossary/delete": {
+  "keys": {
+   "items": {
+    "items": {
+     "keys": {
+      "code": {
+       "type": "string"
+      },
+      "count": {
+       "type": "number"
+      },
+      "example": {
+       "type": "string"
+      },
+      "file": {
+       "type": "string"
+      },
+      "in_project": {
+       "type": "boolean"
+      },
+      "line": {
+       "type": "number"
+      },
+      "name": {
+       "type": "string"
+      },
+      "note": {
+       "type": "string"
+      },
+      "type": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "names": {
+    "keys": {},
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "types": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "unnamed": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "glossary/occurrences": {
+  "keys": {
+   "code": {
+    "type": "string"
+   },
+   "czech": {
+    "type": "string"
+   },
+   "found": {
+    "type": "number"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "file": {
+       "type": "string"
+      },
+      "line": {
+       "type": "number"
+      },
+      "source": {
+       "type": "string"
+      },
+      "target": {
+       "type": "string"
+      },
+      "translated": {
+       "type": "boolean"
+      },
+      "used": {
+       "type": "boolean"
+      },
+      "who": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "missing": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "truncated": {
+    "type": "boolean"
+   },
+   "untranslated": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "glossary/set": {
+  "keys": {
+   "items": {
+    "items": {
+     "keys": {
+      "code": {
+       "type": "string"
+      },
+      "count": {
+       "type": "number"
+      },
+      "example": {
+       "type": "string"
+      },
+      "file": {
+       "type": "string"
+      },
+      "in_project": {
+       "type": "boolean"
+      },
+      "line": {
+       "type": "number"
+      },
+      "name": {
+       "type": "string"
+      },
+      "note": {
+       "type": "string"
+      },
+      "type": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "names": {
+    "keys": {
+     "anna": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "types": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "unnamed": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "groups/apply": {
+  "keys": {
+   "groups": {
+    "items": {
+     "type": "number"
+    },
+    "type": "array"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "series": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "groups/suggest": {
+  "keys": {
+   "current": {
+    "keys": {
+     "folders": {
+      "items": null,
+      "type": "array"
+     },
+     "groups": {
+      "items": null,
+      "type": "array"
+     },
+     "label": {
+      "type": "string"
+     },
+     "sections": {
+      "type": "number"
+     },
+     "series": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "proposal": {
+    "keys": {
+     "folders": {
+      "items": null,
+      "type": "array"
+     },
+     "groups": {
+      "items": null,
+      "type": "array"
+     },
+     "label": {
+      "type": "string"
+     },
+     "matched": {
+      "type": "number"
+     },
+     "sections": {
+      "items": null,
+      "type": "array"
+     },
+     "series": {
+      "type": "string"
+     },
+     "total": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "words": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "ignore/list": {
+  "keys": {
+   "counts": {
+    "keys": {
+     "active": {
+      "type": "number"
+     },
+     "expired": {
+      "type": "number"
+     },
+     "gone": {
+      "type": "number"
+     },
+     "resolved": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "items": {
+    "items": null,
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "ignore/set": {
+  "keys": {
+   "changed": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "skipped": {
+    "items": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "lint/status": {
+  "keys": {
+   "ok": {
+    "type": "boolean"
+   },
+   "state": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "missed": {
+  "keys": {
+   "counts": {
+    "keys": {
+     "likely": {
+      "type": "number"
+     },
+     "maybe": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "folder": {
+    "type": "string"
+   },
+   "items": {
+    "items": null,
+    "type": "array"
+   },
+   "message": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "settings": {
+    "keys": {
+     "functions": {
+      "items": null,
+      "type": "array"
+     },
+     "ignored": {
+      "items": null,
+      "type": "array"
+     }
+    },
+    "type": "object"
+   },
+   "truncated": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "missed/add": {
+  "keys": {
+   "added": {
+    "type": "number"
+   },
+   "file": {
+    "type": "string"
+   },
+   "files": {
+    "keys": {
+     "extra_strings.rpy": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "message": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "skipped": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "missed/functions": {
+  "keys": {
+   "ok": {
+    "type": "boolean"
+   },
+   "settings": {
+    "keys": {
+     "functions": {
+      "items": null,
+      "type": "array"
+     },
+     "ignored": {
+      "items": null,
+      "type": "array"
+     }
+    },
+    "type": "object"
+   },
+   "suggested": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "missed/ignore": {
+  "keys": {
+   "functions": {
+    "items": null,
+    "type": "array"
+   },
+   "ignored": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "missed/settings": {
+  "keys": {
+   "functions": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "ignored": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "mt/apply": {
+  "keys": {
+   "backups": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "changed": {
+    "type": "number"
+   },
+   "files": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "skipped": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "mt/targets": {
+  "keys": {
+   "chars": {
+    "type": "number"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "file": {
+       "type": "string"
+      },
+      "line": {
+       "type": "number"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "total": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "overview": {
+  "keys": {
+   "episode_states": {
+    "items": {
+     "keys": {
+      "key": {
+       "type": "string"
+      },
+      "label": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "episodes": {
+    "items": null,
+    "type": "array"
+   },
+   "estimate": {
+    "keys": {
+     "basis_days": {
+      "type": "number"
+     },
+     "confidence": {
+      "type": "null"
+     },
+     "days_with_data": {
+      "type": "number"
+     },
+     "eta": {
+      "type": "null"
+     },
+     "eta_early": {
+      "type": "null"
+     },
+     "eta_late": {
+      "type": "null"
+     },
+     "pace_per_day": {
+      "type": "null"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "remaining": {
+      "type": "number"
+     },
+     "status": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "file_counts": {
+    "keys": {
+     "done": {
+      "type": "number"
+     },
+     "none": {
+      "type": "number"
+     },
+     "rev": {
+      "type": "number"
+     },
+     "tr": {
+      "type": "number"
+     },
+     "wip": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "general": {
+    "keys": {
+     "files": {
+      "type": "number"
+     },
+     "proofreading": {
+      "keys": {
+       "done": {
+        "type": "number"
+       },
+       "percent": {
+        "type": "null"
+       },
+       "total": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     },
+     "translation": {
+      "keys": {
+       "done": {
+        "type": "number"
+       },
+       "percent": {
+        "type": "null"
+       },
+       "total": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "object"
+   },
+   "goals": {
+    "keys": {
+     "proofread": {
+      "keys": {
+       "auto": {
+        "type": "boolean"
+       },
+       "days_left": {
+        "type": "number"
+       },
+       "done": {
+        "type": "number"
+       },
+       "goal": {
+        "type": "null"
+       },
+       "left": {
+        "type": "number"
+       },
+       "needed_per_day": {
+        "type": "number"
+       },
+       "pace_per_week": {
+        "type": "null"
+       },
+       "percent": {
+        "type": "number"
+       },
+       "status": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "translate": {
+      "keys": {
+       "auto": {
+        "type": "boolean"
+       },
+       "days_left": {
+        "type": "number"
+       },
+       "done": {
+        "type": "number"
+       },
+       "goal": {
+        "type": "null"
+       },
+       "left": {
+        "type": "number"
+       },
+       "needed_per_day": {
+        "type": "number"
+       },
+       "pace_per_week": {
+        "type": "null"
+       },
+       "percent": {
+        "type": "number"
+       },
+       "status": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "week_start": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "group_names": {
+    "keys": {},
+    "type": "object"
+   },
+   "groups_defined": {
+    "type": "boolean"
+   },
+   "labels": {
+    "keys": {
+     "group": {
+      "type": "string"
+     },
+     "section": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "last_refresh": {
+    "keys": {
+     "added": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "changed": {
+      "type": "boolean"
+     },
+     "empty": {
+      "items": null,
+      "type": "array"
+     },
+     "errors": {
+      "items": null,
+      "type": "array"
+     },
+     "modified": {
+      "items": null,
+      "type": "array"
+     },
+     "removed": {
+      "items": null,
+      "type": "array"
+     },
+     "renamed": {
+      "items": null,
+      "type": "array"
+     },
+     "seconds": {
+      "type": "number"
+     },
+     "summary": {
+      "type": "string"
+     },
+     "unchanged": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "last_save_error": {
+    "type": "string"
+   },
+   "loaded_at": {
+    "type": "number"
+   },
+   "lock_lost": {
+    "type": "boolean"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "project": {
+    "keys": {
+     "data_dir": {
+      "type": "string"
+     },
+     "files": {
+      "type": "number"
+     },
+     "local_dir": {
+      "type": "string"
+     },
+     "path": {
+      "type": "string"
+     },
+     "skipped": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     }
+    },
+    "type": "object"
+   },
+   "recent": {
+    "items": null,
+    "type": "array"
+   },
+   "seasons": {
+    "items": null,
+    "type": "array"
+   },
+   "totals": {
+    "keys": {
+     "approved": {
+      "type": "number"
+     },
+     "done": {
+      "type": "number"
+     },
+     "percent": {
+      "type": "number"
+     },
+     "proof_fix": {
+      "type": "number"
+     },
+     "proof_marked": {
+      "type": "number"
+     },
+     "proof_stale": {
+      "type": "number"
+     },
+     "proofread": {
+      "type": "number"
+     },
+     "proofread_percent": {
+      "type": "number"
+     },
+     "remaining": {
+      "type": "number"
+     },
+     "total": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "unassigned": {
+    "keys": {
+     "files": {
+      "type": "number"
+     },
+     "proofreading": {
+      "keys": {
+       "done": {
+        "type": "number"
+       },
+       "percent": {
+        "type": "number"
+       },
+       "total": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     },
+     "translation": {
+      "keys": {
+       "done": {
+        "type": "number"
+       },
+       "percent": {
+        "type": "number"
+       },
+       "total": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "object"
+   },
+   "undo": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "unsaved": {
+    "items": null,
+    "type": "array"
+   },
+   "validation": {
+    "keys": {
+     "error": {
+      "type": "number"
+     },
+     "ignored": {
+      "type": "number"
+     },
+     "info": {
+      "type": "number"
+     },
+     "length": {
+      "type": "number"
+     },
+     "warning": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "worst_files": {
+    "items": {
+     "keys": {
+      "errors": {
+       "type": "number"
+      },
+      "lines": {
+       "type": "number"
+      },
+      "name": {
+       "type": "string"
+      },
+      "score": {
+       "type": "number"
+      },
+      "warnings": {
+       "type": "number"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "prefs": {
+  "keys": {
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "proof/clear-file": {
+  "keys": {
+   "changed": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "proof/next": {
+  "keys": {
+   "file": {
+    "type": "string"
+   },
+   "found": {
+    "type": "boolean"
+   },
+   "line": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "proof/set": {
+  "keys": {
+   "changed": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "skipped": {
+    "items": {
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "proof/upto": {
+  "keys": {
+   "changed": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "skipped": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "refresh": {
+  "keys": {
+   "added": {
+    "items": null,
+    "type": "array"
+   },
+   "changed": {
+    "type": "boolean"
+   },
+   "empty": {
+    "items": null,
+    "type": "array"
+   },
+   "errors": {
+    "items": null,
+    "type": "array"
+   },
+   "merged_events": {
+    "type": "number"
+   },
+   "modified": {
+    "items": null,
+    "type": "array"
+   },
+   "moved_metadata": {
+    "type": "number"
+   },
+   "needs_confirm": {
+    "type": "boolean"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "removed": {
+    "items": null,
+    "type": "array"
+   },
+   "renamed": {
+    "items": null,
+    "type": "array"
+   },
+   "retried": {
+    "items": null,
+    "type": "array"
+   },
+   "save_problems": {
+    "items": null,
+    "type": "array"
+   },
+   "seconds": {
+    "type": "number"
+   },
+   "summary": {
+    "type": "string"
+   },
+   "unchanged": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ },
+ "replace/apply": {
+  "keys": {
+   "backups": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "changed": {
+    "type": "number"
+   },
+   "files": {
+    "type": "number"
+   },
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   }
+  },
+  "type": "object"
+ },
+ "replace/preview": {
+  "keys": {
+   "applicable": {
+    "type": "number"
+   },
+   "items": {
+    "items": null,
+    "type": "array"
+   },
+   "matches": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "total": {
+    "type": "number"
+   },
+   "truncated": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "scenes": {
+  "keys": {
+   "available": {
+    "type": "boolean"
+   },
+   "cur": {
+    "type": "number"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "count": {
+       "type": "number"
+      },
+      "done": {
+       "type": "number"
+      },
+      "line": {
+       "type": "number"
+      },
+      "name": {
+       "type": "string"
+      },
+      "proofed": {
+       "type": "number"
+      },
+      "script": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "settings": {
+  "keys": {
+   "author": {
+    "type": "string"
+   },
+   "count_symbol_only_as_done": {
+    "type": "boolean"
+   },
+   "editor": {
+    "keys": {
+     "custom": {
+      "type": "string"
+     },
+     "preferred": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "game_gui": {
+    "keys": {
+     "dialogue_width": {
+      "type": "number"
+     },
+     "dialogue_xpos": {
+      "type": "number"
+     },
+     "dialogue_ypos": {
+      "type": "number"
+     },
+     "name_text_size": {
+      "type": "number"
+     },
+     "name_xpos": {
+      "type": "number"
+     },
+     "name_ypos": {
+      "type": "number"
+     },
+     "screen_height": {
+      "type": "number"
+     },
+     "screen_width": {
+      "type": "number"
+     },
+     "source": {
+      "type": "string"
+     },
+     "text_size": {
+      "type": "number"
+     },
+     "textbox_height": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "goals": {
+    "keys": {
+     "proofread_per_week": {
+      "type": "number"
+     },
+     "translate_per_week": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "lint": {
+    "keys": {
+     "sdk": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "mt": {
+    "keys": {
+     "api_key": {
+      "type": "string"
+     },
+     "base_url": {
+      "type": "string"
+     },
+     "consent": {
+      "type": "boolean"
+     },
+     "has_key": {
+      "type": "boolean"
+     },
+     "model": {
+      "type": "string"
+     },
+     "provider": {
+      "type": "string"
+     },
+     "source_lang": {
+      "type": "string"
+     },
+     "target_lang": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "project_dir": {
+    "type": "string"
+   },
+   "skip_files": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "snapshots": {
+    "keys": {
+     "enabled": {
+      "type": "boolean"
+     },
+     "interval_hours": {
+      "type": "number"
+     },
+     "keep": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "ui": {
+    "keys": {},
+    "type": "object"
+   },
+   "validation": {
+    "keys": {
+     "enabled": {
+      "type": "boolean"
+     },
+     "length": {
+      "keys": {
+       "enabled": {
+        "type": "boolean"
+       },
+       "max_ratio": {
+        "type": "number"
+       },
+       "min_extra_chars": {
+        "type": "number"
+       },
+       "min_missing_chars": {
+        "type": "number"
+       },
+       "min_ratio": {
+        "type": "number"
+       },
+       "min_source_chars": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     },
+     "show_info": {
+      "type": "boolean"
+     },
+     "spelling": {
+      "type": "boolean"
+     },
+     "textbox": {
+      "keys": {
+       "chars_per_line": {
+        "type": "number"
+       },
+       "enabled": {
+        "type": "boolean"
+       },
+       "max_lines": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "object"
+   },
+   "version": {
+    "type": "number"
+   },
+   "web": {
+    "keys": {
+     "path": {
+      "type": "string"
+     },
+     "repo": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   }
+  },
+  "type": "object"
+ },
+ "settings/update": {
+  "keys": {
+   "author": {
+    "type": "string"
+   },
+   "count_symbol_only_as_done": {
+    "type": "boolean"
+   },
+   "editor": {
+    "keys": {
+     "custom": {
+      "type": "string"
+     },
+     "preferred": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "game_gui": {
+    "keys": {
+     "dialogue_width": {
+      "type": "number"
+     },
+     "dialogue_xpos": {
+      "type": "number"
+     },
+     "dialogue_ypos": {
+      "type": "number"
+     },
+     "name_text_size": {
+      "type": "number"
+     },
+     "name_xpos": {
+      "type": "number"
+     },
+     "name_ypos": {
+      "type": "number"
+     },
+     "screen_height": {
+      "type": "number"
+     },
+     "screen_width": {
+      "type": "number"
+     },
+     "source": {
+      "type": "string"
+     },
+     "text_size": {
+      "type": "number"
+     },
+     "textbox_height": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "goals": {
+    "keys": {
+     "proofread_per_week": {
+      "type": "number"
+     },
+     "translate_per_week": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "lint": {
+    "keys": {
+     "sdk": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "mt": {
+    "keys": {
+     "api_key": {
+      "type": "string"
+     },
+     "base_url": {
+      "type": "string"
+     },
+     "consent": {
+      "type": "boolean"
+     },
+     "has_key": {
+      "type": "boolean"
+     },
+     "model": {
+      "type": "string"
+     },
+     "provider": {
+      "type": "string"
+     },
+     "source_lang": {
+      "type": "string"
+     },
+     "target_lang": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "project_dir": {
+    "type": "string"
+   },
+   "skip_files": {
+    "items": {
+     "type": "string"
+    },
+    "type": "array"
+   },
+   "snapshots": {
+    "keys": {
+     "enabled": {
+      "type": "boolean"
+     },
+     "interval_hours": {
+      "type": "number"
+     },
+     "keep": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "ui": {
+    "keys": {},
+    "type": "object"
+   },
+   "validation": {
+    "keys": {
+     "enabled": {
+      "type": "boolean"
+     },
+     "length": {
+      "keys": {
+       "enabled": {
+        "type": "boolean"
+       },
+       "max_ratio": {
+        "type": "number"
+       },
+       "min_extra_chars": {
+        "type": "number"
+       },
+       "min_missing_chars": {
+        "type": "number"
+       },
+       "min_ratio": {
+        "type": "number"
+       },
+       "min_source_chars": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     },
+     "show_info": {
+      "type": "boolean"
+     },
+     "spelling": {
+      "type": "boolean"
+     },
+     "textbox": {
+      "keys": {
+       "chars_per_line": {
+        "type": "number"
+       },
+       "enabled": {
+        "type": "boolean"
+       },
+       "max_lines": {
+        "type": "number"
+       }
+      },
+      "type": "object"
+     }
+    },
+    "type": "object"
+   },
+   "version": {
+    "type": "number"
+   },
+   "web": {
+    "keys": {
+     "path": {
+      "type": "string"
+     },
+     "repo": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   }
+  },
+  "type": "object"
+ },
+ "snapshots": {
+  "keys": {
+   "enabled": {
+    "type": "boolean"
+   },
+   "interval_hours": {
+    "type": "number"
+   },
+   "items": {
+    "items": null,
+    "type": "array"
+   },
+   "keep": {
+    "type": "number"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "snapshots/create": {
+  "keys": {
+   "ok": {
+    "type": "boolean"
+   },
+   "snapshot": {
+    "keys": {
+     "app": {
+      "type": "string"
+     },
+     "bytes": {
+      "type": "number"
+     },
+     "files": {
+      "type": "number"
+     },
+     "name": {
+      "type": "string"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "time": {
+      "type": "string"
+     }
+    },
+    "type": "object"
+   }
+  },
+  "type": "object"
+ },
+ "state": {
+  "keys": {
+   "config_error": {
+    "type": "string"
+   },
+   "notices": {
+    "items": null,
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "prefs": {
+    "keys": {},
+    "type": "object"
+   },
+   "project_dir": {
+    "type": "string"
+   },
+   "ready": {
+    "type": "boolean"
+   },
+   "version": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "ui-lang": {
+  "keys": {
+   "code": {
+    "type": "string"
+   },
+   "name": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "plural": {
+    "type": "string"
+   },
+   "strings": {
+    "dynamic": true,
+    "type": "object"
+   }
+  },
+  "type": "object"
+ },
+ "ui-langs": {
+  "keys": {
+   "langs": {
+    "items": {
+     "keys": {
+      "code": {
+       "type": "string"
+      },
+      "name": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   }
+  },
+  "type": "object"
+ },
+ "undo": {
+  "keys": {
+   "label": {
+    "type": "string"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "problems": {
+    "items": null,
+    "type": "array"
+   },
+   "undone": {
+    "type": "string"
+   }
+  },
+  "type": "object"
+ },
+ "validation": {
+  "keys": {
+   "findings": {
+    "type": "number"
+   },
+   "items": {
+    "items": {
+     "keys": {
+      "file": {
+       "type": "string"
+      },
+      "issues": {
+       "items": {
+        "keys": {
+         "category": {
+          "type": "string"
+         },
+         "code": {
+          "type": "string"
+         },
+         "extra": {
+          "type": "object"
+         },
+         "ignore_note": {
+          "type": "string"
+         },
+         "ignored": {
+          "type": "boolean"
+         },
+         "message": {
+          "type": "string"
+         },
+         "severity": {
+          "type": "string"
+         }
+        },
+        "type": "object"
+       },
+       "type": "array"
+      },
+      "line": {
+       "type": "number"
+      },
+      "severity": {
+       "type": "string"
+      },
+      "source": {
+       "type": "string"
+      },
+      "src_who": {
+       "type": "string"
+      },
+      "target": {
+       "type": "string"
+      },
+      "who": {
+       "type": "string"
+      }
+     },
+     "type": "object"
+    },
+    "type": "array"
+   },
+   "ok": {
+    "type": "boolean"
+   },
+   "sev_counts": {
+    "keys": {
+     "error": {
+      "type": "number"
+     },
+     "info": {
+      "type": "number"
+     },
+     "warning": {
+      "type": "number"
+     }
+    },
+    "type": "object"
+   },
+   "total": {
+    "type": "number"
+   }
+  },
+  "type": "object"
+ }
+}
