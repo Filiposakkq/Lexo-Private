@@ -94,3 +94,4 @@ Not before the port: the menu with game selection and the new UI, the licence se
 
 - Film layouts (quick translating / proofreading): a search or filter opens the first hit and shows a results bar (Result n of m, previous / next, a list of all hits). 583 tests, UI self-test 139.
 - The film layouts use left / right arrows (results bar, quick proofreading bar); the left and right keys also move between lines.
+- Search boxes of Lines, Check and Glossary have a **Whole word** switch (`Sage` no longer finds `Massage`; `util.text_matcher`, `word=1` on the server). 586 tests, UI self-test 140.

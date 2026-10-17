@@ -1454,6 +1454,7 @@
   "Where:": "Kde:",
   "Which text to show in the game window": "Který text ukázat v okně hry",
   "Whole word": "Celé slovo",
+  "Whole word: “Sage” does not find “Massage”": "Celé slovo: „Sage“ nenajde „Massage“",
   "Why is it ignored? (optional, you will see it in the list of ignored findings)": "Proč se to ignoruje? (nepovinné, uvidíš to v seznamu ignorovaných)",
   "window 2": "okno 2",
   "Window {w}×{h}, font {size} px ({source}); limit {lines}.": "Okno {w}×{h}, písmo {size} px ({source}); limit {lines}.",
