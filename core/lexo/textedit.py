@@ -58,19 +58,8 @@ def make_replacer(find, replace, mode="plain", case=False):
     if mode not in MODES:
         raise ValueError(msg("Unknown search mode."))
     flags = 0 if case else re.IGNORECASE
-    if mode == "regex":
-        try:
-            pat = re.compile(find, flags | re.UNICODE)
-            re.compile(pat.pattern).sub(replace, "test")        # reject bad group references early
-        except re.error as e:
-            raise ValueError(msg("Invalid regular expression: {e}", e=e)) from e
-
-        def rx(m):
-            try:
-                return m.expand(replace)
-            except (re.error, IndexError) as e:
-                raise ValueError(msg("Invalid replacement: {e}", e=e)) from e
-        return lambda text, protect=True: sub_pattern(pat, rx, text, protect)
+    if mode == "regex":                                        # a Pro feature: the app asks the Pro pack (replace.regex), it is never made here
+        raise ValueError(msg("Regex find & replace is a Pro feature."))
     if mode == "stem":
         if not re.fullmatch(LETTER + "{4,}", find) or not re.fullmatch(LETTER + "{2,}", replace):
             raise ValueError(msg("The “by stem” mode is only for one word (at least 4 letters) and one replacement word."))

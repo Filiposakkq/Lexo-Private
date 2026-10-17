@@ -23,21 +23,13 @@ class ReplacerTests(unittest.TestCase):
         f = textedit.make_replacer("dikmince", "dikmunce", "stem")
         self.assertEqual(f("Vezmi dikmince, dikminci a Dikmincemi."), ("Vezmi dikmunce, dikmunci a Dikmuncemi.", 3))
 
-    def test_regex_with_groups_and_bad_input(self):
-        f = textedit.make_replacer(r"(\w+)ovi", r"\1u", "regex")
-        self.assertEqual(f("Petrovi a Honzovi"), ("Petru a Honzu", 2))
-        with self.assertRaises(ValueError):
-            textedit.make_replacer("(", "x", "regex")
+    def test_bad_input(self):
         with self.assertRaises(ValueError):
             textedit.make_replacer("", "x")
         with self.assertRaises(ValueError):
             textedit.make_replacer("ab", "x", "stem")
-        with self.assertRaises(ValueError):                                   # a group that does not exist
-            textedit.make_replacer("a", r"\9", "regex")
-
-    def test_regex_cannot_match_across_a_tag(self):
-        f = textedit.make_replacer(r"a.*b", "X", "regex")
-        self.assertEqual(f("a{i}b"), ("a{i}b", 0))
+        with self.assertRaises(ValueError):                                   # regular expressions are a Pro feature: the app asks the pack, Core never makes one
+            textedit.make_replacer("a.*b", "X", "regex")
 
 
 class ReplaceInAppTests(TempCase):
@@ -85,8 +77,6 @@ class ReplaceInAppTests(TempCase):
             self.app.replace_apply([{"file": "a.rpy", "line": pv["items"][0]["line"]}], "Vezmi", 'Řekl "ahoj"', "plain")
 
     def test_errors_are_reported_to_the_user(self):
-        with self.assertRaises(AppError):
-            self.app.replace_preview("(", "x", "regex")
         with self.assertRaises(AppError):
             self.app.replace_preview("a", "b", "plain", files=["nope.rpy"])
         with self.assertRaises(AppError):

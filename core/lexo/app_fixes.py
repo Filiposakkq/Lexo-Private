@@ -94,38 +94,46 @@ class FixesPart:
 
     # ------------------------------------------------------------ find and replace in translations
     def _replace_plan(self, find, replace, mode, case, files, protect, limit):
-        try:
-            rep = textedit.make_replacer(str(find), str(replace), mode, bool(case))
-        except ValueError as e:
-            raise AppError(text_of(e)) from e
+        rep = None
+        if mode != "regex":
+            try:
+                rep = textedit.make_replacer(str(find), str(replace), mode, bool(case))
+            except ValueError as e:
+                raise AppError(text_of(e)) from e
         files = [str(f) for f in (files or [])]
         unknown = [f for f in files if f not in self.project.files]
         if unknown:
             raise AppError(msg("Unknown file: {name}", name=unknown[0]))
+        candidates = [(rel, e) for rel in sorted(files or self.project.files, key=str.lower) for e in self.project.entries(rel)
+                      if e.target and not (e.pending and e.category and not self.project.is_translated(rel, e))]
+        if rep is None:                                             # regex: the Pro pack does the substitution on the plain texts
+            res = self._ext_call("replace.regex", "substitute", {"pattern": str(find), "replace": str(replace), "case": bool(case), "protect": bool(protect),
+                                                                   "texts": [e.target for _r, e in candidates]})["results"]
+            done = iter((r["new"], r["n"]) for r in res)
+        else:
+            done = None
         items, matches, truncated = [], 0, False
-        for rel in sorted(files or self.project.files, key=str.lower):
-            for e in self.project.entries(rel):
-                if not e.target or (e.pending and e.category and not self.project.is_translated(rel, e)):
-                    continue
+        for rel, e in candidates:
+            if done is not None:
+                new, n = next(done)
+            else:
                 try:
                     new, n = rep(e.target, bool(protect))
                 except ValueError as err:
                     raise AppError(str(err)) from err
-                if not n or new == e.target:
-                    continue
-                skip = ""
-                try:
-                    fixes.check_literal(new)
-                except fixes.FixError as err:
-                    skip = str(err)
-                if len(items) >= limit:
-                    truncated = True
-                    break
-                matches += n
-                items.append({"file": rel, "line": e.line, "who": e.who, "source": e.source, "before": e.target,
-                              "after": new, "count": n, "skip": skip})
-            if truncated:
+            if not n or new == e.target:
+                continue
+            skip = ""
+            try:
+                fixes.check_literal(new)
+            except fixes.FixError as err:
+                skip = str(err)
+            if len(items) >= limit:
+                truncated = True
                 break
+            matches += n
+            items.append({"file": rel, "line": e.line, "who": e.who, "source": e.source, "before": e.target,
+                          "after": new, "count": n, "skip": skip})
         return items, matches, truncated
 
     def replace_preview(self, find, replace, mode="plain", case=False, files=None, protect=True, limit=2000):

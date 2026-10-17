@@ -11,6 +11,8 @@
   "Git is not installed or not in PATH (https://git-scm.com).": "Git není nainstalovaný nebo není v PATH (https://git-scm.com).",
   "git pull --ff-only failed (nothing changed): {output}": "git pull --ff-only selhal (nic se nezměnilo): {output}",
   "git push failed. The local commit and the file were restored to their previous state: {output}": "git push selhal. Lokální commit i soubor byly vráceny do původního stavu: {output}",
+  "Invalid regular expression: {e}": "Neplatný regulární výraz: {e}",
+  "Invalid replacement: {e}": "Neplatná náhrada: {e}",
   "It is set to “{label}” by hand.": "Ručně je nastaveno „{label}“.",
   "No change – the website is already up to date.": "Beze změny – na webu je už aktuální stav.",
   "Published to the branch {branch} ({sha}).": "Publikováno do větve {branch} ({sha}).",

@@ -10,7 +10,7 @@ from pathlib import Path
 from lexo import layout, messages
 from lexo.extensions import API, ExtensionError
 
-from . import categorize, licence, publish
+from . import categorize, licence, publish, regex_replace
 
 __version__ = "0.1.0"
 
@@ -20,7 +20,7 @@ class Provider:
     version = __version__
 
     def offers(self):
-        return {f: o for f in ("publish.web", "bulk.categorize") for o in [licence.offer(f)] if o is not None}
+        return {f: o for f in ("publish.web", "bulk.categorize", "replace.regex") for o in [licence.offer(f)] if o is not None}
 
     def ui_strings(self, code):
         """The Czech (or other) texts of the messages of this pack, from ui/<code>.json."""
@@ -35,6 +35,8 @@ class Provider:
             return self._publish(method, payload)
         if feature == "bulk.categorize" and method == "suggest":
             return self._categorize(payload)
+        if feature == "replace.regex" and method == "substitute":
+            return messages.wire(regex_replace.substitute(payload))
         raise ExtensionError(f"The Pro pack has no feature {feature}.")
 
     def _categorize(self, p):
