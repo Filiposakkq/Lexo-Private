@@ -53,3 +53,9 @@ Atomic writes and the one-writer rule (`fixes.py`), the incremental project refr
 `rpy.classify` no longer has the Czech letters in code: the language pack has `letters` in `rules.json` (the letters of the language that the source language does not use); a line with one of them counts as translated.
 A pack without `letters` (and the neutral pack) treats any non-ASCII letter that way. The Python code now holds no Czech text except the data allowlist of the migration (`migrate.py`).
 The publishing tab uses the project's group word ("Chapter 3"); the website data (`progress.json`, schema 2) keeps its season/episode structure because the BaDIK website reads it.
+
+## Update: what belonged to one person or one game is gone
+- The header icons (Ko-fi, GitHub, the translation website), the "About" buttons and the author's addresses: removed; `LINKS` is empty until the product has a website, and a test keeps any address of one person or one game out.
+- The publishing settings no longer suggest `Filiposakkq/Being-A-DIK-CZ`; the "About" text and the "Scope" notice describe the product (Ren'Py games, English interface with Czech as a language pack) instead of "only Being a DIK".
+- `fonts_czech.rpy` is no longer skipped by default (only Ren'Py's own `common.rpy`), `fonts_czech` is no longer a "file of the whole game" name, the self-test folder is `.lexo-selftest`, the browser channel is `lexo-focus`.
+- Left on purpose: the migration of the old BaDIK data (Czech file names, the BaDIK layout detected from `prirazeni.csv` / `epizody.csv`), because existing installations must keep working. Still Czech by default: `mt.target_lang` ("CS").

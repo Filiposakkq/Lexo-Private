@@ -225,7 +225,7 @@ export function startFollowing() {
   })();
   setInterval(() => { if (pending && $('#editTarget')?.dataset.dirty !== '1') apply(pending); }, 800);
 }
-const FOCUS_BC = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('badik-focus') : null;
+const FOCUS_BC = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('lexo-focus') : null;
 export function announceFocus(it) {
   FOCUS_BC?.postMessage({ file: it.file, line: it.line, text: null });
   post('focus', { file: it.file, line: it.line }).catch(() => {});

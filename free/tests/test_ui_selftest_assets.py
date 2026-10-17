@@ -25,7 +25,7 @@ class SelfTestAssets(TempCase):
     def test_synthetic_project_is_not_vacuous(self):
         proj = load_serve_module().make_project()
         try:
-            self.assertIn(".badik-selftest", str(proj))
+            self.assertIn(".lexo-selftest", str(proj))
             app = App(Config().load())
             app.open_project(proj)
             ents = [e for rel in app.project.files for e in app.project.entries(rel)]
@@ -68,7 +68,7 @@ class SelfTestAssets(TempCase):
             body = r.read().decode("utf-8")
             self.assertEqual(r.status, 200)
             self.assertIn('"ready": true', body)
-            self.assertIn(".badik-selftest", str(app.project.root))
+            self.assertIn(".lexo-selftest", str(app.project.root))
         finally:
             cleanup()
 
@@ -81,7 +81,7 @@ class SelfTestAssets(TempCase):
 
     def test_selftest_only_writes_in_the_synthetic_project(self):
         js = (UI / "selftest.js").read_text(encoding="utf-8")
-        self.assertIn(".badik-selftest", js)
+        self.assertIn(".lexo-selftest", js)
         self.assertLess(js.index("const synthetic"), js.index("if (synthetic)"))
 
 

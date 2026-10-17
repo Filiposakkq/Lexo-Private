@@ -7,13 +7,9 @@ from .messages import msg
 # Files the legacy tool left next to the script; moved into _progress_data on first open.
 LEGACY_FILES = ("web.json", "progress.csv", "historie.csv", "korekce.csv", "epizody.csv",
                 "prirazeni.csv", "schvaleno.csv", "progress.json")
-# The only addresses the app will open in the browser (the UI sends just the id).
-LINKS = {
-    "kofi": "https://ko-fi.com/filiposakkq",
-    "github": "https://github.com/Filiposakkq",
-    "repo": "https://github.com/Filiposakkq/Being-A-DIK-CZ",
-    "web": "https://badik.filiposakkq.dev/",
-}
+# The only addresses the app will open in the browser (the UI sends just the id). Empty until the product has a website to point to;
+# nothing here may belong to one person or one game.
+LINKS = {}
 # define de = Character("Derek", color="#0066ff")      /      define mc = DynamicCharacter("name", ...)
 CHARACTER_RE = re.compile(r"""^\s*define\s+(?:\w+\.)?(\w+)\s*=\s*(Dynamic)?Character\s*\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')""")
 CHARACTERS_MAX_BYTES = 16 * 1024 * 1024        # a game script may hold the definitions too, so this is not a "small list" limit any more
