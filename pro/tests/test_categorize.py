@@ -152,11 +152,11 @@ class DemoModeTests(TempCase):
         import os
         os.environ["LEXO_PRO_DEMO"] = "1"
         self.addCleanup(os.environ.pop, "LEXO_PRO_DEMO", None)
-        self.assertEqual(self.app.ext.decide("bulk.categorize").limit, 20)
+        self.assertEqual(self.app.ext.decide("bulk.categorize").limit, 5)
         self.assertFalse(self.app.ext.decide("publish.web").available)        # publishing has no demo
         r = self.app.assign_suggest()
-        self.assertEqual(len(r["items"]), 20)
-        self.assertEqual(r["limited"], {"feature": "bulk.categorize", "limit": 20, "total": 25})
+        self.assertEqual(len(r["items"]), 5)
+        self.assertEqual(r["limited"], {"feature": "bulk.categorize", "limit": 5, "total": 25})
 
     def test_without_the_pack_the_suggestions_are_locked(self):
         from lexo.app import FeatureLocked
