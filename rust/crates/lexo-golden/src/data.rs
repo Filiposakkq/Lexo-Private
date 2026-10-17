@@ -2,14 +2,18 @@
 //! of every step and the bytes of every file at the end are compared. This is the same runner as `run_data_scenario` in `core/tests/golden_tool.py`.
 use crate::normalize::normalize;
 use chrono::{DateTime, NaiveDateTime, Utc};
+use lexo_core::bulk::{self, Assignment, Selection};
 use lexo_core::clock::{Clock, TestClock};
 use lexo_core::config::Config;
 use lexo_core::events::{self, EventLog};
+use lexo_core::export;
+use lexo_core::fixes::{self, Planned};
 use lexo_core::history::{self, History};
 use lexo_core::layout::{self, Layout};
 use lexo_core::lock::{Owner, ProjectLock};
 use lexo_core::memory::{self, Memory};
 use lexo_core::messages::render;
+use lexo_core::project::{self, Project};
 use lexo_core::snapshots;
 use lexo_core::store::{self, Kind, Store};
 use lexo_core::texthistory::{self, TextHistory};
@@ -98,6 +102,12 @@ fn file_records(root: &Path, skip: &[&str]) -> Map<String, Value> {
             files.insert(name, json!({"zip": entries}));
             continue;
         }
+        if f.file_name().is_some_and(|n| n == "last_fix.json") {
+            // it holds absolute paths of backups: compared as data, after the paths were normalised
+            let parsed: Value = serde_json::from_slice(&b).unwrap_or(Value::Null);
+            files.insert(f.strip_prefix(root).unwrap().to_string_lossy().replace('\\', "/"), json!({"json": parsed}));
+            continue;
+        }
         if f.file_name().is_some_and(|n| n == "text_history.jsonl") {
             // Python writes it in text mode (CRLF on Windows, LF elsewhere); this program always writes LF
             b = String::from_utf8_lossy(&b).replace("\r\n", "\n").into_bytes();
@@ -128,6 +138,8 @@ struct Runner<'a> {
     hist: Option<History>,
     th: Option<TextHistory>,
     mem: Option<Memory>,
+    project: Option<Project>,
+    progress: Option<Value>,
 }
 
 fn err_text(e: &lexo_core::fsutil::WriteFailed) -> String {
@@ -351,7 +363,7 @@ impl Runner<'_> {
                 })?
             }
             "store.undo" => {
-                let label = self.store()?.undo(clock).map_err(|e| err_text(&e))?;
+                let label = self.store()?.undo(clock).map_err(|e| err_text(&e))?.map(|l| l.text());
                 json!({"label": label, "state": self.dump_store()?})
             }
             "store.ensure_files" => {
@@ -600,6 +612,199 @@ impl Runner<'_> {
                 .into_iter()
                 .map(|(n, h)| json!([n, h]))
                 .collect::<Vec<_>>()),
+            "project.check_dir" => {
+                let (ok, m) = project::check_project_dir(&self.p(&a["path"]).to_string_lossy());
+                json!({"ok": ok, "message": m.map(|m| m.wire())})
+            }
+            "project.find_tl" => match project::find_translation_folder(&self.p(&a["path"])) {
+                Ok((folder, note)) => json!({"folder": folder.to_string_lossy(), "note": note.map(|m| m.wire())}),
+                Err(m) => json!({"error": m.wire()}),
+            },
+            "project.open" => {
+                let pack = self.pack()?;
+                let skip = a.get("skip").map(strings).unwrap_or_default();
+                self.project = Some(Project::new(&self.p(&a["root"]), &skip, a["symbols_as_done"].as_bool(), &pack));
+                json!(true)
+            }
+            "project.refresh" => {
+                let p = self.project.as_mut().ok_or("no project")?;
+                p.refresh(a["force"].as_bool().unwrap_or(false), clock).map_err(|e| e.0.text())?.to_json()
+            }
+            "project.rows" => {
+                let (p, st) = (self.project.as_ref().ok_or("no project")?, self.store.as_ref().ok_or("no store")?);
+                let rows = p.rows(st);
+                let (d, tot, c, pct, cpct) = project::totals_of(&rows);
+                let mut files: Vec<&String> = p.files.keys().collect();
+                files.sort();
+                json!({
+                    "rows": rows.iter().map(|r| json!([r.name, r.done, r.todo, r.total, r.corr, r.auto])).collect::<Vec<_>>(),
+                    "totals": [json!(d), json!(tot), json!(c), json!(pct), json!(cpct)], "files": files,
+                })
+            }
+            "project.proof" => {
+                let (p, st) = (self.project.as_ref().ok_or("no project")?, self.store.as_ref().ok_or("no store")?);
+                let rel = nat(a["rel"].as_str().unwrap_or(""));
+                let ents = p.entries(&rel);
+                let (c, pc) = (p.counts(st, &rel), p.proof_counts(st, &rel));
+                json!({
+                    "counts": [c.0, c.1, c.2], "proof_counts": [pc.0, pc.1], "stale": p.proof_stale(st, &rel),
+                    "states": ents.iter().map(|e| p.proof_state(st, &rel, e)).collect::<Vec<_>>(),
+                    "translated": ents.iter().map(|e| p.is_translated(st, &rel, e)).collect::<Vec<_>>(),
+                })
+            }
+            "project.migrate" => {
+                let renames: Vec<(String, String)> =
+                    a["renames"].as_array().into_iter().flatten().map(|r| (nat(r[0].as_str().unwrap_or("")), nat(r[1].as_str().unwrap_or("")))).collect();
+                let moved = Project::migrate_metadata(self.store()?, &renames, clock);
+                json!({"moved": moved, "state": self.dump_store()?})
+            }
+            "project.path_of" => {
+                let p = self.project.as_ref().ok_or("no project")?;
+                match p.path_of(&nat(a["rel"].as_str().unwrap_or(""))) {
+                    Ok(full) => json!({"path": full.to_string_lossy()}),
+                    Err(m) => json!({"error": m.wire()}),
+                }
+            }
+            "fixes.check_literal" => json!(strings(&a["texts"]).iter().map(|t| fixes::check_literal(t).err().map(|e| e.0.wire())).collect::<Vec<_>>()),
+            "fixes.edit" | "fixes.edits" | "fixes.undo" | "fixes.last" | "fixes.apply" => {
+                let pack = self.pack()?;
+                let data = self.p(&a["data"]);
+                let p = self.project.as_ref().ok_or("no project")?;
+                let fe = |e: Box<fixes::FixError>| e.0.text();
+                match op {
+                    "fixes.edit" => fixes::edit_translation(
+                        p,
+                        &pack,
+                        &data,
+                        &nat(a["rel"].as_str().unwrap_or("")),
+                        a["line"].as_u64().unwrap_or(0) as usize,
+                        a["text"].as_str().unwrap_or(""),
+                        clock,
+                    )
+                    .map_err(fe)?,
+                    "fixes.edits" => {
+                        let edits: Vec<(String, usize, String)> = a["edits"]
+                            .as_array()
+                            .into_iter()
+                            .flatten()
+                            .map(|e| (nat(e[0].as_str().unwrap_or("")), e[1].as_u64().unwrap_or(0) as usize, e[2].as_str().unwrap_or("").to_string()))
+                            .collect();
+                        let label = lexo_core::messages::Message::new(a["label"].as_str().unwrap_or(""), None, Default::default());
+                        fixes::apply_edits(p, &pack, &data, &edits, &label, clock).map_err(fe)?.to_json()
+                    }
+                    "fixes.undo" => fixes::undo(p, &data, clock).map_err(fe)?,
+                    "fixes.last" => fixes::last(&data).unwrap_or(Value::Null),
+                    _ => {
+                        let plan: Vec<Planned> = a["plan"]
+                            .as_array()
+                            .into_iter()
+                            .flatten()
+                            .map(|x| {
+                                let s = |k: &str| x[k].as_str().unwrap_or("").to_string();
+                                let skip = x["skip"].as_str().filter(|t| !t.is_empty()).map(|t| lexo_core::messages::Message::new(t, None, Default::default()));
+                                Planned { file: nat(&s("file")), line: x["line"].as_u64().unwrap_or(0) as usize, before: s("before"), after: s("after"), skip }
+                            })
+                            .collect();
+                        let r = fixes::apply(p, &pack, &data, &plan, clock).map_err(fe)?;
+                        json!({"fixed": r.fixed, "skipped": r.skipped.iter().map(|(f, l, m)| json!([f, l, m.wire()])).collect::<Vec<_>>(), "backups": r.backups})
+                    }
+                }
+            }
+            "export.build" => {
+                let (p, st, h) = (self.project.as_ref().ok_or("no project")?, self.store.as_ref().ok_or("no store")?, self.hist.as_ref().ok_or("no history")?);
+                let rows = p.rows(st);
+                let data = export::build_progress(&rows, st, &self.layout, h, a["title"].as_str().unwrap_or(""), a["now"].as_str().unwrap_or(""), today(a)?);
+                self.progress = Some(data.clone());
+                data
+            }
+            "export.validate" => {
+                let mut data = self.progress.clone().ok_or("nothing built")?;
+                for m in a["mutate"].as_array().into_iter().flatten() {
+                    let path = m[0].as_array().ok_or("bad path")?;
+                    let mut node = &mut data;
+                    for key in &path[..path.len() - 1] {
+                        node = match key {
+                            Value::String(k) => &mut node[k.as_str()],
+                            other => &mut node[other.as_u64().unwrap_or(0) as usize],
+                        };
+                    }
+                    match &path[path.len() - 1] {
+                        Value::String(k) => node[k.as_str()] = m[1].clone(),
+                        other => node[other.as_u64().unwrap_or(0) as usize] = m[1].clone(),
+                    }
+                }
+                if let Some(r) = a.get("replace") {
+                    data = r.clone();
+                }
+                json!(export::validate_progress(&data, &self.layout).iter().map(|m| m.wire()).collect::<Vec<_>>())
+            }
+            "export.render" => json!(export::render(self.progress.as_ref().ok_or("nothing built")?)),
+            "export.write" => {
+                let data = self.progress.clone().ok_or("nothing built")?;
+                match export::write_local(&self.p(&a["path"]), &data, &self.layout, self.backup_dir(a).as_deref(), clock) {
+                    Ok(()) => json!(true),
+                    Err(e) => json!({"error": e.to_string()}),
+                }
+            }
+            "export.clean_target" => json!(strings(&a["rels"])
+                .iter()
+                .map(|r| match export::clean_target(r) {
+                    Ok(s) => json!(s),
+                    Err(m) => json!({"error": m.wire()}),
+                })
+                .collect::<Vec<_>>()),
+            "bulk.assign" => {
+                let items: Vec<Assignment> = a["items"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|i| Assignment {
+                        name: nat(i["name"].as_str().unwrap_or("")),
+                        value: i["value"].as_str().unwrap_or("").to_string(),
+                        overwrite: i["overwrite"].as_bool().unwrap_or(false),
+                    })
+                    .collect();
+                let (applied, skipped) = bulk::apply_assignments(self.store()?, &items, clock).map_err(|e| err_text(&e))?;
+                json!({"applied": applied, "skipped": skipped.iter().map(|(n, m)| json!([n, m.wire()])).collect::<Vec<_>>(), "state": self.dump_store()?})
+            }
+            "bulk.candidates" => {
+                let (p, st) = (self.project.as_ref().ok_or("no project")?, self.store.as_ref().ok_or("no store")?);
+                match bulk::approval_candidates(
+                    p,
+                    st,
+                    &nat(a["rel"].as_str().unwrap_or("")),
+                    a["line"].as_u64().unwrap_or(0) as usize,
+                    a["scope"].as_str().unwrap_or("project"),
+                    a["same_speaker"].as_bool().unwrap_or(true),
+                ) {
+                    Ok(v) => v,
+                    Err(m) => json!({"error": m.wire()}),
+                }
+            }
+            "bulk.approve" => {
+                let selections: Vec<Selection> = a["selections"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|s| Selection {
+                        file: nat(s["file"].as_str().unwrap_or("")),
+                        key: (s["key"][0].as_str().unwrap_or("").to_string(), s["key"][1].as_str().unwrap_or("").to_string()),
+                    })
+                    .collect();
+                let label = a["label"].as_str().map(|l| store::Label::Plain(l.to_string()));
+                let (changed, skipped) = {
+                    let (project, st) = (self.project.as_ref().ok_or("no project")?, self.store.as_mut().ok_or("no store")?);
+                    bulk::apply_approvals(project, st, &selections, a["on"].as_bool().unwrap_or(true), label, clock).map_err(|e| err_text(&e))?
+                };
+                json!({"changed": changed, "skipped": skipped.iter().map(|(n, m)| json!([n, m.wire()])).collect::<Vec<_>>(), "state": self.dump_store()?})
+            }
+            "bulk.rules" => {
+                let (p, st) = (self.project.as_ref().ok_or("no project")?, self.store.as_ref().ok_or("no store")?);
+                let glossary: Vec<(String, String)> = st.glossary.iter().map(|(c, g)| (c.clone(), g.n.clone())).collect();
+                let rels: Option<Vec<String>> =
+                    a.get("rels").filter(|r| r.as_array().is_some_and(|x| !x.is_empty())).map(|r| strings(r).iter().map(|s| nat(s)).collect());
+                bulk::rule_candidates(p, st, &glossary, &strings(&a["rules"]), rels.as_deref())
+            }
             other => return Err(format!("unknown data step {other}")),
         })
     }
@@ -639,7 +844,7 @@ impl Runner<'_> {
 
     fn change<F: FnOnce(&mut Store)>(&mut self, kind: Kind, f: F) -> Result<Value, String> {
         let clock: &dyn Clock = self.clock;
-        self.store()?.change(kind.name(), &[kind], f, clock).map_err(|e| err_text(&e))?;
+        self.store()?.change(store::Label::Plain(kind.name().to_string()), &[kind], f, clock).map_err(|e| err_text(&e))?;
         self.dump_store()
     }
 
@@ -763,6 +968,22 @@ impl Runner<'_> {
     }
 }
 
+/// A path of a file of the project as the system writes it (the scenarios write them with `/`).
+fn nat(s: &str) -> String {
+    s.replace('/', std::path::MAIN_SEPARATOR_STR)
+}
+
+impl Runner<'_> {
+    /// The language pack of the open layout: Czech for `cs`, the neutral one otherwise.
+    fn pack(&self) -> Result<lexo_core::lang::Pack, String> {
+        crate::run::pack_named(if self.layout.language == "cs" { "cs" } else { "neutral" }, &golden_root())
+    }
+}
+
+fn golden_root() -> PathBuf {
+    crate::golden_dir().join("../..")
+}
+
 fn roots(base: &Path) -> Vec<String> {
     let canon = std::fs::canonicalize(base).map(|p| p.to_string_lossy().trim_start_matches(r"\\?\").to_string()).unwrap_or_default();
     let mut out: Vec<String> = Vec::new();
@@ -817,6 +1038,8 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
             hist: None,
             th: None,
             mem: None,
+            project: None,
+            progress: None,
         };
         let mut steps = Vec::new();
         for st in spec["steps"].as_array().ok_or("no steps")? {
@@ -839,4 +1062,33 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
     })();
     let _ = std::fs::remove_dir_all(&tmp);
     result
+}
+
+/// What the real-data comparison reads from a translation folder: the files found, their rows (counts, proofread) with the store of its `.lexo` folder; nothing is written.
+pub fn project_json(root: &Path, skip: &[String]) -> Value {
+    let dir = root.join(project::DATA_DIR_NAME);
+    let layout = std::fs::read_to_string(dir.join("lexo.json"))
+        .ok()
+        .and_then(|t| serde_json::from_str::<Value>(t.trim_start_matches('\u{feff}')).ok())
+        .and_then(|v| layout::parse(&v).ok())
+        .unwrap_or_else(|| Layout::new(Vec::new(), Default::default(), "", "", Vec::new()));
+    let mut st = Store::new(&dir, None, layout);
+    st.load();
+    let mut p = Project::new(root, skip, None, &lexo_core::lang::Pack::neutral());
+    let report = p.refresh(false, &lexo_core::clock::SystemClock);
+    let rows = p.rows(&st);
+    let mut files: Vec<&String> = p.files.keys().collect();
+    files.sort();
+    let proof: Map<String, Value> = files
+        .iter()
+        .map(|f| {
+            let (pc, stale) = (p.proof_counts(&st, f), p.proof_stale(&st, f));
+            ((*f).clone(), json!([pc.0, pc.1, stale]))
+        })
+        .collect();
+    json!({
+        "added": report.as_ref().map(|r| r.added.clone()).unwrap_or_default(), "empty": report.as_ref().map(|r| r.empty.clone()).unwrap_or_default(),
+        "errors": report.as_ref().map(|r| r.errors.len()).unwrap_or(0),
+        "rows": rows.iter().map(|r| json!([r.name, r.done, r.todo, r.total, r.corr, r.auto])).collect::<Vec<_>>(), "proof": proof,
+    })
 }

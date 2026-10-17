@@ -1,0 +1,50 @@
+{
+ "_doc": "bulk: applying reviewed assignments (a manual value is only replaced when confirmed), approval of identical pending lines (candidates and their default ticks, approving and removing, stale selections refused) and the rules that find lines needing no translation.",
+ "files": {
+  "root/tl/a.rpy": "translate czech a_1:\n\n    # mc \"Hmm.\"\n    mc \"Hmm.\"\n\ntranslate czech a_2:\n\n    # js \"Hmm.\"\n    js \"Hmm.\"\n\ntranslate czech a_3:\n\n    # mc \"Hello there, my friend, how are you doing today?\"\n    mc \"Hello there, my friend, how are you doing today?\"\n\ntranslate czech a_4:\n\n    # mc \"...\"\n    mc \"...\"\n\ntranslate czech a_5:\n\n    # mc \"Ah, Wow!\"\n    mc \"Ah, Wow!\"\n\ntranslate czech a_6:\n\n    # mc \"Kira\"\n    mc \"Kira\"\n\ntranslate czech a_7:\n\n    # mc \"Empty\"\n    mc \"\"\n\ntranslate czech strings: \n\n    old \"Hmm.\"\n    new \"Hmm.\"\n\n    old \"Kira and the {i}Sage{/i}\"\n    new \"Kira and the {i}Sage{/i}\"\n",
+  "root/tl/b.rpy": "translate czech b_1:\n\n    # mc \"Hmm.\"\n    mc \"Hmm.\"\n\ntranslate czech b_2:\n\n    # mc \"Hmm.\"\n    mc \"Hmm...\"\n\ntranslate czech b_3:\n\n    # mc \"Hello there, my friend, how are you doing today?\"\n    mc \"Hello there, my friend, how are you doing today?\"\n",
+  "root/tl/.lexo/approved.csv": "file;block;original\r\nb.rpy;translate czech b_1;Hmm.\r\n",
+  "root/tl/.lexo/assignments.csv": "file;group\r\na.rpy;general\r\n",
+  "root/tl/.lexo/glossary.csv": "code;name;type;note\r\nmc;Kira;speaker;\r\nsage;The Sage;term;mudrc\r\n"
+ },
+ "steps": [
+  {"op": "layout.use", "raw": {"sections": [{"n": 1, "groups": [1, 2]}]}},
+  {"op": "store.open", "shared": "root/tl/.lexo", "local": "root/local"},
+  {"op": "store.load"},
+  {"op": "project.open", "root": "root/tl"},
+  {"op": "project.refresh"},
+  {"op": "bulk.assign", "items": [
+    {"name": "a.rpy", "value": "ep:1"},
+    {"name": "b.rpy", "value": "ep:2"},
+    {"name": "c.rpy", "value": "ep:9"},
+    {"name": "a.rpy", "value": "ep:1", "overwrite": true},
+    {"name": "b.rpy", "value": "ep:2"},
+    {"name": "d.rpy", "value": ""},
+    {"name": "x.rpy", "value": "gen", "overwrite": true}]},
+  {"op": "bulk.assign", "items": [{"name": "b.rpy", "value": "", "overwrite": true}, {"name": "a.rpy", "value": "gen"}]},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 4},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 4, "scope": "file"},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 4, "scope": "occurrence"},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 4, "same_speaker": false},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 14},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 34},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 99},
+  {"op": "bulk.candidates", "rel": "a.rpy", "line": 4, "scope": "everything"},
+  {"op": "bulk.approve", "selections": [
+    {"file": "a.rpy", "key": ["translate czech a_1", "Hmm."]},
+    {"file": "a.rpy", "key": ["translate czech a_7", "Empty"]},
+    {"file": "a.rpy", "key": ["translate czech a_99", "None"]},
+    {"file": "nothing.rpy", "key": ["x", "y"]},
+    {"file": "b.rpy", "key": ["translate czech b_3", "Hello  there, my friend, how are you doing today?"]}]},
+  {"op": "bulk.approve", "on": false, "selections": [
+    {"file": "b.rpy", "key": ["translate czech b_1", "Hmm."]},
+    {"file": "a.rpy", "key": ["translate czech a_1", "Hmm."]},
+    {"file": "a.rpy", "key": ["translate czech a_1", "Hmm."]}]},
+  {"op": "bulk.approve", "label": "Approved by hand", "selections": [{"file": "a.rpy", "key": ["translate czech a_2", "Hmm."]}]},
+  {"op": "bulk.rules", "rules": ["symbols", "interjections", "names"]},
+  {"op": "bulk.rules", "rules": ["symbols"]},
+  {"op": "bulk.rules", "rules": ["interjections", "nonsense"], "rels": ["b.rpy"]},
+  {"op": "bulk.rules", "rules": ["names"], "rels": ["a.rpy", "missing.rpy"]},
+  {"op": "bulk.rules", "rules": []}
+ ]
+}

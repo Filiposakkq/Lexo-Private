@@ -1,0 +1,980 @@
+{
+ "files_after": {
+  "root/local/backups/assignments.csv.<stamp>.bak": {
+   "sha1": "84ad706ef88c8b761ab0df36772f3798b2ff9faa",
+   "text": "file;group\r\nep1_a.rpy;episode 1\r\nep1_b.rpy;episode 1\r\nep2.rpy;episode 2\r\nep3.rpy;episode 3\r\nscenes.rpy;general\r\n"
+  },
+  "root/tl/.lexo/assignments.csv": {
+   "sha1": "1a1cfabcf80d202058eebdac785bc123a1d6a7bc",
+   "text": "﻿file;group\r\nep1_a.rpy;episode 1\r\nep1_b.rpy;episode 1\r\nep2.rpy;episode 2\r\nep3.rpy;episode 3\r\nloose.rpy;episode 2\r\nscenes.rpy;general\r\n"
+  },
+  "root/tl/.lexo/episode_states.csv": {
+   "sha1": "e2fbc822805bef4af6dbf2389986b842cb513c00",
+   "text": "episode;state\r\n1;done\r\n2;wip\r\n3;none\r\n"
+  },
+  "root/tl/.lexo/history.csv": {
+   "sha1": "130d27579e83288806cf59d35a98ca1a5678b85d",
+   "text": "date;translated;total;percent;proofread;proofread_percent\r\n2026-09-01 10:00;2;14;14.3;0;0.0\r\n2026-09-08 10:00;4;14;28.6;1;7.1\r\n2026-09-15 10:00;6;14;42.9;2;14.3\r\n2026-09-15 20:00;7;14;50.0;2;14.3\r\n2026-09-29 10:00;9;14;64.3;3;21.4\r\n2026-10-06 10:00;10;14;71.4;3;21.4\r\n"
+  },
+  "root/tl/.lexo/proofread.csv": {
+   "sha1": "5b4f3ce0f2c40117c679b9e26298db261003d043",
+   "text": "file;proofread;translated_manual\r\nep1_a.rpy;1;\r\nep1_b.rpy;2;\r\n"
+  },
+  "root/tl/ep1_a.rpy": {
+   "sha1": "c3d51e9bbf92a59feb1adb2af75a588f6e391514",
+   "text": "translate czech ep1a_1:\n\n    # mc \"Hello\"\n    mc \"Ahoj\"\n\ntranslate czech ep1a_2:\n\n    # mc \"Bye\"\n    mc \"Bye\"\n"
+  },
+  "root/tl/ep1_b.rpy": {
+   "sha1": "1cdd24814c173cb720be901544c435f6cc68dfca",
+   "text": "translate czech ep1b_1:\n\n    # mc \"One\"\n    mc \"Jedna\"\n\ntranslate czech ep1b_2:\n\n    # mc \"Two\"\n    mc \"Dva\"\n"
+  },
+  "root/tl/ep2.rpy": {
+   "sha1": "961c35a7bf0c6021b33bf432ce08ba2c21650a8a",
+   "text": "translate czech ep2_1:\n\n    # mc \"Three\"\n    mc \"Tri\"\n\ntranslate czech ep2_2:\n\n    # mc \"Four\"\n    mc \"Four\"\n\ntranslate czech ep2_3:\n\n    # mc \"Five\"\n    mc \"\"\n"
+  },
+  "root/tl/ep3.rpy": {
+   "sha1": "2347fac42237ff656d3f5c0d5cb257d1032de7d3",
+   "text": "translate czech ep3_1:\n\n    # mc \"Six\"\n    mc \"Sest\"\n"
+  },
+  "root/tl/loose.rpy": {
+   "sha1": "0451826362c9768d4961de3334070bea9f95b707",
+   "text": "translate czech lo_1:\n\n    # mc \"Nine\"\n    mc \"Devet\"\n\ntranslate czech lo_2:\n\n    # mc \"Ten\"\n    mc \"Ten\"\n"
+  },
+  "root/tl/scenes.rpy": {
+   "sha1": "5a5c23fe195a55ee97e8016ed5e0fe5f5d37602d",
+   "text": "translate czech sc_1:\n\n    # mc \"Seven\"\n    mc \"Sedm\"\n\ntranslate czech sc_2:\n\n    # mc \"Eight\"\n    mc \"Osm\"\n"
+  },
+  "root/web/backups/progress.json.<stamp>.bak": {
+   "sha1": "c476156ccb3048feb6c78a3ac1d36af3f1ff2349",
+   "text": "{\n \"schema\": 2,\n \"title\": \"My game\",\n \"updated\": \"2026-10-17T11:00+02:00\",\n \"translation\": {\n  \"done\": 9,\n  \"total\": 12,\n  \"percent\": 75.0\n },\n \"proofreading\": {\n  \"done\": 3,\n  \"total\": 12,\n  \"percent\": 25.0\n },\n \"files\": {\n  \"none\": 0,\n  \"wip\": 3,\n  \"tr\": 2,\n  \"rev\": 0,\n  \"done\": 1,\n  \"total\": 6\n },\n \"scope\": {\n  \"seasons\": [\n   1,\n   2\n  ],\n  \"episodes\": [\n   1,\n   2,\n   3\n  ],\n  \"planned_seasons\": [\n   3\n  ]\n },\n \"seasons\": [\n  {\n   \"n\": 1,\n   \"status\": \"active\",\n   \"episodes\": [\n    1,\n    2\n   ],\n   \"translation\": {\n    \"done\": 5,\n    \"total\": 7,\n    \"percent\": 71.4\n   },\n   \"proofreading\": {\n    \"done\": 3,\n    \"total\": 7,\n    \"percent\": 42.9\n   },\n   \"files\": 3,\n   \"files_done\": 1,\n   \"episodes_done\": 1,\n   \"episodes_total\": 2\n  },\n  {\n   \"n\": 2,\n   \"status\": \"active\",\n   \"episodes\": [\n    3\n   ],\n   \"translation\": {\n    \"done\": 1,\n    \"total\": 1,\n    \"percent\": 100.0\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 1,\n    \"percent\": 0.0\n   },\n   \"files\": 1,\n   \"files_done\": 1,\n   \"episodes_done\": 0,\n   \"episodes_total\": 1\n  },\n  {\n   \"n\": 3,\n   \"status\": \"planned\"\n  }\n ],\n \"episodes\": [\n  {\n   \"n\": 1,\n   \"status\": \"done\",\n   \"percent\": 75.0,\n   \"files\": 2,\n   \"season\": 1,\n   \"translation\": {\n    \"done\": 3,\n    \"total\": 4,\n    \"percent\": 75.0\n   },\n   \"proofreading\": {\n    \"done\": 3,\n    \"total\": 4,\n    \"percent\": 75.0\n   },\n   \"files_done\": 1,\n   \"files_total\": 2,\n   \"files_proofread\": 1\n  },\n  {\n   \"n\": 2,\n   \"status\": \"wip\",\n   \"percent\": 66.7,\n   \"files\": 1,\n   \"season\": 1,\n   \"translation\": {\n    \"done\": 2,\n    \"total\": 3,\n    \"percent\": 66.7\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 3,\n    \"percent\": 0.0\n   },\n   \"files_done\": 0,\n   \"files_total\": 1,\n   \"files_proofread\": 0\n  },\n  {\n   \"n\": 3,\n   \"status\": \"none\",\n   \"percent\": 100.0,\n   \"files\": 1,\n   \"season\": 2,\n   \"translation\": {\n    \"done\": 1,\n    \"total\": 1,\n    \"percent\": 100.0\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 1,\n    \"percent\": 0.0\n   },\n   \"files_done\": 1,\n   \"files_total\": 1,\n   \"files_proofread\": 0\n  }\n ],\n \"general\": {\n  \"translation\": {\n   \"done\": 2,\n   \"total\": 2,\n   \"percent\": 100.0\n  },\n  \"proofreading\": {\n   \"done\": 0,\n   \"total\": 2,\n   \"percent\": 0.0\n  },\n  \"files\": 1\n },\n \"unassigned\": {\n  \"translation\": {\n   \"done\": 1,\n   \"total\": 2,\n   \"percent\": 50.0\n  },\n  \"proofreading\": {\n   \"done\": 0,\n   \"total\": 2,\n   \"percent\": 0.0\n  },\n  \"files\": 1\n },\n \"estimate\": {\n  \"status\": \"ok\",\n  \"remaining\": 3,\n  \"pace_per_day\": 0.1,\n  \"eta\": \"2026-12-04\",\n  \"eta_early\": \"2026-10-27\",\n  \"eta_late\": null,\n  \"confidence\": \"medium\",\n  \"basis_days\": 32,\n  \"days_with_data\": 3\n },\n \"history\": [\n  {\n   \"date\": \"2026-09-01\",\n   \"translation\": 14.3,\n   \"proofreading\": 0.0\n  },\n  {\n   \"date\": \"2026-09-08\",\n   \"translation\": 28.6,\n   \"proofreading\": 7.1\n  },\n  {\n   \"date\": \"2026-09-15\",\n   \"translation\": 50.0,\n   \"proofreading\": 14.3\n  },\n  {\n   \"date\": \"2026-09-29\",\n   \"translation\": 64.3,\n   \"proofreading\": 21.4\n  },\n  {\n   \"date\": \"2026-10-06\",\n   \"translation\": 71.4,\n   \"proofreading\": 21.4\n  }\n ]\n}\n"
+  },
+  "root/web/progress.json": {
+   "sha1": "4b3938b11dc73e234e461b8b79722c080d72478c",
+   "text": "{\n \"schema\": 2,\n \"title\": \"\",\n \"updated\": \"2026-10-17T11:00+02:00\",\n \"translation\": {\n  \"done\": 9,\n  \"total\": 12,\n  \"percent\": 75.0\n },\n \"proofreading\": {\n  \"done\": 3,\n  \"total\": 12,\n  \"percent\": 25.0\n },\n \"files\": {\n  \"none\": 0,\n  \"wip\": 3,\n  \"tr\": 2,\n  \"rev\": 0,\n  \"done\": 1,\n  \"total\": 6\n },\n \"scope\": {\n  \"seasons\": [\n   1,\n   2\n  ],\n  \"episodes\": [\n   1,\n   2,\n   3\n  ],\n  \"planned_seasons\": [\n   3\n  ]\n },\n \"seasons\": [\n  {\n   \"n\": 1,\n   \"status\": \"active\",\n   \"episodes\": [\n    1,\n    2\n   ],\n   \"translation\": {\n    \"done\": 6,\n    \"total\": 9,\n    \"percent\": 66.7\n   },\n   \"proofreading\": {\n    \"done\": 3,\n    \"total\": 9,\n    \"percent\": 33.3\n   },\n   \"files\": 4,\n   \"files_done\": 1,\n   \"episodes_done\": 1,\n   \"episodes_total\": 2\n  },\n  {\n   \"n\": 2,\n   \"status\": \"active\",\n   \"episodes\": [\n    3\n   ],\n   \"translation\": {\n    \"done\": 1,\n    \"total\": 1,\n    \"percent\": 100.0\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 1,\n    \"percent\": 0.0\n   },\n   \"files\": 1,\n   \"files_done\": 1,\n   \"episodes_done\": 0,\n   \"episodes_total\": 1\n  },\n  {\n   \"n\": 3,\n   \"status\": \"planned\"\n  }\n ],\n \"episodes\": [\n  {\n   \"n\": 1,\n   \"status\": \"done\",\n   \"percent\": 75.0,\n   \"files\": 2,\n   \"season\": 1,\n   \"translation\": {\n    \"done\": 3,\n    \"total\": 4,\n    \"percent\": 75.0\n   },\n   \"proofreading\": {\n    \"done\": 3,\n    \"total\": 4,\n    \"percent\": 75.0\n   },\n   \"files_done\": 1,\n   \"files_total\": 2,\n   \"files_proofread\": 1\n  },\n  {\n   \"n\": 2,\n   \"status\": \"wip\",\n   \"percent\": 60.0,\n   \"files\": 2,\n   \"season\": 1,\n   \"translation\": {\n    \"done\": 3,\n    \"total\": 5,\n    \"percent\": 60.0\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 5,\n    \"percent\": 0.0\n   },\n   \"files_done\": 0,\n   \"files_total\": 2,\n   \"files_proofread\": 0\n  },\n  {\n   \"n\": 3,\n   \"status\": \"none\",\n   \"percent\": 100.0,\n   \"files\": 1,\n   \"season\": 2,\n   \"translation\": {\n    \"done\": 1,\n    \"total\": 1,\n    \"percent\": 100.0\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 1,\n    \"percent\": 0.0\n   },\n   \"files_done\": 1,\n   \"files_total\": 1,\n   \"files_proofread\": 0\n  }\n ],\n \"general\": {\n  \"translation\": {\n   \"done\": 2,\n   \"total\": 2,\n   \"percent\": 100.0\n  },\n  \"proofreading\": {\n   \"done\": 0,\n   \"total\": 2,\n   \"percent\": 0.0\n  },\n  \"files\": 1\n },\n \"unassigned\": {\n  \"translation\": {\n   \"done\": 0,\n   \"total\": 0,\n   \"percent\": null\n  },\n  \"proofreading\": {\n   \"done\": 0,\n   \"total\": 0,\n   \"percent\": null\n  },\n  \"files\": 0\n },\n \"estimate\": {\n  \"status\": \"ok\",\n  \"remaining\": 3,\n  \"pace_per_day\": 0.1,\n  \"eta\": \"2026-12-11\",\n  \"eta_early\": \"2026-10-30\",\n  \"eta_late\": null,\n  \"confidence\": \"medium\",\n  \"basis_days\": 35,\n  \"days_with_data\": 3\n },\n \"history\": [\n  {\n   \"date\": \"2026-09-01\",\n   \"translation\": 14.3,\n   \"proofreading\": 0.0\n  },\n  {\n   \"date\": \"2026-09-08\",\n   \"translation\": 28.6,\n   \"proofreading\": 7.1\n  },\n  {\n   \"date\": \"2026-09-15\",\n   \"translation\": 50.0,\n   \"proofreading\": 14.3\n  },\n  {\n   \"date\": \"2026-09-29\",\n   \"translation\": 64.3,\n   \"proofreading\": 21.4\n  },\n  {\n   \"date\": \"2026-10-06\",\n   \"translation\": 71.4,\n   \"proofreading\": 21.4\n  }\n ]\n}\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "sections": [
+     {
+      "groups": [
+       1,
+       2
+      ],
+      "n": 1,
+      "status": "active"
+     },
+     {
+      "groups": [
+       3
+      ],
+      "n": 2,
+      "status": "active"
+     },
+     {
+      "n": 3,
+      "status": "planned"
+     }
+    ],
+    "version": 1
+   },
+   "op": "layout.use",
+   "params": {
+    "raw": {
+     "sections": [
+      {
+       "groups": [
+        1,
+        2
+       ],
+       "n": 1
+      },
+      {
+       "groups": [
+        3
+       ],
+       "n": 2
+      },
+      {
+       "n": 3,
+       "status": "planned"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "answer": true,
+   "op": "store.open",
+   "params": {
+    "local": "root/local",
+    "shared": "root/tl/.lexo"
+   }
+  },
+  {
+   "answer": {
+    "approved": {},
+    "assign": {
+     "ep1_a.rpy": "ep:1",
+     "ep1_b.rpy": "ep:1",
+     "ep2.rpy": "ep:2",
+     "ep3.rpy": "ep:3",
+     "scenes.rpy": "gen"
+    },
+    "corr": {
+     "ep1_a.rpy": {
+      "c": "1",
+      "t": ""
+     },
+     "ep1_b.rpy": {
+      "c": "2",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "done",
+     "2": "wip",
+     "3": "none"
+    },
+    "glossary": {},
+    "ignored": {},
+    "proof": {},
+    "undo": [],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.load",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "project.open",
+   "params": {
+    "root": "root/tl"
+   }
+  },
+  {
+   "answer": {
+    "added": [
+     "ep1_a.rpy",
+     "ep1_b.rpy",
+     "ep2.rpy",
+     "ep3.rpy",
+     "loose.rpy",
+     "scenes.rpy"
+    ],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "added 6.",
+    "unchanged": 0
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "history.open",
+   "params": {
+    "path": "root/tl/.lexo/history.csv"
+   }
+  },
+  {
+   "answer": {
+    "episodes": [
+     {
+      "files": 2,
+      "files_done": 1,
+      "files_proofread": 1,
+      "files_total": 2,
+      "n": 1,
+      "percent": 75.0,
+      "proofreading": {
+       "done": 3,
+       "percent": 75.0,
+       "total": 4
+      },
+      "season": 1,
+      "status": "done",
+      "translation": {
+       "done": 3,
+       "percent": 75.0,
+       "total": 4
+      }
+     },
+     {
+      "files": 1,
+      "files_done": 0,
+      "files_proofread": 0,
+      "files_total": 1,
+      "n": 2,
+      "percent": 66.7,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 3
+      },
+      "season": 1,
+      "status": "wip",
+      "translation": {
+       "done": 2,
+       "percent": 66.7,
+       "total": 3
+      }
+     },
+     {
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "files_total": 1,
+      "n": 3,
+      "percent": 100.0,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 1
+      },
+      "season": 2,
+      "status": "none",
+      "translation": {
+       "done": 1,
+       "percent": 100.0,
+       "total": 1
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 32,
+     "confidence": "medium",
+     "days_with_data": 3,
+     "eta": "2026-12-04",
+     "eta_early": "2026-10-27",
+     "eta_late": null,
+     "pace_per_day": 0.1,
+     "remaining": 3,
+     "status": "ok"
+    },
+    "files": {
+     "done": 1,
+     "none": 0,
+     "rev": 0,
+     "total": 6,
+     "tr": 2,
+     "wip": 3
+    },
+    "general": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 2
+     },
+     "translation": {
+      "done": 2,
+      "percent": 100.0,
+      "total": 2
+     }
+    },
+    "history": [
+     {
+      "date": "<volatile>",
+      "proofreading": 0.0,
+      "translation": 14.3
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 7.1,
+      "translation": 28.6
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 14.3,
+      "translation": 50.0
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 21.4,
+      "translation": 64.3
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 21.4,
+      "translation": 71.4
+     }
+    ],
+    "proofreading": {
+     "done": 3,
+     "percent": 25.0,
+     "total": 12
+    },
+    "schema": 2,
+    "scope": {
+     "episodes": [
+      1,
+      2,
+      3
+     ],
+     "planned_seasons": [
+      3
+     ],
+     "seasons": [
+      1,
+      2
+     ]
+    },
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2
+      ],
+      "episodes_done": 1,
+      "episodes_total": 2,
+      "files": 3,
+      "files_done": 1,
+      "n": 1,
+      "proofreading": {
+       "done": 3,
+       "percent": 42.9,
+       "total": 7
+      },
+      "status": "active",
+      "translation": {
+       "done": 5,
+       "percent": 71.4,
+       "total": 7
+      }
+     },
+     {
+      "episodes": [
+       3
+      ],
+      "episodes_done": 0,
+      "episodes_total": 1,
+      "files": 1,
+      "files_done": 1,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 1
+      },
+      "status": "active",
+      "translation": {
+       "done": 1,
+       "percent": 100.0,
+       "total": 1
+      }
+     },
+     {
+      "n": 3,
+      "status": "planned"
+     }
+    ],
+    "title": "My game",
+    "translation": {
+     "done": 9,
+     "percent": 75.0,
+     "total": 12
+    },
+    "unassigned": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 2
+     },
+     "translation": {
+      "done": 1,
+      "percent": 50.0,
+      "total": 2
+     }
+    },
+    "updated": "<volatile>"
+   },
+   "op": "export.build",
+   "params": {
+    "now": "2026-10-17T11:00+02:00",
+    "title": "My game",
+    "today": "2026-10-17"
+   }
+  },
+  {
+   "answer": [],
+   "op": "export.validate",
+   "params": {}
+  },
+  {
+   "answer": [
+    "translation: invalid done/total values (99/12).",
+    "The sum of episodes + general + unassigned (9/12) does not match the total (99/12)."
+   ],
+   "op": "export.validate",
+   "params": {
+    "mutate": [
+     [
+      [
+       "translation",
+       "done"
+      ],
+      99
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "translation: procenta mimo rozsah (120.5).",
+    "proofreading: invalid done/total values (3/x)."
+   ],
+   "op": "export.validate",
+   "params": {
+    "mutate": [
+     [
+      [
+       "translation",
+       "percent"
+      ],
+      120.5
+     ],
+     [
+      [
+       "proofreading",
+       "total"
+      ],
+      "x"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "Episode 1 is in season 2, correct is 1.",
+    "Episode 2: more translated than the total.",
+    "Season 1: the sum of the episodes does not match the season.",
+    "Season 2: the sum of the episodes does not match the season.",
+    "The sum of episodes + general + unassigned (57/12) does not match the total (9/12)."
+   ],
+   "op": "export.validate",
+   "params": {
+    "mutate": [
+     [
+      [
+       "episodes",
+       0,
+       "season"
+      ],
+      2
+     ],
+     [
+      [
+       "episodes",
+       1,
+       "translation",
+       "done"
+      ],
+      50
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "The planned season 3 must not have any numbers.",
+    "Season 1: the sum of the episodes does not match the season."
+   ],
+   "op": "export.validate",
+   "params": {
+    "mutate": [
+     [
+      [
+       "seasons",
+       2,
+       "translation"
+      ],
+      {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     ],
+     [
+      [
+       "seasons",
+       0,
+       "translation",
+       "done"
+      ],
+      0
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "Season 2 has the state planned, correct is active.",
+    "The sum of episodes + general + unassigned (12/12) does not match the total (9/12)."
+   ],
+   "op": "export.validate",
+   "params": {
+    "mutate": [
+     [
+      [
+       "seasons",
+       1,
+       "status"
+      ],
+      "planned"
+     ],
+     [
+      [
+       "general",
+       "translation",
+       "done"
+      ],
+      5
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "The episodes [1, 2, 9] do not match the active range [1, 2, 3].",
+    "Episode 9 is in season 2, correct is None.",
+    "Public data must not contain file names (.rpy)."
+   ],
+   "op": "export.validate",
+   "params": {
+    "mutate": [
+     [
+      [
+       "title"
+      ],
+      "see game.rpy now"
+     ],
+     [
+      [
+       "episodes",
+       2,
+       "n"
+      ],
+      9
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "Data nejsou objekt."
+   ],
+   "op": "export.validate",
+   "params": {
+    "replace": []
+   }
+  },
+  {
+   "answer": [
+    "The list of episodes or seasons is missing."
+   ],
+   "op": "export.validate",
+   "params": {
+    "replace": {
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 2
+     },
+     "translation": {
+      "done": 1,
+      "percent": 50.0,
+      "total": 2
+     }
+    }
+   }
+  },
+  {
+   "answer": [
+    "The episodes [] do not match the active range [1, 2, 3].",
+    "Season 1 is missing.",
+    "Season 2 is missing.",
+    "Season 3 is missing.",
+    "The blocks general / unassigned are missing."
+   ],
+   "op": "export.validate",
+   "params": {
+    "replace": {
+     "episodes": [],
+     "general": {},
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 2
+     },
+     "seasons": [],
+     "translation": {
+      "done": 1,
+      "percent": 50.0,
+      "total": 2
+     }
+    }
+   }
+  },
+  {
+   "answer": "{\n \"schema\": 2,\n \"title\": \"My game\",\n \"updated\": \"2026-10-17T11:00+02:00\",\n \"translation\": {\n  \"done\": 9,\n  \"total\": 12,\n  \"percent\": 75.0\n },\n \"proofreading\": {\n  \"done\": 3,\n  \"total\": 12,\n  \"percent\": 25.0\n },\n \"files\": {\n  \"none\": 0,\n  \"wip\": 3,\n  \"tr\": 2,\n  \"rev\": 0,\n  \"done\": 1,\n  \"total\": 6\n },\n \"scope\": {\n  \"seasons\": [\n   1,\n   2\n  ],\n  \"episodes\": [\n   1,\n   2,\n   3\n  ],\n  \"planned_seasons\": [\n   3\n  ]\n },\n \"seasons\": [\n  {\n   \"n\": 1,\n   \"status\": \"active\",\n   \"episodes\": [\n    1,\n    2\n   ],\n   \"translation\": {\n    \"done\": 5,\n    \"total\": 7,\n    \"percent\": 71.4\n   },\n   \"proofreading\": {\n    \"done\": 3,\n    \"total\": 7,\n    \"percent\": 42.9\n   },\n   \"files\": 3,\n   \"files_done\": 1,\n   \"episodes_done\": 1,\n   \"episodes_total\": 2\n  },\n  {\n   \"n\": 2,\n   \"status\": \"active\",\n   \"episodes\": [\n    3\n   ],\n   \"translation\": {\n    \"done\": 1,\n    \"total\": 1,\n    \"percent\": 100.0\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 1,\n    \"percent\": 0.0\n   },\n   \"files\": 1,\n   \"files_done\": 1,\n   \"episodes_done\": 0,\n   \"episodes_total\": 1\n  },\n  {\n   \"n\": 3,\n   \"status\": \"planned\"\n  }\n ],\n \"episodes\": [\n  {\n   \"n\": 1,\n   \"status\": \"done\",\n   \"percent\": 75.0,\n   \"files\": 2,\n   \"season\": 1,\n   \"translation\": {\n    \"done\": 3,\n    \"total\": 4,\n    \"percent\": 75.0\n   },\n   \"proofreading\": {\n    \"done\": 3,\n    \"total\": 4,\n    \"percent\": 75.0\n   },\n   \"files_done\": 1,\n   \"files_total\": 2,\n   \"files_proofread\": 1\n  },\n  {\n   \"n\": 2,\n   \"status\": \"wip\",\n   \"percent\": 66.7,\n   \"files\": 1,\n   \"season\": 1,\n   \"translation\": {\n    \"done\": 2,\n    \"total\": 3,\n    \"percent\": 66.7\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 3,\n    \"percent\": 0.0\n   },\n   \"files_done\": 0,\n   \"files_total\": 1,\n   \"files_proofread\": 0\n  },\n  {\n   \"n\": 3,\n   \"status\": \"none\",\n   \"percent\": 100.0,\n   \"files\": 1,\n   \"season\": 2,\n   \"translation\": {\n    \"done\": 1,\n    \"total\": 1,\n    \"percent\": 100.0\n   },\n   \"proofreading\": {\n    \"done\": 0,\n    \"total\": 1,\n    \"percent\": 0.0\n   },\n   \"files_done\": 1,\n   \"files_total\": 1,\n   \"files_proofread\": 0\n  }\n ],\n \"general\": {\n  \"translation\": {\n   \"done\": 2,\n   \"total\": 2,\n   \"percent\": 100.0\n  },\n  \"proofreading\": {\n   \"done\": 0,\n   \"total\": 2,\n   \"percent\": 0.0\n  },\n  \"files\": 1\n },\n \"unassigned\": {\n  \"translation\": {\n   \"done\": 1,\n   \"total\": 2,\n   \"percent\": 50.0\n  },\n  \"proofreading\": {\n   \"done\": 0,\n   \"total\": 2,\n   \"percent\": 0.0\n  },\n  \"files\": 1\n },\n \"estimate\": {\n  \"status\": \"ok\",\n  \"remaining\": 3,\n  \"pace_per_day\": 0.1,\n  \"eta\": \"2026-12-04\",\n  \"eta_early\": \"2026-10-27\",\n  \"eta_late\": null,\n  \"confidence\": \"medium\",\n  \"basis_days\": 32,\n  \"days_with_data\": 3\n },\n \"history\": [\n  {\n   \"date\": \"2026-09-01\",\n   \"translation\": 14.3,\n   \"proofreading\": 0.0\n  },\n  {\n   \"date\": \"2026-09-08\",\n   \"translation\": 28.6,\n   \"proofreading\": 7.1\n  },\n  {\n   \"date\": \"2026-09-15\",\n   \"translation\": 50.0,\n   \"proofreading\": 14.3\n  },\n  {\n   \"date\": \"2026-09-29\",\n   \"translation\": 64.3,\n   \"proofreading\": 21.4\n  },\n  {\n   \"date\": \"2026-10-06\",\n   \"translation\": 71.4,\n   \"proofreading\": 21.4\n  }\n ]\n}\n",
+   "op": "export.render",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "export.write",
+   "params": {
+    "backup_dir": "root/web/backups",
+    "path": "root/web/progress.json"
+   }
+  },
+  {
+   "answer": true,
+   "op": "export.write",
+   "params": {
+    "backup_dir": "root/web/backups",
+    "path": "root/web/progress.json"
+   }
+  },
+  {
+   "answer": {
+    "approved": {},
+    "assign": {
+     "ep1_a.rpy": "ep:1",
+     "ep1_b.rpy": "ep:1",
+     "ep2.rpy": "ep:2",
+     "ep3.rpy": "ep:3",
+     "loose.rpy": "ep:2",
+     "scenes.rpy": "gen"
+    },
+    "corr": {
+     "ep1_a.rpy": {
+      "c": "1",
+      "t": ""
+     },
+     "ep1_b.rpy": {
+      "c": "2",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "done",
+     "2": "wip",
+     "3": "none"
+    },
+    "glossary": {},
+    "ignored": {},
+    "proof": {},
+    "undo": [
+     "assign"
+    ],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.assign",
+   "params": {
+    "file": "loose.rpy",
+    "value": "ep:2"
+   }
+  },
+  {
+   "answer": {
+    "episodes": [
+     {
+      "files": 2,
+      "files_done": 1,
+      "files_proofread": 1,
+      "files_total": 2,
+      "n": 1,
+      "percent": 75.0,
+      "proofreading": {
+       "done": 3,
+       "percent": 75.0,
+       "total": 4
+      },
+      "season": 1,
+      "status": "done",
+      "translation": {
+       "done": 3,
+       "percent": 75.0,
+       "total": 4
+      }
+     },
+     {
+      "files": 2,
+      "files_done": 0,
+      "files_proofread": 0,
+      "files_total": 2,
+      "n": 2,
+      "percent": 60.0,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 5
+      },
+      "season": 1,
+      "status": "wip",
+      "translation": {
+       "done": 3,
+       "percent": 60.0,
+       "total": 5
+      }
+     },
+     {
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "files_total": 1,
+      "n": 3,
+      "percent": 100.0,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 1
+      },
+      "season": 2,
+      "status": "none",
+      "translation": {
+       "done": 1,
+       "percent": 100.0,
+       "total": 1
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 35,
+     "confidence": "medium",
+     "days_with_data": 3,
+     "eta": "2026-12-11",
+     "eta_early": "2026-10-30",
+     "eta_late": null,
+     "pace_per_day": 0.1,
+     "remaining": 3,
+     "status": "ok"
+    },
+    "files": {
+     "done": 1,
+     "none": 0,
+     "rev": 0,
+     "total": 6,
+     "tr": 2,
+     "wip": 3
+    },
+    "general": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 2
+     },
+     "translation": {
+      "done": 2,
+      "percent": 100.0,
+      "total": 2
+     }
+    },
+    "history": [
+     {
+      "date": "<volatile>",
+      "proofreading": 0.0,
+      "translation": 14.3
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 7.1,
+      "translation": 28.6
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 14.3,
+      "translation": 50.0
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 21.4,
+      "translation": 64.3
+     },
+     {
+      "date": "<volatile>",
+      "proofreading": 21.4,
+      "translation": 71.4
+     }
+    ],
+    "proofreading": {
+     "done": 3,
+     "percent": 25.0,
+     "total": 12
+    },
+    "schema": 2,
+    "scope": {
+     "episodes": [
+      1,
+      2,
+      3
+     ],
+     "planned_seasons": [
+      3
+     ],
+     "seasons": [
+      1,
+      2
+     ]
+    },
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2
+      ],
+      "episodes_done": 1,
+      "episodes_total": 2,
+      "files": 4,
+      "files_done": 1,
+      "n": 1,
+      "proofreading": {
+       "done": 3,
+       "percent": 33.3,
+       "total": 9
+      },
+      "status": "active",
+      "translation": {
+       "done": 6,
+       "percent": 66.7,
+       "total": 9
+      }
+     },
+     {
+      "episodes": [
+       3
+      ],
+      "episodes_done": 0,
+      "episodes_total": 1,
+      "files": 1,
+      "files_done": 1,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 1
+      },
+      "status": "active",
+      "translation": {
+       "done": 1,
+       "percent": 100.0,
+       "total": 1
+      }
+     },
+     {
+      "n": 3,
+      "status": "planned"
+     }
+    ],
+    "title": "",
+    "translation": {
+     "done": 9,
+     "percent": 75.0,
+     "total": 12
+    },
+    "unassigned": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "updated": "<volatile>"
+   },
+   "op": "export.build",
+   "params": {
+    "now": "2026-10-17T11:00+02:00",
+    "title": "",
+    "today": "2026-10-20"
+   }
+  },
+  {
+   "answer": true,
+   "op": "export.write",
+   "params": {
+    "backup_dir": "root/web/backups",
+    "path": "root/web/progress.json"
+   }
+  },
+  {
+   "answer": [
+    "web/progress.json",
+    "data/x.JSON",
+    "a/b.json",
+    {
+     "error": "Invalid path of the file in the repository: /abs.json (it must be a relative path to a .json file)."
+    },
+    {
+     "error": "Invalid path of the file in the repository: ../x.json (it must be a relative path to a .json file)."
+    },
+    {
+     "error": "Invalid path of the file in the repository: a/../x.json (it must be a relative path to a .json file)."
+    },
+    {
+     "error": "Invalid path of the file in the repository: c:x.json (it must be a relative path to a .json file)."
+    },
+    {
+     "error": "Invalid path of the file in the repository: x.txt (it must be a relative path to a .json file)."
+    },
+    {
+     "error": "Invalid path of the file in the repository:  (it must be a relative path to a .json file)."
+    },
+    {
+     "error": "Invalid path of the file in the repository: dir/.json (it must be a relative path to a .json file)."
+    },
+    {
+     "error": "Invalid path of the file in the repository: name. (it must be a relative path to a .json file)."
+    },
+    "a.b/c.json"
+   ],
+   "op": "export.clean_target",
+   "params": {
+    "rels": [
+     "web/progress.json",
+     "  data\\x.JSON ",
+     "./a//b.json",
+     "/abs.json",
+     "../x.json",
+     "a/../x.json",
+     "c:x.json",
+     "x.txt",
+     "",
+     "dir/.json",
+     "name.",
+     "a.b/c.json"
+    ]
+   }
+  },
+  {
+   "answer": [
+    "progress.json.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/web/backups"
+   }
+  }
+ ]
+}
