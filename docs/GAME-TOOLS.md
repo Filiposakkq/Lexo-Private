@@ -66,3 +66,7 @@ picture from several parts. **Layered images are not supported yet; support is p
 - **A scene that is itself layered:** no picture is shown (not an older, wrong one), and the preview says why.
 Measured on eight games: the three that preview badly use them heavily (LoSeSb: 998 `layeredimage` names, even for backgrounds such as `bg alley`; Our Red String about 500 and Four Elements about 6 600 composed images); the others have almost none. In a sample of 250 lines per game the preview shows: LoSeSb a layered scene without picture in 170, a background with the note in 58; Our Red String 154 with the note and 15 without picture; Four Elements 130 and 14; Eternum, Being a DIK, Milfy City, A Wife and Mother and Midnight Paradise at most 3 lines without a picture and no note.
 Drawing them would need the definitions evaluated: reading the attribute groups and `if` conditions of `layeredimage`, and the code of composites and switches. That is closest to running the game's engine for the picture, so it belongs after the Rust port or with an engine-backed renderer.
+
+### How exact the preview is
+The preview is an estimate from the game script, not a screenshot. For games without layered images it is usually close. The font of the text is taken from the game when it can be found (otherwise a substitute is used);
+the frames of the text box and the name box (their pictures, colours and shapes) are not modelled and can look different in the game. The app says this under the preview.

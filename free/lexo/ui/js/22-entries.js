@@ -567,7 +567,8 @@ export async function viewEntries() {
     if (S.gwinH) { outer.style.height = S.gwinH + 'px'; outer.style.width = S.gwinW + 'px'; }     // keep the size of the previous picture until this one is drawn (no jump)
     const mode = h('select', { title: T('Which text to show in the game window'), onchange: () => draw() },
       h('option', { value: 'target' }, T('Translation')), h('option', { value: 'source' }, T('Original')));
-    box.append(sum, h('div', { class: 'toolbar', style: { margin: '6px 0' } }, mode), outer, info);
+    box.append(sum, h('div', { class: 'toolbar', style: { margin: '6px 0' } }, mode), outer, info,
+      h('div', { class: 'muted', style: { fontSize: '11.5px', marginTop: '4px' } }, T("The preview is an estimate from the game script, not a screenshot. For games without layered images it is usually close. The font of the text can be a substitute, and the frames of the text box and the name box (their pictures and colours) may look different in the game.")));
     box.open = !!pref('ui.gamepreview', true);
     box.addEventListener('toggle', () => { setPref('ui.gamepreview', box.open); if (box.open) draw(); });
     let gui = S.gui, scene = null, imgOk = true;

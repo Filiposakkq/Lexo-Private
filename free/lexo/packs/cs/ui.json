@@ -1184,6 +1184,7 @@
   "The picture could not be loaded.": "Obrázek se nepodařilo načíst.",
   "the picture does not exist": "obrázek neexistuje",
   "The planned season {n} must not have any numbers.": "Plánovaná sezóna {n} nesmí mít žádná čísla.",
+  "The preview is an estimate from the game script, not a screenshot. For games without layered images it is usually close. The font of the text can be a substitute, and the frames of the text box and the name box (their pictures and colours) may look different in the game.": "Náhled je odhad ze skriptu hry, ne snímek obrazovky. U her bez vrstvených obrázků bývá blízko skutečnosti. Písmo textu může být náhradní a rámečky textového a jmenného okna (jejich obrázky a barvy) mohou ve hře vypadat jinak.",
   "The preview shows at once; nothing is written until you confirm.": "Náhled se ukáže hned, nic se nezapisuje, dokud nepotvrdíš.",
   "The project folder is not available: {root}": "Složka projektu není dostupná: {root}",
   "The project has no groups yet, so nothing can be suggested except “General”. Set the groups first.": "Projekt zatím nemá žádné skupiny, takže se nedá navrhnout nic kromě „Obecné“. Nejdřív nastav skupiny.",
