@@ -2,7 +2,7 @@ import { t as T, tx } from './05-i18n.js';
 import { $, dateCz, fmtN, fmtPct, h } from './00-core.js';
 import { get, post } from './10-api.js';
 import { dialog, fail, toast } from './13-feedback.js';
-import { STATUS_LABEL, chip, groupName, loading } from './14-renderers.js';
+import { STATUS_LABEL, chip, groupName, loading, sectionName } from './14-renderers.js';
 import { go } from './16-tabs.js';
 /* ================================================================ PUBLISH */
 export async function viewPublish() {
@@ -34,8 +34,8 @@ export async function viewPublish() {
         h('div', { class: 'tablewrap', style: { marginTop: '10px' } }, h('table', { class: 'data' }, h('colgroup', null, [160, 130, 160, 160, 110].map((w) => h('col', { style: { width: w + 'px' } }))),
           h('thead', null, h('tr', null, [T('Season / episode'), T('State'), T('Lines'), T('Percentages'), T('Files')].map((t) => h('th', null, t)))),
           h('tbody', null, d.seasons.map((s) => s.status === 'planned'
-            ? h('tr', null, h('td', null, T('Season {n}', { n: s.n })), h('td', null, chip('planned', T('Planned'))), h('td', { colspan: 3, class: 'muted' }, T('no numbers, outside the calculations')))
-            : [h('tr', null, h('td', null, h('b', null, T('Season {n}', { n: s.n }))), h('td'), h('td', { class: 'num' }, `${fmtN(s.translation.done)} / ${fmtN(s.translation.total)}`), h('td', { class: 'num' }, fmtPct(s.translation.percent)), h('td', { class: 'num' }, s.files)),
+            ? h('tr', null, h('td', null, sectionName(s.n)), h('td', null, chip('planned', T('Planned'))), h('td', { colspan: 3, class: 'muted' }, T('no numbers, outside the calculations')))
+            : [h('tr', null, h('td', null, h('b', null, sectionName(s.n))), h('td'), h('td', { class: 'num' }, `${fmtN(s.translation.done)} / ${fmtN(s.translation.total)}`), h('td', { class: 'num' }, fmtPct(s.translation.percent)), h('td', { class: 'num' }, s.files)),
               ...d.episodes.filter((e) => e.season === s.n).map((e) => h('tr', null, h('td', null, '   ' + groupName(e.n)), h('td', null, chip(e.status, STATUS_LABEL[e.status])), h('td', { class: 'num' }, `${fmtN(e.translation.done)} / ${fmtN(e.translation.total)}`), h('td', { class: 'num' }, fmtPct(e.translation.percent)), h('td', { class: 'num' }, e.files_total)))]))))));
     } catch (e) { out.replaceChildren(h('div', { class: 'notice bad' }, e.message)); }
   }

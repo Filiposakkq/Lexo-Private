@@ -61,7 +61,7 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 |---|---|---|
 | 1 | UI texts: English source, Czech as a pack | **done** (browser UI and Python messages; see UI-TEXTS.md) |
 | 2 | Data layout: `.lexo/`, English file names, per-author event log, migration (docs/DATA-LAYOUT.md) | **2a, 2b done** (English names/columns/values; `.lexo/` + local data in the app data folder; migrations in `migrate.py` and `datadir.py`); 2c event log done (`events.py`) |
-| 3 | Rest of the generalisation: group/season wording from `labels`, BaDIK names and links, `ep1` name hints, tests on 3-4 other games (needs their `game` folders) | partly (project file, language packs done) |
+| 3 | Rest of the generalisation: group/season wording from `labels`, BaDIK names and links, `ep1` name hints, tests on 3-4 other games (needs their `game` folders) | **done** (project file, language packs, `labels` wording incl. sections, language-neutral word lists and input words, tests on 8 games; what is left on purpose is in HARDCODED-AUDIT.md) |
 | 4 | Split Core and UI; Core interface; feature registry loaded through the Pro loader | registry done, split open |
 | 5 | Interface contract between UI and Core (JSON calls with tests, also the check for the Rust port) | planned |
 | 6 | Cleanup and test data for the Python/Rust comparison | planned |
@@ -86,4 +86,5 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - Groups from sub-folders: `layout.propose` also proposes folders, `lexo.json` `folders`, the dialog tick box "One group per folder"; found on the four folder-organised games. A syntax slip in the settings module (a missing bracket from the migration removal) was caught by opening the page and fixed; the UI self-test is the guard. 560 tests.
 - Machine translation: the target language is empty by default and means the language of the project (its pack code, or the name of its `tl` folder: `german` -> `DE`); without either, nothing is sent and the message says why. No Czech default in the config any more. 565 tests.
 - `free/README.md` rewritten for the product (the old BaDIK README is gone); the repository is private. Layered images: animations of composed images count as layered too (the Four Elements blink case).
+- Step 3 closed: `sectionName()` (Overview, Publishing) follows `labels.section`; the progress sheet accepts only English yes-words; the state-of-group undo label is a translatable message; HARDCODED-AUDIT.md has a current-state section.
 - Scene preview draws a stack: the background of the last `scene` plus the `show` pictures over it (same tag replaces, `hide` removes, side from `at`), instead of one nearest image; games with layered images are warned about explicitly. Not measured on the eight games yet (unverified in a real game). 571 tests.
