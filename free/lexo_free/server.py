@@ -15,7 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse
 
-from lexo import __version__, lang
+from lexo import api
 from lexo.messages import msg, text_of, wire
 from lexo.app import AppError, ProjectBusy
 from lexo.config import config_dir
@@ -138,6 +138,18 @@ def make_handler(sess):
                 log_exception()
                 self._json({"ok": False, "error": msg("Unexpected error: {e}", e=e)}, 500)
 
+        def _binary(self, op, params):
+            if op.needs_project and not app.ready:
+                return self._json({"ok": False, "error": msg("No project is open.")}, 400)
+            try:
+                data, mime = api.call(app, op.name, params)
+            except AppError as e:
+                return self._send(404, str(e), "text/plain")
+            except Exception:  # noqa: BLE001
+                log_exception()
+                return self._send(500, "chyba", "text/plain")
+            return self._send(200, data, mime, cache=True)
+
         # ---------------------------------------------------------- GET
         def do_GET(self):
             if not self._host_ok():
@@ -168,85 +180,13 @@ def make_handler(sess):
                         sess.companions[wid[:40]] = time.time()
                 now = time.time()
                 return self._json({"ok": True, "companions": sum(1 for t in sess.companions.values() if now - t < 12)})
-            if r == "state":
-                return self._run(lambda: {
-                    "ok": True, "ready": app.ready, "notices": list(app.notices),
-                    "config_error": app.config.load_error, "prefs": app.ui_prefs(), "version": __version__,
-                    "project_dir": app.config.get("project_dir", "")})
-            if r == "ui-langs":                  # interface languages: needs no open project
-                return self._json({"ok": True, "langs": lang.ui_languages()})
-            if r == "ui-lang":
-                try:
-                    res = lang.ui_language(q1(q, "code"))
-                    res["strings"] = {**res["strings"], **app.ext.ui_strings(res["code"])}      # plus the texts of the Pro pack, if there is one
-                    return self._json({"ok": True, **res})
-                except lang.PackError as e:
-                    return self._json({"ok": False, "error": str(e)}, 404)
-            if not app.ready:
-                return self._json({"ok": False, "error": msg("No project is open.")}, 400)
-            if r == "game/font":              # a font of the game by file name (never a path)
-                try:
-                    with app.lock:
-                        data, mime = app.game_font(q1(q, "k"))
-                except AppError as e:
-                    return self._send(404, str(e), "text/plain")
-                except Exception:  # noqa: BLE001
-                    log_exception()
-                    return self._send(500, "chyba", "text/plain")
-                return self._send(200, data, mime, cache=True)
-            if r == "game/image":              # a picture from the game archives, by the key the index returned (never a path)
-                try:
-                    with app.lock:
-                        data, mime = app.game_image(q1(q, "k"))
-                except AppError as e:
-                    return self._send(404, str(e), "text/plain")
-                except Exception:  # noqa: BLE001
-                    log_exception()
-                    return self._send(500, "chyba", "text/plain")
-                return self._send(200, data, mime, cache=True)
-            routes = {
-                "overview": lambda: {"ok": True, **app.overview()},
-                "files": lambda: {"ok": True, "files": app.files_payload()},
-                "entries": lambda: {"ok": True, **app.entries(
-                    file=q1(q, "file"), status=q1(q, "status", "all"), kind=q1(q, "kind"), q=q1(q, "q"),
-                    issues=q1(q, "issues"), sort=q1(q, "sort", "line"),
-                    offset=max(0, int(q1(q, "offset", "0") or 0)), limit=int(q1(q, "limit", "200") or 200),
-                    around=int(q1(q, "around", "0") or 0), unit=q1(q, "unit"), word=q1(q, "word") == "1")},
-                "entry": lambda: {"ok": True, **app.entry_detail(q1(q, "file"), int(q1(q, "line", "0")))},
-                "validation": lambda: {"ok": True, **app.validation_list(
-                    severity=q1(q, "severity"), category=q1(q, "category"), file=q1(q, "file"), q=q1(q, "q"),
-                    offset=max(0, int(q1(q, "offset", "0") or 0)), limit=int(q1(q, "limit", "200") or 200),
-                    ignored=q1(q, "ignored", "hide"), group=q1(q, "group"), word=q1(q, "word") == "1")},
-                "ignore/list": lambda: {"ok": True, **app.ignored_list()},
-                "settings": lambda: {"ok": True, **app.settings()},
-                "fix/last": lambda: {"ok": True, **app.fix_last()},
-                "game/fontmetrics": lambda: {"ok": True, **app.game_font_metrics(q1(q, "k"))},
-                "game/characters": lambda: {"ok": True, **app.game_characters()},
-                "entry/next": lambda: {"ok": True, **app.entry_next(q1(q, "file"), int(q1(q, "line", "0")), q1(q, "kind"))},
-                "scenes": lambda: {"ok": True, **app.scene_list(q1(q, "file"), int(q1(q, "line", "0")))},
-                "game/scene": lambda: {"ok": True, **app.scene_info(q1(q, "file"), int(q1(q, "line", "0")))},
-                "entry/menu": lambda: {"ok": True, **app.entry_menu(q1(q, "file"), int(q1(q, "line", "0")))},
-                "entry/scene": lambda: {"ok": True, **app.entry_scene(q1(q, "file"), int(q1(q, "line", "0")), int(q1(q, "radius", "6") or 6))},
-                "snapshots": lambda: {"ok": True, **app.snapshot_list()},
-                "snapshots/files": lambda: {"ok": True, **app.snapshot_files(q1(q, "name"))},
-                "lint/status": lambda: {"ok": True, **app.lint_status()},
-                "entry/history": lambda: {"ok": True, **app.entry_history(q1(q, "file"), int(q1(q, "line", "0")))},
-                "entry/memory": lambda: {"ok": True, **app.entry_memory(q1(q, "file"), int(q1(q, "line", "0")))},
-                "consistency": lambda: {"ok": True, **app.consistency(q1(q, "loose") == "1", q1(q, "by_speaker") == "1")},
-                "entry/context": lambda: {"ok": True, **app.entry_context(q1(q, "file"), int(q1(q, "line", "0")))},
-                "glossary/occurrences": lambda: {"ok": True, **app.glossary_occurrences(
-                    q1(q, "code"), q1(q, "missing") == "1")},
-                "glossary": lambda: {"ok": True, **app.glossary_payload()},
-                "proof/next": lambda: {"ok": True, **app.proof_next(q1(q, "file"), int(q1(q, "after", "0") or 0))},
-                "export/preview": lambda: {"ok": True, **app.export_preview()},
-                "missed": lambda: {"ok": True, **app.missed_scan(q1(q, "level", "likely"))},
-                "groups/suggest": lambda: {"ok": True, **app.groups_suggest()},
-                "missed/functions": lambda: {"ok": True, **app.missed_functions()},
-            }
-            fn = routes.get(r)
-            if fn is None:
+            op = api.ROUTES.get(("GET", r))                # every other read is an operation of Core (core/lexo/api.py)
+            if op is None:
                 return self._json({"ok": False, "error": msg("Unknown address.")}, 404)
-            self._run(fn)
+            params = {k: v[0] for k, v in q.items()}
+            if op.kind == "binary":                        # a font or a picture of the game
+                return self._binary(op, params)
+            self._run(lambda: api.call(app, op.name, params))
 
         # ---------------------------------------------------------- POST
         def do_POST(self):
@@ -279,16 +219,6 @@ def make_handler(sess):
             r = url.path[5:] if url.path.startswith("/api/") else ""
             d = body if isinstance(body, dict) else {}
 
-            def need_project():
-                if not app.ready:
-                    raise AppError(msg("No project is open."))
-
-            def project_set():
-                path = str(d.get("path", "")).strip().strip('"')
-                app.open_project(path, force=bool(d.get("force")))
-                app.maybe_auto_snapshot()
-                return {"ok": True}
-
             def project_pick():
                 if sess.pick_folder is None:
                     raise AppError(msg("Choosing a folder is not available in this mode – enter the path by hand."))
@@ -300,9 +230,6 @@ def make_handler(sess):
                     raise AppError(problem)
                 app.open_project(chosen)
                 return {"ok": True, "cancelled": False, "path": chosen}
-
-            def ints(v):
-                return int(v)
 
             def set_focus():
                 line = d.get("line", 0)
@@ -337,71 +264,20 @@ def make_handler(sess):
                     return {"ok": False, "fallback": True, "error": msg("The window could not be opened ({e}).", e=e)}
                 return {"ok": True, "url": url}
 
-            routes = {
-                "project/set": project_set,
+            op = api.ROUTES.get(("POST", r))               # operations of Core (core/lexo/api.py)
+            if op is not None:
+                return self._run(lambda: api.call(app, op.name, d))
+            session_routes = {                              # what only the application around Core can do: windows, the focus between windows, a folder dialog
                 "project/pick": project_pick,
-                "refresh": lambda: {"ok": True, **app.refresh(force=bool(d.get("force")),
-                                                             client_dirty=bool(d.get("dirty")),
-                                                             discard=bool(d.get("discard")))},
-                "file/save": lambda: app.save_file(str(d["name"]), str(d.get("c", "")), str(d.get("t", ""))),
-                "assign": lambda: app.set_assign(str(d["name"]), str(d.get("v", ""))),
-                "assign/suggest": lambda: {"ok": True, **app.assign_suggest(list(d.get("names") or []))},
-                "assign/apply": lambda: app.assign_apply(list(d.get("items") or [])),
-                "features": lambda: app.features_status(),
-                "episode": lambda: app.set_episode_state(ints(d["ep"]), str(d["state"])),
-                "approve/preview": lambda: {"ok": True, **app.approval_preview(
-                    str(d["file"]), ints(d["line"]), str(d.get("scope", "project")), bool(d.get("same_speaker", True)))},
-                "approve/apply": lambda: app.approval_apply(list(d.get("selections") or []), bool(d.get("on", True))),
-                "glossary/set": lambda: app.glossary_set(list(d.get("items") or [])),
-                "glossary/import-preview": lambda: {"ok": True, **app.glossary_import_preview(str(d.get("path", "")))},
-                "glossary/import-apply": lambda: app.glossary_import_apply(list(d.get("items") or [])),
-                "glossary/delete": lambda: app.glossary_delete(list(d.get("codes") or [])),
-                "proof/set": lambda: app.proof_set(list(d.get("items") or []), str(d.get("state", "ok")),
-                                                   d.get("note")),
-                "proof/upto": lambda: app.proof_upto(str(d["file"]), ints(d["line"]), str(d.get("state", "ok"))),
-                "proof/clear-file": lambda: app.proof_clear_file(str(d["file"])),
-                "open-url": lambda: app.open_link(str(d.get("id", ""))),
                 "window/open": lambda: open_window(),
                 "window/fullscreen": lambda: ({"ok": True} if sess.toggle_fullscreen and sess.toggle_fullscreen() else {"ok": False, "fallback": True}),
                 "focus": lambda: set_focus(),
-                "fix/preview": lambda: {"ok": True, **app.fix_preview(list(d.get("items") or []), str(d.get("file", "")), list(d.get("kinds") or []))},
-                "replace/preview": lambda: {"ok": True, **app.replace_preview(d.get("find", ""), d.get("replace", ""), str(d.get("mode", "plain")), bool(d.get("case")), list(d.get("files") or []), bool(d.get("protect", True)))},
-                "replace/apply": lambda: app.replace_apply(list(d.get("selections") or []), d.get("find", ""), d.get("replace", ""), str(d.get("mode", "plain")), bool(d.get("case")), list(d.get("files") or []), bool(d.get("protect", True))),
-                "fix/apply": lambda: app.fix_apply(list(d.get("items") or []), str(d.get("file", "")), list(d.get("kinds") or []),
-                                                  list(d["selections"]) if d.get("selections") is not None else None),
-                "fix/undo": lambda: app.fix_undo(),
-                "entry/mt": lambda: {"ok": True, **app.mt_suggest(str(d["file"]), ints(d["line"]))},
-                "mt/targets": lambda: {"ok": True, **app.mt_targets(str(d.get("file", "")), d.get("lines") or None, bool(d.get("only_todo", True)))},
-                "mt/batch": lambda: {"ok": True, **app.mt_batch(d.get("items") or [])},
-                "mt/apply": lambda: app.mt_apply(d.get("selections") or []),
-                "missed/add": lambda: {"ok": True, **app.missed_add(d.get("items"), bool(d.get("into_files")))},
-                "missed/settings": lambda: {"ok": True, **app.missed_settings(d.get("functions"))},
-                "missed/ignore": lambda: {"ok": True, **app.missed_ignore(d.get("texts"), bool(d.get("clear")))},
-                "groups/apply": lambda: {"ok": True, **app.groups_apply(d.get("label"), d.get("groups"), d.get("series", ""), d.get("folders"))},
-                "snapshots/create": lambda: app.snapshot_create(),
-                "snapshots/restore": lambda: app.snapshot_restore(str(d.get("name", "")), d.get("files")),
-                "snapshots/delete": lambda: app.snapshot_delete(str(d.get("name", ""))),
-                "lint/start": lambda: app.lint_start(),
-                "consistency/unify": lambda: app.consistency_unify(str(d.get("key", "")), str(d.get("target", "")), d.get("lines"), bool(d.get("loose")), bool(d.get("by_speaker"))),
-                "ignore/set": lambda: app.ignore_set(list(d.get("items") or []), bool(d.get("on", True)), str(d.get("note", ""))),
-                "entry/check": lambda: {"ok": True, **app.entry_check(str(d["file"]), ints(d["line"]), str(d.get("text", "")))},
-                "entry/save": lambda: app.entry_save(str(d["file"]), ints(d["line"]), str(d.get("text", ""))),
-                "approve/rules": lambda: {"ok": True, **app.rule_preview(d.get("rules") or [], list(d.get("files") or []))},
-                "undo": lambda: app.undo(),
-                "open-editor": lambda: app.open_editor(str(d["file"]), ints(d.get("line", 1))),
-                "settings": lambda: {"ok": True, **app.update_settings(d)},
-                "prefs": lambda: app.set_ui_prefs(d),
-                "publish/plan": lambda: {"ok": True, **app.publish_plan()},
-                "publish/confirm": lambda: app.publish_confirm(str(d.get("token", "")), str(d.get("branch", ""))),
             }
-            fn = routes.get(r)
+            fn = session_routes.get(r)
             if fn is None:
                 return self._json({"ok": False, "error": msg("Unknown address.")}, 404)
-            if r not in ("project/set", "project/pick", "prefs", "settings", "open-url"):
-                try:
-                    need_project()
-                except AppError as e:
-                    return self._json({"ok": False, "error": text_of(e)}, 400)
+            if r != "project/pick" and not app.ready:
+                return self._json({"ok": False, "error": msg("No project is open.")}, 400)
             self._run(fn)
 
     return Handler
