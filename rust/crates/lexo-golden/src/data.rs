@@ -5,10 +5,14 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use lexo_core::clock::{Clock, TestClock};
 use lexo_core::config::Config;
 use lexo_core::events::{self, EventLog};
+use lexo_core::history::{self, History};
 use lexo_core::layout::{self, Layout};
 use lexo_core::lock::{Owner, ProjectLock};
+use lexo_core::memory::{self, Memory};
 use lexo_core::messages::render;
+use lexo_core::snapshots;
 use lexo_core::store::{self, Kind, Store};
+use lexo_core::texthistory::{self, TextHistory};
 use lexo_core::util::sha1_hex;
 use lexo_core::{csvio, datadir, fsutil};
 use serde_json::{json, Map, Value};
@@ -76,7 +80,28 @@ fn file_records(root: &Path, skip: &[&str]) -> Map<String, Value> {
         if skip.contains(&f.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default().as_str()) {
             continue;
         }
-        let b = std::fs::read(&f).unwrap_or_default();
+        let mut b = std::fs::read(&f).unwrap_or_default();
+        if f.extension().is_some_and(|x| x == "zip") {
+            // the bytes of a zip depend on the compressor: its files and their digests are compared
+            let name = f.strip_prefix(root).unwrap().to_string_lossy().replace('\\', "/");
+            let mut entries: Vec<Value> = Vec::new();
+            if let Ok(mut z) = zip::ZipArchive::new(std::io::Cursor::new(b)) {
+                for i in 0..z.len() {
+                    if let Ok(mut e) = z.by_index(i) {
+                        let mut data = Vec::new();
+                        let _ = std::io::Read::read_to_end(&mut e, &mut data);
+                        entries.push(json!([e.name(), sha1_hex(&data)]));
+                    }
+                }
+            }
+            entries.sort_by_key(|v| v.to_string());
+            files.insert(name, json!({"zip": entries}));
+            continue;
+        }
+        if f.file_name().is_some_and(|n| n == "text_history.jsonl") {
+            // Python writes it in text mode (CRLF on Windows, LF elsewhere); this program always writes LF
+            b = String::from_utf8_lossy(&b).replace("\r\n", "\n").into_bytes();
+        }
         let mut rec = Map::new();
         rec.insert("sha1".into(), json!(sha1_hex(&b)));
         match String::from_utf8(b.clone()) {
@@ -100,6 +125,9 @@ struct Runner<'a> {
     layout: Layout,
     store: Option<Store>,
     log: Option<EventLog>,
+    hist: Option<History>,
+    th: Option<TextHistory>,
+    mem: Option<Memory>,
 }
 
 fn err_text(e: &lexo_core::fsutil::WriteFailed) -> String {
@@ -413,6 +441,165 @@ impl Runner<'_> {
                 std::io::Write::write_all(&mut f, a["text"].as_str().unwrap_or("").as_bytes()).map_err(|e| e.to_string())?;
                 json!(true)
             }
+            "set_local" => {
+                self.clock.set_local(a["value"].as_str().unwrap_or("").parse().map_err(|e| format!("{e}"))?);
+                json!(true)
+            }
+            "remove_file" => {
+                std::fs::remove_file(self.p(&a["path"])).map_err(|e| e.to_string())?;
+                json!(true)
+            }
+            "history.open" => {
+                self.hist = Some(History::new(&self.p(&a["path"]), self.backup_dir(a).as_deref()));
+                json!(true)
+            }
+            "history.record" => {
+                let h = self.hist.as_mut().ok_or("no history")?;
+                let f = |k: &str| a[k].as_f64().unwrap_or(0.0);
+                let n = |k: &str| a[k].as_i64().unwrap_or(0);
+                let p = history::Progress {
+                    stamp: a["stamp"].as_str().unwrap_or("").to_string(),
+                    t_done: n("t_done"),
+                    total: n("total"),
+                    tpct: f("tpct"),
+                    c_done: n("c_done"),
+                    cpct: f("cpct"),
+                };
+                json!(h.record(&p, clock).map_err(|e| err_text(&e))?)
+            }
+            "history.dump" => {
+                let h = self.hist.as_ref().ok_or("no history")?;
+                let ts = |t: &chrono::NaiveDateTime| t.format("%Y-%m-%d %H:%M:%S").to_string();
+                json!({
+                    "rows": h.rows(),
+                    "points": h.points().iter().map(|(t, d, tot, c)| json!([ts(t), d, tot, c])).collect::<Vec<_>>(),
+                    "chart": h.chart_points().iter().map(|(t, x, y)| json!([ts(t), x, y])).collect::<Vec<_>>(),
+                })
+            }
+            "history.estimate" => {
+                let points = self.points(a)?;
+                history::estimate(&points, a["done_now"].as_i64().unwrap_or(0), a["total_now"].as_i64().unwrap_or(0), today(a)?).to_json()
+            }
+            "history.goals" => {
+                let points = self.points(a)?;
+                history::goals(&points, a["remaining_translate"].as_i64().unwrap_or(0), a["remaining_proof"].as_i64().unwrap_or(0), a.get("cfg"), today(a)?)
+            }
+            "texthistory.open" => {
+                self.th = Some(TextHistory::new(&self.p(&a["path"])));
+                json!(true)
+            }
+            "texthistory.load" => {
+                let th = self.th.as_mut().ok_or("no text history")?;
+                th.load_with(
+                    a["max_lines"].as_u64().map_or(texthistory::MAX_LINES, |n| n as usize),
+                    a["keep_lines"].as_u64().map_or(texthistory::KEEP_LINES, |n| n as usize),
+                );
+                dump_th(th)
+            }
+            "texthistory.record" => {
+                let items: Vec<(String, (String, String), String, String)> = a["items"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|i| {
+                        let s = |v: &Value| v.as_str().unwrap_or("").to_string();
+                        (s(&i["file"]), (s(&i["key"][0]), s(&i["key"][1])), s(&i["old"]), s(&i["new"]))
+                    })
+                    .collect();
+                let th = self.th.as_mut().ok_or("no text history")?;
+                let written = th.record(&items, a["via"].as_str().unwrap_or(""), clock);
+                json!({"written": written, "state": dump_th(th)})
+            }
+            "texthistory.versions" => {
+                let th = self.th.as_ref().ok_or("no text history")?;
+                json!(th.versions(
+                    a["file"].as_str().unwrap_or(""),
+                    (a["key"][0].as_str().unwrap_or(""), a["key"][1].as_str().unwrap_or("")),
+                    a["current"].as_str().unwrap_or("")
+                ))
+            }
+            "texthistory.diff" => {
+                let pack = lexo_core::lang::Pack::neutral();
+                let parse = |k: &str| lexo_core::rpy::parse_text(a[k].as_str().unwrap_or(""), "", &pack).entries;
+                json!(texthistory::diff_files(&parse("old"), &parse("new")).iter().map(|c| c.to_json()).collect::<Vec<_>>())
+            }
+            "memory.build" => {
+                let mut rows: Vec<(String, i64, String, String, String)> = a["rows"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|r| {
+                        let s = |v: &Value| v.as_str().unwrap_or("").to_string();
+                        (s(&r[0]), r[1].as_i64().unwrap_or(0), s(&r[2]), s(&r[3]), s(&r[4]))
+                    })
+                    .collect();
+                if let Some(g) = a.get("generate").filter(|g| g.is_object()) {
+                    let s = |k: &str| g[k].as_str().unwrap_or("").to_string();
+                    for i in 0..g["n"].as_u64().unwrap_or(0) as usize {
+                        rows.push((s("file"), i as i64 + 1, s("who"), s("source").replace("{i}", &i.to_string()), s("target").replace("{i}", &i.to_string())));
+                    }
+                }
+                let m = Memory::new(&rows);
+                let answer = json!({"rows": m.rows.len(), "common": m.common});
+                self.mem = Some(m);
+                answer
+            }
+            "memory.exact" => {
+                json!(self.mem.as_ref().ok_or("no memory")?.exact_matches(a["source"].as_str().unwrap_or(""), skip(a).as_ref().map(|(f, l)| (f.as_str(), *l))))
+            }
+            "memory.similar" => json!(self.mem.as_ref().ok_or("no memory")?.similar(
+                a["source"].as_str().unwrap_or(""),
+                skip(a).as_ref().map(|(f, l)| (f.as_str(), *l)),
+                a["limit"].as_u64().unwrap_or(5) as usize,
+                a["min_ratio"].as_f64().unwrap_or(0.7)
+            )),
+            "memory.groups" => json!(self.mem.as_ref().ok_or("no memory")?.groups(
+                a["limit"].as_u64().unwrap_or(500) as usize,
+                a["loose"].as_bool().unwrap_or(false),
+                a["by_speaker"].as_bool().unwrap_or(false)
+            )),
+            "memory.tokens" => {
+                let texts = strings(&a["texts"]);
+                json!({
+                    "tokens": texts.iter().map(|t| memory::tokens(t)).collect::<Vec<_>>(),
+                    "tags": texts.iter().map(|t| memory::tags_of(t).into_iter().map(|(k, n)| (k, json!(n))).collect::<Map<String, Value>>()).collect::<Vec<_>>(),
+                })
+            }
+            "snapshots.create" => snap(
+                snapshots::create(&self.p(&a["root"]), &self.p(&a["data"]), a["reason"].as_str().unwrap_or("manual"), a["app"].as_str().unwrap_or(""), clock)
+                    .map_err(|e| e.to_string())?,
+            ),
+            "snapshots.list" => json!(snapshots::list_snapshots(&self.p(&a["data"])).into_iter().map(|m| snap(Some(m))).collect::<Vec<_>>()),
+            "snapshots.prune" => json!(snapshots::prune(&self.p(&a["data"]), a["keep"].as_i64().unwrap_or(0))),
+            "snapshots.compare" => {
+                let r = snapshots::compare(&self.p(&a["root"]), &self.p(&a["data"]), a["name"].as_str().unwrap_or("")).map_err(|e| e.to_string())?;
+                json!(r.into_iter().map(|(f, s)| json!({"file": f, "state": s})).collect::<Vec<_>>())
+            }
+            "snapshots.restore" => {
+                let files = a.get("files").filter(|f| f.is_array()).map(strings);
+                let (restored, safety) = snapshots::restore(
+                    &self.p(&a["root"]),
+                    &self.p(&a["data"]),
+                    a["name"].as_str().unwrap_or(""),
+                    files.as_deref(),
+                    a["app"].as_str().unwrap_or(""),
+                    clock,
+                )
+                .map_err(|e| e.to_string())?;
+                json!({"restored": restored, "safety": snap(safety)})
+            }
+            "snapshots.delete" => {
+                snapshots::delete(&self.p(&a["data"]), a["name"].as_str().unwrap_or("")).map_err(|e| e.to_string())?;
+                json!(true)
+            }
+            "snapshots.due" => json!(snapshots::due(&self.p(&a["data"]), a["interval_hours"].as_f64().unwrap_or(0.0), clock)),
+            "snapshots.recent" => json!(snapshots::recent(&self.p(&a["data"]), a["minutes"].as_f64().unwrap_or(0.0), clock)),
+            "snapshots.age" => json!(snapshots::last_age_hours(&self.p(&a["data"]), clock)),
+            "snapshots.read" => json!(snapshots::digests(&self.p(&a["data"]), a["name"].as_str().unwrap_or(""))
+                .map_err(|e| e.to_string())?
+                .into_iter()
+                .map(|(n, h)| json!([n, h]))
+                .collect::<Vec<_>>()),
             other => return Err(format!("unknown data step {other}")),
         })
     }
@@ -457,7 +644,13 @@ impl Runner<'_> {
     }
 
     fn dump_store(&mut self) -> Result<Value, String> {
-        let st = self.store()?;
+        Ok(store_json(self.store()?))
+    }
+}
+
+/// The state of a store in the shape of the golden data (also used to compare real data folders).
+pub fn store_json(st: &Store) -> Value {
+    {
         let corr: Map<String, Value> = st.corr.iter().map(|(k, v)| (k.clone(), json!({"c": v.c, "t": v.t}))).collect();
         let approved: Map<String, Value> =
             st.approved.iter().map(|(f, set)| (f.clone(), json!(set.iter().map(|(b, o)| json!([b, o])).collect::<Vec<_>>()))).collect();
@@ -479,14 +672,94 @@ impl Runner<'_> {
                 (f.clone(), json!(items.into_iter().map(|((b, o, c), m)| json!([b, o, c, m])).collect::<Vec<_>>()))
             })
             .collect();
-        Ok(json!({
+        json!({
             "corr": corr, "assign": st.assign.iter().map(|(k, v)| (k.clone(), json!(v))).collect::<Map<String, Value>>(), "approved": approved,
             "episodes": st.episodes.iter().map(|(n, s)| (n.to_string(), json!(s))).collect::<Map<String, Value>>(),
             "proof": proof, "ignored": ignored,
             "glossary": st.glossary.iter().map(|(k, g)| (k.clone(), json!({"n": g.n, "t": g.t, "c": g.c}))).collect::<Map<String, Value>>(),
             "warnings": st.warnings.iter().map(|m| m.wire()).collect::<Vec<_>>(),
             "unsaved": st.unsaved.iter().collect::<Vec<_>>(), "undo": st.undo_labels(),
-        }))
+        })
+    }
+}
+
+/// What the real-data comparison reads from a data folder (a `.lexo` folder): the store, the history and the events, nothing is written.
+pub fn folder_json(dir: &Path, today: chrono::NaiveDate) -> Value {
+    let layout = std::fs::read_to_string(dir.join("lexo.json"))
+        .ok()
+        .and_then(|t| serde_json::from_str::<Value>(t.trim_start_matches('\u{feff}')).ok())
+        .and_then(|v| layout::parse(&v).ok())
+        .unwrap_or_else(|| Layout::new(Vec::new(), Default::default(), "", "", Vec::new()));
+    let mut st = Store::new(dir, None, layout);
+    st.load();
+    let h = History::new(&dir.join("history.csv"), None);
+    let points = h.points();
+    let ts = |t: &chrono::NaiveDateTime| t.format("%Y-%m-%d %H:%M:%S").to_string();
+    let (done, total) = points.last().map_or((0, 0), |p| (p.1, p.2));
+    let log = EventLog::new(&dir.join("events"), &dir.join("no-seen-file.json"), "nobody");
+    let (seen, unseen, _) = log.read_all();
+    let mut state = events::State::new();
+    EventLog::replay_into(&mut state, &seen);
+    EventLog::replay_into(&mut state, &unseen);
+    let flat: Map<String, Value> = state
+        .iter()
+        .map(|(kind, slot)| {
+            let items: Vec<Value> =
+                slot.iter().filter(|(_, (v, _))| !v.is_null()).map(|(k, (v, s))| json!([events::key_json(k), v, [s.0, s.1, s.2]])).collect();
+            (kind.clone(), Value::Array(items))
+        })
+        .collect();
+    render(&json!({
+        "store": store_json(&st),
+        "history": {
+            "rows": h.rows(),
+            "points": points.iter().map(|(t, d, tot, c)| json!([ts(t), d, tot, c])).collect::<Vec<_>>(),
+            "chart": h.chart_points().iter().map(|(t, x, y)| json!([ts(t), x, y])).collect::<Vec<_>>(),
+            "estimate": history::estimate(&points, done, total, today).to_json(),
+            "goals": history::goals(&points, (total - done).max(0), (total - done).max(0), None, today),
+        },
+        "events": flat,
+    }))
+}
+
+fn today(a: &Value) -> Result<chrono::NaiveDate, String> {
+    a["today"].as_str().unwrap_or("").parse().map_err(|e| format!("{e}"))
+}
+
+fn skip(a: &Value) -> Option<(String, i64)> {
+    let s = a.get("skip").and_then(Value::as_array).filter(|s| s.len() == 2)?;
+    Some((s[0].as_str()?.to_string(), s[1].as_i64()?))
+}
+
+/// A manifest without the size of the zip (the compressor decides it).
+fn snap(m: Option<Map<String, Value>>) -> Value {
+    match m {
+        None => Value::Null,
+        Some(mut m) => {
+            m.shift_remove("size");
+            Value::Object(m)
+        }
+    }
+}
+
+fn dump_th(th: &TextHistory) -> Value {
+    let mut items: Vec<_> = th.by_key.iter().collect();
+    items.sort_by(|a, b| a.0.cmp(b.0));
+    json!({"total": th.total, "by_key": items.into_iter().map(|((f, b, s), recs)| json!([f, b, s, recs])).collect::<Vec<_>>()})
+}
+
+impl Runner<'_> {
+    fn points(&self, a: &Value) -> Result<Vec<history::Point>, String> {
+        if let Some(p) = a.get("points").and_then(Value::as_array) {
+            return p
+                .iter()
+                .map(|r| {
+                    let ts = chrono::NaiveDateTime::parse_from_str(r[0].as_str().unwrap_or(""), history::STAMP_FORMAT).map_err(|e| e.to_string())?;
+                    Ok((ts, r[1].as_i64().unwrap_or(0), r[2].as_i64().unwrap_or(0), r[3].as_i64().unwrap_or(0)))
+                })
+                .collect();
+        }
+        Ok(self.hist.as_ref().ok_or("no history")?.points())
     }
 }
 
@@ -541,6 +814,9 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
             layout: Layout::new(Vec::new(), Default::default(), "", "", Vec::new()),
             store: None,
             log: None,
+            hist: None,
+            th: None,
+            mem: None,
         };
         let mut steps = Vec::new();
         for st in spec["steps"].as_array().ok_or("no steps")? {

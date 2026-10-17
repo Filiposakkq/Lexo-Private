@@ -1,0 +1,539 @@
+{
+ "files_after": {
+  "root/empty/readme.txt": {
+   "sha1": "d441fa15b0094cd66bae97936fabf6d5e3732a4d",
+   "text": "no scripts here\n"
+  },
+  "root/game/tl/.lexo/y.rpy": {
+   "sha1": "c18c8c0aec6c04ff94b63c30065368913f5bf2aa",
+   "text": "skipped\n"
+  },
+  "root/game/tl/UPPER.RPY": {
+   "sha1": "d3edb1073cdeef4c967b70cbcddc8731a6a5418f",
+   "text": "upper case extension\n"
+  },
+  "root/game/tl/__pycache__/z.rpy": {
+   "sha1": "c18c8c0aec6c04ff94b63c30065368913f5bf2aa",
+   "text": "skipped\n"
+  },
+  "root/game/tl/_progress_data/x.rpy": {
+   "sha1": "c18c8c0aec6c04ff94b63c30065368913f5bf2aa",
+   "text": "skipped\n"
+  },
+  "root/game/tl/a.rpy": {
+   "sha1": "4e7fe670619ae80fec029c41677118f982b1d148",
+   "text": "translate czech a_1:\n\n    # mc \"Hi\"\n    mc \"Ahoj\"\n"
+  },
+  "root/game/tl/c.txt": {
+   "sha1": "5e18c1d4276be72664385667ac373b3b0b2b1cb2",
+   "text": "not a script\n"
+  },
+  "root/game/tl/new.rpy": {
+   "sha1": "a77b0882841c633011478420bf0eb9d10f39fd1b",
+   "text": "a new file\n"
+  },
+  "root/game/tl/sub/b.rpy": {
+   "sha1": "fea8dbb652098a45147de5020edaf85bec2dc951",
+   "text": "line b\r\n"
+  },
+  "root/local/snapshots/snap-<stamp>-1-manual.zip": {
+   "zip": [
+    [
+     "files/UPPER.RPY",
+     "d3edb1073cdeef4c967b70cbcddc8731a6a5418f"
+    ],
+    [
+     "files/a.rpy",
+     "4e7fe670619ae80fec029c41677118f982b1d148"
+    ],
+    [
+     "files/sub/b.rpy",
+     "fea8dbb652098a45147de5020edaf85bec2dc951"
+    ],
+    [
+     "manifest.json",
+     "e90c8acde0cf10fd1fb11fabb8bc97871ef8ed02"
+    ]
+   ]
+  }
+ },
+ "steps": [
+  {
+   "answer": null,
+   "op": "snapshots.create",
+   "params": {
+    "data": "root/local1",
+    "reason": "manual",
+    "root": "root/empty"
+   }
+  },
+  {
+   "error": "Unknown kind of backup.",
+   "op": "snapshots.create",
+   "params": {
+    "data": "root/local",
+    "reason": "nonsense",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": true,
+   "op": "snapshots.due",
+   "params": {
+    "data": "root/local",
+    "interval_hours": 12
+   }
+  },
+  {
+   "answer": null,
+   "op": "snapshots.age",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "app": "1.2.3",
+    "bytes": 79,
+    "files": 3,
+    "name": "snap-<stamp>-manual.zip",
+    "reason": "manual",
+    "time": "<volatile>"
+   },
+   "op": "snapshots.create",
+   "params": {
+    "app": "1.2.3",
+    "data": "root/local",
+    "reason": "manual",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": {
+    "app": "",
+    "bytes": 79,
+    "files": 3,
+    "name": "snap-<stamp>-1-manual.zip",
+    "reason": "manual",
+    "time": "<volatile>"
+   },
+   "op": "snapshots.create",
+   "params": {
+    "data": "root/local",
+    "reason": "manual",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": true,
+   "op": "set_local",
+   "params": {
+    "value": "2026-10-17T13:30:00"
+   }
+  },
+  {
+   "answer": 2.5,
+   "op": "snapshots.age",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": false,
+   "op": "snapshots.due",
+   "params": {
+    "data": "root/local",
+    "interval_hours": 12
+   }
+  },
+  {
+   "answer": true,
+   "op": "snapshots.due",
+   "params": {
+    "data": "root/local",
+    "interval_hours": 2
+   }
+  },
+  {
+   "answer": false,
+   "op": "snapshots.recent",
+   "params": {
+    "data": "root/local",
+    "minutes": 60
+   }
+  },
+  {
+   "answer": true,
+   "op": "snapshots.recent",
+   "params": {
+    "data": "root/local",
+    "minutes": 300
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "path": "root/game/tl/a.rpy",
+    "text": "changed\n"
+   }
+  },
+  {
+   "answer": true,
+   "op": "remove_file",
+   "params": {
+    "path": "root/game/tl/sub/b.rpy"
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "path": "root/game/tl/new.rpy",
+    "text": "a new file\n"
+   }
+  },
+  {
+   "answer": {
+    "app": "",
+    "bytes": 40,
+    "files": 3,
+    "name": "snap-<stamp>-bulk.zip",
+    "reason": "bulk",
+    "time": "<volatile>"
+   },
+   "op": "snapshots.create",
+   "params": {
+    "data": "root/local",
+    "reason": "bulk",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": true,
+   "op": "set_local",
+   "params": {
+    "value": "2026-10-17T15:00:00"
+   }
+  },
+  {
+   "answer": {
+    "app": "",
+    "bytes": 40,
+    "files": 3,
+    "name": "snap-<stamp>-auto.zip",
+    "reason": "auto",
+    "time": "<volatile>"
+   },
+   "op": "snapshots.create",
+   "params": {
+    "data": "root/local",
+    "reason": "auto",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": [
+    {
+     "app": "",
+     "bytes": 40,
+     "files": 3,
+     "name": "snap-<stamp>-auto.zip",
+     "reason": "auto",
+     "reason_label": "automatic",
+     "time": "<volatile>"
+    },
+    {
+     "app": "",
+     "bytes": 40,
+     "files": 3,
+     "name": "snap-<stamp>-bulk.zip",
+     "reason": "bulk",
+     "reason_label": "before a bulk change",
+     "time": "<volatile>"
+    },
+    {
+     "app": "",
+     "bytes": 79,
+     "files": 3,
+     "name": "snap-<stamp>-1-manual.zip",
+     "reason": "manual",
+     "reason_label": "created by hand",
+     "time": "<volatile>"
+    },
+    {
+     "app": "1.2.3",
+     "bytes": 79,
+     "files": 3,
+     "name": "snap-<stamp>-manual.zip",
+     "reason": "manual",
+     "reason_label": "created by hand",
+     "time": "<volatile>"
+    }
+   ],
+   "op": "snapshots.list",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": [
+    [
+     "files/UPPER.RPY",
+     "d3edb1073cdeef4c967b70cbcddc8731a6a5418f"
+    ],
+    [
+     "files/a.rpy",
+     "4e7fe670619ae80fec029c41677118f982b1d148"
+    ],
+    [
+     "files/sub/b.rpy",
+     "fea8dbb652098a45147de5020edaf85bec2dc951"
+    ],
+    [
+     "manifest.json",
+     "cd18f57213b0772644faaa57f33336322d844e88"
+    ]
+   ],
+   "op": "snapshots.read",
+   "params": {
+    "data": "root/local",
+    "name": "snap-<stamp>-manual.zip"
+   }
+  },
+  {
+   "answer": [
+    {
+     "file": "a.rpy",
+     "state": "changed"
+    },
+    {
+     "file": "sub/b.rpy",
+     "state": "missing"
+    },
+    {
+     "file": "UPPER.RPY",
+     "state": "same"
+    }
+   ],
+   "op": "snapshots.compare",
+   "params": {
+    "data": "root/local",
+    "name": "snap-<stamp>-manual.zip",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "error": "Invalid backup name.",
+   "op": "snapshots.compare",
+   "params": {
+    "data": "root/local",
+    "name": "../escape.zip",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "error": "The backup does not exist.",
+   "op": "snapshots.compare",
+   "params": {
+    "data": "root/local",
+    "name": "snap-<stamp>-auto.zip",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": true,
+   "op": "set_local",
+   "params": {
+    "value": "2026-10-17T16:00:00"
+   }
+  },
+  {
+   "answer": {
+    "restored": [
+     "sub/b.rpy"
+    ],
+    "safety": {
+     "app": "1.2.3",
+     "bytes": 40,
+     "files": 3,
+     "name": "snap-<stamp>-restore.zip",
+     "reason": "restore",
+     "time": "<volatile>"
+    }
+   },
+   "op": "snapshots.restore",
+   "params": {
+    "app": "1.2.3",
+    "data": "root/local",
+    "files": [
+     "sub/b.rpy",
+     "missing.rpy"
+    ],
+    "name": "snap-<stamp>-manual.zip",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": {
+    "restored": [
+     "UPPER.RPY",
+     "a.rpy",
+     "sub/b.rpy"
+    ],
+    "safety": {
+     "app": "",
+     "bytes": 48,
+     "files": 4,
+     "name": "snap-<stamp>-1-restore.zip",
+     "reason": "restore",
+     "time": "<volatile>"
+    }
+   },
+   "op": "snapshots.restore",
+   "params": {
+    "data": "root/local",
+    "name": "snap-<stamp>-manual.zip",
+    "root": "root/game/tl"
+   }
+  },
+  {
+   "answer": [
+    {
+     "app": "",
+     "bytes": 48,
+     "files": 4,
+     "name": "snap-<stamp>-1-restore.zip",
+     "reason": "restore",
+     "reason_label": "before a restore",
+     "time": "<volatile>"
+    },
+    {
+     "app": "1.2.3",
+     "bytes": 40,
+     "files": 3,
+     "name": "snap-<stamp>-restore.zip",
+     "reason": "restore",
+     "reason_label": "before a restore",
+     "time": "<volatile>"
+    },
+    {
+     "app": "",
+     "bytes": 40,
+     "files": 3,
+     "name": "snap-<stamp>-auto.zip",
+     "reason": "auto",
+     "reason_label": "automatic",
+     "time": "<volatile>"
+    },
+    {
+     "app": "",
+     "bytes": 40,
+     "files": 3,
+     "name": "snap-<stamp>-bulk.zip",
+     "reason": "bulk",
+     "reason_label": "before a bulk change",
+     "time": "<volatile>"
+    },
+    {
+     "app": "",
+     "bytes": 79,
+     "files": 3,
+     "name": "snap-<stamp>-1-manual.zip",
+     "reason": "manual",
+     "reason_label": "created by hand",
+     "time": "<volatile>"
+    },
+    {
+     "app": "1.2.3",
+     "bytes": 79,
+     "files": 3,
+     "name": "snap-<stamp>-manual.zip",
+     "reason": "manual",
+     "reason_label": "created by hand",
+     "time": "<volatile>"
+    }
+   ],
+   "op": "snapshots.list",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": 3,
+   "op": "snapshots.prune",
+   "params": {
+    "data": "root/local",
+    "keep": 3
+   }
+  },
+  {
+   "answer": [
+    {
+     "app": "1.2.3",
+     "bytes": 40,
+     "files": 3,
+     "name": "snap-<stamp>-restore.zip",
+     "reason": "restore",
+     "reason_label": "before a restore",
+     "time": "<volatile>"
+    },
+    {
+     "app": "",
+     "bytes": 79,
+     "files": 3,
+     "name": "snap-<stamp>-1-manual.zip",
+     "reason": "manual",
+     "reason_label": "created by hand",
+     "time": "<volatile>"
+    },
+    {
+     "app": "1.2.3",
+     "bytes": 79,
+     "files": 3,
+     "name": "snap-<stamp>-manual.zip",
+     "reason": "manual",
+     "reason_label": "created by hand",
+     "time": "<volatile>"
+    }
+   ],
+   "op": "snapshots.list",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": true,
+   "op": "snapshots.delete",
+   "params": {
+    "data": "root/local",
+    "name": "snap-<stamp>-manual.zip"
+   }
+  },
+  {
+   "error": "The backup does not exist.",
+   "op": "snapshots.delete",
+   "params": {
+    "data": "root/local",
+    "name": "snap-<stamp>-manual.zip"
+   }
+  },
+  {
+   "answer": 1,
+   "op": "snapshots.prune",
+   "params": {
+    "data": "root/local",
+    "keep": 0
+   }
+  },
+  {
+   "answer": [
+    "snap-<stamp>-1-manual.zip"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/local/snapshots"
+   }
+  }
+ ]
+}

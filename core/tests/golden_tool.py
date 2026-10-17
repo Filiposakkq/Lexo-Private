@@ -25,6 +25,7 @@ sys.path[:0] = [str(HERE.parent), str(HERE)]
 from lexo import api, layout, lang, menus, rpa, rpy, validator    # noqa: E402
 from lexo.app_base import AppError                                   # noqa: E402
 from lexo.messages import render, text_of, wire                      # noqa: E402
+from lexo.snapshots import SnapshotError                            # noqa: E402
 from lexo.util import WriteFailed                                   # noqa: E402
 
 GOLDEN = ROOT / "core" / "golden"
@@ -290,6 +291,13 @@ def _file_records(root, skip=()):
     for f in sorted(root.rglob("*")):
         if f.is_file() and f.name not in skip:
             b = f.read_bytes()
+            if f.name == "text_history.jsonl":
+                b = b.replace(b"\r\n", b"\n")                  # Python writes it in text mode: CRLF on Windows, LF elsewhere
+            if f.suffix == ".zip":                             # the bytes of a zip depend on the compressor: its files and their digests are compared
+                import zipfile
+                with zipfile.ZipFile(f) as z:
+                    files[f.relative_to(root).as_posix()] = {"zip": sorted([i.filename, hashlib.sha1(z.read(i)).hexdigest()] for i in z.infolist())}
+                continue
             rec = {"sha1": hashlib.sha1(b).hexdigest()}
             try:
                 rec["text"] = b.decode("utf-8")
@@ -325,7 +333,7 @@ def run_data_scenario(path):
                 entry = {"op": st["op"], "params": {k: v for k, v in st.items() if k != "op"}}
                 try:
                     entry["answer"] = plain(runner.run(st["op"], st))
-                except (AppError, WriteFailed) as e:
+                except (AppError, WriteFailed, SnapshotError) as e:
                     entry["error"] = str(text_of(e))
                 steps.append(entry)
         runner.close()
@@ -589,6 +597,156 @@ class DataRunner:
     def op_events_clean_author(self, a):
         from lexo.events import clean_author
         return [clean_author(n) for n in a["names"]]
+
+    # -- history.csv, the history of the texts, the translation memory, snapshots
+    def op_set_local(self, a):
+        from datetime import datetime
+        self.clock.local = datetime.fromisoformat(a["value"])
+        return True
+
+    def op_remove_file(self, a):
+        self.p(a["path"]).unlink()
+        return True
+
+    def op_history_open(self, a):
+        from lexo.history import History
+        self.hist = History(self.p(a["path"]), self.p(a["backup_dir"]) if a.get("backup_dir") else None)
+        return True
+
+    def op_history_record(self, a):
+        return self.hist.record(a["stamp"], a["t_done"], a["total"], a["tpct"], a["c_done"], a["cpct"])
+
+    def op_history_dump(self, a):
+        return {"rows": self.hist.rows(), "points": [[str(ts), d, t, c] for ts, d, t, c in self.hist.points()],
+                "chart": [[str(ts), x, y] for ts, x, y in self.hist.chart_points()]}
+
+    @staticmethod
+    def _dates(v):
+        from datetime import date
+        if isinstance(v, date):
+            return v.isoformat()
+        if isinstance(v, dict):
+            return {k: DataRunner._dates(x) for k, x in v.items()}
+        if isinstance(v, (list, tuple)):
+            return [DataRunner._dates(x) for x in v]
+        return v
+
+    def _points(self, a):
+        from datetime import datetime
+        from lexo.history import STAMP_FORMAT
+        if "points" in a:
+            return [(datetime.strptime(ts, STAMP_FORMAT), d, t, c) for ts, d, t, c in a["points"]]
+        return self.hist.points()
+
+    def op_history_estimate(self, a):
+        from datetime import date
+        from lexo import history
+        return self._dates(history.estimate(self._points(a), a["done_now"], a["total_now"], today=date.fromisoformat(a["today"])))
+
+    def op_history_goals(self, a):
+        from datetime import date
+        from lexo import history
+        return self._dates(history.goals(self._points(a), a["remaining_translate"], a["remaining_proof"], a.get("cfg"), date.fromisoformat(a["today"])))
+
+    def op_texthistory_open(self, a):
+        from lexo.texthistory import TextHistory
+        self.th = TextHistory(self.p(a["path"]))
+        return True
+
+    def _dump_th(self):
+        return {"total": self.th.total, "by_key": [[f, b, s, recs] for (f, b, s), recs in sorted(self.th.by_key.items())]}
+
+    def op_texthistory_load(self, a):
+        from unittest import mock
+        from lexo import texthistory as t
+        with mock.patch.object(t, "MAX_LINES", a.get("max_lines", t.MAX_LINES)), mock.patch.object(t, "KEEP_LINES", a.get("keep_lines", t.KEEP_LINES)):
+            self.th.load()
+        return self._dump_th()
+
+    def op_texthistory_record(self, a):
+        n = self.th.record([{"file": i["file"], "key": tuple(i["key"]), "old": i["old"], "new": i["new"]} for i in a["items"]], a["via"])
+        return {"written": n, "state": self._dump_th()}
+
+    def op_texthistory_versions(self, a):
+        return self.th.versions(a["file"], a["key"], a["current"])
+
+    def op_texthistory_diff(self, a):
+        from lexo import rpy, texthistory
+        old, new = rpy.parse_text(a["old"]).entries, rpy.parse_text(a["new"]).entries
+        return [{**d, "key": list(d["key"])} for d in texthistory.diff_files(old, new)]
+
+    def op_memory_build(self, a):
+        from lexo.memory import Memory
+        rows = [tuple(r) for r in a["rows"]]
+        gen = a.get("generate")
+        if gen:
+            rows += [(gen["file"], i + 1, gen.get("who", ""), gen["source"].replace("{i}", str(i)), gen["target"].replace("{i}", str(i))) for i in range(gen["n"])]
+        self.mem = Memory(rows)
+        return {"rows": len(self.mem.rows), "common": sorted(self.mem.common)}
+
+    @staticmethod
+    def _skip(a):
+        return tuple(a["skip"]) if a.get("skip") else None
+
+    def op_memory_exact(self, a):
+        return self.mem.exact_matches(a["source"], self._skip(a))
+
+    def op_memory_similar(self, a):
+        return self.mem.similar(a["source"], self._skip(a), a.get("limit", 5), a.get("min_ratio", 0.7))
+
+    def op_memory_groups(self, a):
+        return self.mem.groups(a.get("limit", 500), a.get("loose", False), a.get("by_speaker", False))
+
+    def op_memory_tokens(self, a):
+        from lexo import memory
+        return {"tokens": [memory.tokens(t) for t in a["texts"]], "tags": [dict(memory.tags_of(t)) for t in a["texts"]]}
+
+    @staticmethod
+    def _snap(m):
+        return None if m is None else {k: v for k, v in m.items() if k != "size"}          # the size of a zip depends on the compressor
+
+    def op_snapshots_create(self, a):
+        from lexo import snapshots
+        return self._snap(snapshots.create(self.p(a["root"]), self.p(a["data"]), a.get("reason", "manual"), a.get("app", "")))
+
+    def op_snapshots_list(self, a):
+        from lexo import snapshots
+        return [self._snap(m) for m in snapshots.list_snapshots(self.p(a["data"]))]
+
+    def op_snapshots_prune(self, a):
+        from lexo import snapshots
+        return snapshots.prune(self.p(a["data"]), a["keep"])
+
+    def op_snapshots_compare(self, a):
+        from lexo import snapshots
+        return snapshots.compare(self.p(a["root"]), self.p(a["data"]), a["name"])
+
+    def op_snapshots_restore(self, a):
+        from lexo import snapshots
+        res = snapshots.restore(self.p(a["root"]), self.p(a["data"]), a["name"], a.get("files"), a.get("app", ""))
+        return {"restored": res["restored"], "safety": self._snap(res["safety"])}
+
+    def op_snapshots_delete(self, a):
+        from lexo import snapshots
+        snapshots.delete(self.p(a["data"]), a["name"])
+        return True
+
+    def op_snapshots_due(self, a):
+        from lexo import snapshots
+        return snapshots.due(self.p(a["data"]), a["interval_hours"])
+
+    def op_snapshots_recent(self, a):
+        from lexo import snapshots
+        return snapshots.recent(self.p(a["data"]), a["minutes"])
+
+    def op_snapshots_age(self, a):
+        from lexo import snapshots
+        return snapshots.last_age_hours(self.p(a["data"]))
+
+    def op_snapshots_read(self, a):
+        import zipfile
+        with zipfile.ZipFile(self.p(a["data"]) / "snapshots" / a["name"]) as z:
+            return sorted([i.filename, hashlib.sha1(z.read(i)).hexdigest()] for i in z.infolist())
 
 
 # =========================================================================================================================== everything

@@ -1,0 +1,36 @@
+{
+ "_doc": "memory: the translation memory of the project: exact matches (case, punctuation, tags and variables do not matter), similar originals with their ratio, one original translated in several ways. Few candidates, so the tie order of Python's sets never shows.",
+ "files": {},
+ "steps": [
+  {"op": "memory.tokens", "texts": ["Hello, {i}World{/i}! [name] it's", "Don't  go", "", "1,000 apples — 'quoted' text_here", "ŽLUŤOUČKÝ kůň"]},
+  {"op": "memory.build", "rows": [
+    ["a.rpy", 3, "mc", "Where are you going?", "Kam jdeš?"],
+    ["a.rpy", 9, "mc", "Where are you going?", "Kam jdete?"],
+    ["b.rpy", 4, "js", "WHERE are you going!", "KAM jdeš!"],
+    ["b.rpy", 7, "js", "Where are you going?", "Kam jdeš?"],
+    ["a.rpy", 11, "mc", "Where are you going today?", "Kam dnes jdeš?"],
+    ["a.rpy", 12, "mc", "Where are you going now my friend?", "Kam teď jdeš příteli?"],
+    ["a.rpy", 13, "mc", "I love the old house.", "Miluju ten starý dům."],
+    ["a.rpy", 14, "mc", "I love the new house.", "Miluju ten nový dům."],
+    ["a.rpy", 15, "mc", "I love the old house!", "Miluju ten starý dům!"],
+    ["a.rpy", 16, "", "...", "..."],
+    ["a.rpy", 17, "mc", "Empty target", ""],
+    ["a.rpy", 18, "mc", "{i}Hello{/i} [name]", "{i}Ahoj{/i} [name]"],
+    ["a.rpy", 19, "mc", "Hello [name]", "Ahoj [jmeno]"],
+    ["b.rpy", 20, "js", "Hello  [name]", "Čau [name]"]]},
+  {"op": "memory.exact", "source": "where are you GOING"},
+  {"op": "memory.exact", "source": "Where are you going?", "skip": ["a.rpy", 3]},
+  {"op": "memory.exact", "source": "{b}Hello{/b} [other]"},
+  {"op": "memory.exact", "source": "...!!!"},
+  {"op": "memory.similar", "source": "Where are you going tomorrow?"},
+  {"op": "memory.similar", "source": "I love the old house.", "limit": 2, "min_ratio": 0.5},
+  {"op": "memory.similar", "source": "One"},
+  {"op": "memory.similar", "source": "Where are you going today?", "skip": ["a.rpy", 11], "min_ratio": 0.9},
+  {"op": "memory.groups"},
+  {"op": "memory.groups", "loose": true},
+  {"op": "memory.groups", "by_speaker": true},
+  {"op": "memory.groups", "loose": true, "by_speaker": true, "limit": 1},
+  {"op": "memory.build", "rows": [["a.rpy", 1, "", "The word", "Slovo"]], "generate": {"file": "g.rpy", "source": "The common line number {i}", "target": "Obecný řádek {i}", "n": 60}},
+  {"op": "memory.similar", "source": "The common line number 7 and more words"}
+ ]
+}

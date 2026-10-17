@@ -32,16 +32,6 @@ pub fn text_hash(text: &str) -> String {
     sha1_hex(text.as_bytes())[..12].to_string()
 }
 
-/// Python's `round()`: halves go to the even number.
-fn round_half_even(x: f64) -> f64 {
-    let r = x.round();
-    if (x - x.trunc()).abs() == 0.5 {
-        2.0 * (x / 2.0).round()
-    } else {
-        r
-    }
-}
-
 /// Number / percent / yes-word -> number of lines. Empty or invalid -> `None`.
 pub fn parse_value(value: &str, total: i64) -> Option<i64> {
     let v = crate::util::py_strip(value).to_lowercase().replace(',', ".");
@@ -53,7 +43,7 @@ pub fn parse_value(value: &str, total: i64) -> Option<i64> {
     }
     if let Some(p) = v.strip_suffix('%') {
         let f: f64 = p.trim().parse().ok().filter(|f: &f64| f.is_finite())?;
-        return Some((round_half_even(f * total as f64 / 100.0) as i64).clamp(0, total.max(0)));
+        return Some((crate::pyfmt::round_half_even(f * total as f64 / 100.0) as i64).clamp(0, total.max(0)));
     }
     let f: f64 = v.parse().ok().filter(|f: &f64| f.is_finite())?;
     Some((f.trunc() as i64).clamp(0, total.max(0)))

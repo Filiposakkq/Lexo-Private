@@ -91,7 +91,7 @@ impl Clock for SystemClock {
 
 /// Local and UTC time fixed; the epoch is the real one shifted by `advance` (files have real times), or fixed with `set_epoch`.
 pub struct TestClock {
-    pub local: NaiveDateTime,
+    local: Cell<NaiveDateTime>,
     pub utc: DateTime<Utc>,
     offset: Cell<f64>,
     fixed: Cell<Option<f64>>,
@@ -99,10 +99,13 @@ pub struct TestClock {
 
 impl TestClock {
     pub fn new(local: NaiveDateTime, utc: DateTime<Utc>) -> TestClock {
-        TestClock { local, utc, offset: Cell::new(0.0), fixed: Cell::new(None) }
+        TestClock { local: Cell::new(local), utc, offset: Cell::new(0.0), fixed: Cell::new(None) }
     }
     pub fn advance(&self, seconds: f64) {
         self.offset.set(self.offset.get() + seconds);
+    }
+    pub fn set_local(&self, value: NaiveDateTime) {
+        self.local.set(value);
     }
     pub fn set_epoch(&self, value: Option<f64>) {
         self.fixed.set(value);
@@ -111,7 +114,7 @@ impl TestClock {
 
 impl Clock for TestClock {
     fn now_local(&self) -> NaiveDateTime {
-        self.local
+        self.local.get()
     }
     fn now_utc(&self) -> DateTime<Utc> {
         self.utc

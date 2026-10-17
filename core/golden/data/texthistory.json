@@ -1,0 +1,21 @@
+{
+ "_doc": "texthistory: every change of a translation is one JSON line; a damaged line never breaks the history; a long file is cut to its newest part once, at load; the versions of a line are listed newest first, the text before the first change last.",
+ "files": {
+  "root/local/text_history.jsonl": "{\"t\": \"2026-10-01T10:00:00\", \"f\": \"a.rpy\", \"k\": [\"b1\", \"Hi there\"], \"o\": \"Ahoj\", \"n\": \"Ahoj tam\", \"v\": \"edit\"}\nthis line is damaged\n{\"t\": \"2026-10-02T10:00:00\", \"f\": \"a.rpy\", \"k\": [\"b1\", \"Hi there\"], \"o\": \"Ahoj tam\", \"n\": \"Čau tam\", \"v\": \"fix\"}\n{\"f\": \"a.rpy\", \"k\": [\"b1\"]}\n{\"t\": \"2026-10-03T10:00:00\", \"f\": \"b.rpy\", \"k\": [\"b2\", \"Bye\"], \"o\": \"Nashle\", \"n\": \"Sbohem\", \"v\": \"something-new\"}\n"
+ },
+ "steps": [
+  {"op": "texthistory.open", "path": "root/local/text_history.jsonl"},
+  {"op": "texthistory.load"},
+  {"op": "texthistory.versions", "file": "a.rpy", "key": ["b1", "Hi   there"], "current": "Čau tam"},
+  {"op": "texthistory.versions", "file": "a.rpy", "key": ["b1", "Hi there"], "current": "Ahoj"},
+  {"op": "texthistory.versions", "file": "a.rpy", "key": ["nothing", "here"], "current": ""},
+  {"op": "texthistory.record", "via": "replace", "items": [
+    {"file": "a.rpy", "key": ["b1", "Hi  there"], "old": "Čau tam", "new": "Nazdar"},
+    {"file": "a.rpy", "key": ["b3", "same"], "old": "x", "new": "x"},
+    {"file": "c.rpy", "key": ["b4", "New  line"], "old": "", "new": "Nový řádek"}]},
+  {"op": "texthistory.record", "via": "undo", "items": [{"file": "z.rpy", "key": ["b", "s"], "old": "same", "new": "same"}]},
+  {"op": "texthistory.versions", "file": "a.rpy", "key": ["b1", "Hi there"], "current": "Nazdar"},
+  {"op": "texthistory.load", "max_lines": 4, "keep_lines": 3},
+  {"op": "texthistory.diff", "old": "translate czech a_1:\n\n    # mc \"Hello\"\n    mc \"Ahoj\"\n\ntranslate czech a_2:\n\n    # mc \"Bye\"\n    mc \"Nashle\"\n\ntranslate czech strings: \n\n    old \"Yes\"\n    new \"Ano\"\n", "new": "translate czech a_1:\n\n    # mc \"Hello\"\n    mc \"Čau\"\n\ntranslate czech a_2:\n\n    # mc \"Bye\"\n    mc \"Nashle\"\n\ntranslate czech strings: \n\n    old \"Yes\"\n    new \"Jo\"\n\n    old \"No\"\n    new \"Ne\"\n"}
+ ]
+}

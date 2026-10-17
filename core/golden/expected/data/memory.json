@@ -1,0 +1,716 @@
+{
+ "files_after": {},
+ "steps": [
+  {
+   "answer": {
+    "tags": [
+     {
+      "[name]": 1,
+      "{/i}": 1,
+      "{i}": 1
+     },
+     {},
+     {},
+     {},
+     {}
+    ],
+    "tokens": [
+     [
+      "hello",
+      "world",
+      "it's"
+     ],
+     [
+      "don't",
+      "go"
+     ],
+     [],
+     [
+      "1",
+      "000",
+      "apples",
+      "quoted",
+      "text",
+      "here"
+     ],
+     [
+      "žluťoučký",
+      "kůň"
+     ]
+    ]
+   },
+   "op": "memory.tokens",
+   "params": {
+    "texts": [
+     "Hello, {i}World{/i}! [name] it's",
+     "Don't  go",
+     "",
+     "1,000 apples — 'quoted' text_here",
+     "ŽLUŤOUČKÝ kůň"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "common": [],
+    "rows": 12
+   },
+   "op": "memory.build",
+   "params": {
+    "rows": [
+     [
+      "a.rpy",
+      3,
+      "mc",
+      "Where are you going?",
+      "Kam jdeš?"
+     ],
+     [
+      "a.rpy",
+      9,
+      "mc",
+      "Where are you going?",
+      "Kam jdete?"
+     ],
+     [
+      "b.rpy",
+      4,
+      "js",
+      "WHERE are you going!",
+      "KAM jdeš!"
+     ],
+     [
+      "b.rpy",
+      7,
+      "js",
+      "Where are you going?",
+      "Kam jdeš?"
+     ],
+     [
+      "a.rpy",
+      11,
+      "mc",
+      "Where are you going today?",
+      "Kam dnes jdeš?"
+     ],
+     [
+      "a.rpy",
+      12,
+      "mc",
+      "Where are you going now my friend?",
+      "Kam teď jdeš příteli?"
+     ],
+     [
+      "a.rpy",
+      13,
+      "mc",
+      "I love the old house.",
+      "Miluju ten starý dům."
+     ],
+     [
+      "a.rpy",
+      14,
+      "mc",
+      "I love the new house.",
+      "Miluju ten nový dům."
+     ],
+     [
+      "a.rpy",
+      15,
+      "mc",
+      "I love the old house!",
+      "Miluju ten starý dům!"
+     ],
+     [
+      "a.rpy",
+      16,
+      "",
+      "...",
+      "..."
+     ],
+     [
+      "a.rpy",
+      17,
+      "mc",
+      "Empty target",
+      ""
+     ],
+     [
+      "a.rpy",
+      18,
+      "mc",
+      "{i}Hello{/i} [name]",
+      "{i}Ahoj{/i} [name]"
+     ],
+     [
+      "a.rpy",
+      19,
+      "mc",
+      "Hello [name]",
+      "Ahoj [jmeno]"
+     ],
+     [
+      "b.rpy",
+      20,
+      "js",
+      "Hello  [name]",
+      "Čau [name]"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    {
+     "count": 2,
+     "lines": [
+      {
+       "file": "a.rpy",
+       "line": 3,
+       "who": "mc"
+      },
+      {
+       "file": "b.rpy",
+       "line": 7,
+       "who": "js"
+      }
+     ],
+     "target": "Kam jdeš?"
+    },
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "b.rpy",
+       "line": 4,
+       "who": "js"
+      }
+     ],
+     "target": "KAM jdeš!"
+    },
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "a.rpy",
+       "line": 9,
+       "who": "mc"
+      }
+     ],
+     "target": "Kam jdete?"
+    }
+   ],
+   "op": "memory.exact",
+   "params": {
+    "source": "where are you GOING"
+   }
+  },
+  {
+   "answer": [
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "b.rpy",
+       "line": 4,
+       "who": "js"
+      }
+     ],
+     "target": "KAM jdeš!"
+    },
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "a.rpy",
+       "line": 9,
+       "who": "mc"
+      }
+     ],
+     "target": "Kam jdete?"
+    },
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "b.rpy",
+       "line": 7,
+       "who": "js"
+      }
+     ],
+     "target": "Kam jdeš?"
+    }
+   ],
+   "op": "memory.exact",
+   "params": {
+    "skip": [
+     "a.rpy",
+     3
+    ],
+    "source": "Where are you going?"
+   }
+  },
+  {
+   "answer": [
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "a.rpy",
+       "line": 19,
+       "who": "mc"
+      }
+     ],
+     "target": "Ahoj [jmeno]"
+    },
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "a.rpy",
+       "line": 18,
+       "who": "mc"
+      }
+     ],
+     "target": "{i}Ahoj{/i} [name]"
+    },
+    {
+     "count": 1,
+     "lines": [
+      {
+       "file": "b.rpy",
+       "line": 20,
+       "who": "js"
+      }
+     ],
+     "target": "Čau [name]"
+    }
+   ],
+   "op": "memory.exact",
+   "params": {
+    "source": "{b}Hello{/b} [other]"
+   }
+  },
+  {
+   "answer": [],
+   "op": "memory.exact",
+   "params": {
+    "source": "...!!!"
+   }
+  },
+  {
+   "answer": [
+    {
+     "file": "b.rpy",
+     "line": 4,
+     "ratio": 0.89,
+     "source": "WHERE are you going!",
+     "target": "KAM jdeš!",
+     "who": "js"
+    },
+    {
+     "file": "a.rpy",
+     "line": 9,
+     "ratio": 0.89,
+     "source": "Where are you going?",
+     "target": "Kam jdete?",
+     "who": "mc"
+    },
+    {
+     "file": "a.rpy",
+     "line": 3,
+     "ratio": 0.89,
+     "source": "Where are you going?",
+     "target": "Kam jdeš?",
+     "who": "mc"
+    },
+    {
+     "file": "a.rpy",
+     "line": 11,
+     "ratio": 0.8,
+     "source": "Where are you going today?",
+     "target": "Kam dnes jdeš?",
+     "who": "mc"
+    }
+   ],
+   "op": "memory.similar",
+   "params": {
+    "source": "Where are you going tomorrow?"
+   }
+  },
+  {
+   "answer": [
+    {
+     "file": "a.rpy",
+     "line": 14,
+     "ratio": 0.8,
+     "source": "I love the new house.",
+     "target": "Miluju ten nový dům.",
+     "who": "mc"
+    }
+   ],
+   "op": "memory.similar",
+   "params": {
+    "limit": 2,
+    "min_ratio": 0.5,
+    "source": "I love the old house."
+   }
+  },
+  {
+   "answer": [],
+   "op": "memory.similar",
+   "params": {
+    "source": "One"
+   }
+  },
+  {
+   "answer": [],
+   "op": "memory.similar",
+   "params": {
+    "min_ratio": 0.9,
+    "skip": [
+     "a.rpy",
+     11
+    ],
+    "source": "Where are you going today?"
+   }
+  },
+  {
+   "answer": [
+    {
+     "key": "=Where are you going?",
+     "source": "Where are you going?",
+     "sources": [
+      "Where are you going?"
+     ],
+     "total": 3,
+     "variants": [
+      {
+       "count": 2,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 3,
+         "who": "mc"
+        },
+        {
+         "file": "b.rpy",
+         "line": 7,
+         "who": "js"
+        }
+       ],
+       "target": "Kam jdeš?"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 9,
+         "who": "mc"
+        }
+       ],
+       "target": "Kam jdete?"
+      }
+     ]
+    },
+    {
+     "key": "=Hello [name]",
+     "source": "Hello [name]",
+     "sources": [
+      "Hello [name]"
+     ],
+     "total": 2,
+     "variants": [
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 19,
+         "who": "mc"
+        }
+       ],
+       "target": "Ahoj [jmeno]"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "b.rpy",
+         "line": 20,
+         "who": "js"
+        }
+       ],
+       "target": "Čau [name]"
+      }
+     ]
+    }
+   ],
+   "op": "memory.groups",
+   "params": {}
+  },
+  {
+   "answer": [
+    {
+     "key": "where are you going",
+     "source": "Where are you going?",
+     "sources": [
+      "WHERE are you going!",
+      "Where are you going?"
+     ],
+     "total": 4,
+     "variants": [
+      {
+       "count": 2,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 3,
+         "who": "mc"
+        },
+        {
+         "file": "b.rpy",
+         "line": 7,
+         "who": "js"
+        }
+       ],
+       "target": "Kam jdeš?"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "b.rpy",
+         "line": 4,
+         "who": "js"
+        }
+       ],
+       "target": "KAM jdeš!"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 9,
+         "who": "mc"
+        }
+       ],
+       "target": "Kam jdete?"
+      }
+     ]
+    },
+    {
+     "key": "hello",
+     "source": "{i}Hello{/i} [name]",
+     "sources": [
+      "Hello [name]",
+      "{i}Hello{/i} [name]"
+     ],
+     "total": 3,
+     "variants": [
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 19,
+         "who": "mc"
+        }
+       ],
+       "target": "Ahoj [jmeno]"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 18,
+         "who": "mc"
+        }
+       ],
+       "target": "{i}Ahoj{/i} [name]"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "b.rpy",
+         "line": 20,
+         "who": "js"
+        }
+       ],
+       "target": "Čau [name]"
+      }
+     ]
+    },
+    {
+     "key": "i love the old house",
+     "source": "I love the old house.",
+     "sources": [
+      "I love the old house!",
+      "I love the old house."
+     ],
+     "total": 2,
+     "variants": [
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 15,
+         "who": "mc"
+        }
+       ],
+       "target": "Miluju ten starý dům!"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 13,
+         "who": "mc"
+        }
+       ],
+       "target": "Miluju ten starý dům."
+      }
+     ]
+    }
+   ],
+   "op": "memory.groups",
+   "params": {
+    "loose": true
+   }
+  },
+  {
+   "answer": [
+    {
+     "key": "=Where are you going?|mc",
+     "source": "Where are you going?",
+     "sources": [
+      "Where are you going?"
+     ],
+     "total": 2,
+     "variants": [
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 9,
+         "who": "mc"
+        }
+       ],
+       "target": "Kam jdete?"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 3,
+         "who": "mc"
+        }
+       ],
+       "target": "Kam jdeš?"
+      }
+     ]
+    }
+   ],
+   "op": "memory.groups",
+   "params": {
+    "by_speaker": true
+   }
+  },
+  {
+   "answer": [
+    {
+     "key": "hello|mc",
+     "source": "{i}Hello{/i} [name]",
+     "sources": [
+      "Hello [name]",
+      "{i}Hello{/i} [name]"
+     ],
+     "total": 2,
+     "variants": [
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 19,
+         "who": "mc"
+        }
+       ],
+       "target": "Ahoj [jmeno]"
+      },
+      {
+       "count": 1,
+       "lines": [
+        {
+         "file": "a.rpy",
+         "line": 18,
+         "who": "mc"
+        }
+       ],
+       "target": "{i}Ahoj{/i} [name]"
+      }
+     ]
+    }
+   ],
+   "op": "memory.groups",
+   "params": {
+    "by_speaker": true,
+    "limit": 1,
+    "loose": true
+   }
+  },
+  {
+   "answer": {
+    "common": [
+     "common",
+     "line",
+     "number",
+     "the"
+    ],
+    "rows": 61
+   },
+   "op": "memory.build",
+   "params": {
+    "generate": {
+     "file": "g.rpy",
+     "n": 60,
+     "source": "The common line number {i}",
+     "target": "Obecný řádek {i}"
+    },
+    "rows": [
+     [
+      "a.rpy",
+      1,
+      "",
+      "The word",
+      "Slovo"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    {
+     "file": "g.rpy",
+     "line": 8,
+     "ratio": 0.77,
+     "source": "The common line number 7",
+     "target": "Obecný řádek 7",
+     "who": ""
+    }
+   ],
+   "op": "memory.similar",
+   "params": {
+    "source": "The common line number 7 and more words"
+   }
+  }
+ ]
+}
