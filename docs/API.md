@@ -62,8 +62,8 @@ a script or the Rust port calls the operation by name. Errors come back as `{"ok
 | `missed/ignore` | POST `/api/missed/ignore` | write | `texts` (any), `clear` (flag) | Leave texts out of the missed-texts list for good. |
 | `missed/settings` | POST `/api/missed/settings` | write | `functions` (any) | Set the project's own functions that show text. |
 | `mt/apply` | POST `/api/mt/apply` | write | `selections` (any) | Write the chosen machine translations. |
-| `mt/batch` | POST `/api/mt/batch` | external | `items` (any) | Machine translate many lines (uses the network). |
-| `mt/targets` | POST `/api/mt/targets` | read | `file` (str), `lines` (any), `only_todo` (flag, default true) | The lines a batch machine translation would take. |
+| `mt/batch` | POST `/api/mt/batch` | external | `items` (any) | Machine translate many lines (a Pro feature; the pack translates, uses the network). |
+| `mt/targets` | POST `/api/mt/targets` | read | `file` (str), `lines` (any), `only_todo` (flag, default true) | The lines a batch machine translation would take (a Pro feature: the Pro pack cuts the list to its limit). |
 | `open-editor` | POST `/api/open-editor` | external | `file`* (str), `line` (int, default 1) | Open a file at a line in the editor. |
 | `open-url` | POST `/api/open-url` | external | `id` (str) | Open one of the known addresses in the browser (by id). (needs no open project) |
 | `overview` | GET `/api/overview` | read | - | Totals, groups, estimates and the data of the Overview tab. |

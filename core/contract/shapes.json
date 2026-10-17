@@ -1906,34 +1906,6 @@
   },
   "type": "object"
  },
- "mt/targets": {
-  "keys": {
-   "chars": {
-    "type": "number"
-   },
-   "items": {
-    "items": {
-     "keys": {
-      "file": {
-       "type": "string"
-      },
-      "line": {
-       "type": "number"
-      }
-     },
-     "type": "object"
-    },
-    "type": "array"
-   },
-   "ok": {
-    "type": "boolean"
-   },
-   "total": {
-    "type": "number"
-   }
-  },
-  "type": "object"
- },
  "overview": {
   "keys": {
    "episode_states": {

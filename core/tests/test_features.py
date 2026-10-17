@@ -37,7 +37,7 @@ class EntitlementTests(unittest.TestCase):
             self.assertEqual((d.available, d.limit), (True, None))
 
     def test_free_limits_or_locks(self):
-        self.assertEqual(features.FREE.decide("mt.batch").limit, 20)
+        self.assertEqual(features.FREE.decide("fixes.safe").limit, 20)
         self.assertFalse(features.FREE.decide("replace.regex").available)
 
     def test_features_outside_the_catalog_are_free(self):
@@ -46,9 +46,9 @@ class EntitlementTests(unittest.TestCase):
     def test_status_lists_every_gated_feature(self):
         st = features.status_of(features.FREE, ExtensionHost())
         self.assertEqual(set(st), set(features.CATALOG))
-        self.assertEqual(st["mt.batch"]["limit"], 20)
+        self.assertEqual(st["fixes.safe"]["limit"], 20)
         self.assertEqual((st["publish.web"]["available"], st["publish.web"]["pro"]), (False, False))
-        self.assertEqual((st["publish.web"]["extracted"], st["mt.batch"]["extracted"]), (True, False))      # which features are already apart from Core
+        self.assertEqual((st["publish.web"]["extracted"], st["fixes.safe"]["extracted"]), (True, False))      # which features are already apart from Core
 
 
 class ExtensionHostTests(unittest.TestCase):
@@ -102,18 +102,6 @@ class AppGateTests(TempCase):
         text = "".join(dialog(f"id_{n}", "e", f"Line number {n}", line=10 + n) for n in range(25))
         self.write("big.rpy", text)
         self.app = self.new_app()
-
-    def test_dev_default_is_unlimited_for_the_features_still_in_core(self):
-        r = self.app.mt_targets()
-        self.assertEqual((len(r["items"]), r["total"]), (25, 25))      # 25 untranslated lines in big.rpy
-        self.assertNotIn("limited", r)
-
-    def test_free_machine_translation_targets_are_cut_and_the_total_is_told(self):
-        self.app.entitlements = features.FREE
-        r = self.app.mt_targets()
-        self.assertEqual(len(r["items"]), 20)
-        self.assertEqual(r["total"], 25)
-        self.assertEqual(r["limited"], {"feature": "mt.batch", "limit": 20, "total": r["total"]})
 
     def test_publishing_needs_the_pro_pack_even_in_development(self):
         self.app.ext = ExtensionHost()                          # a Free installation: no pack

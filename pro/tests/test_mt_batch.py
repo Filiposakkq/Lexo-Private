@@ -1,4 +1,4 @@
-"""Machine translation of several lines (chosen lines, a file): targets, batches with fake HTTP, and one undoable write."""
+"""Machine translation of several lines (the Pro pack, mt.batch): targets, batches with fake HTTP, the demo limit, and one undoable write."""
 import json
 import unittest
 from pathlib import Path
@@ -7,7 +7,11 @@ import urllib.parse
 from helpers import TempCase, dialog
 from test_mt import FakeHttp
 
-from lexo.app import AppError
+import lexo_pro
+from lexo.app import AppError, FeatureLocked
+from lexo.extensions import ExtensionHost
+from lexo.messages import render
+from lexo_pro import mt_batch
 
 
 def echo(url, headers, data):
@@ -23,8 +27,11 @@ class MtBatchTests(TempCase):
         self.write("b.rpy", dialog("b1", "mc", "Five.", None, 3))
         self.app = self.new_app()
         self.app.update_settings({"mt": {"provider": "deepl", "api_key": "secret:fx", "consent": True}})
+        self.app.ext = ExtensionHost()
+        self.app.ext.register(lexo_pro.provider())
         self.http = FakeHttp(reply=echo)
-        self.app._mt_http = self.http
+        mt_batch.HTTP = self.http                       # the pack translates; a fake transport instead of the network
+        self.addCleanup(setattr, mt_batch, "HTTP", None)
         self.todo = [e.line for e in self.app.project.entries("a.rpy") if e.pending]
 
     def items(self, rel="a.rpy"):
@@ -56,9 +63,9 @@ class MtBatchTests(TempCase):
         self.assertEqual(len(self.app.mt_batch(big)["results"]), self.app.MT_BATCH)
 
     def test_a_rejected_key_stops_the_batch_after_the_first_line(self):
-        self.app._mt_http = FakeHttp(403, "forbidden")
+        mt_batch.HTTP = FakeHttp(403, "forbidden")
         res = self.app.mt_batch(self.items())
-        self.assertIn("key", res["stopped"])
+        self.assertIn("key", render(res["stopped"]))
         self.assertEqual(len(res["results"]), 1)
 
     def test_a_vanished_line_is_reported_for_that_line_only(self):
@@ -90,6 +97,36 @@ class MtBatchTests(TempCase):
         for name in ("mt/targets", "mt/batch", "mt/apply"):
             self.assertIn(("POST", name), api.ROUTES)                 # the server serves every operation of Core's table
         json.dumps(self.app.mt_targets("a.rpy"))
+
+
+class DemoAndLockTests(TempCase):
+    def setUp(self):
+        super().setUp()
+        self.write("a.rpy", "".join(dialog(f"a{n}", "mc", f"Line number {n}.", None, 3 + n * 4) for n in range(25)))
+        self.app = self.new_app()
+        self.app.update_settings({"mt": {"provider": "deepl", "api_key": "secret:fx", "consent": True}})
+        self.app.ext = ExtensionHost()
+        self.app.ext.register(lexo_pro.provider())
+
+    def test_the_licensed_pack_takes_every_line(self):
+        t = self.app.mt_targets("a.rpy")
+        self.assertEqual((len(t["items"]), t["total"], "limited" in t), (25, 25, False))
+
+    def test_the_demo_pack_cuts_the_targets_and_says_so(self):
+        import os
+        os.environ["LEXO_PRO_DEMO"] = "1"
+        self.addCleanup(os.environ.pop, "LEXO_PRO_DEMO", None)
+        t = self.app.mt_targets("a.rpy")
+        self.assertEqual((len(t["items"]), t["total"]), (20, 25))
+        self.assertEqual(t["limited"], {"feature": "mt.batch", "limit": 20, "total": 25})
+        self.assertEqual(t["chars"], sum(len(f"Line number {n}.") for n in range(20)))
+
+    def test_without_the_pack_a_batch_is_locked_but_one_line_is_not(self):
+        self.app.ext = ExtensionHost()
+        with self.assertRaises(FeatureLocked):
+            self.app.mt_targets("a.rpy")
+        with self.assertRaises(FeatureLocked):
+            self.app.mt_batch([{"file": "a.rpy", "line": 7}])
 
 
 if __name__ == "__main__":

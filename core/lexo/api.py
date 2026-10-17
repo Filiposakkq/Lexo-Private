@@ -456,12 +456,12 @@ def _entry_mt(app, a):
     return _ok(app.mt_suggest(a.file, a.line))
 
 
-@_op("mt/targets", "POST", "read", "The lines a batch machine translation would take.", S("file"), A("lines"), Param("only_todo", "flag", True), example={"file": "script.rpy"})
+@_op("mt/targets", "POST", "read", "The lines a batch machine translation would take (a Pro feature: the Pro pack cuts the list to its limit).", S("file"), A("lines"), Param("only_todo", "flag", True), example=None)
 def _mt_targets(app, a):
     return _ok(app.mt_targets(a.file, a.lines or None, a.only_todo))
 
 
-@_op("mt/batch", "POST", "external", "Machine translate many lines (uses the network).", A("items"), example=None)
+@_op("mt/batch", "POST", "external", "Machine translate many lines (a Pro feature; the pack translates, uses the network).", A("items"), example=None)
 def _mt_batch(app, a):
     return _ok(app.mt_batch(a.items or []))
 
