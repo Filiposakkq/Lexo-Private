@@ -33,20 +33,23 @@ Module = where the code lives today in `core/lexo/`. "Coupling" = which other co
 ## Pro
 Aimed at people with bigger projects, a website or Patreon, or a team. Priced low: a one-off licence or a small yearly one.
 
-| Feature | Why people pay for it | Module | Coupling |
-|---|---|---|---|
-| **Carry a translation over to a new game version** (fuzzy matching of old translations to changed or moved originals, marked "check") | A game update shifts lines and the translator redoes it by hand; this saves the most work of all | new (builds on `memory`, `rpy`) | new |
-| **Fuzzy matches in translation memory** (not only identical originals) | Repeated and similar lines across a long game | `memory` | only `app.py` |
-| **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Machine translation often mixes formal and informal address; where the language has such rules (for example Czech tykání/vykání) the check knows them through the language pack | new, builds on `mt` and `lang` | new |
-| **Character profiles** (who addresses whom how, gender, speech style) passed to batch machine translation | Makes the batch output usable | new + `mt` | new |
-| Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` |
-| **Release builder**: translation -> installable patch (zip or rpa), version, changelog | "From translation to release" in one tool, together with publishing | new | new |
-| Publishing progress (website / JSON) | Translators with a site or Patreon | `export`, `publish` | only `app.py` |
-| **Safe bulk fixes** (tag- and variable-aware, with a preview of every change) and **regex batches** | Big clean-ups without breaking tags | `fixes` | only `app.py` |
-| Bulk categorisation suggestions (assign files to groups) | Large multi-episode projects | `bulk` | only `app.py` |
-| Smarter spelling: extra language packs and better suggestions | Quality for more languages | `spelling`, `lang` | `app.py` |
-| Team work: several translators, assignments, who did what, merging changes (planned) | Teams | new | new |
-| Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new |
+**In the Pro pack?** *yes* = the code is in `pro/lexo_pro` (private), the feature is locked in Free whatever flags are changed, and its limits and demo mode belong to the pack (PRO-DESIGN.md). *no* = still in Core behind the old development flag (`Feature.extracted = False` in `features.py`): it works, but someone who edits Core can unlock it, so it is on the list of features to extract. *not built* = does not exist yet; when it is built it is written in the pack from the start.
+
+
+| Feature | Why people pay for it | Module | Coupling | In the Pro pack? |
+|---|---|---|---|---|
+| **Carry a translation over to a new game version** (fuzzy matching of old translations to changed or moved originals, marked "check") | A game update shifts lines and the translator redoes it by hand; this saves the most work of all | new (builds on `memory`, `rpy`) | new | not built |
+| **Fuzzy matches in translation memory** (not only identical originals) | Repeated and similar lines across a long game | `memory` | only `app.py` | not built |
+| **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Machine translation often mixes formal and informal address; where the language has such rules (for example Czech tykání/vykání) the check knows them through the language pack | new, builds on `mt` and `lang` | new | not built |
+| **Character profiles** (who addresses whom how, gender, speech style) passed to batch machine translation | Makes the batch output usable | new + `mt` | new | not built |
+| Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` | **no** – still in Core (`mt.batch`, old flag) |
+| **Release builder**: translation -> installable patch (zip or rpa), version, changelog | "From translation to release" in one tool, together with publishing | new | new | not built |
+| Publishing progress (website / JSON) | Translators with a site or Patreon | `export` (Core: the local progress file), `publish` (pack) | only `app.py` | **yes** – `pro/lexo_pro/publish.py` (`publish.web`) |
+| **Safe bulk fixes** (tag- and variable-aware, with a preview of every change) and **regex batches** | Big clean-ups without breaking tags | `fixes` | only `app.py` | **no** – still in Core (`fixes.safe`, `replace.regex`, old flag) |
+| Bulk categorisation suggestions (assign files to groups) | Large multi-episode projects | `bulk` | only `app.py` | **no** – still in Core (`bulk.categorize`, old flag) |
+| Smarter spelling: extra language packs and better suggestions | Quality for more languages | `spelling`, `lang` | `app.py` | not built |
+| Team work: several translators, assignments, who did what, merging changes (planned) | Teams | new | new | not built |
+| Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new | not built |
 
 ## Language packs
 A pack also lists the `letters` of the language (used to tell a translated line from an untranslated one), the repeated words that are normal in speech, the stemming rule and the plural rule; see `lang.py`.
