@@ -202,12 +202,12 @@ def _target_file(tl_dir, rel):
     return path if (root in path.parents and path.is_file()) else None
 
 
-def write_strings(tl_dir, language, items, backup_dir=None):
+def write_strings(tl_dir, language, items, backup_dir=None, into_files=False):
     """Add the chosen texts as `translate <language> strings:` blocks, with the original as the first translation (so they show up as
-    untranslated). Each text goes to the translation file that mirrors its script (script2.rpy -> tl/<language>/script2.rpy), so statistics by
-    file and by group stay right; a text whose script has no translation file goes to `extra_strings.rpy`. The place does not matter to the game:
-    Ren'Py reads every strings block of every file. Texts already in the string table are not written twice.
-    Returns {file, files: {path: count}, added, skipped}."""
+    untranslated). By default all of them go to `extra_strings.rpy`: one tidy place. With `into_files` (experimental) each text goes to the
+    translation file that mirrors its script (script2.rpy -> tl/<language>/script2.rpy), so statistics by file and by group follow it; a text
+    whose script has no translation file still goes to `extra_strings.rpy`. The place does not matter to the game: Ren'Py reads every strings
+    block of every file. Texts already in the string table are not written twice. Returns {file, files: {path: count}, added, skipped}."""
     tl_dir = Path(tl_dir).resolve()                  # one spelling of the path (Windows short names such as RUNNER~1 differ otherwise)
     known = known_strings(tl_dir)
     targets, seen, skipped = {}, set(), 0
@@ -218,7 +218,7 @@ def write_strings(tl_dir, language, items, backup_dir=None):
             continue
         seen.add(text)
         rel = str(it.get("file", "")).replace("\\", "/")
-        target = _target_file(tl_dir, rel) or (tl_dir / FILE_NAME)
+        target = (_target_file(tl_dir, rel) if into_files else None) or (tl_dir / FILE_NAME)
         targets.setdefault(target, []).append({"text": text, "file": rel, "line": it.get("line", 0)})
     files = {}
     for path, entries in targets.items():

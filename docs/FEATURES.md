@@ -23,6 +23,10 @@ Module = where the code lives today in `free/lexo/`. "Coupling" = how hard it is
 | Machine translation of single lines (own API key) | `mt` | only `app.py` |
 | Approve identical lines (the basic form) | `bulk` | only `app.py` |
 | Translation file generator, unrpa / unrpyc helpers (planned) | new | new |
+| **Preparing a built game** (workspace of links, scripts out of the archives, unrpyc, generating with the game's own engine; no UI yet) | `gametools`, `lint` | `gametools` |
+| **Texts the generator misses** (`show text`, input prompts, titles in variables; the project's own text functions; ignore list) - **experimental**: a heuristic list that can be wrong either way and must be reviewed, added to `extra_strings.rpy` (putting each text into the file of its own script is a further option) | `missed` | `app_missed` |
+| **Groups of a project from file names** (episode, chapter, part, day, update, act, and `script`, `script2` ... series), group word in all labels, suggested assignment of files | `layout`, `bulk` | `layout` |
+| Projects of any game: searches stay in the game's own `game` folder, a game folder opens its translation, source scripts are not translation files | `project`, `app_*` | core |
 
 ## Pro
 Aimed at people with bigger projects, a website or Patreon, or a team. Priced low: a one-off licence or a small yearly one.

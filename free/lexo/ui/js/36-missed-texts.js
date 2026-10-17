@@ -12,6 +12,7 @@ export async function missedTextsDialog(done) {
   const results = h('div'), info = h('span', { class: 'grow' });
   const foot = h('button', { class: 'btn primary', disabled: true });
   const ignoreBtn = h('button', { class: 'btn', disabled: true });
+  let intoFiles = false;
   const body = h('div', null, results);
   const KIND_LABEL = { text: T('text'), dialogue: T('dialogue without a block') };
   const fnInput = h('input', { type: 'text', class: 'search', style: { width: '260px' }, placeholder: 'notify, show_message' });
@@ -54,8 +55,14 @@ export async function missedTextsDialog(done) {
     const forget = data.settings.ignored.length
       ? h('button', { class: 'btn small ghost', onclick: async () => { try { await post('missed/ignore', { clear: true }); await load(); } catch (e) { fail(e); } } }, T('Forget the {n} ignored texts', { n: data.settings.ignored.length })) : null;
     results.replaceChildren(
-      h('p', { class: 'muted' }, T('Ren\'Py\'s generator takes only dialogue, menu choices, screens and strings marked _("…"). Texts shown in other ways, such as show text, an input prompt or a title kept in a variable, are not in the translation files. This list is a guess from the game\'s scripts – tick what is really shown to the player. The chosen texts are added to the translation file of their script (or to extra_strings.rpy) and appear as untranslated lines.')),
-      h('div', { class: 'toolbar' }, more, forget),
+      h('div', { class: 'notice warn' }, chip('warn', T('experimental')), ' ', T("Experimental feature: the list is a guess from the game's scripts and can be wrong in both directions (texts missing from it, texts that do not belong there). It still saves a lot of searching, but always review it before adding.")),
+      h('p', { class: 'muted' }, T('Ren\'Py\'s generator takes only dialogue, menu choices, screens and strings marked _("…"). Texts shown in other ways, such as show text, an input prompt or a title kept in a variable, are not in the translation files. This list is a guess from the game\'s scripts – tick what is really shown to the player. The chosen texts are added to extra_strings.rpy and appear as untranslated lines.')),
+      h('div', { class: 'toolbar' }, more, forget,
+        h('button', { class: 'btn small', onclick: () => { shown.forEach((_, i) => sel.add(i)); paint(); } }, T('Select all')),
+        h('button', { class: 'btn small', onclick: () => { sel.clear(); paint(); } }, T('Select none'))),
+      h('label', { class: 'check', style: { display: 'block', margin: '4px 0' } }, h('input', { type: 'checkbox', checked: intoFiles, onchange: (e) => { intoFiles = e.target.checked; } }), ' ',
+        T('Put each text into the translation file of its script'), ' ', chip('warn', T('experimental')),
+        h('div', { class: 'muted' }, T('Experimental, may not work correctly everywhere, but it mostly does and saves work. Without it all the texts go to extra_strings.rpy. The game does not care where they are; it only keeps the file and group statistics tidy.'))),
       h('div', { class: 'toolbar' }, h('b', null, T('Functions of this game that show text:')), fnInput, h('button', { class: 'btn small', onclick: saveFunctions }, T('Save')),
         h('button', { class: 'btn small', onclick: findFunctions }, T('Find functions…'))),
       suggestBox,
@@ -73,7 +80,7 @@ export async function missedTextsDialog(done) {
     const chosen = () => [...sel].filter((i) => i < 500).map((i) => data.items[i]);
     foot.onclick = async () => {
       try {
-        const res = await post('missed/add', { items: chosen() });
+        const res = await post('missed/add', { items: chosen(), into_files: intoFiles });
         toast(res.message + (res.skipped ? ' ' + T('skipped {n}', { n: res.skipped }) : ''), 'ok');
         close(); done?.();
       } catch (e) { fail(e); }
@@ -84,6 +91,6 @@ export async function missedTextsDialog(done) {
       return false;
     };
   }
-  const close = dialog({ title: T('Texts the generator missed'), body, buttons: [{ label: T('Cancel') }, { node: h('span', { style: { display: 'contents' } }, info, ignoreBtn, foot) }] });
+  const close = dialog({ title: h('span', null, T('Texts the generator missed'), ' ', chip('warn', T('experimental'))), body, buttons: [{ label: T('Cancel') }, { node: h('span', { style: { display: 'contents' } }, info, ignoreBtn, foot) }] });
   load();
 }

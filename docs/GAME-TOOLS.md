@@ -29,7 +29,8 @@ UI and server routes for these steps (they come with the new UI and the project 
 4. `generate_translation` with the game's own engine (`lint.find_launcher`); files named in Ren'Py's error output are renamed to `.unparsable` and the run is repeated (up to three times).
 The game folder is only read. No UI yet.
 
-## Texts the generator misses (`missed.py`, Tools > "Texts the generator missed…")
+## Texts the generator misses (`missed.py`, Tools > "Texts the generator missed…") - experimental, Free
+The whole feature is marked **experimental**: it is a heuristic and can be wrong in both directions (a text it does not find, a text it lists that the player never sees). It works to a good degree and saves a lot of searching, and it is part of the Free version, but the list must always be reviewed.
 `renpy translate` writes blocks for dialogue, menu choices, screens and strings marked `_("...")`. A text shown another way has no block: `show text "..."`,
 `renpy.input("prompt")`, `renpy.notify(...)`, a title assigned to a variable and shown later with `[title]`, and dialogue in places the generator does not reach.
 Such texts can still be translated with a `translate <language> strings:` block (old / new).
@@ -50,6 +51,8 @@ It is a heuristic: review the list, untick what the player never sees (a build n
 - The file is `<translation folder>/.lexo/missed.json`, shared like the other project files. Built-in: any `<name>.say("...")` call counts as a text sink.
 
 ### Where the added texts go
-The place does not matter to the game: Ren'Py reads every `translate <language> strings:` block of every file under `tl/<language>`. For the statistics, though, each text is written
-into the translation file that mirrors its own script (`script2.rpy` -> `tl/czech/script2.rpy`), at the end of the file as one more strings block, so files and groups keep the right counts. A text whose script has
-no translation file goes to `extra_strings.rpy`. Line endings of the file are kept, and a path that would lead outside the translation folder is never followed.
+The place does not matter to the game: Ren'Py reads every `translate <language> strings:` block of every file under `tl/<language>`. **By default all the texts go to `extra_strings.rpy`**, one tidy place.
+The dialog has "Select all / Select none" and an option **"Put each text into the translation file of its script" (experimental)**: the text is then written at the end of the file that mirrors its own script
+(`script2.rpy` -> `tl/czech/script2.rpy`) as one more strings block, so the file and group statistics follow it; a text whose script has no translation file still goes to `extra_strings.rpy`.
+Experimental means: it mostly works and saves work, but it edits your translation files and may not do the right thing in every game; a snapshot is made first. Line endings are kept, and a path that would lead outside
+the translation folder is never followed. The feature is part of the Free version.
