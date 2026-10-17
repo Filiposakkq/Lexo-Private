@@ -65,8 +65,9 @@ class MissedPart:
             raise AppError(msg("Nothing was chosen."))
         return self._save_missed_settings(cur["functions"], list(cur["ignored"]) + new)
 
-    def missed_add(self, items):
-        """Write the chosen texts to <translation folder>/extra_strings.rpy (untranslated, so they appear as lines to do) and reload the files."""
+    def missed_add(self, items, into_files=False):
+        """Write the chosen texts to <translation folder>/extra_strings.rpy (untranslated, so they appear as lines to do) and reload the files.
+        `into_files` (experimental): put each text into the translation file of its own script instead."""
         self._need_project()
         chosen = [{"text": str(i.get("text", "")), "file": str(i.get("file", "")), "line": int(i.get("line", 0) or 0)}
                   for i in (items or []) if isinstance(i, dict) and str(i.get("text", "")).strip()]
@@ -75,7 +76,7 @@ class MissedPart:
         with self.lock:
             self._snapshot("bulk")
             try:
-                res = missed.write_strings(self.project.root, Path(self.project.root).name, chosen, self.local_dir / "backups")
+                res = missed.write_strings(self.project.root, Path(self.project.root).name, chosen, self.local_dir / "backups", bool(into_files))
             except WriteFailed as e:
                 raise AppError(msg("The strings file could not be written: {reason}", reason=e.reason)) from e
             self.refresh(force=True)

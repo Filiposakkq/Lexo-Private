@@ -371,7 +371,7 @@ def make_handler(sess):
                 "mt/targets": lambda: {"ok": True, **app.mt_targets(str(d.get("file", "")), d.get("lines") or None, bool(d.get("only_todo", True)))},
                 "mt/batch": lambda: {"ok": True, **app.mt_batch(d.get("items") or [])},
                 "mt/apply": lambda: app.mt_apply(d.get("selections") or []),
-                "missed/add": lambda: {"ok": True, **app.missed_add(d.get("items"))},
+                "missed/add": lambda: {"ok": True, **app.missed_add(d.get("items"), bool(d.get("into_files")))},
                 "missed/settings": lambda: {"ok": True, **app.missed_settings(d.get("functions"))},
                 "missed/ignore": lambda: {"ok": True, **app.missed_ignore(d.get("texts"), bool(d.get("clear")))},
                 "groups/apply": lambda: {"ok": True, **app.groups_apply(d.get("label"), d.get("groups"), d.get("series", ""))},

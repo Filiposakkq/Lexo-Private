@@ -99,21 +99,28 @@ class MissedTests(TempCase):
     def test_write_strings_appends_once_and_skips_known(self):
         items = [{"text": "Maggot Brothers", "file": "script.rpy", "line": 8}, {"text": "Skip", "file": "script.rpy", "line": 12}]
         first = missed.write_strings(self.tl, "czech", items)
-        self.assertEqual((first["added"], first["skipped"], first["files"]), (1, 1, {"script.rpy": 1}))
-        text = (self.tl / "script.rpy").read_text(encoding="utf-8")                      # the translation file of that script
-        self.assertTrue(text.startswith(TRANSLATION.rstrip("\n")))
+        self.assertEqual((first["added"], first["skipped"], first["files"]), (1, 1, {"extra_strings.rpy": 1}))
+        text = (self.tl / missed.FILE_NAME).read_text(encoding="utf-8")                  # by default everything is in one tidy file
         self.assertIn('translate czech strings:\n\n    # game/script.rpy:8\n    old "Maggot Brothers"\n    new "Maggot Brothers"', text)
-        self.assertFalse((self.tl / missed.FILE_NAME).exists())
+        self.assertEqual((self.tl / "script.rpy").read_text(encoding="utf-8"), TRANSLATION)       # the translation files stay as they were
         again = missed.write_strings(self.tl, "czech", items)
         self.assertEqual(again["added"], 0)
-        self.assertEqual((self.tl / "script.rpy").read_text(encoding="utf-8"), text)
+        self.assertEqual((self.tl / missed.FILE_NAME).read_text(encoding="utf-8"), text)
+
+    def test_into_files_puts_a_text_into_the_translation_file_of_its_script(self):
+        res = missed.write_strings(self.tl, "czech", [{"text": "Maggot Brothers", "file": "script.rpy", "line": 8}], into_files=True)
+        self.assertEqual(res["files"], {"script.rpy": 1})
+        text = (self.tl / "script.rpy").read_text(encoding="utf-8")
+        self.assertTrue(text.startswith(TRANSLATION.rstrip("\n")))
+        self.assertIn('translate czech strings:\n\n    # game/script.rpy:8\n    old "Maggot Brothers"', text)
+        self.assertFalse((self.tl / missed.FILE_NAME).exists())
 
     def test_texts_go_to_the_file_of_their_own_script_and_the_rest_to_the_extra_file(self):
         (self.game / "script2.rpy").write_text('label b:\n    show text "Second file text"\n', encoding="utf-8")
         (self.tl / "script2.rpy").write_text("translate czech strings:\n\n    old \"Zzz\"\n    new \"Zzz\"\n", encoding="utf-8")
         items = [{"text": "Second file text", "file": "script2.rpy", "line": 2}, {"text": "First file text", "file": "script.rpy", "line": 3},
                  {"text": "No translation file", "file": "other/none.rpy", "line": 1}, {"text": "Escape", "file": "../../outside.rpy", "line": 1}]
-        res = missed.write_strings(self.tl, "czech", items)
+        res = missed.write_strings(self.tl, "czech", items, into_files=True)
         self.assertEqual(res["files"], {"script2.rpy": 1, "script.rpy": 1, "extra_strings.rpy": 2})
         self.assertIn('old "Second file text"', (self.tl / "script2.rpy").read_text(encoding="utf-8"))
         self.assertIn('old "Zzz"', (self.tl / "script2.rpy").read_text(encoding="utf-8"))          # what was there stays
@@ -125,7 +132,7 @@ class MissedTests(TempCase):
     def test_the_line_endings_of_a_file_are_kept(self):
         path = self.tl / "script.rpy"
         path.write_bytes(TRANSLATION.replace("\n", "\r\n").encode("utf-8"))
-        missed.write_strings(self.tl, "czech", [{"text": "Crlf text here", "file": "script.rpy", "line": 1}])
+        missed.write_strings(self.tl, "czech", [{"text": "Crlf text here", "file": "script.rpy", "line": 1}], into_files=True)
         raw = path.read_bytes()
         self.assertIn(b"old \"Crlf text here\"", raw)
         self.assertEqual(raw.count(b"\r\n"), raw.count(b"\n"))

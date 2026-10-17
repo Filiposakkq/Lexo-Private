@@ -50,6 +50,8 @@ It is a heuristic: review the list, untick what the player never sees (a build n
 - The file is `<translation folder>/.lexo/missed.json`, shared like the other project files. Built-in: any `<name>.say("...")` call counts as a text sink.
 
 ### Where the added texts go
-The place does not matter to the game: Ren'Py reads every `translate <language> strings:` block of every file under `tl/<language>`. For the statistics, though, each text is written
-into the translation file that mirrors its own script (`script2.rpy` -> `tl/czech/script2.rpy`), at the end of the file as one more strings block, so files and groups keep the right counts. A text whose script has
-no translation file goes to `extra_strings.rpy`. Line endings of the file are kept, and a path that would lead outside the translation folder is never followed.
+The place does not matter to the game: Ren'Py reads every `translate <language> strings:` block of every file under `tl/<language>`. **By default all the texts go to `extra_strings.rpy`**, one tidy place.
+The dialog has "Select all / Select none" and an option **"Put each text into the translation file of its script" (experimental)**: the text is then written at the end of the file that mirrors its own script
+(`script2.rpy` -> `tl/czech/script2.rpy`) as one more strings block, so the file and group statistics follow it; a text whose script has no translation file still goes to `extra_strings.rpy`.
+Experimental means: it mostly works and saves work, but it edits your translation files and may not do the right thing in every game; a snapshot is made first. Line endings are kept, and a path that would lead outside
+the translation folder is never followed. The feature is part of the Free version.
