@@ -372,5 +372,48 @@ class LayeredImagesTests(TempCase):
         self.assertIn("url", with_bg)
 
 
+STACK_SCRIPT = (
+    'label a:\n    scene room\n    show anna smile at left\n    show bob at right with dissolve\n    mc "One."\n'
+    '    show anna sad\n    show cg_full\n    mc "Two."\n    hide bob\n    mc "Three."\n    scene hall\n    mc "Four."\n'
+)
+
+
+class SceneStackTests(TempCase):
+    """The picture behind a line is the background plus the pictures `show`n over it (a game made of sprites needs more than the last image)."""
+
+    def setUp(self):
+        super().setUp()
+        self.game = self.tmp / "game"
+        (self.game / "images").mkdir(parents=True)
+        for name in ("room", "hall", "anna_smile", "anna_sad", "bob", "cg_full"):
+            (self.game / "images" / (name + ".jpg")).write_bytes(JPEG + name.encode())
+        (self.game / "defs.rpy").write_text('image anna smile = "anna_smile"\nimage anna sad = "anna_sad"\nimage bob = "bob"\nimage cg_full = "cg_full"\n', encoding="utf-8")
+        (self.game / "script.rpy").write_text(STACK_SCRIPT, encoding="utf-8")
+        self.gi = gameimages.GameImages(self.game).build()
+
+    def at(self, line):
+        sc = self.gi.scene_for(self.game / "script.rpy", line)
+        return sc["image"], [(x["image"], x["x"]) for x in sc["layers"]]
+
+    def test_shown_pictures_stand_over_the_background_at_their_side(self):
+        self.assertEqual(self.at(6), ("room", [("anna smile", 0.0), ("bob", 1.0)]))
+
+    def test_a_show_with_the_same_tag_replaces_in_place_and_hide_removes(self):
+        self.assertEqual(self.at(9), ("room", [("anna sad", 0.5), ("bob", 1.0), ("cg_full", 0.5)]))
+        self.assertEqual(self.at(11), ("room", [("anna sad", 0.5), ("cg_full", 0.5)]))
+
+    def test_a_new_scene_clears_the_screen(self):
+        self.assertEqual(self.at(13), ("hall", []))
+
+    def test_only_shows_without_a_scene_are_drawn_without_a_background(self):
+        (self.game / "other.rpy").write_text('label b:\n    show bob\n    mc "Hi."\n', encoding="utf-8")
+        sc = self.gi.scene_for(self.game / "other.rpy", 3)
+        self.assertEqual((sc["found"], sc["image"], sc["key"], [x["image"] for x in sc["layers"]]), (True, "", "", ["bob"]))
+
+    def test_the_position_comes_from_the_at_clause(self):
+        x = gameimages._x_of
+        self.assertEqual([x("a at left"), x("a at right, zoom"), x("a at center with dissolve"), x("a"), x("a at my_left_slide"), x("a at pos7")], [0.0, 1.0, 0.5, 0.5, 0.2, 0.5])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -570,7 +570,7 @@ export async function viewEntries() {
     const mode = h('select', { title: T('Which text to show in the game window'), onchange: () => draw() },
       h('option', { value: 'target' }, T('Translation')), h('option', { value: 'source' }, T('Original')));
     box.append(sum, h('div', { class: 'toolbar', style: { margin: '6px 0' } }, mode), outer, info,
-      h('div', { class: 'muted', style: { fontSize: '11.5px', marginTop: '4px' } }, T("The preview is an estimate from the game script, not a screenshot. For games without layered images it is usually close. The font of the text can be a substitute, and the frames of the text box and the name box (their pictures and colours) may look different in the game.")));
+      h('div', { class: 'muted', style: { fontSize: '11.5px', marginTop: '4px' } }, T("The preview is an estimate from the game script, not a screenshot. For games with layered images (characters or backgrounds built from several parts, animations, conditions) it can be wrong or incomplete, and it may not be a good picture of the scene. The font of the text can be a substitute, and the frames of the text box and the name box (their pictures and colours) may look different in the game.")));
     box.open = !!pref('ui.gamepreview', true);
     box.addEventListener('toggle', () => { setPref('ui.gamepreview', box.open); if (box.open) draw(); });
     let gui = S.gui, scene = null, imgOk = true;
@@ -579,6 +579,7 @@ export async function viewEntries() {
       if (!gui) { try { const st = await get('settings'); gui = S.gui = { ...st.game_gui, max_lines: st.validation.textbox.max_lines }; } catch { gui = { text_size: 33, dialogue_width: 1116, textbox_height: 278, max_lines: 4, source: T('default values') }; } }
       if (!scene) scene = await prefetchScene(d.file, d.line);
     }
+    const badLayers = new Set();
     const fontsReady = () => [scene.fonts_text, scene.fonts_name].every((f) => !f || !f.url || (S.fontRes && f.file in S.fontRes && S.metRes && f.file in S.metRes));
     function ready() { gui = gui || S.gui; scene = scene || S.sceneDone?.get(d.file + '\t' + d.line); return !!(gui && scene && fontsReady()); }
     /* When the prefetch already has everything, the picture is drawn in the same task as the rest of the detail (no await in between), so the
@@ -599,6 +600,10 @@ export async function viewEntries() {
       const stage = h('div', { class: 'gstage', style: { width: W + 'px', height: H + 'px', fontSize: g.text_size + 'px', ...(fam ? { fontFamily: `"${fam}", sans-serif` } : {}) } });
       if (scene.flat) stage.style.background = scene.flat;
       else if (scene.url && imgOk) stage.append(h('img', { class: 'gbg', src: scene.url, alt: '', onerror: () => { imgOk = false; draw(); } }));
+      for (const l of scene.layers || []) {           // pictures `show`n over the background, at their natural size, standing on the bottom edge
+        if (badLayers.has(l.url)) continue;
+        stage.append(h('img', { class: 'glay', src: l.url, alt: '', style: { left: l.x * 100 + '%', transform: `translateX(-${l.x * 100}%)` }, onerror: () => { badLayers.add(l.url); draw(); } }));
+      }
       const tb = h('div', { class: 'gtextbox', style: { height: g.textbox_height + 'px' } });
       const nm = speaker ? h('div', { class: 'gname', style: { left: g.name_xpos + 'px', top: g.name_ypos + 'px', fontSize: g.name_text_size + 'px', ...(nfam ? { fontFamily: `"${nfam}", sans-serif` } : {}), ...(sp?.color ? { color: sp.color } : {}) } }, speaker) : null;
       const dlg = h('div', { class: 'gbox', style: { left: g.dialogue_xpos + 'px', top: g.dialogue_ypos + 'px', width: g.dialogue_width + 'px' } });
@@ -623,10 +628,13 @@ export async function viewEntries() {
       if (!scene.available) where = scene.reason || T('The scene picture is not available.');
       else if (scene.flat) where = T('Background: {image} ({script}).', { image: scene.image, script: scene.script });
       else if (scene.url && imgOk) where = T('Picture: {image} (according to {script}) – an estimate from the game script.', { image: scene.image, script: scene.script });
+      else if (scene.found && !scene.url && scene.layers?.length) where = T('No background found; only the pictures shown on the screen are drawn (according to {script}) – an estimate from the game script.', { script: scene.script });
       else where = scene.reason || (scene.found ? T('The picture could not be loaded.') : T('The scene picture could not be found.'));
       const fontNote = !scene.available ? '' : fam ? ' ' + T('Game font: {file}.', { file: scene.fonts_text.file }) : T(' The game font could not be loaded, a substitute is shown.');
+      const shown = (scene.layers || []).filter((l) => !badLayers.has(l.url));
+      const overNote = shown.length ? ' ' + T('Shown over it: {names}.', { names: shown.map((l) => l.image).join(', ') }) : '';
       const layerNote = scene.layered ? ' ' + T('Layered images are not supported yet: characters made of layers are not drawn here. Support is planned.') : '';
-      info.textContent = `${where}${layerNote}${fontNote} ${T('Window {w}×{h}, font {size} px ({source}); limit {lines}.', { w: g.screen_width, h: g.screen_height, size: g.text_size, source: g.source, lines: tn(g.max_lines, '{n} line', '{n} lines') })}`;
+      info.textContent = `${where}${overNote}${layerNote}${fontNote} ${T('Window {w}×{h}, font {size} px ({source}); limit {lines}.', { w: g.screen_width, h: g.screen_height, size: g.text_size, source: g.source, lines: tn(g.max_lines, '{n} line', '{n} lines') })}`;
     }
     ta.addEventListener('input', () => { clearTimeout(box._t); box._t = setTimeout(draw, 150); });
     ta.addEventListener('draft', () => draw());

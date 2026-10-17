@@ -58,7 +58,7 @@ Experimental means: it mostly works and saves work, but it edits your translatio
 the translation folder is never followed. The feature is part of the Free version.
 
 ## Scene preview and layered images (not supported yet, planned)
-The preview follows the game script upwards to the last `scene` / `show` whose image it can find as a file. That is exactly right for games made of full-screen renders and wrong for games that build a
+The preview follows the game script upwards to the last `scene` (the background) and draws the pictures `show`n over it since (a `show` with the same tag replaces the older one in place, `hide` removes it, a new `scene` clears the screen). A shown picture keeps its natural size and stands on the bottom edge; its side comes from the `at` clause (`left`, `center`, `right`; a transform with left / right in its name is taken as such, any other transform as the centre). Jumps, conditions and ATL movements are not followed. That is exactly right for games made of full-screen renders and wrong for games that build a
 picture from several parts. **Layered images are not supported yet; support is planned.** What the preview does instead of a wrong picture:
 - **Recognised as layered or composed:** `layeredimage name:`, `image x = Composite(...)` / `LiveComposite` / `im.Composite` / `ConditionSwitch` / `DynamicImage` / `Fixed`, and ATL blocks with `contains`.
   Their parts are never taken for the whole picture.
@@ -68,7 +68,7 @@ Measured on eight games: the three that preview badly use them heavily (LoSeSb: 
 Drawing them would need the definitions evaluated: reading the attribute groups and `if` conditions of `layeredimage`, and the code of composites and switches. That is closest to running the game's engine for the picture, so it belongs after the Rust port or with an engine-backed renderer.
 
 ### How exact the preview is
-The preview is an estimate from the game script, not a screenshot. For games without layered images it is usually close. The font of the text is taken from the game when it can be found (otherwise a substitute is used);
+The preview is an estimate from the game script, not a screenshot. For games with layered images (characters or backgrounds built from several parts, animations, conditions) it can be wrong or incomplete, and it may not be a good picture of the scene; the app says so under the preview. The font of the text is taken from the game when it can be found (otherwise a substitute is used);
 the frames of the text box and the name box (their pictures, colours and shapes) are not modelled and can look different in the game. The app says this under the preview.
 
 ## Choices and their menu

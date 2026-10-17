@@ -88,4 +88,4 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - `free/README.md` rewritten for the product (the old BaDIK README is gone); the repository is private. Layered images: animations of composed images count as layered too (the Four Elements blink case).
 - Step 3 closed: `sectionName()` (Overview, Publishing) follows `labels.section`; the progress sheet accepts only English yes-words; the state-of-group undo label is a translatable message; HARDCODED-AUDIT.md has a current-state section.
 - Choices: the **Menu** tab of a choice shows the question or the lines before the menu, all choices with translations and conditions, and the first lines after each choice (`menus.py`, `app_menu.py`, `/api/entry/menu`). Not tried on a real game yet. 572 tests.
-
+- Scene preview draws a stack: the background of the last `scene` plus the `show` pictures over it (same tag replaces, `hide` removes, side from `at`), instead of one nearest image; games with layered images are warned about explicitly. Not measured on the eight games yet (unverified in a real game). 571 tests.

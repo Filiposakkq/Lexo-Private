@@ -31,12 +31,27 @@ IMAGE_DEF_RE = re.compile(r"^image\s+([A-Za-z0-9_ .\-]+?)\s*(=|:)\s*(.*)$")
 STRING_RE = re.compile(r"\"([^\"\\]*)\"|'([^'\\]*)'")
 CANDIDATE_RE = re.compile(r"^[\w ./\-]+$")
 STMT_RE = re.compile(r"^\s*(scene|show)\s+(.+?)\s*:?\s*$")
+HIDE_RE = re.compile(r"^\s*hide\s+(\S+)", re.I)
+AT_RE = re.compile(r"\sat\s+(.+?)(?:\s+(?:with|as|zorder|onlayer|behind)\b.*)?\s*:?\s*$")
+X_NAMED = {"left": 0.0, "right": 1.0, "center": 0.5, "truecenter": 0.5, "topleft": 0.0, "topright": 1.0, "top": 0.5}
 CUT_RE = re.compile(r"\s+(?:with|at|as|zorder|onlayer|behind)\b.*$")
 SKIP_FIRST = ("screen ", "text ", "expression ", "layer ", "\"", "'", "(")
 FLAT = {"black": "#000000", "white": "#ffffff"}
 SKIP_DIRS = {"cache", "tl", "__pycache__", ".git"}
 LOOK_UP = 1500            # lines upwards that are searched for the last scene / show
 CACHE_FILES = 24
+
+
+def _x_of(statement):
+    """Where a shown picture stands, from its `at` clause (0 = left edge, 0.5 = centre, 1 = right edge). The game's own transforms are unknown:
+    a name with left / right in it is taken as such, anything else as the centre."""
+    m = AT_RE.search(" " + statement)
+    if not m:
+        return 0.5
+    name = m.group(1).split(",")[0].strip().lower()
+    if name in X_NAMED:
+        return X_NAMED[name]
+    return 0.2 if "left" in name else 0.8 if "right" in name else 0.5
 
 
 def _clean(name):
@@ -253,12 +268,19 @@ class GameImages:
         return self._starts[key]
 
     def scene_for(self, script_path, line):
-        """Walk up from `line` to the last scene / show whose image can be found.
-        Returns {found, image, key, script_line, flat?, missing:[names that could not be found]}."""
+        """The picture behind `line`: the last `scene` (the background) and the `show` pictures put over it since, minus the `hide`n ones.
+        Returns {found, image, key, script_line, layers:[{image, key, x}], missing:[names that could not be found], layered, flat?}.
+        A `show` replaces the picture with the same tag (its first word) in place; `x` is the horizontal anchor 0..1 (left, centre, right)."""
         lines = self.script_lines(script_path)
         missing = []
-        layered = False                                  # a character or a scene on the way is made of layers, which are not drawn
+        events = []                                          # after the background, newest first
+        bg = None
         for n in range(min(line - 1, len(lines)) - 1, max(-1, line - 1 - LOOK_UP), -1):
+            hide = HIDE_RE.match(lines[n])
+            if hide:
+                if bg is None:
+                    events.append(("hide", hide.group(1).lower(), None))
+                continue
             m = STMT_RE.match(lines[n])
             if not m:
                 continue
@@ -266,20 +288,52 @@ class GameImages:
             if not what or what.lower().startswith(SKIP_FIRST):
                 continue
             tokens = what.split()
-            if self.is_layered(what, tokens):
-                if m.group(1) == "scene":                # the whole scene is layered: no honest picture exists
-                    return {"found": False, "image": what, "key": "", "script_line": n + 1, "missing": missing, "layered": True}
-                layered = True                           # a layered character on a background: show the background, say so
+            if m.group(1) == "show":
+                if bg is not None:
+                    continue
+                if self.is_layered(what, tokens):            # not drawn: it hides an older picture of the same tag, and the preview says so
+                    events.append(("show", tokens[0].lower(), None))
+                    continue
+                for cand in (what, tokens[0]):
+                    hit = self.resolve(cand)
+                    if hit:
+                        events.append(("show", tokens[0].lower(), {"image": cand, "key": hit[0], "x": _x_of(m.group(2)), "script_line": n + 1}))
+                        break
+                else:
+                    if len(missing) < 5:
+                        missing.append(what)
                 continue
-            if m.group(1) == "scene" and tokens[0].lower() in FLAT:
-                return {"found": True, "image": tokens[0], "key": "", "flat": FLAT[tokens[0].lower()], "script_line": n + 1, "missing": missing, "layered": layered}
+            if self.is_layered(what, tokens):                # the whole scene is layered: no honest background exists
+                bg = {"found": False, "image": what, "key": "", "script_line": n + 1, "layered": True}
+                break
+            if tokens[0].lower() in FLAT:
+                bg = {"found": True, "image": tokens[0], "key": "", "flat": FLAT[tokens[0].lower()], "script_line": n + 1}
+                break
             for cand in (what, tokens[0]):
                 hit = self.resolve(cand)
                 if hit:
-                    return {"found": True, "image": cand, "key": hit[0], "script_line": n + 1, "missing": missing, "layered": layered}
+                    bg = {"found": True, "image": cand, "key": hit[0], "script_line": n + 1}
+                    break
+            if bg:
+                break
             if len(missing) < 5:
                 missing.append(what)
-        return {"found": False, "image": "", "key": "", "script_line": 0, "missing": missing, "layered": layered}
+            events = []                                   # an unresolved scene still clears the screen: older shows would be wrong
+        stack = {}
+        for kind, tag, layer in reversed(events):
+            if kind == "hide":
+                stack.pop(tag, None)
+            else:
+                stack[tag] = layer
+        layered = any(v is None for v in stack.values())
+        layers = [v for v in stack.values() if v]
+        if bg is not None and bg.get("layered"):
+            return {**bg, "key": "", "missing": missing, "layers": [], "layered": True}
+        if bg is None:
+            if not layers:
+                return {"found": False, "image": "", "key": "", "script_line": 0, "missing": missing, "layers": [], "layered": layered}
+            bg = {"found": True, "image": "", "key": "", "script_line": layers[0]["script_line"]}
+        return {**bg, "missing": missing, "layers": [{k: v for k, v in x.items() if k != "script_line"} for x in layers], "layered": layered}
 
     def is_layered(self, what, tokens):
         """Is the image of a `scene` / `show` statement made of layers (`layeredimage`, a composite, a condition switch)?"""
