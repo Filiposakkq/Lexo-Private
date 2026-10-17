@@ -5,7 +5,7 @@ Principle: the **whole translating workflow is free** (so people can really use 
 app still works fully without it, and nothing that users see as a basic right is locked (find & replace, spelling, history).
 
 Revision 2 follows a review of revision 1 (find & replace, spelling and line diff move to Free; four pain points are added to Pro).
-Module = where the code lives today in `free/lexo/`. "Coupling" = how hard it is to pull the feature out later.
+Module = where the code lives today in `core/lexo/`. "Coupling" = how hard it is to pull the feature out later.
 
 ## Free
 | Feature | Module | Coupling |
@@ -51,11 +51,11 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 ## Language packs
 A pack also lists the `letters` of the language (used to tell a translated line from an untranslated one), the repeated words that are normal in speech, the stemming rule and the plural rule; see `lang.py`.
 The app and its UI are **English first**. Everything that depends on the language of the translation lives in a **language pack**
-(`free/lexo/lang.py` today: repeated words, number words, stems; later also address rules for the style check, spelling data, UI texts).
+(`core/lexo/lang.py` today: repeated words, number words, stems; later also address rules for the style check, spelling data, UI texts).
 - **Czech is the first pack**, built the same way as any other, not special-cased in the app. It is the reference for how a pack is made.
 - Packs are **separate downloadable modules** (installed on demand, updated independently of the app). The app works with the neutral rules when no pack is installed.
 - Basic packs (rules for the free checks) are free; packs with the style check data (address, gender, voice) belong to the Pro style check.
-- Done: the pack format and loader (data files `pack.json` + `rules.json`, bundled and in `<config>/packs`; Czech is `free/lexo/packs/cs`). The UI string table is done (English source text, Czech as `ui.json` of the pack; see UI-TEXTS.md). To do: a pack list and download in the app, `address.json` / `spelling.txt` parts, and message keys for the Python-side messages.
+- Done: the pack format and loader (data files `pack.json` + `rules.json`, bundled and in `<config>/packs`; Czech is `core/lexo/packs/cs`). The UI string table is done (English source text, Czech as `ui.json` of the pack; see UI-TEXTS.md). To do: a pack list and download in the app, `address.json` / `spelling.txt` parts, and message keys for the Python-side messages.
 
 ## Taste before paying
 - **Limits, not a locked button.** A Pro feature in Free works on a small amount (for example batch translation or safe fixes for 20 lines per run) so that the user sees it works; Pro lifts the limit.

@@ -5,12 +5,12 @@ A translation manager for Ren'Py games: open the translation of any Ren'Py game,
 `../docs/HANDOFF.md` for how work on it is done). It has been tried on eight Ren'Py games of different kinds (Ren'Py 7.4 and 8, with and without
 `.rpa` archives, layered images, folders or numbered scripts); the results and the bugs found are in `../docs/GAME-TESTS.md`.
 
-The application is one Python package (`lexo/`): a local HTTP server with a JSON interface, a browser UI (ES modules in `lexo/ui/js/`) shown in an
+The application is Free, the package `lexo_free` (`free/lexo_free/`, on top of the Core package `lexo` in `core/lexo`): a local HTTP server with a JSON interface, a browser UI (ES modules in `lexo_free/ui/js/`) shown in an
 own window (pywebview, Edge WebView2) or in an Edge/Chrome app window. Only the Python standard library is needed to run it.
 
 ## Start
 ```
-py run_lexo.py                         opens the app (it remembers the last project)
+py run_lexo.py                         opens the app (from free/) (it remembers the last project)
 py run_lexo.py "D:\games\MyGame\game\tl\czech"
 run_manager.bat [folder] [options]     the same from any folder (Python 3.9+; pywebview is optional)
 ```
@@ -36,7 +36,7 @@ one translation, that one is opened; with several, the app asks which.
   yet (planned): the preview then shows the background with a note, or no picture.
 - **Groups and progress:** episodes, chapters, parts, days, updates, acts, `script`/`script2` series or one group per folder (proposed from the file names, `../docs/PROJECT-FILE.md`);
   statistics per file and per group, completion estimate, weekly goals.
-- **Preparing a game that has no translation yet** (no UI yet, `lexo/gametools.py`): unpack scripts from `.rpa`, decompile with the external helper unrpyc, generate the
+- **Preparing a game that has no translation yet** (no UI yet, `core/lexo/gametools.py`): unpack scripts from `.rpa`, decompile with the external helper unrpyc, generate the
   translation files with the game's own engine. See `../docs/GAME-TOOLS.md`.
 - **Texts the generator missed** (experimental): `show text`, input prompts, titles in variables; found in the game's scripts and added to `extra_strings.rpy`.
 - **Optional:** Ren'Py lint through the game's engine or an SDK, machine translation of a line (own API key, experimental), publishing progress to a website.
@@ -44,7 +44,7 @@ Which features will be Free and which Pro: `../docs/FEATURES.md`.
 
 ## Tests
 ```
-py -m unittest discover -s tests                 the Python tests (about 560)
+py ../run_tests.py                            the Python tests (Core, then Free; `core` or `free` for one of them)
 py tests/ui/serve_selftest.py                    the UI self-test: starts the app on a synthetic project and opens the browser (title SELFTEST PASS (n))
 run_ui_selftest.bat                              the same
 ```

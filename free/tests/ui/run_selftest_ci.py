@@ -1,4 +1,4 @@
-"""Run the UI self-test (lexo/ui/selftest.js) in a real browser, headless, and fail when anything fails.
+"""Run the UI self-test (lexo_free/ui/selftest.js) in a real browser, headless, and fail when anything fails.
 
 Used by CI (see .github/workflows/translation-manager.yml); it also works locally when Playwright and a Chromium based
 browser are available:
@@ -17,8 +17,9 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parents[1]))
-sys.path.insert(0, str(HERE.parent))
+FREE, CORE = HERE.parents[1], HERE.parents[2] / "core"
+for extra in (HERE.parent, FREE, CORE / "tests", CORE):
+    sys.path.insert(0, str(extra))
 TIMEOUT_MS = 240_000
 
 

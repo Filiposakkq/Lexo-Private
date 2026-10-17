@@ -7,7 +7,7 @@ from urllib.parse import parse_qs, urlparse
 
 from helpers import TempCase, dialog
 
-from lexo import server
+from lexo_free import server
 from lexo.messages import render
 
 

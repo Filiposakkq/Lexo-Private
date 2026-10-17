@@ -21,7 +21,7 @@ if errorlevel 1 (
 
 if /i not "%~1"=="/notest" (
   echo [1/3] Running tests ...
-  %PY% -m unittest discover -s tests
+  %PY% ..\run_tests.py
   if errorlevel 1 (
     echo.
     echo The tests failed - the exe was NOT built. Fix the failures or run: build_exe.bat /notest

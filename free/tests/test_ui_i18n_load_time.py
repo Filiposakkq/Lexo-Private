@@ -6,7 +6,7 @@ from pathlib import Path
 
 from helpers import ROOT  # noqa: F401  (puts the package on sys.path)
 
-UI = Path(__file__).resolve().parent.parent / "lexo" / "ui"
+UI = Path(__file__).resolve().parent.parent / "lexo_free" / "ui"
 CALL = re.compile(r"(?<![\w$.])(?:t|T|tr|tn|tx)\(\s*['\"]")
 START = re.compile(r"^(?:export\s+)?(?:const|let|var)\s")
 

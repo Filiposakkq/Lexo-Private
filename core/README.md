@@ -1,3 +1,17 @@
-# core
+# Core (`core/lexo`)
 
-Placeholder, filled in by the roadmap (see ../docs/ROADMAP.md).
+The library behind Lexo: reading and writing `.rpy`, `.rpa`, lint, font metrics, the project model, settings, snapshots, history, language packs, checks, the
+feature registry. **No UI, no HTTP server, no window**: `App` (`lexo.app`) is assembled from the parts `app_*.py` and everything the application does is a method of it.
+Free (`free/lexo_free`) is the first client; it only adds the JSON server, the command line and the browser UI.
+
+```python
+from lexo.app import App
+from lexo.config import Config
+
+app = App(Config().load())
+app.open_project(r"D:\games\MyGame\game\tl\czech")
+print(app.overview()["totals"])          # the same data the UI shows
+```
+
+Tests: `py run_tests.py core` from the repository root (`core/tests`; Free is not on the import path of this suite, which is how it proves that Core does not need it).
+Layout of the repository: see `docs/ARCHITECTURE.md`.

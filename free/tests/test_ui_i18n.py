@@ -11,8 +11,9 @@ import jsscan
 
 from lexo import lang
 
-UI = Path(__file__).resolve().parent.parent / "lexo" / "ui"
-PACK = Path(__file__).resolve().parent.parent / "lexo" / "packs" / "cs"
+UI = Path(__file__).resolve().parent.parent / "lexo_free" / "ui"
+CORE_LEXO = Path(__file__).resolve().parents[2] / "core" / "lexo"
+PACK = Path(__file__).resolve().parents[2] / "core" / "lexo" / "packs" / "cs"
 
 # Every module of the UI is converted: no Czech string literal may remain (the English text of a key may contain Czech example words).
 CONVERTED = sorted(f.name for f in (UI / "js").glob("*.js"))
@@ -64,7 +65,7 @@ def python_keys():
     """Templates of the messages written in Python: msg("...") and msgn(n, "one", "many")."""
     import ast
     keys = set()
-    for f in sorted((UI.parent).glob("*.py")):
+    for f in sorted([*UI.parent.glob("*.py"), *CORE_LEXO.glob("*.py")]):                 # Free and Core
         for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("msg", "msgn"):
                 consts = [a.value for a in node.args if isinstance(a, ast.Constant) and isinstance(a.value, str)]

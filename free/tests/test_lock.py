@@ -59,7 +59,7 @@ class LockTests(TempCase):
         app.close()
 
     def test_http_reports_the_lock_and_force_overrides_it(self):
-        from lexo import server
+        from lexo_free import server
         import http.client
         self.foreign_lock(age=1)
         app = self.new_app(open_root=False)

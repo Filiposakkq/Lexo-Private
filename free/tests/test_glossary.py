@@ -5,7 +5,7 @@ from pathlib import Path
 
 from helpers import TempCase, dialog
 
-from lexo import server
+from lexo_free import server
 from lexo.app import AppError
 from lexo.store import Store
 

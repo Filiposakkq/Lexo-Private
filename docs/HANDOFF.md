@@ -13,7 +13,7 @@ Goals, in order: (1) generalise from one game and one language to most Ren'Py ga
 The code stays private until the owner decides otherwise.
 
 Layout: `core/` (library, later), `free/` (the whole app for now, Python package `lexo`), `pro/` (paid modules, never leaves this repo), `docs/`.
-The app is a local HTTP JSON server + pywebview window; the UI is ES modules in `free/lexo/ui/js/NN-name.js` (entry `99-boot.js`).
+The app is a local HTTP JSON server + pywebview window; the UI is ES modules in `free/lexo_free/ui/js/NN-name.js` (entry `99-boot.js`).
 
 ## 2. Documents (what each one answers)
 | File | Question it answers |
@@ -29,7 +29,7 @@ The app is a local HTTP JSON server + pywebview window; the UI is ES modules in 
 | GAME-TOOLS.md | `.rpa` extraction, unrpyc helper, generating translation files |
 
 ## 3. Decisions already made (do not re-open without the owner)
-- **English text is the key** for every user-visible string. UI: `t("...")`, `tn`, `tx`, `labels`, `N_`. Python: `msg("... {x}", x=...)`, `msgn`, `join`. Czech lives only in `free/lexo/packs/cs/ui.json` (keep it sorted) and in the pack rules. Never wrap a string at module load time (guarded by a test).
+- **English text is the key** for every user-visible string. UI: `t("...")`, `tn`, `tx`, `labels`, `N_`. Python: `msg("... {x}", x=...)`, `msgn`, `join`. Czech lives only in `core/lexo/packs/cs/ui.json` (keep it sorted) and in the pack rules. Never wrap a string at module load time (guarded by a test).
 - **Language packs are data** (`pack.json`, `rules.json`, `ui.json`), loaded from `lexo/packs/` and `<config>/packs/`; the app must work without any pack.
 - **Licensing**: signed Ed25519 key verified offline, check every 30 days with 14 days grace, 2 devices, Pro code only in a private repo and downloaded after the licence, no obfuscation/packers/hardware binding. Dev default = every feature on; `LEXO_TIER=free` simulates Free.
 - **Data layout** (docs/DATA-LAYOUT.md): shared small files in `<translation folder>/.lexo/` (name = constant `DATA_DIR_NAME`), local/bulky data in `%APPDATA%\Lexo\projects\<id>\`. Ren'Py 7.4.10 does not exclude nested dot folders from a build, so nothing private or bulky goes into the game folder.
@@ -50,7 +50,7 @@ The app is a local HTTP JSON server + pywebview window; the UI is ES modules in 
 2. **Branch** from fresh `main`: `feat/<short-name>` (or `fix/`, `docs/`). One topic per branch.
 3. **Implement in small commits.** After each commit run the tests (section 6). Use scripts for mechanical bulk edits and prove them lossless (e.g. joined parts = original, a scanner showing zero left).
 4. **Checkpoints** (all must hold before asking to push):
-   - Python tests green (`python -m unittest discover -s tests`, in `free/`).
+   - Python tests green (`py run_tests.py`: Core, then Free).
    - UI self-test green (all checks, run in Czech) when anything in `ui/` or the server changed.
    - English UI smoke test (`?lang=en`, all tabs, no Czech except language names) when texts changed.
    - New behaviour has new tests; a bug fix has a test that failed before.
@@ -61,7 +61,7 @@ The app is a local HTTP JSON server + pywebview window; the UI is ES modules in 
 
 ## 6. Commands (Windows, from `D:\RenPy Stuff\Lexo\free`)
 ```
-py -m unittest discover -s tests                 # all Python tests (~470)
+py run_tests.py                                 # all Python tests: Core (core/tests), then Free (free/tests); `core` or `free` runs one
 py tests/ui/serve_selftest.py --no-open          # synthetic project + prints a URL; open it with ?selftest=1&lang=cs
 run_ui_selftest.bat                              # same, opens the default browser
 py run_lexo.py                                   # the app
@@ -70,8 +70,8 @@ Stop self-test servers when done (they are `python ... serve_selftest.py` proces
 The shell is Git Bash / PowerShell: for multi-line scripts write a file instead of a heredoc with tricky quoting; set `PYTHONIOENCODING=utf-8`.
 
 ## 7. Where things are
-- `App` (`free/lexo/app.py`) is assembled from parts by area: `app_core.py` (open/refresh/settings), `app_validation.py`, `app_entries.py`, `app_glossary.py`, `app_proof.py`, `app_assign.py`, `app_memory.py`, `app_game.py`, `app_snapshots.py`, `app_lint.py`, `app_fixes.py`, `app_mt.py`, `app_publish.py`; exceptions and shared constants in `app_base.py`. A test keeps every part under 450 lines. New methods go to the part of their area (or a new part), never back into `app.py`.
-- Server messages: `free/lexo/messages.py`; wire format `{"$m","p","$n"}` / `{"$j"}`; browser side `ui/js/05-i18n.js` (`fromWire`), `ui/js/10-api.js`.
+- `App` (`core/lexo/app.py`) is assembled from parts by area: `app_core.py` (open/refresh/settings), `app_validation.py`, `app_entries.py`, `app_glossary.py`, `app_proof.py`, `app_assign.py`, `app_memory.py`, `app_game.py`, `app_snapshots.py`, `app_lint.py`, `app_fixes.py`, `app_mt.py`, `app_publish.py`; exceptions and shared constants in `app_base.py`. A test keeps every part under 450 lines. New methods go to the part of their area (or a new part), never back into `app.py`.
+- Server messages: `core/lexo/messages.py`; wire format `{"$m","p","$n"}` / `{"$j"}`; browser side `ui/js/05-i18n.js` (`fromWire`), `ui/js/10-api.js`.
 - Project layout: `layout.py` (reads `.lexo/lexo.json`), languages: `lang.py`, features: `features.py`, game tools: `gametools.py`, `rpa.py`.
 - Tests that guard conventions: `test_ui_i18n.py`, `test_ui_i18n_load_time.py`, `test_python_messages.py` (allowlist of Czech data constants), `test_messages.py`.
 

@@ -62,7 +62,7 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 | 1 | UI texts: English source, Czech as a pack | **done** (browser UI and Python messages; see UI-TEXTS.md) |
 | 2 | Data layout: `.lexo/`, English file names, per-author event log, migration (docs/DATA-LAYOUT.md) | **2a, 2b done** (English names/columns/values; `.lexo/` + local data in the app data folder; migrations in `migrate.py` and `datadir.py`); 2c event log done (`events.py`) |
 | 3 | Rest of the generalisation: group/season wording from `labels`, BaDIK names and links, `ep1` name hints, tests on 3-4 other games (needs their `game` folders) | **done** (project file, language packs, `labels` wording incl. sections, language-neutral word lists and input words, tests on 8 games; what is left on purpose is in HARDCODED-AUDIT.md) |
-| 4 | Split Core and UI; Core interface; feature registry loaded through the Pro loader | registry done, split open |
+| 4 | Split Core and UI; Core interface; feature registry loaded through the Pro loader | **split done** (`core/lexo` + `core/tests`, `free/lexo_free` + `free/tests`, `run_tests.py`); registry done; the Pro loader is decided at the start of the Rust port |
 | 5 | Interface contract between UI and Core (JSON calls with tests, also the check for the Rust port) | planned |
 | 6 | Cleanup and test data for the Python/Rust comparison | planned |
 Done on the way: project file, language packs (format + loader), feature registry, game tools (.rpa, unrpyc as a helper, translation files through the SDK, no UI yet), `app.js` split into ES modules, UI text conversion.
@@ -95,3 +95,4 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - Film layouts (quick translating / proofreading): a search or filter opens the first hit and shows a results bar (Result n of m, previous / next, a list of all hits). 583 tests, UI self-test 139.
 - The film layouts use left / right arrows (results bar, quick proofreading bar); the left and right keys also move between lines.
 - Search boxes of Lines, Check and Glossary have a **Whole word** switch (`Sage` no longer finds `Massage`; `util.text_matcher`, `word=1` on the server). 586 tests, UI self-test 140.
+- Step 4 (the split) done: Core is the package `lexo` in `core/lexo` (no UI, no HTTP; its 353 tests run without Free on the import path: `py run_tests.py core`), Free is `lexo_free` in `free/lexo_free` (server, command line, UI; 234 tests: `py run_tests.py free`). Modules moved with `git mv` (history kept), imports of Free made absolute, `run_tests.py`, the spec file, the launcher and the CI workflow updated. UI self-test 140/140.

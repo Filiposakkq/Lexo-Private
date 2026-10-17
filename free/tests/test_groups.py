@@ -167,7 +167,7 @@ class GroupsInTheAppTests(TempCase):
 
     def test_http_routes(self):
         import http.client
-        from lexo import server
+        from lexo_free import server
         srv, sess, _ = server.start_server(self.app)
         self.addCleanup(srv.shutdown)
 

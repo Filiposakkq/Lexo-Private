@@ -9,6 +9,17 @@ Language packs ──────────┘         │
                                    └── settings, snapshots, history
 ```
 
+## Where things are (after the split of Core and Free)
+```
+core/lexo/        package `lexo` = Core: project model, parser, writer, checks, App (app_*.py), language packs (packs/), game tools. Imports no UI, no HTTP.
+core/tests/       Core tests (353): run with `py run_tests.py core`; Free is not on the import path
+free/lexo_free/   package `lexo_free` = Free: server.py (local HTTP JSON server), cli.py (window, command line), ui/ (the browser UI)
+free/tests/       Free tests: the HTTP API, the UI files, the command line; `py run_tests.py free`
+free/run_lexo.py  launcher (puts core/ and free/ on the import path), Lexo.spec / build_exe.bat build the exe from both
+```
+Rules: Core never imports `lexo_free`; `lexo_free` imports Core as `lexo` (absolute imports). The language packs live in Core (`core/lexo/packs`): a pack is rules for the Core
+checks plus the UI texts, and the server hands the UI texts out. The tests that go through the HTTP API (`free/tests`) are the first form of the interface contract (roadmap step 5).
+
 ## Layers
 - **Core**: no UI, no network server. Everything the app does is a function of Core. A single place writes `.rpy` files (as in the old tool, `fixes.py`).
 - **Free**: the application. Today it talks to Core through a local JSON API; after the Rust port it will call Core directly.
