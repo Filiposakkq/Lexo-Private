@@ -69,6 +69,34 @@ What it does not prevent: a licensed person who is determined to patch the progr
 - **2 devices** per licence: **yes**.
 - **One-off payment: decided.** A one-off licence for the current major version (1.x, updates and fixes included), a paid upgrade for the next major version. Why: no running cost per user (the user brings their own machine translation key, nothing is hosted), the target users are hobby translators who dislike subscriptions, and a leaked licence can still be revoked by the online check, since a revocation needs no expiry date. A yearly licence would make sense only if the product grew a running cost (hosted translation, a team server); the code would not change, only the contents of the licence file (what it covers and until when).
 
+## The licence server (proposal, built in roadmap step 6)
+A small service on Cloudflare. Nothing of it is in the public repository (it lives in a private folder, e.g. `server/`). Deployment, the payment account and the domain are the owner's; the code, the database schema and the tests are written here.
+
+**Parts**
+| Part | Used for |
+|---|---|
+| Workers | the four calls below and the payment webhook |
+| D1 (SQL) | tables: `licences` (id, key hash, buyer, major version, check interval, state), `activations` (licence, device id, dates), `downloads` (licence, pack version, time: to trace a leaked pack), `revocations` |
+| R2 (file storage) | the packs: demo (also offered for download) and premium (encrypted per download) |
+| Secrets | the private **signing key** (Ed25519) and the **master encryption key**. Never in a repository or in the application; the application knows only the public key |
+| A payment provider that acts as the seller of record (Paddle or Lemon Squeezy; check conditions and fees before choosing) | takes the one-off payment and handles VAT; on payment it calls the webhook, which creates a licence key and mails it |
+
+**The four calls** (HTTPS, JSON; the application talks to nothing else)
+1. `activate {key, device id}`: checks the key, counts the activations (at most 2), returns the **signed licence file** (licence id, features, covered major version, device id, issued, check interval, the wrapped pack key) and the address of the premium pack.
+2. `pack`: sends the premium pack for that licence. The Worker **encrypts** it with a key derived from the master key and the licence id (HKDF; nothing per-licence is stored) and writes the **watermark** (the licence id) into reserved slots of the file before encrypting; the download is logged in `downloads`.
+3. `refresh {licence, device id}`: the regular check (30 days by default; the interval is inside the signed file). Returns a renewed signed file, or refuses for a revoked licence.
+4. `deactivate {licence, device id}`: frees a device.
+
+**Rules that keep it safe and fair**
+- The application never needs the server to run: the signed file is verified offline with the public key. A failed `refresh` only starts the grace period.
+- The device id is a hash of an id stored by the application and a machine id, never anything readable (no names, no paths, no project data are ever sent).
+- The server stores the least it can: a hash of the key, the buyer's e-mail from the payment provider, device hashes, dates.
+- Rate limits on every call, and the keys are long random strings, so guessing is pointless.
+- A leaked pack is traced through its watermark to a licence, which can then be revoked (it is simply not renewed at the next `refresh`).
+- Changing the interval, the number of devices or the covered version is a change in the file the server signs; the application does not change.
+
+**Order of work**: schema and the four calls with local tests (Miniflare), then the signing and the pack encryption, then the webhook with the payment provider's test mode, then the client side (the activation client in Free, the licence check inside the pack), then a dry run of the whole path with a test licence. Each step is separately checkable.
+
 ## Updates (the question "one app, but two things")
 - Free and the pack have **separate version numbers**, and both know the **interface version** (`API` in `extensions.py`, now 1).
 - The application's updater looks at one **manifest**: `{free: version, pack: version, api: 1, files: [url, sha256, signature]}`.
