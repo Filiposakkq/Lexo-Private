@@ -63,11 +63,11 @@ Nobody can fully stop a licensed person from sending files on; the aim is that s
 
 What it does not prevent: a licensed person who is determined to patch the program, or to share a whole computer. The price is meant to be low enough that buying is simpler than working around it.
 
-## Decisions of the owner and the open one
+## Decisions of the owner
 - Watermark and per-licence encryption of the premium pack: **yes**.
 - Online check every **30 days** (14 for suspicious licences), grace period of the same length: **yes**.
 - **2 devices** per licence: **yes**.
-- **Open: one-off or yearly.** Recommendation: a **one-off licence for the current major version** (1.x, updates and fixes included), and a paid upgrade for the next major version. Why: there is no running cost per user (the user brings their own machine translation key, nothing is hosted), the target users are hobby translators who dislike subscriptions, and the 30-day check can still revoke a leaked licence, since a revocation does not need an expiry date. A yearly licence makes sense only if the product grows a running cost (hosted translation, a team server). Because the licence file says what it covers and until when, either model works with the same code; only the file's contents differ, so this can be decided late, before the first public release.
+- **One-off payment: decided.** A one-off licence for the current major version (1.x, updates and fixes included), a paid upgrade for the next major version. Why: no running cost per user (the user brings their own machine translation key, nothing is hosted), the target users are hobby translators who dislike subscriptions, and a leaked licence can still be revoked by the online check, since a revocation needs no expiry date. A yearly licence would make sense only if the product grew a running cost (hosted translation, a team server); the code would not change, only the contents of the licence file (what it covers and until when).
 
 ## Updates (the question "one app, but two things")
 - Free and the pack have **separate version numbers**, and both know the **interface version** (`API` in `extensions.py`, now 1).
@@ -87,7 +87,7 @@ Not done (each is its own piece of work, listed so nothing is forgotten):
 - **Four features are still in Core** behind the old flag (`Feature.extracted = False`): `mt.batch`, `fixes.safe`, `replace.regex`, `bulk.categorize`. Until each is extracted, someone who edits Core can unlock it. Each needs its own split, because the module holds both the free and the paid half (a single line of machine translation is free, a batch is Pro; the safe fixes with a preview are Pro, the plain speaker fix is free; plain replace is free, regex replace is Pro; approving identical lines is free, suggesting groups is Pro).
 - The **sidecar transport**, the **signature check** and the **manifest updater**.
 - The **licence**: the file, the check inside the pack, the demo limits, the server that hands out the pack.
-- Decisions that belong to the owner: one-off or yearly (see above) and the licence of the public part (see FEATURES.md, open questions).
+- Decisions that belong to the owner and are still open: the licence of the public part (see FEATURES.md, open questions) and the price.
 
 ## For a developer
 - Running from the repository: `py free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
