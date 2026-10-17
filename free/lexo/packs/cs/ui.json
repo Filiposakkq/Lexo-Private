@@ -326,6 +326,7 @@
   "Everything is translated.": "Vše je přeloženo.",
   "Example": "Příklad",
   "experimental": "experimentální",
+  "Experimental feature: the list is a guess from the game's scripts and can be wrong in both directions (texts missing from it, texts that do not belong there). It still saves a lot of searching, but always review it before adding.": "Experimentální funkce: seznam je odhad ze skriptů hry a může se mýlit oběma směry (něco v něm chybí, něco tam nepatří). Přesto ušetří spoustu hledání, ale před přidáním ho vždy zkontroluj.",
   "Experimental, may not work correctly everywhere, but it mostly does and saves work. Without it all the texts go to extra_strings.rpy. The game does not care where they are; it only keeps the file and group statistics tidy.": "Experimentální, nemusí všude fungovat správně, ale většinou funguje a ušetří práci. Bez toho jdou všechny texty do extra_strings.rpy. Hře je jedno, kde jsou; jde jen o pořádek ve statistikách souborů a skupin.",
   "File": "Soubor",
   "File : line": "Soubor : řádek",

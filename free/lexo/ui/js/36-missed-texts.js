@@ -55,6 +55,7 @@ export async function missedTextsDialog(done) {
     const forget = data.settings.ignored.length
       ? h('button', { class: 'btn small ghost', onclick: async () => { try { await post('missed/ignore', { clear: true }); await load(); } catch (e) { fail(e); } } }, T('Forget the {n} ignored texts', { n: data.settings.ignored.length })) : null;
     results.replaceChildren(
+      h('div', { class: 'notice warn' }, chip('warn', T('experimental')), ' ', T("Experimental feature: the list is a guess from the game's scripts and can be wrong in both directions (texts missing from it, texts that do not belong there). It still saves a lot of searching, but always review it before adding.")),
       h('p', { class: 'muted' }, T('Ren\'Py\'s generator takes only dialogue, menu choices, screens and strings marked _("…"). Texts shown in other ways, such as show text, an input prompt or a title kept in a variable, are not in the translation files. This list is a guess from the game\'s scripts – tick what is really shown to the player. The chosen texts are added to extra_strings.rpy and appear as untranslated lines.')),
       h('div', { class: 'toolbar' }, more, forget,
         h('button', { class: 'btn small', onclick: () => { shown.forEach((_, i) => sel.add(i)); paint(); } }, T('Select all')),
@@ -90,6 +91,6 @@ export async function missedTextsDialog(done) {
       return false;
     };
   }
-  const close = dialog({ title: T('Texts the generator missed'), body, buttons: [{ label: T('Cancel') }, { node: h('span', { style: { display: 'contents' } }, info, ignoreBtn, foot) }] });
+  const close = dialog({ title: h('span', null, T('Texts the generator missed'), ' ', chip('warn', T('experimental'))), body, buttons: [{ label: T('Cancel') }, { node: h('span', { style: { display: 'contents' } }, info, ignoreBtn, foot) }] });
   load();
 }

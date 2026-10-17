@@ -29,7 +29,8 @@ UI and server routes for these steps (they come with the new UI and the project 
 4. `generate_translation` with the game's own engine (`lint.find_launcher`); files named in Ren'Py's error output are renamed to `.unparsable` and the run is repeated (up to three times).
 The game folder is only read. No UI yet.
 
-## Texts the generator misses (`missed.py`, Tools > "Texts the generator missed…")
+## Texts the generator misses (`missed.py`, Tools > "Texts the generator missed…") - experimental, Free
+The whole feature is marked **experimental**: it is a heuristic and can be wrong in both directions (a text it does not find, a text it lists that the player never sees). It works to a good degree and saves a lot of searching, and it is part of the Free version, but the list must always be reviewed.
 `renpy translate` writes blocks for dialogue, menu choices, screens and strings marked `_("...")`. A text shown another way has no block: `show text "..."`,
 `renpy.input("prompt")`, `renpy.notify(...)`, a title assigned to a variable and shown later with `[title]`, and dialogue in places the generator does not reach.
 Such texts can still be translated with a `translate <language> strings:` block (old / new).
