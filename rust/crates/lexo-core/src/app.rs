@@ -48,7 +48,12 @@ pub struct Open {
     pub pack: Pack,
     /// The index of the game's pictures, built once per game folder: (the folder that holds `game/`, the index).
     pub gi: Option<(PathBuf, Rc<GameImages>)>,
+    /// The index of everything already translated, with the key it was built for.
+    pub mem_cache: Option<(String, Rc<crate::memory::Memory>)>,
 }
+
+/// Sends a request of the machine translation: (url, headers, body) -> (status, body).
+pub type MtHttp = Box<dyn Fn(&str, &[(String, String)], &[u8]) -> Result<(u16, String), crate::mt::MtError>>;
 
 pub struct App {
     pub config: Config,
@@ -61,6 +66,10 @@ pub struct App {
     /// One-off messages for the UI (migration, load problems ...).
     pub notices: Vec<Text>,
     pub last_save_error: String,
+    /// The Ren'Py lint run in the background.
+    pub linter: crate::lint::Linter,
+    /// Sends a request of the machine translation (`None`: this build has no network client yet).
+    pub mt_http: Option<MtHttp>,
 }
 
 impl App {
@@ -75,6 +84,8 @@ impl App {
             open: None,
             notices: Vec::new(),
             last_save_error: String::new(),
+            linter: crate::lint::Linter::new(),
+            mt_http: None,
         }
     }
 

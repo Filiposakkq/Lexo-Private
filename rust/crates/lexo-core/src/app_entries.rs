@@ -489,7 +489,7 @@ impl App {
         let res = fixes::edit_translation(&o.project, &o.pack, &o.local_dir, rel, line.max(0) as usize, text, clock);
         let _ = o.project.refresh(true, clock); // whatever happened, the files are read again
         o.val_cache.clear();
-        let res = res.map_err(|e| ApiError::App(Text::Msg(e.0)))?;
+        let res = res.map_err(|e| ApiError::App(Text::new_msg(e.0)))?;
         let names: Vec<String> = o.project.rows(&o.store).into_iter().map(|r| r.name).collect();
         o.store.ensure_files(&names, clock);
         let details: Vec<Value> = res.get("details").and_then(Value::as_array).cloned().unwrap_or_default();

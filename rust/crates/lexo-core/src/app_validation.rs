@@ -123,6 +123,7 @@ impl App {
                 continue;
             }
             let line = it.get("line").filter(|v| truthy(v)).and_then(|v| v.as_i64().or_else(|| py_str(v).parse().ok()));
+            #[allow(clippy::type_complexity)]
             let (key, entry): (Option<(String, String, String)>, Option<(usize, Entry)>) = {
                 let ents = self.o()?.project.entries(&rel);
                 if let Some(line) = line {
@@ -271,6 +272,7 @@ impl App {
     }
 
     /// `(counts, per file)`: how many findings of each severity (and how many are about length, how many are ignored).
+    #[allow(clippy::type_complexity)]
     pub fn validation_summary(&mut self) -> Res<(Map<String, Value>, IndexMap<String, [i64; 3]>)> {
         let mut counts: IndexMap<&str, i64> = [("error", 0), ("warning", 0), ("info", 0), ("length", 0)].into_iter().collect();
         let mut per_file: IndexMap<String, [i64; 3]> = IndexMap::new();

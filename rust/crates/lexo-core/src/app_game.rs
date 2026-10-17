@@ -112,6 +112,7 @@ impl App {
         }
         static D: OnceLock<Regex> = OnceLock::new();
         static I: OnceLock<Regex> = OnceLock::new();
+        #[allow(clippy::type_complexity)]
         let (mut found, mut fractions): (Vec<(String, i64)>, Vec<(String, f64)>) = (Vec::new(), Vec::new());
         // numbers may be negative (name_ypos = -66) and a number with a decimal point is a FRACTION of the container in Ren'Py (dialogue_ypos = 0.33)
         for m in re(&D, r"(?m)^\s*define\s+gui\.(\w+)\s*=\s*(-?\d+(?:\.\d+)?)\b").captures_iter(&text) {
@@ -322,7 +323,7 @@ impl App {
     pub fn game_font(&mut self, name: &str) -> Res<(Vec<u8>, &'static str)> {
         self.need_project()?;
         let gi = self.game_images().ok_or_else(|| app_err(msg("The game fonts are not available.", &[])))?;
-        gi.font_bytes(name).map_err(|e| crate::app_base::ApiError::App(Text::Msg(e.0)))
+        gi.font_bytes(name).map_err(|e| crate::app_base::ApiError::App(Text::new_msg(e.0)))
     }
 
     pub fn game_characters(&mut self) -> Res<Value> {
@@ -346,7 +347,7 @@ impl App {
     pub fn game_image(&mut self, key: &str) -> Res<(Vec<u8>, &'static str)> {
         self.need_project()?;
         let gi = self.game_images().ok_or_else(|| app_err(msg("The game pictures are not available.", &[])))?;
-        gi.image_bytes(key).map_err(|e| crate::app_base::ApiError::App(Text::Msg(e.0)))
+        gi.image_bytes(key).map_err(|e| crate::app_base::ApiError::App(Text::new_msg(e.0)))
     }
 }
 

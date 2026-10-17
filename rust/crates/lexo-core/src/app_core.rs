@@ -37,7 +37,7 @@ impl App {
         }
         let (path, redirected) = find_translation_folder(Path::new(path)).map_err(app_err)?;
         if let Some(note) = redirected {
-            self.notices.push(Text::Msg(note));
+            self.notices.push(Text::new_msg(note));
         }
         let root = resolve(&path);
         let data_dir = root.join(DATA_DIR_NAME);
@@ -52,7 +52,7 @@ impl App {
         let local_dir = datadir::local_dir(&data_dir, &root, &self.cfg_dir, &*self.clock);
         let mut new_lock = ProjectLock::new(&local_dir, Owner::this_process());
         if let Err(e) = new_lock.acquire(force, &*self.clock) {
-            return Err(ApiError::Busy { text: Text::Msg(e.message), path: root.to_string_lossy().into_owned() });
+            return Err(ApiError::Busy { text: Text::new_msg(e.message), path: root.to_string_lossy().into_owned() });
         }
         if let Some(o) = self.open.as_mut() {
             if let Some(mut old) = o.plock.take() {
@@ -71,9 +71,9 @@ impl App {
         store.attach_events(EventLog::new(&data_dir.join("events"), &local_dir.join(events::SEEN_FILE), &author));
         let merged = store.sync_events(&*self.clock);
         if merged > 0 {
-            self.notices.push(Text::Msg(msgn(merged as i64, "{n} change by another author was merged.", "{n} changes by other authors were merged.", &[])));
+            self.notices.push(Text::new_msg(msgn(merged as i64, "{n} change by another author was merged.", "{n} changes by other authors were merged.", &[])));
         }
-        self.notices.extend(store.warnings.iter().cloned().map(Text::Msg));
+        self.notices.extend(store.warnings.iter().cloned().map(Text::new_msg));
         let skip: Vec<String> = self.config.get("skip_files").and_then(Value::as_array).map(|a| a.iter().map(py_str).collect()).unwrap_or_default();
         let symbols = self.config.get("count_symbol_only_as_done").and_then(Value::as_bool);
         let mut project = Project::new(&root, &skip, symbols, &pack);
@@ -85,7 +85,7 @@ impl App {
         store.ensure_files(&names, &*self.clock);
         self.config.set("project_dir", json!(root.to_string_lossy()));
         if let Err(e) = self.config.save(&*self.clock) {
-            self.notices.push(Text::Msg(msg("The settings could not be saved: {reason}", &[("reason", e.reason.wire())])));
+            self.notices.push(Text::new_msg(msg("The settings could not be saved: {reason}", &[("reason", e.reason.wire())])));
         }
         self.open = Some(Open {
             project,
@@ -99,6 +99,7 @@ impl App {
             spell_cache: None,
             pack,
             gi: None,
+            mem_cache: None,
         });
         self.persist()?;
         Ok(report.to_json())
@@ -391,7 +392,7 @@ impl App {
                 }
             }
             if let Some(url) = o.get("base_url").and_then(Value::as_str).filter(|u| !u.is_empty()) {
-                mt::check_url(url).map_err(|e| ApiError::App(Text::Msg(e.0)))?;
+                mt::check_url(url).map_err(|e| ApiError::App(Text::new_msg(e.0)))?;
             }
             if let Some(v) = m.get("consent") {
                 o.insert("consent".into(), json!(crate::util::truthy(v)));
@@ -501,7 +502,7 @@ fn whole(v: &Value) -> Option<i64> {
 
 #[allow(dead_code)]
 fn message_of(m: Message) -> Text {
-    Text::Msg(m)
+    Text::new_msg(m)
 }
 
 // ---------------------------------------------------------------- the wrappers of api.rs

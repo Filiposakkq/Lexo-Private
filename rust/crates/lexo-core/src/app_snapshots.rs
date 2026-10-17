@@ -35,7 +35,7 @@ impl App {
             }
             Ok(None) => None,
             Err(e) => {
-                self.notices.push(Text::Msg(msg("The backup was not created: {reason}", &[("reason", json!(e.0.text()))])));
+                self.notices.push(Text::new_msg(msg("The backup was not created: {reason}", &[("reason", json!(e.0.text()))])));
                 None
             }
         }
@@ -73,7 +73,7 @@ impl App {
         self.need_project()?;
         let keep = self.snap_cfg("keep", json!(20)).as_i64().unwrap_or(20);
         let o = self.o()?;
-        let snap = snapshots::create(&o.project.root, &o.local_dir, "manual", VERSION, &*self.clock).map_err(|e| ApiError::App(Text::Msg(e.0)))?;
+        let snap = snapshots::create(&o.project.root, &o.local_dir, "manual", VERSION, &*self.clock).map_err(|e| ApiError::App(Text::new_msg(e.0)))?;
         let Some(snap) = snap else { return Err(app_err(msg("There are no .rpy files in the folder.", &[]))) };
         snapshots::prune(&o.local_dir, keep);
         Ok(json!({"ok": true, "snapshot": snap}))
@@ -81,21 +81,21 @@ impl App {
 
     pub fn snapshot_files(&self, name: &str) -> Res<Value> {
         let o = self.o()?;
-        let files = snapshots::compare(&o.project.root, &o.local_dir, name).map_err(|e| ApiError::App(Text::Msg(e.0)))?;
+        let files = snapshots::compare(&o.project.root, &o.local_dir, name).map_err(|e| ApiError::App(Text::new_msg(e.0)))?;
         Ok(json!({"files": files.into_iter().map(|(f, s)| json!({"file": f, "state": s})).collect::<Vec<_>>()}))
     }
 
     /// Put files of a snapshot back. The current state is saved first, so the restore can be undone the same way.
     pub fn snapshot_restore(&mut self, name: &str, files: &Value) -> Res<Value> {
         self.need_project()?;
-        let wanted: Option<Vec<String>> = files.as_array().map(|a| a.iter().map(|v| crate::messages::py_str(v)).collect());
+        let wanted: Option<Vec<String>> = files.as_array().map(|a| a.iter().map(crate::messages::py_str).collect());
         let clock = &*self.clock;
         let o = self.open.as_mut().unwrap();
         let before: Vec<(String, Vec<crate::rpy::Entry>)> = o.project.files.keys().map(|rel| (rel.clone(), o.project.entries(rel).to_vec())).collect();
         let res = snapshots::restore(&o.project.root, &o.local_dir, name, wanted.as_deref(), VERSION, clock);
         let _ = o.project.refresh(true, clock);
         o.val_cache.clear();
-        let (restored, safety) = res.map_err(|e| ApiError::App(Text::Msg(e.0)))?;
+        let (restored, safety) = res.map_err(|e| ApiError::App(Text::new_msg(e.0)))?;
         let mut logged: Vec<Value> = Vec::new();
         for rel in o.project.files.keys() {
             if let Some((_, old)) = before.iter().find(|(r, _)| r == rel) {
@@ -115,7 +115,7 @@ impl App {
 
     pub fn snapshot_delete(&self, name: &str) -> Res<Value> {
         let o = self.o()?;
-        snapshots::delete(&o.local_dir, name).map_err(|e| ApiError::App(Text::Msg(e.0)))?;
+        snapshots::delete(&o.local_dir, name).map_err(|e| ApiError::App(Text::new_msg(e.0)))?;
         Ok(json!({"ok": true}))
     }
 }

@@ -71,7 +71,7 @@ impl ApiError {
     pub fn text(&self) -> Text {
         match self {
             ApiError::App(t) | ApiError::Busy { text: t, .. } => t.clone(),
-            ApiError::Locked(f) => Text::Msg(locked_message(f)),
+            ApiError::Locked(f) => Text::new_msg(locked_message(f)),
             ApiError::Missing(name) => Text::Plain(format!("'{name}'")),
             ApiError::Write(w) => Text::Plain(w.to_string()),
             ApiError::Unknown(name) => Text::Plain(format!("'{name}'")),
@@ -97,7 +97,7 @@ impl std::fmt::Display for ApiError {
 
 impl From<Message> for ApiError {
     fn from(m: Message) -> ApiError {
-        ApiError::App(Text::Msg(m))
+        ApiError::App(Text::new_msg(m))
     }
 }
 
@@ -115,7 +115,7 @@ impl From<Text> for ApiError {
 
 /// `AppError(message)`.
 pub fn app_err(message: Message) -> ApiError {
-    ApiError::App(Text::Msg(message))
+    ApiError::App(Text::new_msg(message))
 }
 
 /// A message value for an answer (`{"$m": ...}`).

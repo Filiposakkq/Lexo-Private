@@ -223,10 +223,6 @@ pub fn plain(d: Value) -> Res<Answer> {
     Ok(Answer::Json(d))
 }
 
-fn nyi(_: &mut App, _: &Args) -> Res<Answer> {
-    Err(app_err(msg("This operation is not available yet.", &[])))
-}
-
 struct Def(Operation);
 
 fn op(name: &'static str, method: &'static str, effect: &'static str, doc: &'static str, params: Vec<Param>, run: Run) -> Def {
@@ -325,7 +321,7 @@ fn table() -> &'static Vec<Operation> {
             .ex(json!({"group": "line", "limit": 5})),
             op("ignore/list", g, "read", "The findings the translator told the app to ignore.", vec![], crate::app_validation::op_ignore_list).ex(json!({})),
             op("settings", g, "read", "The settings (validation, text box, machine translation, publishing ...).", vec![], core::op_settings).ex(json!({})),
-            op("fix/last", g, "read", "What the last bulk fix changed (for undo).", vec![], nyi).ex(json!({})),
+            op("fix/last", g, "read", "What the last bulk fix changed (for undo).", vec![], crate::app_fixes::op_fix_last).ex(json!({})),
             op("game/fontmetrics", g, "read", "Advance widths of a font of the game (key = file name).", vec![s("k")], crate::app_game::op_game_fontmetrics),
             op("game/characters", g, "read", "The characters defined in the game scripts: code, name, colour.", vec![], crate::app_game::op_game_characters)
                 .ex(json!({})),
@@ -356,8 +352,15 @@ fn table() -> &'static Vec<Operation> {
                 crate::app_game::op_game_scene,
             )
             .ex(json!({"file": "script.rpy", "line": 5})),
-            op("entry/menu", g, "read", "The menu a line belongs to: question, choices with translations, what follows each.", vec![s("file"), i("line")], nyi)
-                .ex(json!({"file": "script.rpy", "line": 23})),
+            op(
+                "entry/menu",
+                g,
+                "read",
+                "The menu a line belongs to: question, choices with translations, what follows each.",
+                vec![s("file"), i("line")],
+                crate::app_menu::op_entry_menu,
+            )
+            .ex(json!({"file": "script.rpy", "line": 23})),
             op(
                 "entry/scene",
                 g,
@@ -369,12 +372,27 @@ fn table() -> &'static Vec<Operation> {
             .ex(json!({"file": "script.rpy", "line": 5, "radius": 3})),
             op("snapshots", g, "read", "The snapshots (zips of the .rpy files) of the project.", vec![], crate::app_snapshots::op_snapshots).ex(json!({})),
             op("snapshots/files", g, "read", "The files inside one snapshot.", vec![s("name")], crate::app_snapshots::op_snapshots_files),
-            op("lint/status", g, "read", "State and result of the Ren'Py lint run.", vec![], nyi).ex(json!({})),
+            op("lint/status", g, "read", "State and result of the Ren'Py lint run.", vec![], crate::app_lint::op_lint_status).ex(json!({})),
             op("entry/history", g, "read", "The versions of a line's text over time.", vec![s("file"), i("line")], crate::app_entries::op_entry_history)
                 .ex(json!({"file": "script.rpy", "line": 5})),
-            op("entry/memory", g, "read", "Other translations of the same original (translation memory).", vec![s("file"), i("line")], nyi)
-                .ex(json!({"file": "script.rpy", "line": 5})),
-            op("consistency", g, "read", "Originals translated in several different ways.", vec![f("loose"), f("by_speaker")], nyi).ex(json!({})),
+            op(
+                "entry/memory",
+                g,
+                "read",
+                "Other translations of the same original (translation memory).",
+                vec![s("file"), i("line")],
+                crate::app_memory::op_entry_memory,
+            )
+            .ex(json!({"file": "script.rpy", "line": 5})),
+            op(
+                "consistency",
+                g,
+                "read",
+                "Originals translated in several different ways.",
+                vec![f("loose"), f("by_speaker")],
+                crate::app_memory::op_consistency,
+            )
+            .ex(json!({})),
             op(
                 "entry/context",
                 g,
@@ -384,15 +402,54 @@ fn table() -> &'static Vec<Operation> {
                 crate::app_entries::op_entry_context,
             )
             .ex(json!({"file": "script.rpy", "line": 5})),
-            op("glossary/occurrences", g, "read", "Where a speaker code (or a missing name) occurs.", vec![s("code"), f("missing")], nyi)
-                .ex(json!({"code": "friend"})),
-            op("glossary", g, "read", "The glossary: speakers and terms with counts and examples.", vec![], nyi).ex(json!({})),
-            op("proof/next", g, "read", "The next line still to proofread after a line number.", vec![s("file"), i("after")], nyi)
+            op(
+                "glossary/occurrences",
+                g,
+                "read",
+                "Where a speaker code (or a missing name) occurs.",
+                vec![s("code"), f("missing")],
+                crate::app_glossary::op_glossary_occurrences,
+            )
+            .ex(json!({"code": "friend"})),
+            op("glossary", g, "read", "The glossary: speakers and terms with counts and examples.", vec![], crate::app_glossary::op_glossary).ex(json!({})),
+            op("proof/next", g, "read", "The next line still to proofread after a line number.", vec![s("file"), i("after")], crate::app_proof::op_proof_next)
                 .ex(json!({"file": "script.rpy", "after": 0})),
-            op("export/preview", g, "read", "The public progress data and its checks (writes only the local progress.json).", vec![], nyi).ex(json!({})),
-            op("missed", g, "read", "Texts the Ren'Py generator missed, found in the game scripts.", vec![s_def("level", "likely")], nyi).ex(json!({})),
-            op("missed/functions", g, "read", "Functions of the game that are called again and again with a text.", vec![], nyi).ex(json!({})),
-            op("groups/suggest", g, "read", "The groups the project has now and the groups its file names suggest.", vec![], nyi).ex(json!({})),
+            op(
+                "export/preview",
+                g,
+                "read",
+                "The public progress data and its checks (writes only the local progress.json).",
+                vec![],
+                crate::app_publish::op_export_preview,
+            )
+            .ex(json!({})),
+            op(
+                "missed",
+                g,
+                "read",
+                "Texts the Ren'Py generator missed, found in the game scripts.",
+                vec![s_def("level", "likely")],
+                crate::app_missed::op_missed,
+            )
+            .ex(json!({})),
+            op(
+                "missed/functions",
+                g,
+                "read",
+                "Functions of the game that are called again and again with a text.",
+                vec![],
+                crate::app_missed::op_missed_functions,
+            )
+            .ex(json!({})),
+            op(
+                "groups/suggest",
+                g,
+                "read",
+                "The groups the project has now and the groups its file names suggest.",
+                vec![],
+                crate::app_assign::op_groups_suggest,
+            )
+            .ex(json!({})),
             op("game/font", g, "read", "A font of the game by file name (never a path): (bytes, mime).", vec![s("k")], crate::app_game::op_game_font).binary(),
             op(
                 "game/image",
@@ -416,16 +473,17 @@ fn table() -> &'static Vec<Operation> {
                 crate::app_entries::op_file_save,
             )
             .ex(json!({"name": "script.rpy", "c": "", "t": ""})),
-            op("assign", p, "write", "Assign a file to a group.", vec![s_req("name"), s("v")], nyi).ex(json!({"name": "script.rpy", "v": ""})),
+            op("assign", p, "write", "Assign a file to a group.", vec![s_req("name"), s("v")], crate::app_assign::op_assign)
+                .ex(json!({"name": "script.rpy", "v": ""})),
             op(
                 "assign/suggest",
                 p,
                 "read",
                 "Suggested group for files (a Pro feature: the Pro pack suggests, the app shows the groups to choose from).",
                 vec![l("names")],
-                nyi,
+                crate::app_assign::op_assign_suggest,
             ),
-            op("assign/apply", p, "write", "Apply assignments.", vec![l("items")], nyi).ex(json!({"items": []})),
+            op("assign/apply", p, "write", "Apply assignments.", vec![l("items")], crate::app_assign::op_assign_apply).ex(json!({"items": []})),
             op(
                 "features",
                 p,
@@ -435,47 +493,77 @@ fn table() -> &'static Vec<Operation> {
                 core::op_features,
             )
             .ex(json!({})),
-            op("episode", p, "write", "Set the state of a group (episode).", vec![i_req("ep"), s_req("state")], nyi),
+            op("episode", p, "write", "Set the state of a group (episode).", vec![i_req("ep"), s_req("state")], crate::app_assign::op_episode),
             op(
                 "approve/preview",
                 p,
                 "read",
                 "Preview approving identical lines.",
                 vec![s_req("file"), i_req("line"), s_def("scope", "project"), f_def("same_speaker", true)],
-                nyi,
+                crate::app_assign::op_approve_preview,
             )
             .ex(json!({"file": "script.rpy", "line": 11})),
-            op("approve/apply", p, "write", "Approve (or un-approve) lines.", vec![l("selections"), f_def("on", true)], nyi)
+            op("approve/apply", p, "write", "Approve (or un-approve) lines.", vec![l("selections"), f_def("on", true)], crate::app_assign::op_approve_apply)
                 .ex(json!({"selections": [], "on": true})),
-            op("approve/rules", p, "read", "Preview approving by rules (names, interjections).", vec![a("rules"), l("files")], nyi)
-                .ex(json!({"rules": [], "files": []})),
-            op("glossary/set", p, "write", "Set glossary items.", vec![l("items")], nyi)
+            op(
+                "approve/rules",
+                p,
+                "read",
+                "Preview approving by rules (names, interjections).",
+                vec![a("rules"), l("files")],
+                crate::app_assign::op_approve_rules,
+            )
+            .ex(json!({"rules": [], "files": []})),
+            op("glossary/set", p, "write", "Set glossary items.", vec![l("items")], crate::app_glossary::op_glossary_set)
                 .ex(json!({"items": [{"code": "anna", "name": "Anna", "type": "speaker"}]})),
-            op("glossary/import-preview", p, "read", "Preview importing character names from a game file.", vec![s("path")], nyi),
-            op("glossary/import-apply", p, "write", "Import character names.", vec![l("items")], nyi),
-            op("glossary/delete", p, "write", "Delete glossary items.", vec![l("codes")], nyi).ex(json!({"codes": ["nobody"]})),
-            op("proof/set", p, "write", "Mark lines as proofread / to fix, with a note.", vec![l("items"), s_def("state", "ok"), a("note")], nyi)
-                .ex(json!({"items": [{"file": "script.rpy", "line": 5}], "state": "ok", "note": ""})),
-            op("proof/upto", p, "write", "Mark everything up to a line as proofread.", vec![s_req("file"), i_req("line"), s_def("state", "ok")], nyi)
-                .ex(json!({"file": "script.rpy", "line": 5, "state": "ok"})),
-            op("proof/clear-file", p, "write", "Clear the proofreading marks of a file.", vec![s_req("file")], nyi).ex(json!({"file": "script.rpy"})),
+            op(
+                "glossary/import-preview",
+                p,
+                "read",
+                "Preview importing character names from a game file.",
+                vec![s("path")],
+                crate::app_glossary::op_glossary_import_preview,
+            ),
+            op("glossary/import-apply", p, "write", "Import character names.", vec![l("items")], crate::app_glossary::op_glossary_import_apply),
+            op("glossary/delete", p, "write", "Delete glossary items.", vec![l("codes")], crate::app_glossary::op_glossary_delete)
+                .ex(json!({"codes": ["nobody"]})),
+            op(
+                "proof/set",
+                p,
+                "write",
+                "Mark lines as proofread / to fix, with a note.",
+                vec![l("items"), s_def("state", "ok"), a("note")],
+                crate::app_proof::op_proof_set,
+            )
+            .ex(json!({"items": [{"file": "script.rpy", "line": 5}], "state": "ok", "note": ""})),
+            op(
+                "proof/upto",
+                p,
+                "write",
+                "Mark everything up to a line as proofread.",
+                vec![s_req("file"), i_req("line"), s_def("state", "ok")],
+                crate::app_proof::op_proof_upto,
+            )
+            .ex(json!({"file": "script.rpy", "line": 5, "state": "ok"})),
+            op("proof/clear-file", p, "write", "Clear the proofreading marks of a file.", vec![s_req("file")], crate::app_proof::op_proof_clear_file)
+                .ex(json!({"file": "script.rpy"})),
             op(
                 "fix/preview",
                 p,
                 "read",
                 "Preview the bulk fixes (speaker, spaces, typos ...): a Pro feature, the Pro pack plans them.",
                 vec![l("items"), s("file"), l("kinds")],
-                nyi,
+                crate::app_fixes::op_fix_preview,
             ),
-            op("fix/apply", p, "write", "Apply the chosen fixes.", vec![l("items"), s("file"), l("kinds"), a("selections")], nyi),
-            op("fix/undo", p, "write", "Undo the last bulk fix.", vec![], nyi),
+            op("fix/apply", p, "write", "Apply the chosen fixes.", vec![l("items"), s("file"), l("kinds"), a("selections")], crate::app_fixes::op_fix_apply),
+            op("fix/undo", p, "write", "Undo the last bulk fix.", vec![], crate::app_fixes::op_fix_undo),
             op(
                 "replace/preview",
                 p,
                 "read",
                 "Preview a find and replace over the translations.",
                 vec![a_def("find", json!("")), a_def("replace", json!("")), s_def("mode", "plain"), f("case"), l("files"), f_def("protect", true)],
-                nyi,
+                crate::app_fixes::op_replace_preview,
             )
             .ex(json!({"find": "Hello", "replace": "Hi", "mode": "plain"})),
             op(
@@ -492,47 +580,75 @@ fn table() -> &'static Vec<Operation> {
                     l("files"),
                     f_def("protect", true),
                 ],
-                nyi,
+                crate::app_fixes::op_replace_apply,
             )
             .ex(json!({"selections": [{"file": "script.rpy", "line": 5}], "find": "Hi", "replace": "Hey", "mode": "plain"})),
-            op("entry/mt", p, "external", "A machine translation suggestion for one line (uses the network).", vec![s_req("file"), i_req("line")], nyi),
+            op(
+                "entry/mt",
+                p,
+                "external",
+                "A machine translation suggestion for one line (uses the network).",
+                vec![s_req("file"), i_req("line")],
+                crate::app_mt::op_entry_mt,
+            ),
             op(
                 "mt/targets",
                 p,
                 "read",
                 "The lines a batch machine translation would take (a Pro feature: the Pro pack cuts the list to its limit).",
                 vec![s("file"), a("lines"), f_def("only_todo", true)],
-                nyi,
+                crate::app_mt::op_mt_targets,
             ),
-            op("mt/batch", p, "external", "Machine translate many lines (a Pro feature; the pack translates, uses the network).", vec![a("items")], nyi),
-            op("mt/apply", p, "write", "Write the chosen machine translations.", vec![a("selections")], nyi)
+            op(
+                "mt/batch",
+                p,
+                "external",
+                "Machine translate many lines (a Pro feature; the pack translates, uses the network).",
+                vec![a("items")],
+                crate::app_mt::op_mt_batch,
+            ),
+            op("mt/apply", p, "write", "Write the chosen machine translations.", vec![a("selections")], crate::app_mt::op_mt_apply)
                 .ex(json!({"selections": [{"file": "script.rpy", "line": 11, "text": "Kavu?"}]})),
-            op("missed/add", p, "write", "Add texts the generator missed to the translation files.", vec![a("items"), f("into_files")], nyi)
-                .ex(json!({"items": [{"text": "A text the generator missed", "file": "", "line": 0}]})),
-            op("missed/settings", p, "write", "Set the project's own functions that show text.", vec![a("functions")], nyi)
+            op(
+                "missed/add",
+                p,
+                "write",
+                "Add texts the generator missed to the translation files.",
+                vec![a("items"), f("into_files")],
+                crate::app_missed::op_missed_add,
+            )
+            .ex(json!({"items": [{"text": "A text the generator missed", "file": "", "line": 0}]})),
+            op("missed/settings", p, "write", "Set the project's own functions that show text.", vec![a("functions")], crate::app_missed::op_missed_settings)
                 .ex(json!({"functions": ["notify"]})),
-            op("missed/ignore", p, "write", "Leave texts out of the missed-texts list for good.", vec![a("texts"), f("clear")], nyi)
-                .ex(json!({"texts": ["not a text of the game"]})),
+            op(
+                "missed/ignore",
+                p,
+                "write",
+                "Leave texts out of the missed-texts list for good.",
+                vec![a("texts"), f("clear")],
+                crate::app_missed::op_missed_ignore,
+            )
+            .ex(json!({"texts": ["not a text of the game"]})),
             op(
                 "groups/apply",
                 p,
                 "write",
                 "Define the groups of the project (written to lexo.json).",
                 vec![a("label"), a("groups"), s("series"), a("folders")],
-                nyi,
+                crate::app_assign::op_groups_apply,
             )
             .ex(json!({"label": "Episode", "groups": [1, 2]})),
             op("snapshots/create", p, "write", "Make a snapshot of the .rpy files now.", vec![], crate::app_snapshots::op_snapshots_create).ex(json!({})),
             op("snapshots/restore", p, "write", "Restore files from a snapshot.", vec![s("name"), a("files")], crate::app_snapshots::op_snapshots_restore),
             op("snapshots/delete", p, "write", "Delete a snapshot.", vec![s("name")], crate::app_snapshots::op_snapshots_delete),
-            op("lint/start", p, "external", "Start the Ren'Py lint of the whole game (needs the SDK).", vec![], nyi),
+            op("lint/start", p, "external", "Start the Ren'Py lint of the whole game (needs the SDK).", vec![], crate::app_lint::op_lint_start),
             op(
                 "consistency/unify",
                 p,
                 "write",
                 "Make all translations of one original the same.",
                 vec![s("key"), s("target"), a("lines"), f("loose"), f("by_speaker")],
-                nyi,
+                crate::app_memory::op_consistency_unify,
             ),
             op(
                 "ignore/set",
@@ -571,8 +687,15 @@ fn table() -> &'static Vec<Operation> {
             op("prefs", p, "write", "Remember UI preferences (the body is the object of preferences).", vec![], core::op_prefs)
                 .no_project()
                 .ex(json!({"density": "compact"})),
-            op("publish/plan", p, "read", "Preview publishing the progress data (a Pro feature).", vec![], nyi),
-            op("publish/confirm", p, "external", "Publish the progress data after the typed confirmation (a Pro feature).", vec![s("token"), s("branch")], nyi),
+            op("publish/plan", p, "read", "Preview publishing the progress data (a Pro feature).", vec![], crate::app_publish::op_publish_plan),
+            op(
+                "publish/confirm",
+                p,
+                "external",
+                "Publish the progress data after the typed confirmation (a Pro feature).",
+                vec![s("token"), s("branch")],
+                crate::app_publish::op_publish_confirm,
+            ),
         ];
         defs.into_iter().map(|d| d.0).collect()
     })

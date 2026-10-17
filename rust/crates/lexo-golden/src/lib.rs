@@ -4,6 +4,7 @@
 pub mod data;
 pub mod diff;
 pub mod normalize;
+pub mod ops_dump;
 pub mod run;
 pub mod scenario;
 
@@ -213,7 +214,7 @@ mod tests {
         for c in inventory(&golden)
             .unwrap()
             .into_iter()
-            .filter(|c| ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "data"].contains(&c.group))
+            .filter(|c| ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "data", "scenarios"].contains(&c.group))
         {
             assert_eq!(run_case(&golden, &c), Outcome::Pass, "{}/{}", c.group, c.id);
         }

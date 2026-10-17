@@ -102,11 +102,15 @@ pub fn render(value: &Value) -> Value {
 /// What an error carries: a `Message` (which the browser translates) or a plain text (shown as it is, like a plain `str` in Python).
 #[derive(Clone, Debug, PartialEq)]
 pub enum Text {
-    Msg(Message),
+    Msg(Box<Message>),
     Plain(String),
 }
 
 impl Text {
+    pub fn new_msg(m: Message) -> Text {
+        Text::Msg(Box::new(m))
+    }
+
     pub fn text(&self) -> String {
         match self {
             Text::Msg(m) => m.text(),
@@ -124,7 +128,7 @@ impl Text {
 
 impl From<Message> for Text {
     fn from(m: Message) -> Text {
-        Text::Msg(m)
+        Text::new_msg(m)
     }
 }
 
