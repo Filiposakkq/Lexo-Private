@@ -35,6 +35,29 @@ pub fn norm_ws(text: &str) -> String {
     out
 }
 
+/// `str.splitlines()`: lines end at `\n`, `\r\n`, `\r`, `\v`, `\f`, U+001C to U+001E, U+0085, U+2028 and U+2029; a final line end does not make an empty line.
+pub fn py_splitlines(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    let mut chars = text.chars().peekable();
+    while let Some(c) = chars.next() {
+        match c {
+            '\r' => {
+                if chars.peek() == Some(&'\n') {
+                    chars.next();
+                }
+                out.push(std::mem::take(&mut cur));
+            }
+            '\n' | '\u{b}' | '\u{c}' | '\u{1c}' | '\u{1d}' | '\u{1e}' | '\u{85}' | '\u{2028}' | '\u{2029}' => out.push(std::mem::take(&mut cur)),
+            _ => cur.push(c),
+        }
+    }
+    if !cur.is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
 /// Lower-case, diacritics stripped (for forgiving comparisons of user-typed words).
 pub fn fold(text: &str) -> String {
     let stripped: String = text.to_lowercase().nfd().filter(|c| !is_combining_mark(*c)).collect();
@@ -73,6 +96,13 @@ mod tests {
         assert_eq!(py_strip("\u{1f} a b \u{a0}"), "a b");
         assert_eq!(py_split_ws(" a\u{1f}b  c "), vec!["a", "b", "c"]);
         assert!(py_split_ws("   ").is_empty());
+    }
+
+    #[test]
+    fn splitlines_follows_python() {
+        assert_eq!(py_splitlines("a\r\nb\rc\n\nd\u{2028}e\n"), vec!["a", "b", "c", "", "d", "e"]);
+        assert!(py_splitlines("").is_empty());
+        assert_eq!(py_splitlines("x"), vec!["x"]);
     }
 
     #[test]

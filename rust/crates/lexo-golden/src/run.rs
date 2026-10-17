@@ -4,6 +4,7 @@ use lexo_core::messages::render;
 use lexo_core::rpa::{self, read_entry, read_index};
 use lexo_core::rpy::{self, Entry, ParsedFile};
 use lexo_core::util::sha1_hex;
+use lexo_core::{layout, menus};
 use serde_json::{json, Map, Value};
 use std::collections::HashSet;
 use std::path::Path;
@@ -67,4 +68,55 @@ pub fn rpa_case(golden: &Path, id: &str) -> Value {
             json!({"version": version, "files": files})
         }
     }
+}
+
+fn read_json(path: &Path) -> Result<Value, String> {
+    let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+fn strings(v: &Value) -> Vec<String> {
+    v.as_array().map(|a| a.iter().filter_map(|s| s.as_str().map(String::from)).collect()).unwrap_or_default()
+}
+
+/// One entry of `run_layout`: `propose/<name>`, `folder_number` or `series_number`.
+pub fn layout_case(golden: &Path, id: &str) -> Result<Value, String> {
+    let cases = read_json(&golden.join("layout/cases.json"))?;
+    if let Some(name) = id.strip_prefix("propose/") {
+        let case = cases["propose"].as_array().and_then(|a| a.iter().find(|c| c["name"] == name)).ok_or("no such propose case")?;
+        return Ok(layout::propose(&strings(&case["files"])).to_json());
+    }
+    let mut out = Map::new();
+    match id {
+        "folder_number" => {
+            let folders = strings(&cases["folder_number"]["folders"]);
+            for p in strings(&cases["folder_number"]["paths"]) {
+                out.insert(p.clone(), json!(layout::folder_number(&p, &folders)));
+            }
+        }
+        "series_number" => {
+            let series = cases["series_number"]["series"].as_str().unwrap_or("");
+            for p in strings(&cases["series_number"]["paths"]) {
+                out.insert(p.clone(), json!(layout::series_number(&p, series)));
+            }
+        }
+        _ => return Err(format!("unknown layout case {id}")),
+    }
+    Ok(Value::Object(out))
+}
+
+/// One entry of `run_menus`: the id starts with the index of the case in `menus/cases.json`.
+pub fn menus_case(golden: &Path, id: &str) -> Result<Value, String> {
+    let index: usize = id.split(' ').next().and_then(|n| n.parse().ok()).ok_or("bad menus case id")?;
+    let cases = read_json(&golden.join("menus/cases.json"))?;
+    let c = cases["cases"].get(index).ok_or("no such menus case")?;
+    let script = c["script"].as_str().unwrap_or("");
+    let text = std::fs::read_to_string(golden.join("menus/scripts").join(script)).map_err(|e| format!("{script}: {e}"))?;
+    let lines = lexo_core::util::py_splitlines(&text);
+    let line = c["line"].as_u64().unwrap_or(0) as usize;
+    let choice = c["choice"].as_str();
+    let found = if c["around"].as_bool().unwrap_or(false) { menus::menu_around(&lines, line, choice) } else { menus::find_menu(&lines, line, choice) };
+    Ok(json!({
+        "script": script, "line": c["line"], "choice": c["choice"], "around": c["around"].as_bool().unwrap_or(false), "result": found.map(|m| m.to_json()),
+    }))
 }

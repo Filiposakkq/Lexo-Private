@@ -61,7 +61,7 @@ pub fn inventory(golden: &Path) -> Result<Vec<Case>, String> {
     }
     let menus = read_json(&exp.join("menus.json"))?;
     for (i, m) in menus.as_array().ok_or("menus.json is not a list")?.iter().enumerate() {
-        out.push(Case { group: "menus", id: format!("{i} {}:{}", m["script"].as_str().unwrap_or("?"), m["line"]), expected: m["result"].clone() });
+        out.push(Case { group: "menus", id: format!("{i} {}:{}", m["script"].as_str().unwrap_or("?"), m["line"]), expected: m.clone() });
     }
     let validator = read_json(&exp.join("validator.json"))?;
     for v in validator.as_array().ok_or("validator.json is not a list")? {
@@ -96,6 +96,14 @@ pub fn run_case(golden: &Path, case: &Case) -> Outcome {
             }
         }
         "rpa" => run::rpa_case(golden, &case.id),
+        "layout" => match run::layout_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
+        "menus" => match run::menus_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
         _ => return Outcome::NotImplemented,
     };
     match diff::first_difference(&got, &case.expected) {
@@ -141,7 +149,7 @@ mod tests {
     #[test]
     fn every_ported_group_matches_the_recorded_answers() {
         let golden = golden_dir();
-        for c in inventory(&golden).unwrap().into_iter().filter(|c| c.group == "rpy" || c.group == "rpa") {
+        for c in inventory(&golden).unwrap().into_iter().filter(|c| ["rpy", "rpa", "layout", "menus"].contains(&c.group)) {
             assert_eq!(run_case(&golden, &c), Outcome::Pass, "{}/{}", c.group, c.id);
         }
     }
