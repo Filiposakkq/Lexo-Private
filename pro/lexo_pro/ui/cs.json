@@ -1,0 +1,30 @@
+{
+ "strings": {
+  "A push to the branch {branch} deploys the website live (Cloudflare Workers).": "Push do větve {branch} nasadí web na ostro (Cloudflare Workers).",
+  "Cloning and publishing was not confirmed.": "Klonování a publikování nebylo potvrzeno.",
+  "default": "výchozí",
+  "git commit failed (the file was restored to its previous state): {output}": "git commit selhal (soubor vrácen do původního stavu): {output}",
+  "Git did not answer in time (sign-in? network?).": "Git neodpověděl včas (přihlášení? síť?).",
+  "Git is not installed or not in PATH (https://git-scm.com).": "Git není nainstalovaný nebo není v PATH (https://git-scm.com).",
+  "git pull --ff-only failed (nothing changed): {output}": "git pull --ff-only selhal (nic se nezměnilo): {output}",
+  "git push failed. The local commit and the file were restored to their previous state: {output}": "git push selhal. Lokální commit i soubor byly vráceny do původního stavu: {output}",
+  "No change – the website is already up to date.": "Beze změny – na webu je už aktuální stav.",
+  "Published to the branch {branch} ({sha}).": "Publikováno do větve {branch} ({sha}).",
+  "Repository cloned.": "Repozitář naklonován.",
+  "The branch {branch} has no remote branch (upstream) set – a push would go nowhere.": "Větev {branch} nemá nastavenou vzdálenou větev (upstream) – push by nikam nesměřoval.",
+  "The confirmed branch “{a}” does not match the current one “{b}”.": "Potvrzená větev „{a}“ nesouhlasí s aktuální „{b}“.",
+  "The data or the repository changed since the preview – open the preview again.": "Data nebo repozitář se od náhledu změnily – otevři náhled znovu.",
+  "The existing file in the repository cannot be read; it will be overwritten.": "Stávající soubor v repozitáři nejde přečíst; bude přepsán.",
+  "The file in the repository cannot be written: {reason}": "Soubor v repozitáři nelze zapsat: {reason}",
+  "The file in the repository does not exist yet, it will be created.": "Soubor v repozitáři zatím neexistuje, bude vytvořen.",
+  "The folder is not a git repository: {path}": "Složka není git repozitář: {path}",
+  "The git repository cannot be read: {output}": "Git repozitář nelze přečíst: {output}",
+  "The published data does not differ from the current data (except the time) – nothing to publish.": "Publikovaná data se od aktuálních neliší (kromě času) – není co publikovat.",
+  "The repository is in a detached HEAD – switch to a branch.": "Repozitář je v detached HEAD – přepni se na větev.",
+  "The repository is not downloaded yet. When publishing, it is cloned from {url} and the data is sent to its default branch (usually main = the live website).": "Repozitář ještě není stažený. Při publikování se naklonuje z {url} a data se pošlou do jeho výchozí větve (obvykle main = ostrý web).",
+  "The repository “{repo}” is neither a folder nor a GitHub address.": "Repozitář „{repo}“ není složka ani adresa GitHubu.",
+  "The website is not set up – fill in the repository in Settings.": "Web není nastavený – vyplň repozitář v Nastavení.",
+  "The written file did not pass the check.": "Zapsaný soubor neprošel kontrolou.",
+  "There are other uncommitted changes in the repository ({n}); publishing does not touch them.": "V repozitáři jsou i jiné neuložené změny ({n}); publikování se jich nedotkne."
+ }
+}

@@ -7,7 +7,7 @@ import webbrowser
 from datetime import datetime
 from pathlib import Path
 
-from . import datadir, editor, events, export, features, history as hist, layout, lint, mt, publish as pub, texthistory
+from . import datadir, editor, events, export, extensions, features, history as hist, layout, lint, mt, texthistory
 from .config import Config
 from .lock import ProjectLock
 from .lock import ProjectLocked
@@ -29,7 +29,8 @@ from .app_base import AppError, FeatureLocked, LINKS, ProjectBusy, UI_PREF_MAX
 class CorePart:
     def __init__(self, config=None):
         self.config = config or Config().load()
-        self.entitlements = features.default()
+        self.entitlements = features.default()          # only for the features that are not extracted into the Pro pack yet
+        self.ext = extensions.default()                 # the installed Pro pack, if there is one (see extensions.py)
         self.lock = threading.RLock()
         self.project = None
         self.store = None
@@ -192,10 +193,11 @@ class CorePart:
 
     # ------------------------------------------------------------ gated (Pro) features
     def features_status(self):
-        return {"ok": True, "tier": self.entitlements.source, "features": self.entitlements.status()}
+        return {"ok": True, "tier": "pro" if self.ext.present else self.entitlements.source, "features": features.status_of(self.entitlements, self.ext),
+                "pack": self.ext.versions(), "problems": list(self.ext.problems)}
 
     def _gate(self, feature):
-        d = self.entitlements.decide(feature)
+        d = features.decide(feature, self.entitlements, self.ext)
         if not d.available:
             raise FeatureLocked(feature)
         return d
@@ -357,8 +359,8 @@ class CorePart:
                     w[k] = str(web[k]).strip()[:300]
             if "path" in w:
                 try:
-                    w["path"] = pub.clean_target(w["path"])
-                except pub.PublishError as e:
+                    w["path"] = export.clean_target(w["path"])
+                except export.TargetError as e:
                     raise AppError(text_of(e)) from e
             clean["web"] = w
         if "skip_files" in patch:

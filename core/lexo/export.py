@@ -13,6 +13,7 @@ so an older website keeps working.
 """
 import json
 import re
+from pathlib import PurePosixPath
 from datetime import datetime
 
 from . import history as hist
@@ -206,3 +207,17 @@ def write_local(path, data, backup_dir=None):
     if problems:
         raise ValueError(msg("The export did not pass the check: {problems}", problems="; ".join(problems)))
     atomic_write_text(path, render(data), newline="\n", backup_dir=backup_dir)
+
+
+class TargetError(ValueError):
+    pass
+
+
+def clean_target(rel):
+    """Validate the target path of the progress file inside the website repository (relative, no '..', a .json file)."""
+    rel = str(rel).replace("\\", "/").strip()
+    pp = PurePosixPath(rel)
+    if not rel or pp.is_absolute() or ".." in pp.parts or re.match(r"^[A-Za-z]:", rel) or pp.suffix.lower() != ".json":
+        raise TargetError(msg("Invalid path of the file in the repository: {rel} (it must be a relative path to a .json file).", rel=rel))
+    return str(pp)
+

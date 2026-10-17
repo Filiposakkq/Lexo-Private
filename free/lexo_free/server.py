@@ -177,7 +177,9 @@ def make_handler(sess):
                 return self._json({"ok": True, "langs": lang.ui_languages()})
             if r == "ui-lang":
                 try:
-                    return self._json({"ok": True, **lang.ui_language(q1(q, "code"))})
+                    res = lang.ui_language(q1(q, "code"))
+                    res["strings"] = {**res["strings"], **app.ext.ui_strings(res["code"])}      # plus the texts of the Pro pack, if there is one
+                    return self._json({"ok": True, **res})
                 except lang.PackError as e:
                     return self._json({"ok": False, "error": str(e)}, 404)
             if not app.ready:
