@@ -84,7 +84,7 @@ yes okay ok well oh hey hi hello please thanks thank sorry right really maybe
 you're we're they're he's she's that's what's there's let's
 ";
 
-fn en_words() -> &'static HashSet<&'static str> {
+pub fn en_words() -> &'static HashSet<&'static str> {
     static W: OnceLock<HashSet<&'static str>> = OnceLock::new();
     W.get_or_init(|| EN_WORDS.split_whitespace().collect())
 }

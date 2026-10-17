@@ -1,0 +1,119 @@
+{
+ "case_like": [
+  "Čau",
+  "čau",
+  "čau",
+  "",
+  "Ève",
+  "SSa"
+ ],
+ "cases": [
+  {
+   "name": "plain, ignoring case",
+   "result": [
+    "kavárnu je tu. Ta kavárnu.",
+    2
+   ]
+  },
+  {
+   "name": "plain, case-sensitive",
+   "result": [
+    "Ahoj, čau.",
+    1
+   ]
+  },
+  {
+   "name": "plain keeps tags variables and escapes",
+   "result": [
+    "{i}bI{/i} [vim] \\n bI \\\" I",
+    3
+   ]
+  },
+  {
+   "name": "plain without protection",
+   "result": [
+    "{I}bI{/I} [vIm]",
+    4
+   ]
+  },
+  {
+   "name": "special characters are literal",
+   "result": [
+    "x a-b (c)",
+    1
+   ]
+  },
+  {
+   "name": "whole word",
+   "result": [
+    "pán, panna, pán a špan",
+    2
+   ]
+  },
+  {
+   "name": "whole word with Czech letters at the edges",
+   "result": [
+    "byt nebo nebýt, byt!",
+    2
+   ]
+  },
+  {
+   "name": "stem keeps the ending",
+   "result": [
+    "Pes, pesky, peskou, Peskám a pesaa",
+    5
+   ]
+  },
+  {
+   "name": "stem with a longer replacement",
+   "result": [
+    "Hospoda a hospony, v hosponě i do hospony",
+    4
+   ]
+  },
+  {
+   "name": "stem capital letter follows the word",
+   "result": [
+    "řezník, Pekař, řezníki",
+    2
+   ]
+  },
+  {
+   "error": "The “by stem” mode is only for one word (at least 4 letters) and one replacement word.",
+   "name": "stem needs four letters"
+  },
+  {
+   "error": "The “by stem” mode is only for one word (at least 4 letters) and one replacement word.",
+   "name": "stem replacement needs two letters"
+  },
+  {
+   "error": "Regex find & replace is a Pro feature.",
+   "name": "regex is a Pro feature"
+  },
+  {
+   "error": "Unknown search mode.",
+   "name": "unknown mode"
+  },
+  {
+   "error": "Enter what to search for.",
+   "name": "nothing to find"
+  },
+  {
+   "name": "no match",
+   "result": [
+    "abc",
+    0
+   ]
+  },
+  {
+   "name": "replacement may be empty",
+   "result": [
+    "velmi dobře,",
+    2
+   ]
+  }
+ ],
+ "mask": [
+  "\u0000\u0000\u0000a\u0000\u0000\u0000\u0000 \u0000\u0000\u0000 \u0000\u0000 b \u0000\u0000\u0000\u0000} ž"
+ ]
+}

@@ -115,7 +115,7 @@ Until the pack is ported, the Rust Core answers the five Pro features as "locked
 |---|---|---|
 | M0 Foundations | **done**: workspace `rust/` (`lexo-core` with `util::norm_ws`, `lexo-golden` with the normalisation, the inventory of 158 cases, the readable diff and the report), CI job `rust.yml`; the report is "0 of 158" | this PR |
 | M1 Parser and archives | **done**: `messages` (msg, msgn, wire, render), `lang` (pack, `load_dir`, plural rules, stems), `util` (norm_ws, fold, sha1, the Python white-space rules), `pickle` (restricted reader), `rpa`, `rpy`; golden `rpy` 14 of 14 and `rpa` 6 of 6 (report: 20 of 158); the parser also gives the same answer as Python on 2 894 real translation files of 7 games (`rust/tools/diff_rpy_real_files.py`) | this PR |
-| M2 Checks and layout | planned | |
+| M2 Checks and layout | **done**: `layout` (parse, propose, folder and series numbers; `load` / `save_groups` wait for M3), `menus`, `validator` (all checks, spelling hints as a trait), `spelling`, `textedit` (plain, word, stem), `fontmetrics`, `fancy-regex` for look-around; new golden cases for spelling (10), textedit (19) and fontmetrics (6, tiny fonts); report 96 of 193; the checks and the spelling hints also give the same issues as Python on 2 894 real files (1 530 issues of 10 kinds, `--checks --spell`) | this PR |
 | M3 Data files | planned | |
 | M4 Project and the writer | planned | |
 | M5 Game tools | planned | |

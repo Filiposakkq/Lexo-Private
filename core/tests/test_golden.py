@@ -41,6 +41,16 @@ class GoldenTests(unittest.TestCase):
     def test_the_validator(self):
         self.check("validator.json")
 
+    def test_the_spelling_hints(self):
+        self.check("spelling.json")
+
+    def test_find_and_replace_in_the_plain_modes(self):
+        self.check("textedit.json")
+
+    def test_the_font_metrics_reader(self):
+        self.check("fontmetrics.json")
+        self.assertEqual([k for k, v in self.got["fontmetrics.json"].items() if v is None], ["bad_upm.ttf", "no_hmtx.ttf", "not_a_font.bin", "truncated.ttf"])
+
     def test_every_scenario_gives_the_recorded_answers_and_files(self):
         for name in gt.scenario_names():
             with self.subTest(scenario=name):
@@ -50,7 +60,7 @@ class GoldenTests(unittest.TestCase):
 class InputsTests(unittest.TestCase):
     def test_every_input_has_an_expected_answer_and_no_answer_is_stale(self):
         have = {p.relative_to(gt.EXPECTED).as_posix() for p in gt.EXPECTED.rglob("*.json")}
-        want = {"rpy.json", "rpa.json", "layout.json", "menus.json", "validator.json"} | {f"scenarios/{n}.json" for n in gt.scenario_names()}
+        want = {"rpy.json", "rpa.json", "layout.json", "menus.json", "validator.json", "spelling.json", "textedit.json", "fontmetrics.json"} | {f"scenarios/{n}.json" for n in gt.scenario_names()}
         self.assertEqual(have, want, REGENERATE)
 
     def test_every_parser_case_file_is_listed_and_every_listed_file_exists(self):

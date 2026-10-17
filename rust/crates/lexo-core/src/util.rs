@@ -1,10 +1,29 @@
 //! Port of `core/lexo/util.py` (the parts the ported modules need so far) and the few Python string rules the other modules rely on.
 use sha1::{Digest, Sha1};
+use std::collections::HashMap;
 use unicode_normalization::{char::is_combining_mark, UnicodeNormalization};
 
 /// What Python's `str.isspace` (and so the `\s` of `re`, `str.strip()` and `str.split()`) counts as white space: Unicode White_Space plus the separators U+001C to U+001F.
 pub fn is_space(c: char) -> bool {
     c.is_whitespace() || ('\u{1c}'..='\u{1f}').contains(&c)
+}
+
+/// `\w` of Python's `re`: a letter, a digit or an underscore (the `regex` crate's own `\w` is used outside ASCII, see the notes in `rpy.rs`).
+pub fn is_word(c: char) -> bool {
+    if c.is_ascii() {
+        return c == '_' || c.is_ascii_alphanumeric();
+    }
+    static R: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    R.get_or_init(|| regex::Regex::new(r"\A\w\z").unwrap()).is_match(c.encode_utf8(&mut [0; 4]))
+}
+
+/// `[^\W\d_]` of Python's `re`: a letter (a word character that is neither a digit nor an underscore).
+pub fn is_letter(c: char) -> bool {
+    if c.is_ascii() {
+        return c.is_ascii_alphabetic();
+    }
+    static R: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    R.get_or_init(|| regex::Regex::new(r"\A[^\W\d_]\z").unwrap()).is_match(c.encode_utf8(&mut [0; 4]))
 }
 
 /// `text.strip()`
@@ -67,6 +86,45 @@ pub fn fold(text: &str) -> String {
 /// The SHA-1 of `data` as 40 lower-case hex digits (`hashlib.sha1(data).hexdigest()`).
 pub fn sha1_hex(data: &[u8]) -> String {
     Sha1::digest(data).iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// A multiset that remembers the order of first appearance (Python's `Counter`).
+#[derive(Clone, Debug, Default)]
+pub struct Counter {
+    pub order: Vec<String>,
+    pub map: HashMap<String, usize>,
+}
+
+impl Counter {
+    pub fn from<I: IntoIterator<Item = String>>(items: I) -> Counter {
+        let mut c = Counter::default();
+        for i in items {
+            c.add(i);
+        }
+        c
+    }
+    pub fn add(&mut self, key: String) {
+        if !self.map.contains_key(&key) {
+            self.order.push(key.clone());
+        }
+        *self.map.entry(key).or_insert(0) += 1;
+    }
+    pub fn get(&self, key: &str) -> usize {
+        self.map.get(key).copied().unwrap_or(0)
+    }
+    pub fn same_as(&self, other: &Counter) -> bool {
+        self.map.len() == other.map.len() && self.map.iter().all(|(k, v)| other.get(k) == *v)
+    }
+    /// `self - other`: the keys with a positive difference, in the order of `self`.
+    pub fn minus(&self, other: &Counter) -> Vec<String> {
+        self.order.iter().filter(|k| self.get(k) > other.get(k)).cloned().collect()
+    }
+    /// `sorted(counter.elements())`
+    pub fn sorted_elements(&self) -> Vec<String> {
+        let mut v: Vec<String> = self.order.iter().flat_map(|k| std::iter::repeat_n(k.clone(), self.get(k))).collect();
+        v.sort();
+        v
+    }
 }
 
 #[cfg(test)]

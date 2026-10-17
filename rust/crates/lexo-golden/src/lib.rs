@@ -5,7 +5,7 @@ pub mod diff;
 pub mod normalize;
 pub mod run;
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
 /// The folder `core/golden`: `LEXO_GOLDEN` if set, otherwise the one of this repository.
@@ -67,6 +67,32 @@ pub fn inventory(golden: &Path) -> Result<Vec<Case>, String> {
     for v in validator.as_array().ok_or("validator.json is not a list")? {
         out.push(Case { group: "validator", id: v["name"].as_str().unwrap_or("?").to_string(), expected: v.clone() });
     }
+    let spelling = read_json(&exp.join("spelling.json"))?;
+    for k in ["vocab", "suggest"] {
+        out.push(Case {
+            group: "spelling",
+            id: k.to_string(),
+            expected: if k == "vocab" {
+                json!({"sig": spelling["sig"], "vocab_size": spelling["vocab_size"], "vocab_total": spelling["vocab_total"], "by_fold": spelling["by_fold"]})
+            } else {
+                spelling["suggest"].clone()
+            },
+        });
+    }
+    for c in spelling["check"].as_array().ok_or("spelling.json has no check list")? {
+        out.push(Case { group: "spelling", id: format!("check/{}", c["name"].as_str().unwrap_or("?")), expected: c.clone() });
+    }
+    let textedit = read_json(&exp.join("textedit.json"))?;
+    for c in textedit["cases"].as_array().ok_or("textedit.json has no cases")? {
+        out.push(Case { group: "textedit", id: format!("case/{}", c["name"].as_str().unwrap_or("?")), expected: c.clone() });
+    }
+    for k in ["case_like", "mask"] {
+        out.push(Case { group: "textedit", id: k.to_string(), expected: textedit[k].clone() });
+    }
+    let fonts = read_json(&exp.join("fontmetrics.json"))?;
+    for k in keys(&fonts) {
+        out.push(Case { group: "fontmetrics", id: k.clone(), expected: fonts[&k].clone() });
+    }
     let mut names: Vec<String> = std::fs::read_dir(exp.join("scenarios"))
         .map_err(|e| e.to_string())?
         .filter_map(|e| e.ok()?.path().file_stem().map(|s| s.to_string_lossy().into_owned()))
@@ -97,6 +123,19 @@ pub fn run_case(golden: &Path, case: &Case) -> Outcome {
         }
         "rpa" => run::rpa_case(golden, &case.id),
         "layout" => match run::layout_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
+        "spelling" => match run::spelling_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
+        "textedit" => match run::textedit_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
+        "fontmetrics" => run::fontmetrics_case(golden, &case.id),
+        "validator" => match run::validator_case(golden, &case.id) {
             Ok(v) => v,
             Err(e) => return Outcome::Fail(e),
         },
@@ -136,7 +175,7 @@ mod tests {
     #[test]
     fn the_inventory_finds_every_group_and_unique_ids() {
         let cases = inventory(&golden_dir()).expect("core/golden/expected is readable");
-        for g in ["rpy", "rpa", "layout", "menus", "validator", "scenarios"] {
+        for g in ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "scenarios"] {
             assert!(cases.iter().any(|c| c.group == g), "no case in {g}");
         }
         let mut ids: Vec<_> = cases.iter().map(|c| (c.group, c.id.clone())).collect();
@@ -149,7 +188,11 @@ mod tests {
     #[test]
     fn every_ported_group_matches_the_recorded_answers() {
         let golden = golden_dir();
-        for c in inventory(&golden).unwrap().into_iter().filter(|c| ["rpy", "rpa", "layout", "menus"].contains(&c.group)) {
+        for c in inventory(&golden)
+            .unwrap()
+            .into_iter()
+            .filter(|c| ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics"].contains(&c.group))
+        {
             assert_eq!(run_case(&golden, &c), Outcome::Pass, "{}/{}", c.group, c.id);
         }
     }
