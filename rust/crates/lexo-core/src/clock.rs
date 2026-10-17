@@ -3,7 +3,7 @@
 //!
 //! The local time of the system comes from the operating system through two tiny declarations (`GetLocalTime`, `localtime_r`): the `chrono` features that would do
 //! it pull in the Windows import libraries, which the GNU toolchain used for development cannot link without MinGW's `dlltool`.
-use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use std::cell::Cell;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -37,7 +37,7 @@ fn local_offset_seconds(_utc_secs: i64) -> Option<i64> {
     let mut t = SystemTimeParts { year: 0, month: 0, day_of_week: 0, day: 0, hour: 0, minute: 0, second: 0, milliseconds: 0 };
     // SAFETY: GetLocalTime only writes the structure it is given.
     unsafe { GetLocalTime(&mut t) };
-    let local = NaiveDate::from_ymd_opt(t.year as i32, t.month as u32, t.day as u32)?.and_hms_opt(t.hour as u32, t.minute as u32, t.second as u32)?;
+    let local = chrono::NaiveDate::from_ymd_opt(t.year as i32, t.month as u32, t.day as u32)?.and_hms_opt(t.hour as u32, t.minute as u32, t.second as u32)?;
     let now = SystemTime::now().duration_since(UNIX_EPOCH).ok()?.as_secs() as i64;
     // both were read within the same second (or one apart): round the difference to a whole quarter of an hour
     let diff = local.and_utc().timestamp() - now;
@@ -135,6 +135,5 @@ mod tests {
         assert!((local - utc).num_hours().abs() <= 14, "{utc} {local}");
         assert!(utc.and_utc().timestamp() > 1_700_000_000);
         assert!((c.epoch() - utc.and_utc().timestamp() as f64).abs() < 5.0);
-        let _ = NaiveDate::from_ymd_opt(2026, 1, 1);
     }
 }
