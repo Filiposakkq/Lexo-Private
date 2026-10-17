@@ -10,6 +10,8 @@ What depends on the target language is a `Pack`, loaded from DATA FILES (no exec
   repeat_ok          words that are normally doubled in speech, so "the same word twice" must not be reported
   check_repeats      the repeated-word check is only reliable when `repeat_ok` is known; off for the neutral pack
   number_words_ok    a digit written out in words ("14" -> "čtrnáct") is normal, so a missing number is only an info
+  letters            the letters that belong to the language and are not used in the source language (á č ď é ě ... for Czech): a line that
+                     has one of them is taken as translated even when it looks like the original. Without it, any non-ASCII letter counts.
   stem               how a word is reduced so that glossary terms are found in any inflected form:
                      {"type": "none"} (exact word) or {"type": "cut", "drop": N, "min": M} (drop the last N letters, keep at least M)
 
@@ -55,6 +57,7 @@ class Pack:
     check_repeats: bool = False
     number_words_ok: bool = False
     stem: Callable[[str], str] = _stem_none
+    letters: FrozenSet[str] = field(default_factory=frozenset)
     plural: str = "en"                       # name of a rule in PLURAL_RULES (how many forms a counted text has, which one is used)
     folder: object = None                    # where the pack was read from (its ui.json lives there)
 
@@ -120,11 +123,14 @@ def load_dir(folder):
         flags[key] = rules.get(key, False)
         if not isinstance(flags[key], bool):
             raise PackError(f"rules.json: \"{key}\" must be true or false")
+    letters = rules.get("letters", "")
+    if not isinstance(letters, str):
+        raise PackError("rules.json: \"letters\" must be a text holding the letters of the language")
     plural = rules.get("plural", "en")
     if plural not in PLURAL_RULES:
         raise PackError(f"rules.json: unknown \"plural\" rule {plural!r} (known: {', '.join(sorted(PLURAL_RULES))})")
     return Pack(code=code.strip().lower(), name=name, version=version, repeat_ok=frozenset(w.lower() for w in repeat_ok),
-                stem=_stem_rule(rules.get("stem")), plural=plural, folder=folder, **flags)
+                stem=_stem_rule(rules.get("stem")), letters=frozenset(letters), plural=plural, folder=folder, **flags)
 
 
 def load_ui_strings(pack):
