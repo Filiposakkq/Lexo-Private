@@ -192,6 +192,13 @@ class GlossaryImportTests(TempCase):
         items = {i["code"]: i["name"] for i in self.app.glossary_import_preview()["items"]}
         self.assertEqual((items["ca"], items["s"]), ("Captain", "Sophia"))
 
+    def test_namespaced_and_dynamic_character_definitions(self):
+        (self.game / "characters.rpy").write_text(
+            'define character.mc = Character("[mc.name]", namebox_background="#606060")\n'
+            'define character.mom = Character("[mom.name]")\ndefine ruby = Character("Ruby")\n', encoding="utf-8")
+        items = {i["code"]: i for i in self.app.glossary_import_preview()["items"]}
+        self.assertEqual((items["mc"]["state"], items["mom"]["state"], items["ruby"]["name"]), ("dynamic", "dynamic", "Ruby"))
+
     def test_http_api(self):
         srv, sess, _ = server.start_server(self.app)
         self.addCleanup(srv.shutdown)

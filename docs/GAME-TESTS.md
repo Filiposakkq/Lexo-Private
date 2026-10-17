@@ -44,3 +44,23 @@ author's own data of the old tool and was not touched.
 - Only the structure of the projects was checked (opening, counts, glossary import, scene data, validation); no translation was written back in these games.
 - **Texts the generator misses** (Being a DIK, reported by the translator): `show text`, input prompts, titles in variables. New: `missed.py`, see GAME-TOOLS.md. Found 185 likely texts in Being a DIK, 85 in Milfy City (defaults such as names and SMS texts), 10 in Eternum (input prompts), 8 in A Wife and Mother, about a thousand in LoSeSb (a very large game).
 - **Reported by the owner while testing Being a DIK from the workspace:** the search for missed texts and for characters wandered into other games (the folder above the game was searched) – now limited to the `game` folder above the translation; a decompiled game folder showed every source `.rpy` as a translation file – now only files with `translate` blocks count, and choosing the game folder opens its only translation (or asks which one); the Files tab offered Episode 1–8 for every game – now the groups come from the project and can be set up from the file names; the suggested-assignment column overlapped "Confidence" – fixed; "Check quickly" is "Proofread quickly" in English.
+
+## Second round: three more games (2026-10-17)
+| Game | Ren'Py | Where the scripts are | Translation files | Lines in Lexo | Groups proposed |
+|---|---|---|---|---|---|
+| Four Elements Trainer 1.2.2b | 7 (Python 2.7) | `scripts.rpa`: 279 `.rpyc` | 150 | 170 129 | none (folders) |
+| Our Red String 15.2.3 | 8 (Python 3.9) | `scripts.rpa`: 78 `.rpy` + 78 `.rpyc` | 51 | 151 633 | Chapter 1-12 (`chapter_N` files) |
+| Midnight Paradise 1.1b | 8 (Python 3.12) | `scripts.rpa`, `elite.rpa`, `extras.rpa`: 1 494 `.rpyc` | 169 | 67 123 | none (folders) |
+
+All three open and pass the same checks as the first five (validation, glossary import, scene data, snapshot, export, lint through the game's own engine).
+
+| Problem | Where | Fix |
+|---|---|---|
+| The game ships a translation inside its archive (`game/tl/russian/...`); unrpyc's output for it did not parse and stopped the generation | Midnight Paradise | `quarantine_unparsable` also sets aside files under other `tl/<language>` folders (only the folder being generated is protected) |
+| `gui.rpy` is not always `game/gui.rpy` (`scripts/gui/gui.rpy`), or the game has no such file | Our Red String, Four Elements | the preview looks for any `gui.rpy`, then for a script with `define gui.` lines |
+| A file name with a space (`bk1_fight spirit.rpy`) never matched its translation blocks, so 121 spoken lines were reported as "without a block" | Four Elements | the place comments of the generator may contain spaces |
+| Strings in a list (`default sprites = [` ...) were reported as spoken lines | Midnight Paradise | an indented line below `default`, `define`, `init`, `python` or `$` is data, not dialogue |
+| `define character.mc = Character("[mc.name]")` (store prefix, name from a variable) was not read | Midnight Paradise | the pattern allows a prefix; a name starting with `[` is shown as "dynamic" |
+
+Not solved: Four Elements has a gui of its own (no `gui.rpy` values), so the preview uses default metrics; the three games organised by folder get no group proposal.
+

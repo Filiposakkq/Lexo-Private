@@ -171,6 +171,20 @@ class MissedTests(TempCase):
         (self.tl / missed.SETTINGS_FILE).write_text("{not json", encoding="utf-8")
         self.assertEqual(missed.load_settings(self.tl), {"functions": [], "ignored": []})
 
+    def test_a_script_with_a_space_in_its_name_is_matched_to_its_blocks(self):
+        (self.game / "fight spirit.rpy").write_text('label a:\n    ds "hello again, friend."\n', encoding="utf-8")
+        (self.tl / "fight spirit.rpy").write_text(
+            '# game/fight spirit.rpy:2\ntranslate czech a_1:\n\n    # ds "hello again, friend."\n    ds "hello again, friend."\n', encoding="utf-8")
+        self.assertNotIn("hello again, friend.", self.scan())
+
+    def test_strings_in_a_list_or_a_python_block_are_not_dialogue(self):
+        (self.game / "data.rpy").write_text('default sprites = [\n    "isa bet titsuck 6",\n    "isa bet titsuck 7"\n]\n'
+                                            'init python:\n    names = [\n        "bg office day empty 1"\n    ]\n', encoding="utf-8")
+        texts = self.scan()
+        for t in ("isa bet titsuck 6", "isa bet titsuck 7", "bg office day empty 1"):
+            self.assertNotEqual(texts.get(t, {}).get("kind"), "dialogue", t)                 # at most a weak guess, never a spoken line
+            self.assertNotEqual(texts.get(t, {}).get("level"), "likely", t)
+
 
 class MissedInTheAppTests(TempCase):
     def setUp(self):

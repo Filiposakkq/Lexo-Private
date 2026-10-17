@@ -15,7 +15,7 @@ LINKS = {
     "web": "https://badik.filiposakkq.dev/",
 }
 # define de = Character("Derek", color="#0066ff")      /      define mc = DynamicCharacter("name", ...)
-CHARACTER_RE = re.compile(r"""^\s*define\s+(\w+)\s*=\s*(Dynamic)?Character\s*\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')""")
+CHARACTER_RE = re.compile(r"""^\s*define\s+(?:\w+\.)?(\w+)\s*=\s*(Dynamic)?Character\s*\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')""")
 CHARACTERS_MAX_BYTES = 16 * 1024 * 1024        # a game script may hold the definitions too, so this is not a "small list" limit any more
 # First words of Ren'Py screen statements that appear in translated UI blocks; they look like speakers but are not.
 SCREEN_KEYWORDS = {"text", "textbutton", "label", "tooltip", "hover", "idle", "insensitive", "timer", "key", "add",
