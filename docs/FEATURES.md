@@ -47,6 +47,7 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 | Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new |
 
 ## Language packs
+A pack also lists the `letters` of the language (used to tell a translated line from an untranslated one), the repeated words that are normal in speech, the stemming rule and the plural rule; see `lang.py`.
 The app and its UI are **English first**. Everything that depends on the language of the translation lives in a **language pack**
 (`free/lexo/lang.py` today: repeated words, number words, stems; later also address rules for the style check, spelling data, UI texts).
 - **Czech is the first pack**, built the same way as any other, not special-cased in the app. It is the reference for how a pack is made.

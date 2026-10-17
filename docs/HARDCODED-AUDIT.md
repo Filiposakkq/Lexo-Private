@@ -48,3 +48,8 @@ Atomic writes and the one-writer rule (`fixes.py`), the incremental project refr
 - Character files were looked up as `characters*.rpy` only: now any script with a `define x = Character(...)` line counts when there is no such file.
 - `old`/`new` were treated as string-pair keywords everywhere: now only inside `translate <lang> strings:`.
 - Still open: the Czech letters in the line classifier (`rpy.classify`), `ep1` name hints, wording of "episode/season" from `labels`.
+
+## Update: the classifier letters
+`rpy.classify` no longer has the Czech letters in code: the language pack has `letters` in `rules.json` (the letters of the language that the source language does not use); a line with one of them counts as translated.
+A pack without `letters` (and the neutral pack) treats any non-ASCII letter that way. The Python code now holds no Czech text except the data allowlist of the migration (`migrate.py`).
+The publishing tab uses the project's group word ("Chapter 3"); the website data (`progress.json`, schema 2) keeps its season/episode structure because the BaDIK website reads it.

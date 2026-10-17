@@ -12,6 +12,7 @@ import hashlib
 import re
 from dataclasses import dataclass, field
 
+from . import lang
 from .util import norm_ws
 from .messages import msg
 
@@ -45,7 +46,6 @@ get got go going gone know think want need like see say said tell let come make 
 yes okay ok well oh hey hi hello please thanks thank sorry right really maybe
 you're we're they're he's she's that's what's there's let's
 """.split())
-DIACRITICS = set("áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ")
 
 # Kinds of a pending line (the codes are sent to the UI, which words them): empty translation, still English, identical to the original, only symbols.
 K_EMPTY = "empty"
@@ -63,7 +63,8 @@ def classify(text):
     words = WORD_RE.findall(plain)
     if not words:
         return K_SYMBOLS
-    if any(ch in DIACRITICS for ch in plain):
+    letters = lang.current().letters             # the letters of the target language (language pack); without them any non-ASCII letter counts
+    if any((ch in letters) if letters else (ord(ch) > 127 and ch.isalpha()) for ch in plain):
         return K_SAME
     hits = sum(1 for w in words if w.lower() in EN_WORDS)
     if hits or len(words) >= 5:
