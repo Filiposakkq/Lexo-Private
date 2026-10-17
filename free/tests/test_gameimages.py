@@ -336,6 +336,14 @@ class LayeredImagesTests(TempCase):
         sc = self.gi.scene_for(self.game / "script.rpy", 9)                 # show anna smile (layeredimage)
         self.assertEqual((sc["found"], sc["image"], sc["layered"]), (True, "room", True))
 
+    def test_an_animation_of_a_composed_image_is_layered_too(self):
+        (self.game / "anim.rpy").write_text('image girl blink:\n    "girl happy"\n    3.5\n    "girl_happy"\n    0.1\n    repeat\n', encoding="utf-8")
+        (self.game / "script2.rpy").write_text("label b:\n    scene room\n    show girl blink\n    mc \"Hi.\"\n", encoding="utf-8")
+        gi = gameimages.GameImages(self.game).build()
+        self.assertIn("girl blink", gi.composed)
+        sc = gi.scene_for(self.game / "script2.rpy", 4)
+        self.assertEqual((sc["found"], sc["image"], sc["layered"]), (True, "room", True))        # the blink is not taken for a picture
+
     def test_a_layered_name_with_several_words_and_extra_attributes(self):
         self.assertTrue(self.gi.is_layered("bg alley", ["bg", "alley"]))
         self.assertTrue(self.gi.is_layered("bg alley night", ["bg", "alley", "night"]))     # the rest are attributes
