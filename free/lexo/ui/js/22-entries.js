@@ -351,8 +351,8 @@ export async function viewEntries() {
     list.hidden = !open();
     if (open()) paintList();
     wrap.append(h('span', null, T('Result {n} of {total}', { n: fmtN(S.ent.start + S.ent.sel + 1), total: fmtN(S.ent.total) })),
-      h('button', { class: 'btn small icon', title: T('Previous line (↑)'), onclick: () => select(S.ent.sel - 1) }, '↑'),
-      h('button', { class: 'btn small icon', title: T('Next line (↓)'), onclick: () => select(S.ent.sel + 1) }, '↓'),
+      h('button', { class: 'btn small icon', title: T('Previous line (←)'), onclick: () => select(S.ent.sel - 1) }, '←'),
+      h('button', { class: 'btn small icon', title: T('Next line (→)'), onclick: () => select(S.ent.sel + 1) }, '→'),
       toggle, h('span', { class: 'muted' }, entrySearchSummary(e)), list);
     return wrap;
   }

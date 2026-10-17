@@ -93,3 +93,4 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - Menu tab, third round: a choice with no dialogue after it shows the first lines of its body (variables, jump); the menu appears in the quick translating / proofreading modes. Checked in the browser on a copy of the A Wife and Mother script. 583 tests.
 
 - Film layouts (quick translating / proofreading): a search or filter opens the first hit and shows a results bar (Result n of m, previous / next, a list of all hits). 583 tests, UI self-test 139.
+- The film layouts use left / right arrows (results bar, quick proofreading bar); the left and right keys also move between lines.
