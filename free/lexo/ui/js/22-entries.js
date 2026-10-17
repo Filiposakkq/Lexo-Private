@@ -332,13 +332,38 @@ export async function viewEntries() {
     requestAnimationFrame(center);
     return strip;
   }
+  /* The film layouts have no list of lines, so a search or a filter needs its own way to move between the hits: "Result 3 of 16", previous / next,
+     and a list of all hits to pick from. Only shown when something narrows the lines down (search text, file, line type, kind, check). */
+  function resultsBar() {
+    const e = pref('entries', {});
+    if (!(e.q || e.file || e.unit || e.kind || e.issues) || S.ent.total < 2) return null;
+    const wrap = h('div', { class: 'resbar' });
+    const list = h('div', { class: 'reslist' });
+    const paintList = () => {
+      list.replaceChildren(...S.ent.items.map((it, i) => h('div', { class: 'resrow st-' + it.status + (i === S.ent.sel ? ' cur' : ''), onclick: () => select(i) },
+        h('span', { class: 'num muted' }, it.line), h('span', { class: 'who' }, speakerBadge(it.who)),
+        h('span', { class: 'txt' }, fmtText(it.source ?? '')), h('span', { class: 'txt' }, it.status === 'todo' ? h('span', { class: 'muted' }, '–') : fmtText(it.target)))),
+        S.ent.start + S.ent.items.length < S.ent.total ? h('button', { class: 'btn small', onclick: async () => { await load(false); paintList(); } }, T('Load more')) : null);
+      requestAnimationFrame(() => list.querySelector('.cur')?.scrollIntoView({ block: 'nearest' }));
+    };
+    const open = () => !!pref('ui.resOpen', false);
+    const toggle = h('button', { class: 'btn small', onclick: () => { setPref('ui.resOpen', !open()); list.hidden = !open(); toggle.textContent = open() ? T('Hide the list') : T('Show the list'); if (open()) paintList(); } }, open() ? T('Hide the list') : T('Show the list'));
+    list.hidden = !open();
+    if (open()) paintList();
+    wrap.append(h('span', null, T('Result {n} of {total}', { n: fmtN(S.ent.start + S.ent.sel + 1), total: fmtN(S.ent.total) })),
+      h('button', { class: 'btn small icon', title: T('Previous line (↑)'), onclick: () => select(S.ent.sel - 1) }, '↑'),
+      h('button', { class: 'btn small icon', title: T('Next line (↓)'), onclick: () => select(S.ent.sel + 1) }, '↓'),
+      toggle, h('span', { class: 'muted' }, entrySearchSummary(e)), list);
+    return wrap;
+  }
+  const entrySearchSummary = (e) => [e.q ? T('Search: “{q}”', { q: e.q }) : '', e.file ? T('File: {name}', { name: fname(e.file) }) : ''].filter(Boolean).join(' · ');
   function layoutParts(d, ed, pair, tabsFn) {
     if (COMPANION) {
       S.compDraft = (t) => { if (!S.compEditor) { ed.ta.value = t; ed.ta.dispatchEvent(new Event('draft')); } };
       const editor = S.compEditor ? pair : null;
       return (S.compFull ? [inPane(gamePreview(d, ed.ta)), editor] : [editor, tabsFn()]).filter(Boolean);
     }
-    if (film) return [inPane(gamePreview(d, ed.ta)), pair, fileStrip(d), filmStrip(d), quickMenu(d), ...(S.quick === 'proof' ? [proofPane(d)] : S.quick ? [] : [tabsFn()])];
+    if (film) return [resultsBar(), inPane(gamePreview(d, ed.ta)), pair, fileStrip(d), filmStrip(d), quickMenu(d), ...(S.quick === 'proof' ? [proofPane(d)] : S.quick ? [] : [tabsFn()])];
     if (S.companionOpen && pref('ui.slimMain', true)) {
       return [pair, h('div', { class: 'slimnote muted' }, T('The scene, check, proofreading and other tabs are in the second window. '),
         h('button', { class: 'btn small ghost', onclick: () => { setPref('ui.slimMain', false); drawDetail(S.ent.detail); } }, T('Show them here too')))];

@@ -593,4 +593,10 @@ table.entries tr.ovf td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
 .menubox .mbody .ctxcode { margin: 2px 0; max-height: 120px; }
 .quickmenu { margin: 8px 0; }
 .quickmenu > summary { cursor: pointer; font-weight: 600; font-size: 12.5px; color: var(--muted); }
+.resbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0; padding: 6px 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 13px; }
+.resbar .reslist { flex-basis: 100%; max-height: 34vh; overflow: auto; border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; }
+.resbar .resrow { display: grid; grid-template-columns: 56px 34px 1fr 1fr; gap: 8px; padding: 3px 6px; border-radius: var(--radius-sm); cursor: pointer; align-items: center; }
+.resbar .resrow:hover { background: var(--bg-2); }
+.resbar .resrow.cur { background: var(--warn-bg); }
+.resbar .resrow .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 

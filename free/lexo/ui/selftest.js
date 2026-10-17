@@ -176,8 +176,9 @@
     ok('seznam řádků má nabídku rozložení', !!clickText('#view .frow button', 'Rozložení'), 'chybí');
     ok('rozložení „Detail vpravo“ dá detail vedle seznamu', (await pickLayout('Detail vpravo')) && !!document.querySelector('#view .split.ecols'), 'beze změny');
     ok('rozložení „Scéna a filmový pás“ ukáže pás řádků a skryje tabulku', (await pickLayout('Scéna a filmový pás')) && !!document.querySelector('#view .split.film') && !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard'), 4000)), 'chybí pás nebo rozložení');
-    { const box = document.querySelector('#search'); if (box) { box.value = 'a'; box.dispatchEvent(new Event('input')); }                // a search in the film layout opens the first hit (the list is hidden, so nothing could be clicked)
+    { const box = document.querySelector('#search'); if (box) { box.value = 'o'; box.dispatchEvent(new Event('input')); }                // a search in the film layout opens the first hit (the list is hidden, so nothing could be clicked)
       ok('po hledání ve filmovém rozložení se otevře první řádek', !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard.cur'), 8000)), 'detail zůstal prázdný');
+      ok('ve filmovém rozložení je při hledání lišta „Výsledek n z m“ a seznam nálezů', !!(await waitFor(() => document.querySelector('#entryDetail .resbar'), 8000)) && /Výsledek \d+ z \d+/.test(document.querySelector('#entryDetail .resbar')?.textContent || ''), document.querySelector('#entryDetail .resbar')?.textContent || 'chybí lišta');
       if (box) { box.value = ''; box.dispatchEvent(new Event('input')); await sleep(900); } }
     ok('filmový pás ukazuje aktuální řádek', !!document.querySelector('#entryDetail .filmstrip .fcard.cur'), 'chybí zvýrazněná karta');
     ok('pruh souboru ukazuje zvlášť přeloženo a zkontrolováno', !!(await waitFor(() => /Přeloženo \d+ %/.test(document.querySelector('#entryDetail .filestrip')?.textContent || '') && /Zkontrolováno \d+ %/.test(document.querySelector('#entryDetail .filestrip')?.textContent || ''), 4000)), document.querySelector('#entryDetail .filestrip')?.textContent || 'chybí pruh');
