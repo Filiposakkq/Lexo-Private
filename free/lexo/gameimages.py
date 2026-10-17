@@ -24,7 +24,7 @@ CHAR_RE = re.compile(r"^\s*define\s+(\w+)\s*=\s*(Dynamic)?Character\(\s*(?:(?P<q
 COLOR_RE = re.compile(r"\b(?:who_color|color)\s*=\s*[\"'](#[0-9a-fA-F]{3,8})[\"']")
 IMG_EXT = (".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif")
 MIME = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".avif": "image/avif", ".gif": "image/gif"}
-LAYERED_RE = re.compile(r"^layeredimage\s+([A-Za-z0-9_.\-]+)\s*:")
+LAYERED_RE = re.compile(r"^\s*layeredimage\s+([A-Za-z0-9_.\- ]+?)\s*:")      # indented in some games; the name may have several words (bg alley)
 # an image made of several parts: a composite, a switch, ATL `contains`; Lexo does not draw those yet (see docs/GAME-TOOLS.md)
 COMPOSED_RE = re.compile(r"\b(?:LiveComposite|Composite|im\.Composite|ConditionSwitch|DynamicImage|Fixed|contains)\b")
 IMAGE_DEF_RE = re.compile(r"^image\s+([A-Za-z0-9_ .\-]+?)\s*(=|:)\s*(.*)$")
@@ -270,5 +270,6 @@ class GameImages:
 
     def is_layered(self, what, tokens):
         """Is the image of a `scene` / `show` statement made of layers (`layeredimage`, a composite, a condition switch)?"""
-        name = _clean(what)
-        return name in self.composed or _clean(tokens[0]) in self.layered or _clean(tokens[0]) in self.composed or " ".join(name.split()[:2]) in self.composed
+        words = _clean(what).split()
+        # the name of the image, or its first words (the rest are attributes: `show anna smile`, `scene bg alley night`)
+        return any(" ".join(words[:k]) in self.layered or " ".join(words[:k]) in self.composed for k in range(1, len(words) + 1))

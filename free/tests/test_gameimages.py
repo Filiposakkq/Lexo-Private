@@ -302,6 +302,7 @@ LAYERED_DEFS = (
     'image bgcomp = ConditionSwitch("day", "room", "True", "room")\n'
     'layeredimage anna:\n    always "anna_base"\n    group face:\n        attribute smile default "anna_smile"\n'
     'image blinker:\n    "blink_a"\n    contains:\n        "blink_b"\n'
+    'init:\n    layeredimage bg alley:\n        always "alley_base"\n'
 )
 LAYERED_SCRIPT = (
     'label a:\n    scene room\n    show girl happy\n    mc "Hi there, friend."\n    scene bgcomp\n    mc "Hello again."\n'
@@ -323,7 +324,7 @@ class LayeredImagesTests(TempCase):
         self.gi = gameimages.GameImages(self.game).build()
 
     def test_layered_and_composed_names_are_recognised(self):
-        self.assertEqual((self.gi.layered, self.gi.composed), ({"anna"}, {"girl happy", "bgcomp", "blinker"}))
+        self.assertEqual((self.gi.layered, self.gi.composed), ({"anna", "bg alley"}, {"girl happy", "bgcomp", "blinker"}))
 
     def test_a_composed_image_is_never_resolved_to_one_of_its_files(self):
         self.assertIsNone(self.gi.resolve("girl happy") and self.gi.defs.get("girl happy"))
@@ -334,6 +335,13 @@ class LayeredImagesTests(TempCase):
         self.assertEqual((sc["found"], sc["image"], sc["layered"]), (True, "room", True))
         sc = self.gi.scene_for(self.game / "script.rpy", 9)                 # show anna smile (layeredimage)
         self.assertEqual((sc["found"], sc["image"], sc["layered"]), (True, "room", True))
+
+    def test_a_layered_name_with_several_words_and_extra_attributes(self):
+        self.assertTrue(self.gi.is_layered("bg alley", ["bg", "alley"]))
+        self.assertTrue(self.gi.is_layered("bg alley night", ["bg", "alley", "night"]))     # the rest are attributes
+        self.assertTrue(self.gi.is_layered("anna smile happy", ["anna", "smile", "happy"]))
+        self.assertFalse(self.gi.is_layered("room", ["room"]))
+        self.assertFalse(self.gi.is_layered("bg", ["bg"]))                                  # only the first word of a longer name
 
     def test_a_layered_scene_gives_no_picture_instead_of_a_wrong_older_one(self):
         sc = self.gi.scene_for(self.game / "script.rpy", 6)                 # scene bgcomp: the scene itself is composed
