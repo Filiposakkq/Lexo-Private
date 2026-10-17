@@ -180,6 +180,8 @@ class GamePart:
         elif not sc["found"]:
             out["reason"] = (msg("The scene is built from layered or composed images, which Lexo does not draw yet.") if sc.get("layered")
                              else msg("I found no picture (scene / show) before this line that can be traced in the game archives."))
+        out["layers"] = [{"image": x["image"], "x": x["x"], "url": "/api/game/image?g=" + self._game_token() + "&k=" + urllib.parse.quote(x["key"], safe="")}
+                         for x in sc.get("layers", [])]
         return out
 
     def game_font(self, name):

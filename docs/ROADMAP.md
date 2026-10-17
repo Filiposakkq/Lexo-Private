@@ -87,4 +87,4 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - Machine translation: the target language is empty by default and means the language of the project (its pack code, or the name of its `tl` folder: `german` -> `DE`); without either, nothing is sent and the message says why. No Czech default in the config any more. 565 tests.
 - `free/README.md` rewritten for the product (the old BaDIK README is gone); the repository is private. Layered images: animations of composed images count as layered too (the Four Elements blink case).
 - Step 3 closed: `sectionName()` (Overview, Publishing) follows `labels.section`; the progress sheet accepts only English yes-words; the state-of-group undo label is a translatable message; HARDCODED-AUDIT.md has a current-state section.
-
+- Scene preview draws a stack: the background of the last `scene` plus the `show` pictures over it (same tag replaces, `hide` removes, side from `at`), instead of one nearest image; games with layered images are warned about explicitly. Not measured on the eight games yet (unverified in a real game). 571 tests.
