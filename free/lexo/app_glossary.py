@@ -138,7 +138,8 @@ class GlossaryPart:
                 m = CHARACTER_RE.match(line)
                 if m:
                     name = (m.group(3) if m.group(3) is not None else m.group(4) or "").replace('\\"', '"').strip()
-                    defs.setdefault(m.group(1), []).append((name, bool(m.group(2)), f))
+                    dynamic = bool(m.group(2)) or name.startswith("[")            # Character("[mc.name]"): the name comes from a variable
+                    defs.setdefault(m.group(1), []).append((name, dynamic, f))
         in_project = {self.speaker_code(e.who) for rel in self.project.files for e in self.project.entries(rel)
                       if e.unit == "dialogue"} - SCREEN_KEYWORDS
         game_dir = None

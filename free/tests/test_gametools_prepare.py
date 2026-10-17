@@ -31,7 +31,14 @@ class RepairTests(unittest.TestCase):
         self.assertTrue((tmp / "sub" / "bad.rpy.unparsable").is_file())
         self.assertFalse((tmp / "sub" / "bad.rpy").exists())
         self.assertTrue((tmp / "good.rpy").is_file())
-        self.assertEqual(gametools.quarantine_unparsable(tmp, "File \"game/tl/x.rpy\", line 1: no"), [])
+        (tmp / "tl" / "russian").mkdir(parents=True)
+        (tmp / "tl" / "russian" / "x.rpy").write_text("z", encoding="utf-8")
+        (tmp / "tl" / "czech").mkdir()
+        (tmp / "tl" / "czech" / "y.rpy").write_text("z", encoding="utf-8")
+        raw2 = 'File "game/tl/russian/x.rpy", line 6: Could not parse string.\nFile "game/tl/czech/y.rpy", line 1: no'
+        # a translation that the game ships (decompiled from its archive) is set aside, the folder being generated is not touched
+        self.assertEqual(gametools.quarantine_unparsable(tmp, raw2, ("tl/czech/",)), ["tl/russian/x.rpy"])
+        self.assertTrue((tmp / "tl" / "czech" / "y.rpy").is_file())
 
 
 class PrepareTests(unittest.TestCase):

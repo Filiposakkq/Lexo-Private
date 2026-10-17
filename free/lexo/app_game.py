@@ -19,6 +19,30 @@ class GamePart:
                 return parent
         return None
 
+    def _gui_text(self):
+        """The text of the game's gui definitions: game/gui.rpy, else a file called gui.rpy elsewhere in the game (Our Red String keeps it in
+        scripts/gui/), else the first script that has `define gui.` lines. Empty when there is none (a game with a gui of its own)."""
+        game = self._game_dir()
+        if game is None:
+            return ""
+        skip = {"tl", "cache", "saves", ".lexo", "_progress_data"}
+        scripts = [p for p in sorted(game.rglob("*.rpy")) if not skip & set(p.relative_to(game).parts[:-1])]
+        named = [p for p in scripts if p.name.lower() == "gui.rpy"]
+        for path in sorted(named, key=lambda p: len(p.relative_to(game).parts))[:1]:
+            try:
+                return path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                return ""
+        for path in scripts:
+            try:
+                if path.stat().st_size < 2_000_000:
+                    text = path.read_text(encoding="utf-8", errors="replace")
+                    if re.search(r"^\s*define\s+gui\.(?:text_size|textbox_height|name_text_size)\b", text, re.MULTILINE):
+                        return text
+            except OSError:
+                continue
+        return ""
+
     def _game_token(self):
         """A short id of the open game folder. It is part of the URL of every picture and font, so the browser cannot show the picture of
         another game that happens to have the same file name or key (the browser keeps pictures for ten minutes)."""
@@ -42,9 +66,8 @@ class GamePart:
         base = self._game_root() if self.project else None
         if base is None:
             return out
-        try:
-            text = (base / "game" / "gui.rpy").read_text(encoding="utf-8", errors="replace")
-        except OSError:
+        text = self._gui_text()
+        if not text:
             return out
         found, fractions = {}, {}
         # numbers may be negative (name_ypos = -66) and a number with a decimal point is a FRACTION of the container in Ren'Py (dialogue_ypos = 0.33)
@@ -82,10 +105,7 @@ class GamePart:
         base = self._game_root()
         if base is None:
             return out
-        try:
-            gui = (base / "game" / "gui.rpy").read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            gui = ""
+        gui = self._gui_text()
         for m in re.finditer(r"^\s*define\s+gui\.(text_font|name_text_font)\s*=\s*[\"']([^\"']+)[\"']", gui, re.MULTILINE):
             out["text" if m.group(1) == "text_font" else "name"] = m.group(2)
         found = bool(out["text"] or out["name"])

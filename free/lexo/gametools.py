@@ -277,13 +277,14 @@ def repair_decompiled(game_dir, files):
 PARSE_ERROR_RE = re.compile(r'File "game/(?P<file>[^"]+\.rpym?)", line \d+')
 
 
-def quarantine_unparsable(game_dir, raw):
+def quarantine_unparsable(game_dir, raw, protect=()):
     """Move aside (rename to `<name>.unparsable`) the .rpy files that Ren'Py's output names as having errors, so the rest can still be
-    translated. Returns the list of moved relative paths."""
+    translated. This includes decompiled translations that a game ships inside its archives (game/tl/russian/...). `protect` = relative
+    prefixes that are never touched (the folder being generated). Returns the list of moved relative paths."""
     moved = []
     for rel in sorted({m.group("file") for m in PARSE_ERROR_RE.finditer(raw or "")}):
         path = Path(game_dir) / rel
-        if path.is_file() and not rel.startswith("tl/"):
+        if path.is_file() and not rel.startswith(tuple(protect)):
             path.replace(path.with_name(path.name + ".unparsable"))
             moved.append(rel)
     return moved
@@ -312,7 +313,7 @@ def prepare_translation(game_root, workspace, language, unrpyc_python, unrpyc_sc
         out["generate"] = generate_translation(workspace, workspace, language, write_into_project=True, runner=runner)
         if out["generate"]["ok"]:
             break
-        moved = quarantine_unparsable(game, out["generate"]["raw"])
+        moved = quarantine_unparsable(game, out["generate"]["raw"], ("tl/" + language + "/",))
         if not moved:
             break
         out["quarantined"] += moved

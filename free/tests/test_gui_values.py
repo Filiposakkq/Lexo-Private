@@ -39,6 +39,26 @@ class GuiValuesTests(TempCase):
         g = self.open("define gui.name_ypos = -66\n")
         self.assertEqual(g["name_ypos"], -66)
 
+    def test_gui_rpy_in_a_subfolder_or_another_script_is_found(self):
+        game = self.tmp / "g1" / "game"
+        tl = game / "tl" / "czech"
+        tl.mkdir(parents=True)
+        (game / "scripts" / "gui").mkdir(parents=True)
+        (game / "scripts" / "gui" / "gui.rpy").write_text("define gui.text_size = 27\ndefine gui.name_ypos = -32\n", encoding="utf-8")
+        (tl / "script.rpy").write_text(dialog("a1", "mc", "Hello there, friend.", None, 5), encoding="utf-8")
+        app = self.new_app(open_root=False)
+        app.open_project(tl)
+        g = app.game_gui()
+        self.assertEqual((g["text_size"], g["name_ypos"]), (27, -32))
+        game2 = self.tmp / "g2" / "game"
+        tl2 = game2 / "tl" / "czech"
+        tl2.mkdir(parents=True)
+        (game2 / "options.rpy").write_text("define gui.text_size = 40\n", encoding="utf-8")          # no file called gui.rpy
+        (tl2 / "script.rpy").write_text(dialog("a1", "mc", "Hello there, friend.", None, 5), encoding="utf-8")
+        app2 = self.new_app(open_root=False)
+        app2.open_project(tl2)
+        self.assertEqual(app2.game_gui()["text_size"], 40)
+
 
 class GameTokenTests(TempCase):
     def test_two_games_never_share_a_picture_or_font_url(self):

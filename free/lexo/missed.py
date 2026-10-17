@@ -95,7 +95,8 @@ def _literal(m):
     return m.group(1) if m.group(1) is not None else m.group(2)
 
 
-REF_RE = re.compile(r"^#\s*(?:game/)?(?P<file>[^:\s]+\.rpym?):(?P<line>\d+)\s*$")
+REF_RE = re.compile(r"^#\s*(?:game/)?(?P<file>[^:]+?\.rpym?):(?P<line>\d+)\s*$")          # a file name may hold spaces
+DATA_START = ("init", "python", "define ", "default ", "$ ")
 
 
 def known_texts(tl_dir):
@@ -153,7 +154,7 @@ def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5
             lines = path.read_text(encoding="utf-8-sig", errors="replace").splitlines()
         except OSError:
             continue
-        in_screen = in_skipped_block = False
+        in_screen = in_skipped_block = in_data = False
         for no, line in enumerate(lines, 1):
             s = line.strip()
             if not s or s.startswith("#"):
@@ -161,6 +162,7 @@ def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5
             if not line.startswith((" ", "\t")):
                 in_screen = s.startswith("screen ")
                 in_skipped_block = s.startswith(BLOCK_SKIP)
+                in_data = s.startswith(DATA_START)          # an indented line below `default x = [` or `init python:` is data, not a spoken line
             if in_skipped_block:
                 continue
             if in_screen and not s.startswith("$"):        # the screen language is extracted by Ren'Py; only python lines (`$ ...`) can hide texts
@@ -169,6 +171,8 @@ def find_missed(game_dir, known, known_dialogue=None, known_places=None, limit=5
                 continue
             first = re.match(r"[A-Za-z_]\w*", s)
             if SAY_RE.match(line) and not (first and first.group(0) in NOT_A_SPEAKER):
+                if in_data and line.startswith((" ", "\t")):
+                    continue
                 text = _literal(list(LITERAL_RE.finditer(line))[-1])
                 if known_places:
                     without_block = (rel, no) not in known_places
