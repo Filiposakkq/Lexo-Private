@@ -59,7 +59,7 @@ export async function viewSettings() {
     h('fieldset', null, h('legend', { 'data-k': 'web' }, T('Website (publishing)')), h('div', { class: 'form' },
       ...field(T('Repository'), h('input', { type: 'text', id: 'set_repo', value: s.web.repo, placeholder: 'owner/repository' }), T('A folder with a clone, an address or user/repository. Your git (Credential Manager) handles the sign-in – no tokens are stored here.')),
       ...field(T('File in the repository'), h('input', { type: 'text', id: 'set_path', value: s.web.path }), T('Default web/progress.json.')),
-      ...field(T('Name of the game on the website'), h('input', { type: 'text', id: 'set_title', value: s.web.title })),),
+      ...field(T('Name of the game on the website'), h('input', { type: 'text', id: 'set_title', value: s.web.title })))),
     h('fieldset', null, h('legend', { 'data-k': 'about' }, T('About the app')), h('p', null, h('b', null, `Lexo ${S.version || ''}`),
       T(" – a translation manager for Ren'Py games: edit, proofread, check and follow the progress of a translation. Licence: see the file "), h('span', { class: 'mono' }, 'LICENSE'), '.'),
       h('p', { class: 'notice' }, h('b', null, T('State of the app: ')), T("it is under development and has been tried on a number of Ren'Py games of different kinds. "),
