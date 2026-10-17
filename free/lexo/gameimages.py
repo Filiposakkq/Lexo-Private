@@ -92,6 +92,7 @@ class GameImages:
                     elif name.lower().endswith(FONT_EXT):
                         self.fonts.setdefault(Path(name).name.lower(), ("rpa", arc, entry, name))
             self._parse_defs(scripts)
+            self._propagate_layers()
             self.sorted_stems = sorted(self.stems)
             self._built = True
         return self
@@ -142,6 +143,18 @@ class GameImages:
                     self.defs[name] = cands[:6]
 
     # ------------------------------------------------------------ lookup
+    def _propagate_layers(self):
+        """An image made of other images is layered when one of them is: `image kwhblink:` (a blink animation of `kwh`) is layered when `kwh` is a
+        Composite. Repeated until nothing changes (a few levels at most)."""
+        for _ in range(5):
+            fresh = {name for name, cands in self.defs.items()
+                     if name not in self.composed and any(self.is_layered(c, c.split()) for c in cands if "/" not in c and not c.lower().endswith(IMG_EXT))}
+            if not fresh:
+                return
+            self.composed |= fresh
+            for name in fresh:
+                self.defs.pop(name, None)          # its parts are never the picture of the whole
+
     def _stem_ref(self, key):
         return (key, self.stems[key]) if key in self.stems else None
 

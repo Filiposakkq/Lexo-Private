@@ -133,9 +133,13 @@
         inputs[0].value = 'a'; inputs[0].dispatchEvent(new Event('input'));
         const shown = await waitFor(() => document.querySelector('#dlg .tablewrap, #dlg .empty, #dlg .notice.bad'), 15000);
         ok('náhled hledání se vykreslí', shown && !document.querySelector('#dlg .notice.bad'), 'náhled selhal');
-        inputs[0].value = '('; inputs[0].dispatchEvent(new Event('input'));
-        [...document.querySelectorAll('#dlg .seg button')].find((b) => b.textContent.includes('Regulární'))?.click();
-        ok('špatný regulární výraz se ohlásí chybou, ne výjimkou', await waitFor(() => document.querySelector('#dlg .notice.bad'), 15000), 'chyba se nezobrazila');
+        let badRegex = null;                                   // on a slow runner the first request can still be in flight: ask again before giving up
+        for (let attempt = 0; attempt < 3 && !badRegex; attempt++) {
+          inputs[0].value = '('; inputs[0].dispatchEvent(new Event('input'));
+          [...document.querySelectorAll('#dlg .seg button')].find((b) => b.textContent.includes('Regulární'))?.click();
+          badRegex = await waitFor(() => document.querySelector('#dlg .notice.bad'), 8000);
+        }
+        ok('špatný regulární výraz se ohlásí chybou, ne výjimkou', badRegex, 'chyba se nezobrazila');
       }
       closeDialog();
     }

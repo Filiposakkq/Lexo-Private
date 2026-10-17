@@ -1,7 +1,7 @@
 # Lexo (private)
 
 Translation manager for Ren'Py games: edit, proofread, check and track translations of any Ren'Py project.
-Working name; the product grows out of the BaDIK Translation Manager (a Python tool built for *Being a DIK CZ*).
+Working name. **This repository is private**; the application is described in `free/README.md`.
 
 > Private monorepo. When Lexo is released, only `core/` and `free/` are copied (without history) into a new
 > public repository. `pro/` never leaves this repository.
