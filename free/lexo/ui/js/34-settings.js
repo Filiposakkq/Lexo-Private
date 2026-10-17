@@ -57,17 +57,14 @@ export async function viewSettings() {
       ...field(T('Translation (lines per week)'), h('input', { type: 'text', id: 'set_goal_t', value: String(s.goals?.translate_per_week ?? 0) }), T('0 = automatic from your pace of the last weeks (10 % more).')),
       ...field(T('Proofreading (lines per week)'), h('input', { type: 'text', id: 'set_goal_p', value: String(s.goals?.proofread_per_week ?? 0) }), T('0 = automatic.')))),
     h('fieldset', null, h('legend', { 'data-k': 'web' }, T('Website (publishing)')), h('div', { class: 'form' },
-      ...field(T('Repository'), h('input', { type: 'text', id: 'set_repo', value: s.web.repo, placeholder: 'Filiposakkq/Being-A-DIK-CZ' }), T('A folder with a clone, an address or user/repository. Your git (Credential Manager) handles the sign-in – no tokens are stored here.')),
+      ...field(T('Repository'), h('input', { type: 'text', id: 'set_repo', value: s.web.repo, placeholder: 'owner/repository' }), T('A folder with a clone, an address or user/repository. Your git (Credential Manager) handles the sign-in – no tokens are stored here.')),
       ...field(T('File in the repository'), h('input', { type: 'text', id: 'set_path', value: s.web.path }), T('Default web/progress.json.')),
       ...field(T('Name of the game on the website'), h('input', { type: 'text', id: 'set_title', value: s.web.title })),
       s.web.migrated_from ? h('div', { class: 'hint' }, T('Taken over from {from}. The app no longer needs a separate web.json.', { from: s.web.migrated_from })) : null)),
     h('fieldset', null, h('legend', { 'data-k': 'about' }, T('About the app')), h('p', null, h('b', null, `Lexo ${S.version || ''}`),
-      T(' – a tool for the Czech translation of the game Being a DIK. Licence: see the file '), h('span', { class: 'mono' }, 'tools/translation-manager/LICENSE'),
-      T(' (personal non-commercial use; further distribution, changes and commercial use only with my consent).')),
-      h('p', { class: 'notice' }, h('b', null, T('Scope of the tool: ')), T('it is made mainly for me. It works only for Being a DIK (seasons 1 and 2) and has only a Czech interface. '),
-        T("Season 3 is planned first, maybe later a rework for more Ren'Py games and English (no promises or dates).")),
-      h('div', { class: 'row' }, ...[['kofi', T('Support on Ko-fi')], ['github', 'GitHub'], ['repo', T('Translation repository')], ['web', T('Translation website')]].map(([id, l]) =>
-        h('button', { class: 'btn small', onclick: () => post('open-url', { id }).catch(fail) }, l)))),
+      T(" – a translation manager for Ren'Py games: edit, proofread, check and follow the progress of a translation. Licence: see the file "), h('span', { class: 'mono' }, 'LICENSE'), '.'),
+      h('p', { class: 'notice' }, h('b', null, T('State of the app: ')), T("it is under development and has been tried on a number of Ren'Py games of different kinds. "),
+        T('The interface is English with Czech as a language pack; more languages are planned.'))),
     h('div', { class: 'row' }, h('button', { class: 'btn primary', onclick: save }, T('Save settings')),
       h('span', { class: 'muted' }, T('Settings: '), h('span', { class: 'mono' }, 'config.json'), T(' in %APPDATA%\\Lexo'))));
   /* Group the fieldsets into sections with a side navigation. Everything stays in the DOM (only hidden), so Save sees every field. */

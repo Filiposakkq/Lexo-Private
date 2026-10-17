@@ -4,7 +4,7 @@ real browser. The page ends with a PASS / FAIL panel and a window title "SELFTES
     py tests\\ui\\serve_selftest.py            starts the server, opens your default browser, waits (Ctrl+C or close the tab to stop)
     py tests\\ui\\serve_selftest.py --no-open  only prints the address
 
-The project lives in a temp folder named ".badik-selftest" – the only kind of project in which the self-test also writes
+The project lives in a temp folder named ".lexo-selftest" – the only kind of project in which the self-test also writes
 (saves a translation and undoes it). Your real project is never touched; settings go to a temp config folder.
 """
 import os
@@ -80,8 +80,8 @@ STRINGS = '''translate czech strings:
 
 
 def make_project():
-    """Create the synthetic project; returns the folder to open (…/.badik-selftest/game/tl/czech)."""
-    base = Path(tempfile.mkdtemp(prefix="badik-")) / ".badik-selftest"
+    """Create the synthetic project; returns the folder to open (…/.lexo-selftest/game/tl/czech)."""
+    base = Path(tempfile.mkdtemp(prefix="lexo-")) / ".lexo-selftest"
     proj = base / "game" / "tl" / "czech"
     proj.mkdir(parents=True)
     (base / "game" / "script.rpy").write_text("\n".join(f"label line_{i}:" for i in range(1, 80)), encoding="utf-8")
@@ -92,7 +92,7 @@ def make_project():
 
 def start_synthetic():
     """Start the app server on a synthetic project (isolated config folder). Returns (server, app, url, cleanup)."""
-    cfg = tempfile.mkdtemp(prefix="badik-cfg-")
+    cfg = tempfile.mkdtemp(prefix="lexo-cfg-")
     os.environ["LEXO_CONFIG_DIR"] = cfg
     from lexo import server
     from lexo.app import App

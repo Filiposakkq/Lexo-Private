@@ -101,11 +101,9 @@ class LinkTests(TempCase):
             self.app.open_link("http://evil.example", opener=opened.append)
         self.assertEqual(len(opened), len(LINKS))
 
-    def test_the_project_links_are_the_authors(self):
-        self.assertEqual(LINKS["kofi"], "https://ko-fi.com/filiposakkq")
-        self.assertEqual(LINKS["github"], "https://github.com/Filiposakkq")
-        self.assertEqual(LINKS["repo"], "https://github.com/Filiposakkq/Being-A-DIK-CZ")
-        self.assertEqual(LINKS["web"], "https://badik.filiposakkq.dev/")
+    def test_no_link_belongs_to_one_person_or_one_game(self):
+        for url in LINKS.values():
+            self.assertNotRegex(url.lower(), r"filiposakkq|badik|being-a-dik|ko-fi")
 
     def test_http_endpoint_needs_token_and_takes_ids_not_urls(self):
         srv, sess, _ = server.start_server(self.app)
@@ -116,13 +114,14 @@ class LinkTests(TempCase):
             c.request("POST", "/api/open-url", json.dumps(body), {"X-Token": sess.token} if token else {})
             r = c.getresponse()
             return r.status, json.loads(r.read())
-        with mock.patch("webbrowser.open") as wb:
-            self.assertEqual(post({"id": "kofi"}, token=False)[0], 403)
+        with mock.patch("webbrowser.open") as wb, mock.patch.dict(LINKS, {"home": "https://example.org/lexo"}):
+            self.assertEqual(post({"id": "home"}, token=False)[0], 403)
             self.assertEqual(post({"url": "https://evil.example"})[0], 400)
             self.assertEqual(post({"id": "https://evil.example"})[0], 400)
-            st, r = post({"id": "kofi"})
-            self.assertEqual((st, r["url"]), (200, "https://ko-fi.com/filiposakkq"))
-            wb.assert_called_once_with("https://ko-fi.com/filiposakkq")
+            self.assertEqual(post({"id": "kofi"})[0], 400)                       # an id that is not in the list
+            st, r = post({"id": "home"})
+            self.assertEqual((st, r["url"]), (200, "https://example.org/lexo"))
+            wb.assert_called_once_with("https://example.org/lexo")
 
     def test_state_reports_the_version(self):
         srv, sess, _ = server.start_server(self.app)

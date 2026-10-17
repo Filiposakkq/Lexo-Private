@@ -20,7 +20,7 @@ from .messages import msg
 DEFAULTS = {
     "version": 1,
     "project_dir": "",
-    "skip_files": ["common.rpy", "fonts_czech.rpy"],
+    "skip_files": ["common.rpy"],
     "count_symbol_only_as_done": False,
     "editor": {"preferred": "auto", "custom": ""},     # auto | vscode | notepadpp | custom | system
     "validation": {

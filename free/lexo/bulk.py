@@ -16,7 +16,7 @@ EP_RE = re.compile(r"(?<![a-z0-9])(?:episode|ep)[ _-]?0*(\d{1,2})(?!\d)")
 UPDATE_RE = re.compile(r"(?<![a-z0-9])update[ _-]?0*(\d{1,2})(?!\d)")
 SEASON_RE = re.compile(r"(?<![a-z0-9])season[ _-]?0*(\d)(?!\d)")
 # File stems that belong to the whole game, not to one episode.
-SHARED_STEMS = {"header", "options", "screens", "gui", "common", "title_screens", "fonts_czech"}
+SHARED_STEMS = {"header", "options", "screens", "gui", "common", "title_screens"}
 
 
 def _posix(rel):

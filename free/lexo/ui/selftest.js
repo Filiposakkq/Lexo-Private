@@ -1,7 +1,7 @@
 /* UI self-test. Open the app with ?selftest=1 (see tests/ui/serve_selftest.py or run_ui_selftest.bat).
    It walks through every tab and the main dialogs, fails on any JavaScript error and shows a PASS / FAIL panel.
    It only READS, except when the open project is the synthetic one made by serve_selftest.py (folder name contains
-   ".badik-selftest"): there it also saves a translation, undoes it, and ignores / restores a finding. */
+   ".lexo-selftest"): there it also saves a translation, undoes it, and ignores / restores a finding. */
 (async function selftest() {
   const results = [];
   const errors = [];
@@ -46,7 +46,7 @@
 
   await waitFor(() => typeof S !== 'undefined' && S.version !== undefined && document.querySelector('#tabs .tab'), 10000);   // boot() sets S.version when the state arrived
   const origPrefs = JSON.stringify(S.prefs);
-  const synthetic = (S.projectDir || '').includes('.badik-selftest');
+  const synthetic = (S.projectDir || '').includes('.lexo-selftest');
   ok('aplikace nastartovala', S.ready, 'není otevřený žádný projekt – otevři projekt a spusť test znovu');
   if (!S.ready) return finish();
 
