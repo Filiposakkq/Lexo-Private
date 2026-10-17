@@ -10,6 +10,7 @@ use lexo_core::events::{self, EventLog};
 use lexo_core::export;
 use lexo_core::fixes::{self, Planned};
 use lexo_core::gameimages::GameImages;
+use lexo_core::gametools;
 use lexo_core::history::{self, History};
 use lexo_core::layout::{self, Layout};
 use lexo_core::lint::{self, Platform};
@@ -17,6 +18,7 @@ use lexo_core::lock::{Owner, ProjectLock};
 use lexo_core::memory::{self, Memory};
 use lexo_core::messages::render;
 use lexo_core::missed;
+use lexo_core::mt;
 use lexo_core::project::{self, Project};
 use lexo_core::snapshots;
 use lexo_core::store::{self, Kind, Store};
@@ -1000,6 +1002,157 @@ impl Runner<'_> {
                 );
                 json!({"result": res, "calls": calls.into_inner(), "opened": opened.into_inner()})
             }
+            "gametools.safe_target" => {
+                let dest = self.p(&a["dest"]);
+                let resolved = fsutil::resolve(&dest);
+                json!(strings(&a["names"])
+                    .iter()
+                    .map(|n| gametools::safe_target(&dest, n).map(|t| t.strip_prefix(&resolved).unwrap_or(&t).to_string_lossy().replace('\\', "/")))
+                    .collect::<Vec<_>>())
+            }
+            "gametools.list" => tool(gametools::list_archive(&self.p(&a["archive"])).map(|v| json!(v.iter().map(|(n, s)| json!([n, s])).collect::<Vec<_>>()))),
+            "gametools.extract" => {
+                let only: Option<Vec<String>> = a.get("only").filter(|v| !v.is_null()).map(strings);
+                let pred = |n: &str| only.as_ref().is_some_and(|o| o.iter().any(|x| x == n));
+                tool(
+                    gametools::extract_rpa(
+                        &self.p(&a["archive"]),
+                        &self.p(&a["dest"]),
+                        only.as_ref().map(|_| &pred as &dyn Fn(&str) -> bool),
+                        a["overwrite"].as_bool().unwrap_or(false),
+                        a["max_file"].as_u64().unwrap_or(gametools::DEFAULT_MAX_FILE),
+                        a["max_total"].as_u64().unwrap_or(gametools::DEFAULT_MAX_TOTAL),
+                    )
+                    .map(|e| e.to_json()),
+                )
+            }
+            "gametools.workspace" => tool(gametools::make_workspace(&self.p(&a["game"]), &self.p(&a["workspace"])).map(|w| w.to_json())),
+            "gametools.copy_scripts" => tool(gametools::copy_scripts(&self.p(&a["game"]), &self.p(&a["workspace"])).map(|n| json!(n))),
+            "gametools.decompile" => {
+                let (responses, calls) = (a["fake"].as_array().cloned().unwrap_or_default(), std::cell::RefCell::new(Vec::new()));
+                let runner = fake_runner(self.root, &responses, &calls);
+                let res = tool(
+                    gametools::decompile(
+                        &self.p(&a["python"]),
+                        &self.p(&a["script"]),
+                        &self.p(&a["workspace"]),
+                        a["clobber"].as_bool().unwrap_or(false),
+                        a["try_harder"].as_bool().unwrap_or(false),
+                        a["no_init_offset"].as_bool().unwrap_or(false),
+                        &runner,
+                    )
+                    .map(|d| d.to_json()),
+                );
+                json!({"result": res, "calls": calls.take()})
+            }
+            "gametools.extract_scripts" => tool(gametools::extract_scripts(&self.p(&a["workspace"])).map(|s| s.to_json())),
+            "gametools.repair" => json!(strings(&a["texts"])
+                .iter()
+                .map(|t| {
+                    let (new, n) = gametools::repair_continuations(t);
+                    json!([new, n])
+                })
+                .collect::<Vec<_>>()),
+            "gametools.repair_files" => Value::Object(gametools::repair_decompiled(&self.p(&a["dir"]), &strings(&a["files"]))),
+            "gametools.quarantine" => {
+                let protect = a.get("protect").map(strings).unwrap_or_default();
+                let protect: Vec<&str> = protect.iter().map(String::as_str).collect();
+                json!(gametools::quarantine_unparsable(&self.p(&a["dir"]), a["raw"].as_str().unwrap_or(""), &protect))
+            }
+            "gametools.plan" => tool(gametools::plan_translation(&self.p(&a["base"]), a["language"].as_str().unwrap_or("")).map(|p| p.to_json())),
+            "gametools.generate" => {
+                let (responses, calls) = (a["fake"].as_array().cloned().unwrap_or_default(), std::cell::RefCell::new(Vec::new()));
+                let runner = fake_runner(self.root, &responses, &calls);
+                let res = tool(
+                    gametools::generate_translation(
+                        &self.p(&a["sdk"]),
+                        &self.p(&a["base"]),
+                        a["language"].as_str().unwrap_or(""),
+                        a["write"].as_bool().unwrap_or(false),
+                        &runner,
+                        platform(a),
+                    )
+                    .map(|g| g.to_json()),
+                );
+                json!({"result": res, "calls": calls.take()})
+            }
+            "gametools.prepare" => {
+                let (responses, calls) = (a["fake"].as_array().cloned().unwrap_or_default(), std::cell::RefCell::new(Vec::new()));
+                let runner = fake_runner(self.root, &responses, &calls);
+                let steps = std::cell::RefCell::new(Vec::new());
+                let progress = |s: &str| steps.borrow_mut().push(s.to_string());
+                let res = tool(
+                    gametools::prepare_translation(
+                        &self.p(&a["game"]),
+                        &self.p(&a["workspace"]),
+                        a["language"].as_str().unwrap_or(""),
+                        &self.p(&a["python"]),
+                        &self.p(&a["script"]),
+                        &runner,
+                        Some(&progress),
+                        platform(a),
+                    )
+                    .map(Value::Object),
+                );
+                json!({"result": res, "calls": calls.take(), "steps": steps.take()})
+            }
+            "mt.html" => {
+                let texts = strings(&a["texts"]);
+                json!({"unescape": texts.iter().map(|t| mt::html_unescape(t)).collect::<Vec<_>>(), "escape": texts.iter().map(|t| mt::html_escape(t)).collect::<Vec<_>>()})
+            }
+            "mt.protect" => {
+                let escape = a["escape"].as_bool().unwrap_or(false);
+                json!(strings(&a["texts"])
+                    .iter()
+                    .map(|t| {
+                        let (p, tokens) = mt::protect(t, escape);
+                        json!([p, tokens])
+                    })
+                    .collect::<Vec<_>>())
+            }
+            "mt.restore" => json!(a["cases"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|c| {
+                    let (text, warnings) = mt::restore(c["text"].as_str().unwrap_or(""), &strings(&c["tokens"]), c["unescape"].as_bool().unwrap_or(false));
+                    json!({"text": text, "warnings": warnings.iter().map(|m| m.wire()).collect::<Vec<_>>()})
+                })
+                .collect::<Vec<_>>()),
+            "mt.target" => json!(a["cases"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|c| mt::target_language(c[0].as_str().unwrap_or(""), c[1].as_str().unwrap_or("")))
+                .collect::<Vec<_>>()),
+            "mt.translate" => {
+                let responses = a["responses"].as_array().cloned().unwrap_or_default();
+                let (calls, state) = (std::cell::RefCell::new(Vec::new()), std::cell::Cell::new(0usize));
+                let http = |url: &str, headers: &[(String, String)], data: &[u8]| -> Result<(u16, String), mt::MtError> {
+                    calls.borrow_mut().push(
+                        json!({"url": url, "headers": headers.iter().map(|(k, v)| json!([k, v])).collect::<Vec<_>>(), "body": String::from_utf8_lossy(data)}),
+                    );
+                    let r = &responses[state.get().min(responses.len() - 1)];
+                    state.set(state.get() + 1);
+                    if let Some(c) = r["connection"].as_str() {
+                        return Err(mt::MtError(lexo_core::messages::msg("The connection to the service failed: {reason}", &[("reason", json!(c))])));
+                    }
+                    let body = if r.get("json").is_some() { r["json"].to_string() } else { r["body"].as_str().unwrap_or("").to_string() };
+                    Ok((r["status"].as_u64().unwrap_or(200) as u16, body))
+                };
+                let glossary: Vec<(String, String)> = a["glossary"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|p| (p[0].as_str().unwrap_or("").to_string(), p[1].as_str().unwrap_or("").to_string()))
+                    .collect();
+                let context = a.get("context").map(strings).unwrap_or_default();
+                let cfg = a["cfg"].as_object().cloned().unwrap_or_default();
+                match mt::translate(&cfg, a["text"].as_str().unwrap_or(""), &glossary, &context, &http) {
+                    Ok(t) => json!({"result": t.to_json(), "calls": calls.into_inner()}),
+                    Err(e) => json!({"error": e.0.wire(), "calls": calls.into_inner()}),
+                }
+            }
             other => return Err(format!("unknown data step {other}")),
         })
     }
@@ -1179,6 +1332,35 @@ fn golden_root() -> PathBuf {
     crate::golden_dir().join("../..")
 }
 
+/// The answer of a tool: its value, or `{"error": message}` for an error it reports itself.
+fn tool(r: Result<Value, gametools::ToolError>) -> Value {
+    r.unwrap_or_else(|e| json!({"error": e.0.wire()}))
+}
+
+/// The fake program of a scenario: every call answers with the next response (`code`, `text`, `writes`: files it makes, `raise`: a failure to start); the last one is repeated.
+fn fake_runner<'a>(
+    root: &'a Path,
+    responses: &'a [Value],
+    calls: &'a std::cell::RefCell<Vec<Value>>,
+) -> impl Fn(&[String], &Path) -> Result<(i32, String), gametools::ToolError> + 'a {
+    let state = std::cell::Cell::new(0usize);
+    let default = json!({"code": 0, "text": ""});
+    move |argv, cwd| {
+        calls.borrow_mut().push(json!([argv, cwd.to_string_lossy()]));
+        let r = if responses.is_empty() { &default } else { &responses[state.get().min(responses.len() - 1)] };
+        state.set(state.get() + 1);
+        for (rel, content) in r["writes"].as_object().into_iter().flatten() {
+            let p = root.join(rel);
+            let _ = std::fs::create_dir_all(p.parent().unwrap_or(root));
+            let _ = std::fs::write(p, content.as_str().unwrap_or(""));
+        }
+        if let Some(t) = r["raise"].as_str() {
+            return Err(gametools::ToolError(lexo_core::messages::msg(t, &[])));
+        }
+        Ok((r["code"].as_i64().unwrap_or(0) as i32, r["text"].as_str().unwrap_or("").to_string()))
+    }
+}
+
 fn platform(a: &Value) -> Platform {
     match a["platform"].as_str().unwrap_or("windows") {
         "mac" => Platform::Mac,
@@ -1349,4 +1531,65 @@ pub fn game_json(game: &Path, tl_dir: Option<&Path>) -> Value {
         "images": gi.summary(), "scenes": scenes, "missed": {"items": items.iter().map(|i| i.to_json()).collect::<Vec<_>>(), "truncated": truncated},
         "suggest": suggest.iter().map(|(n, c, e)| json!({"name": n, "calls": c, "example": e})).collect::<Vec<_>>(),
     })
+}
+
+/// Where the files of a folder are and what they hold: `{relative path: sha1}` of every file, or `{relative path: size}` (a workspace of a game links gigabytes).
+fn tree_digest(dir: &Path, sizes: bool) -> Value {
+    fn walk(dir: &Path, root: &Path, sizes: bool, out: &mut Map<String, Value>) {
+        let mut entries: Vec<_> = std::fs::read_dir(dir).map(|rd| rd.filter_map(|e| e.ok()).collect()).unwrap_or_default();
+        entries.sort_by_key(|e| e.file_name());
+        for e in entries {
+            let p = e.path();
+            if p.is_dir() {
+                walk(&p, root, sizes, out);
+            } else {
+                let rel = p.strip_prefix(root).unwrap().to_string_lossy().replace('\\', "/");
+                let value =
+                    if sizes { json!(std::fs::metadata(&p).map(|m| m.len()).unwrap_or(0)) } else { json!(sha1_hex(&std::fs::read(&p).unwrap_or_default())) };
+                out.insert(rel, value);
+            }
+        }
+    }
+    let mut out = Map::new();
+    walk(dir, dir, sizes, &mut out);
+    Value::Object(out)
+}
+
+/// What the game tools make of a built game (`root` holds `game/`): the archives (index and the scripts inside), the workspace of links and the copied scripts. Everything is made in `scratch`
+/// (a folder on the same drive, so links work) and removed again; the game is only read.
+pub fn tools_json(root: &Path, scratch: &Path) -> Value {
+    let game = root.join("game");
+    let mut archives = Map::new();
+    for (i, arc) in gametools::find_archives(&game).iter().enumerate() {
+        let rel = arc.strip_prefix(&game).unwrap().to_string_lossy().replace('\\', "/");
+        let list = match gametools::list_archive(arc) {
+            Ok(v) => json!(v.iter().map(|(n, s)| json!([n, s])).collect::<Vec<_>>()),
+            Err(e) => {
+                archives.insert(rel, json!({"error": e.0.wire()}));
+                continue;
+            }
+        };
+        let dest = scratch.join(format!("x{i}"));
+        let only = |n: &str| ["rpy", "rpyc", "rpym", "rpymc"].iter().any(|s| n.to_lowercase().ends_with(&format!(".{s}")));
+        let res = gametools::extract_rpa(arc, &dest, Some(&only), false, gametools::DEFAULT_MAX_FILE, gametools::DEFAULT_MAX_TOTAL);
+        let got = match res {
+            Ok(e) => json!({"extract": e.to_json(), "files": tree_digest(&dest, false)}),
+            Err(e) => json!({"error": e.0.wire()}),
+        };
+        let _ = std::fs::remove_dir_all(&dest);
+        archives.insert(rel, json!({"index": list, "scripts": got}));
+    }
+    let ws = scratch.join("ws");
+    let workspace = match gametools::make_workspace(root, &ws) {
+        Ok(w) => json!({"counts": w.to_json(), "files": tree_digest(&ws, true)}),
+        Err(e) => json!({"error": e.0.wire()}),
+    };
+    let _ = std::fs::remove_dir_all(&ws);
+    let scripts = scratch.join("scripts");
+    let copied = match gametools::copy_scripts(&game, &scripts) {
+        Ok(n) => json!({"count": n, "files": tree_digest(&scripts, false)}),
+        Err(e) => json!({"error": e.0.wire()}),
+    };
+    let _ = std::fs::remove_dir_all(&scripts);
+    render(&json!({"archives": archives, "workspace": workspace, "copy_scripts": copied}))
 }

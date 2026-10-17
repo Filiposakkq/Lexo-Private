@@ -1,0 +1,1757 @@
+{
+ "files_after": {},
+ "steps": [
+  {
+   "answer": {
+    "escape": [
+     "a &amp;amp; b",
+     "&amp;lt;x&amp;gt;",
+     "&amp;#65;&amp;#x42;&amp;#X43;",
+     "&amp;#0;",
+     "&amp;#x80;&amp;#x9f;&amp;#x81;",
+     "&amp;#xD800;",
+     "&amp;#1114112;",
+     "&amp;#1;&amp;#8;&amp;#11;&amp;#14;&amp;#127;",
+     "&amp;notit; &amp;notin;",
+     "&amp;amp",
+     "&amp;ampx",
+     "&amp;unknown;",
+     "&amp;a",
+     "&amp;#;",
+     "&amp; amp;",
+     "&amp;Auml;&amp;auml",
+     "&amp;nbsp;|",
+     "&amp;hellip;&amp;mdash;",
+     "&amp;#x1F600;",
+     "&amp;fjlig;",
+     "&amp;NotEqualTilde;",
+     "no entity",
+     "&amp;&amp;amp;;",
+     "&amp;#99999999999999999999;",
+     "&amp;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;",
+     "&amp;ensp;&amp;emsp;&amp;thinsp;",
+     "&amp;amp;amp;",
+     "&amp;#x2603;",
+     "&amp;lt",
+     "&amp;LT;",
+     "&amp;frac12 and &amp;frac14; &amp;fraction;",
+     "&amp;copy2024 &amp;reg",
+     "&amp;#xfdd0;&amp;#xfffe;&amp;#x1ffff;",
+     "&amp;quot;q&amp;quot; &amp;apos;s&amp;apos;",
+     "tab&amp;#9;nl&amp;#10;cr&amp;#13;",
+     "&lt;b&gt;&quot;quoted&quot; &amp; &#x27;single&#x27;&lt;/b&gt;",
+     "Příliš &amp;žluťoučký &amp;kůň;",
+     "&amp;#x10FFFF;",
+     "&amp;Aacute;&amp;aacute&amp;Eacute"
+    ],
+    "unescape": [
+     "a & b",
+     "<x>",
+     "ABC",
+     "�",
+     "€Ÿ",
+     "�",
+     "�",
+     "",
+     "¬it; ∉",
+     "&",
+     "&x",
+     "&unknown;",
+     "&a",
+     "&#;",
+     "& amp;",
+     "Ää",
+     " |",
+     "…—",
+     "😀",
+     "fj",
+     "≂̸",
+     "no entity",
+     "&&;",
+     "�",
+     "&aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;",
+     "   ",
+     "&amp;",
+     "☃",
+     "<",
+     "<",
+     "½ and ¼ &fraction;",
+     "©2024 ®",
+     "",
+     "\"q\" 's'",
+     "tab\tnl\ncr\r",
+     "<b>\"quoted\" & 'single'</b>",
+     "Příliš &žluťoučký &kůň;",
+     "",
+     "ÁáÉ"
+    ]
+   },
+   "op": "mt.html",
+   "params": {
+    "texts": [
+     "a &amp; b",
+     "&lt;x&gt;",
+     "&#65;&#x42;&#X43;",
+     "&#0;",
+     "&#x80;&#x9f;&#x81;",
+     "&#xD800;",
+     "&#1114112;",
+     "&#1;&#8;&#11;&#14;&#127;",
+     "&notit; &notin;",
+     "&amp",
+     "&ampx",
+     "&unknown;",
+     "&a",
+     "&#;",
+     "& amp;",
+     "&Auml;&auml",
+     "&nbsp;|",
+     "&hellip;&mdash;",
+     "&#x1F600;",
+     "&fjlig;",
+     "&NotEqualTilde;",
+     "no entity",
+     "&&amp;;",
+     "&#99999999999999999999;",
+     "&aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;",
+     "&ensp;&emsp;&thinsp;",
+     "&amp;amp;",
+     "&#x2603;",
+     "&lt",
+     "&LT;",
+     "&frac12 and &frac14; &fraction;",
+     "&copy2024 &reg",
+     "&#xfdd0;&#xfffe;&#x1ffff;",
+     "&quot;q&quot; &apos;s&apos;",
+     "tab&#9;nl&#10;cr&#13;",
+     "<b>\"quoted\" & 'single'</b>",
+     "Příliš &žluťoučký &kůň;",
+     "&#x10FFFF;",
+     "&Aacute;&aacute&Eacute"
+    ]
+   }
+  },
+  {
+   "answer": [
+    [
+     "Hello <x id=\"1\"/>world<x id=\"2\"/> <x id=\"3\"/>!<x id=\"4\"/>",
+     [
+      "{i}",
+      "{/i}",
+      "[name]",
+      "\\n"
+     ]
+    ],
+    [
+     "no tokens at all",
+     []
+    ],
+    [
+     "<x id=\"1\"/>x<x id=\"2\"/> <x id=\"3\"/>] <x id=\"4\"/>q<x id=\"5\"/>",
+     [
+      "{color=#fff}",
+      "{/color}",
+      "[a[0]",
+      "\\\"",
+      "\\\""
+     ]
+    ],
+    [
+     "",
+     []
+    ],
+    [
+     "{",
+     []
+    ],
+    [
+     "[unclosed",
+     []
+    ],
+    [
+     "tail \\",
+     []
+    ],
+    [
+     "Příliš <x id=\"1\"/>žluťoučký<x id=\"2\"/> <x id=\"3\"/>",
+     [
+      "{b}",
+      "{/b}",
+      "[kůň]"
+     ]
+    ]
+   ],
+   "op": "mt.protect",
+   "params": {
+    "escape": false,
+    "texts": [
+     "Hello {i}world{/i} [name]!\\n",
+     "no tokens at all",
+     "{color=#fff}x{/color} [a[0]] \\\"q\\\"",
+     "",
+     "{",
+     "[unclosed",
+     "tail \\",
+     "Příliš {b}žluťoučký{/b} [kůň]"
+    ]
+   }
+  },
+  {
+   "answer": [
+    [
+     "a &lt; b &amp; c &gt; d <x id=\"1\"/>&quot;q&quot;<x id=\"2\"/> &#x27;x&#x27; <x id=\"3\"/>",
+     [
+      "{i}",
+      "{/i}",
+      "[v]"
+     ]
+    ],
+    [
+     "plain &lt;tag&gt; text",
+     []
+    ],
+    [
+     "&amp;amp; already",
+     []
+    ]
+   ],
+   "op": "mt.protect",
+   "params": {
+    "escape": true,
+    "texts": [
+     "a < b & c > d {i}\"q\"{/i} 'x' [v]",
+     "plain <tag> text",
+     "&amp; already"
+    ]
+   }
+  },
+  {
+   "answer": [
+    {
+     "text": "Ahoj {i} svete [name]",
+     "warnings": []
+    },
+    {
+     "text": "Ahoj {i}",
+     "warnings": [
+      "The service did not keep: [name] – add them by hand."
+     ]
+    },
+    {
+     "text": "{i} a {i}",
+     "warnings": [
+      "These tags are repeated in the suggestion: {i}."
+     ]
+    },
+    {
+     "text": "{a} {a} {b} {b}",
+     "warnings": [
+      "These tags are repeated in the suggestion: {a}, {b}."
+     ]
+    },
+    {
+     "text": "text",
+     "warnings": [
+      "The service did not keep: {a} – add them by hand."
+     ]
+    },
+    {
+     "text": "",
+     "warnings": [
+      "The service did not keep: {a} – add them by hand.",
+      "These tags are repeated in the suggestion: {a}."
+     ]
+    },
+    {
+     "text": "{a} {b} {c}",
+     "warnings": []
+    },
+    {
+     "text": "<b> & {a}",
+     "warnings": []
+    },
+    {
+     "text": "&lt;b&gt; &amp; {a}",
+     "warnings": []
+    },
+    {
+     "text": "padded {a}",
+     "warnings": []
+    },
+    {
+     "text": "plain text",
+     "warnings": []
+    },
+    {
+     "text": "{a} {b}",
+     "warnings": []
+    },
+    {
+     "text": "{a}",
+     "warnings": []
+    },
+    {
+     "text": "[a][b][c]",
+     "warnings": []
+    }
+   ],
+   "op": "mt.restore",
+   "params": {
+    "cases": [
+     {
+      "text": "Ahoj <x id=\"1\"/> svete <x id=\"2\"/>",
+      "tokens": [
+       "{i}",
+       "[name]"
+      ]
+     },
+     {
+      "text": "Ahoj <x id=\"1\"/>",
+      "tokens": [
+       "{i}",
+       "[name]"
+      ]
+     },
+     {
+      "text": "<x id=\"1\"/> a <x id=\"1\"/>",
+      "tokens": [
+       "{i}"
+      ]
+     },
+     {
+      "text": "<x id=\"1\"/> <x id=\"1\"/> <x id=\"2\"/> <x id=\"2\"/>",
+      "tokens": [
+       "{a}",
+       "{b}"
+      ]
+     },
+     {
+      "text": "<x id=\"9\"/>text",
+      "tokens": [
+       "{a}"
+      ]
+     },
+     {
+      "text": "<x id=0/> <x id=0/>",
+      "tokens": [
+       "{a}"
+      ]
+     },
+     {
+      "text": "< x  id = \"1\" / > <X ID='2'> <x id=3/>",
+      "tokens": [
+       "{a}",
+       "{b}",
+       "{c}"
+      ]
+     },
+     {
+      "text": "&lt;b&gt; &amp; <x id=\"1\"/>",
+      "tokens": [
+       "{a}"
+      ],
+      "unescape": true
+     },
+     {
+      "text": "&lt;b&gt; &amp; <x id=\"1\"/>",
+      "tokens": [
+       "{a}"
+      ],
+      "unescape": false
+     },
+     {
+      "text": "   padded <x id=\"1\"/>   \n",
+      "tokens": [
+       "{a}"
+      ]
+     },
+     {
+      "text": "plain text",
+      "tokens": []
+     },
+     {
+      "text": "<x id=\"١\"/> <x id=\"٢\"/>",
+      "tokens": [
+       "{a}",
+       "{b}"
+      ]
+     },
+     {
+      "text": "<x id=\"99999999999999999999\"/> <x id=\"1\"/>",
+      "tokens": [
+       "{a}"
+      ]
+     },
+     {
+      "text": "<x id=\"1\"/><x id=\"2\"/><x id=\"3\"/>",
+      "tokens": [
+       "[a]",
+       "[b]",
+       "[c]"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "answer": [
+    "CS",
+    "CS",
+    "CS",
+    "DE",
+    "CS",
+    "",
+    "FR",
+    "DE",
+    "PL",
+    "",
+    "",
+    "PT",
+    ""
+   ],
+   "op": "mt.target",
+   "params": {
+    "cases": [
+     [
+      "cs",
+      ""
+     ],
+     [
+      "cs",
+      "german"
+     ],
+     [
+      "",
+      "Czech"
+     ],
+     [
+      "",
+      " german "
+     ],
+     [
+      "czech",
+      "czech"
+     ],
+     [
+      "czech",
+      "x"
+     ],
+     [
+      "c",
+      "french"
+     ],
+     [
+      "  de  ",
+      ""
+     ],
+     [
+      "c1",
+      "polish"
+     ],
+     [
+      "",
+      ""
+     ],
+     [
+      "ž",
+      ""
+     ],
+     [
+      "pt",
+      "portuguese"
+     ],
+     [
+      "",
+      "Klingon"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "Machine translation is not set up."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {},
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "Machine translation is not set up."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "google",
+     "target_lang": "CS"
+    },
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "Missing consent to send text to an external service (Settings → Machine translation)."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The API key is missing."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The line has no text to translate."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "text": "   "
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The target language is not known. Set it in Settings → Machine translation."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl"
+    },
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hello+%3Cx+id%3D%221%22%2F%3Emy%3Cx+id%3D%222%22%2F%3E+friend+%3Cx+id%3D%223%22%2F%3E%2C+it%26%23x27%3Bs+a+%26lt%3Bb%26gt%3B+%26amp%3B+%26quot%3Bquote%26quot%3B%3Cx+id%3D%224%22%2F%3E+~+%2A+%21&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key abc:fx"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api-free.deepl.com/v2/translate"
+     }
+    ],
+    "result": {
+     "provider": "deepl",
+     "text": "Ahoj {i}můj{/i} příteli [name], je to <b> & \"citát\"\\n ~ * !",
+     "warnings": []
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "abc:fx",
+     "consent": "yes",
+     "provider": "deepl",
+     "source_lang": "en",
+     "target_lang": "cs"
+    },
+    "responses": [
+     {
+      "json": {
+       "translations": [
+        {
+         "text": "Ahoj <x id=\"1\"/>můj<x id=\"2\"/> příteli <x id=\"3\"/>, je to &lt;b&gt; &amp; &quot;citát&quot;<x id=\"4\"/> ~ * !"
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hello {i}my{/i} friend [name], it's a <b> & \"quote\"\\n ~ * !"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Tak+jako+%3Cx+id%3D%221%22%2F%3Eto%3Cx+id%3D%222%22%2F%3E&source_lang=EN&target_lang=DE&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key plainkey"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "result": {
+     "provider": "deepl",
+     "text": "So wie {b}das",
+     "warnings": [
+      "The service did not keep: {/b} – add them by hand."
+     ]
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "plainkey",
+     "consent": true,
+     "provider": "deepl",
+     "source_lang": "",
+     "target_lang": "DE"
+    },
+    "responses": [
+     {
+      "json": {
+       "translations": [
+        {
+         "text": "So wie <x id=\"1\"/>das"
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Tak jako {b}to{/b}"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "http://localhost:8080/v2/translate"
+     }
+    ],
+    "result": {
+     "provider": "deepl",
+     "text": "Ahoj",
+     "warnings": []
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "base_url": "http://localhost:8080/",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "json": {
+       "translations": [
+        {
+         "text": "Ahoj"
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://x.example/api/v2/translate"
+     }
+    ],
+    "result": {
+     "provider": "deepl",
+     "text": "Ahoj",
+     "warnings": []
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "base_url": " https://x.example/api// ",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "json": {
+       "translations": [
+        {
+         "text": "Ahoj"
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The service address must start with http:// or https://."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "base_url": "ftp://x.example",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The service address must start with http:// or https://."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "base_url": "localhost:8080",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The service address must start with http:// or https://."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "base_url": "http://",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The service address must start with http:// or https://."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "base_url": "//host/x",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The service answered with the error 403: the key was rejected or lacks permission."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "body": "forbidden",
+      "status": 403
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The service answered with the error 456: the service quota is used up."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "body": "",
+      "status": 456
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The service answered with the error 418: unknown error."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "body": "",
+      "status": 418
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The service answered with the error 429: the request limit was exceeded, try again in a moment."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "body": "",
+      "status": 429
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The service answered with the error 503: the service is temporarily unavailable."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "body": "",
+      "status": 503
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The service returned an answer I do not understand."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "body": "<html>not json</html>",
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The DeepL answer does not have the expected shape."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "json": {
+       "translations": []
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The DeepL answer does not have the expected shape."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "json": {
+       "other": 1
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The DeepL answer does not have the expected shape."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "json": {
+       "translations": "abc"
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The DeepL answer does not have the expected shape."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "json": [
+       1,
+       2
+      ],
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "text=Hi&source_lang=EN&target_lang=CS&tag_handling=xml&non_splitting_tags=x&ignore_tags=x",
+      "headers": [
+       [
+        "Authorization",
+        "DeepL-Auth-Key k"
+       ],
+       [
+        "Content-Type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "url": "https://api.deepl.com/v2/translate"
+     }
+    ],
+    "error": "The connection to the service failed: timed out"
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "k",
+     "consent": true,
+     "provider": "deepl",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "connection": "timed out"
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The API key is missing."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "consent": true,
+     "provider": "libretranslate",
+     "target_lang": "CS"
+    },
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"q\": \"Hello <x id=\\\"1\\\"/>my<x id=\\\"2\\\"/> &lt;friend&gt; &amp; <x id=\\\"3\\\"/>\", \"source\": \"en\", \"target\": \"cs\", \"format\": \"html\"}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ]
+      ],
+      "url": "http://localhost:5000/translate"
+     }
+    ],
+    "result": {
+     "provider": "libretranslate",
+     "text": "Ahoj {i}můj{/i} <příteli> & [name]",
+     "warnings": []
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "base_url": "http://localhost:5000",
+     "consent": true,
+     "provider": "libretranslate",
+     "source_lang": "EN",
+     "target_lang": "CS"
+    },
+    "responses": [
+     {
+      "json": {
+       "translatedText": "Ahoj <x id=\"1\"/>můj<x id=\"2\"/> &lt;příteli&gt; &amp; <x id=\"3\"/>"
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hello {i}my{/i} <friend> & [name]"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"q\": \"Hello <x id=\\\"1\\\"/>\", \"source\": \"en\", \"target\": \"cs\", \"format\": \"html\", \"api_key\": \"secret\"}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ]
+      ],
+      "url": "https://libretranslate.com/translate"
+     }
+    ],
+    "result": {
+     "provider": "libretranslate",
+     "text": "Ahoj",
+     "warnings": [
+      "The service did not keep: [name] – add them by hand."
+     ]
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "secret",
+     "consent": true,
+     "provider": "libretranslate",
+     "target_lang": "cs"
+    },
+    "responses": [
+     {
+      "json": {
+       "translatedText": "Ahoj"
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hello [name]"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"q\": \"Hello\", \"source\": \"en\", \"target\": \"cs\", \"format\": \"html\", \"api_key\": \"secret\"}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ]
+      ],
+      "url": "https://libretranslate.com/translate"
+     }
+    ],
+    "error": "The LibreTranslate answer does not have the expected shape."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "secret",
+     "consent": true,
+     "provider": "libretranslate",
+     "target_lang": "cs"
+    },
+    "responses": [
+     {
+      "json": {
+       "error": "Invalid API key"
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"q\": \"Hello\", \"source\": \"en\", \"target\": \"cs\", \"format\": \"html\", \"api_key\": \"secret\"}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ]
+      ],
+      "url": "https://libretranslate.com/translate"
+     }
+    ],
+    "error": "The service answered with the error 400: the service rejected the request (check the languages and the settings)."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "secret",
+     "consent": true,
+     "provider": "libretranslate",
+     "target_lang": "cs"
+    },
+    "responses": [
+     {
+      "json": {
+       "error": "Bad"
+      },
+      "status": 400
+     }
+    ],
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "error": "The API key is missing."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "consent": true,
+     "provider": "openai",
+     "target_lang": "Czech"
+    },
+    "text": "Hello"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You translate dialogue of a visual novel (Ren'Py game) from EN to Czech. Keep every <x id=\\\"N\\\"/> element exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. Return only the translated text, no explanations and no quotes.\"}, {\"role\": \"user\", \"content\": \"Translate:\\nHello <x id=\\\"1\\\"/>my<x id=\\\"2\\\"/> friend\"}]}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ],
+       [
+        "Authorization",
+        "Bearer sk-1"
+       ]
+      ],
+      "url": "https://api.openai.com/v1/chat/completions"
+     }
+    ],
+    "result": {
+     "provider": "openai",
+     "text": "Ahoj <x id=\\\"1\\\"/>můj<x id=\\\"2\\\"/> příteli",
+     "warnings": [
+      "The service did not keep: {i}, {/i} – add them by hand."
+     ]
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "sk-1",
+     "consent": true,
+     "provider": "openai",
+     "target_lang": "Czech"
+    },
+    "responses": [
+     {
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  \"Ahoj <x id=\\\"1\\\"/>můj<x id=\\\"2\\\"/> příteli\"  "
+         }
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hello {i}my{/i} friend"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"model\": \"gpt-x\", \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You translate dialogue of a visual novel (Ren'Py game) from English to Czech. Keep every <x id=\\\"N\\\"/> element exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. Return only the translated text, no explanations and no quotes. Preferred translations of terms: wizard = \\u010darod\\u011bj; fire = ohe\\u0148.\"}, {\"role\": \"user\", \"content\": \"Context (previous lines, do not translate):\\nLine one.\\nLine two.\\n\\nTranslate:\\nThe wizard <x id=\\\"1\\\"/> casts <x id=\\\"2\\\"/>fire<x id=\\\"3\\\"/>.\"}]}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ],
+       [
+        "Authorization",
+        "Bearer sk-1"
+       ]
+      ],
+      "url": "https://llm.example/v1/chat/completions"
+     }
+    ],
+    "result": {
+     "provider": "openai",
+     "text": "Čaroděj [name] sesílá {b}oheň{b}.",
+     "warnings": [
+      "The service did not keep: {/b} – add them by hand.",
+      "These tags are repeated in the suggestion: {b}."
+     ]
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "sk-1",
+     "base_url": "https://llm.example/v1/",
+     "consent": true,
+     "model": "gpt-x",
+     "provider": "openai",
+     "source_lang": "English",
+     "target_lang": "Czech"
+    },
+    "context": [
+     "Line one.",
+     "Line two."
+    ],
+    "glossary": [
+     [
+      "wizard",
+      "čaroděj"
+     ],
+     [
+      "fire",
+      "oheň"
+     ]
+    ],
+    "responses": [
+     {
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "Čaroděj <x id=\"1\"/> sesílá <x id=\"2\"/>oheň<x id=\"2\"/>."
+         }
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "The wizard [name] casts {b}fire{/b}."
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You translate dialogue of a visual novel (Ren'Py game) from EN to Czech. Keep every <x id=\\\"N\\\"/> element exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. Return only the translated text, no explanations and no quotes.\"}, {\"role\": \"user\", \"content\": \"Translate:\\nLocal model\"}]}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ]
+      ],
+      "url": "http://localhost:1234/v1/chat/completions"
+     }
+    ],
+    "result": {
+     "provider": "openai",
+     "text": "Místní model",
+     "warnings": []
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "base_url": "http://localhost:1234/v1",
+     "consent": true,
+     "model": "",
+     "provider": "openai",
+     "target_lang": "Czech"
+    },
+    "responses": [
+     {
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "Místní model"
+         }
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Local model"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You translate dialogue of a visual novel (Ren'Py game) from EN to Czech. Keep every <x id=\\\"N\\\"/> element exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. Return only the translated text, no explanations and no quotes.\"}, {\"role\": \"user\", \"content\": \"Translate:\\nHi\"}]}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ],
+       [
+        "Authorization",
+        "Bearer sk-1"
+       ]
+      ],
+      "url": "https://api.openai.com/v1/chat/completions"
+     }
+    ],
+    "error": "The answer of the service does not have the expected shape."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "sk-1",
+     "consent": true,
+     "provider": "openai",
+     "target_lang": "Czech"
+    },
+    "responses": [
+     {
+      "json": {
+       "choices": []
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You translate dialogue of a visual novel (Ren'Py game) from EN to Czech. Keep every <x id=\\\"N\\\"/> element exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. Return only the translated text, no explanations and no quotes.\"}, {\"role\": \"user\", \"content\": \"Translate:\\nHi\"}]}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ],
+       [
+        "Authorization",
+        "Bearer sk-1"
+       ]
+      ],
+      "url": "https://api.openai.com/v1/chat/completions"
+     }
+    ],
+    "error": "The answer of the service does not have the expected shape."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "sk-1",
+     "consent": true,
+     "provider": "openai",
+     "target_lang": "Czech"
+    },
+    "responses": [
+     {
+      "json": {
+       "choices": [
+        {
+         "message": {}
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You translate dialogue of a visual novel (Ren'Py game) from EN to Czech. Keep every <x id=\\\"N\\\"/> element exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. Return only the translated text, no explanations and no quotes.\"}, {\"role\": \"user\", \"content\": \"Translate:\\nHi\"}]}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ],
+       [
+        "Authorization",
+        "Bearer sk-1"
+       ]
+      ],
+      "url": "https://api.openai.com/v1/chat/completions"
+     }
+    ],
+    "error": "The service answered with the error 401: the key was rejected."
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "sk-1",
+     "consent": true,
+     "provider": "openai",
+     "target_lang": "Czech"
+    },
+    "responses": [
+     {
+      "json": {
+       "error": {
+        "message": "Incorrect API key"
+       }
+      },
+      "status": 401
+     }
+    ],
+    "text": "Hi"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     {
+      "body": "{\"model\": \"gpt-4o-mini\", \"temperature\": 0.2, \"messages\": [{\"role\": \"system\", \"content\": \"You translate dialogue of a visual novel (Ren'Py game) from EN to Czech. Keep every <x id=\\\"N\\\"/> element exactly as it is, once, in a natural place of the sentence. Keep the tone of spoken dialogue. Return only the translated text, no explanations and no quotes.\"}, {\"role\": \"user\", \"content\": \"Translate:\\nP\\u0159elo\\u017eit <x id=\\\"1\\\"/>tohle<x id=\\\"2\\\"/> \\u2013 s uvozovkami \\u201ea\\u201c a emoji \\ud83d\\ude00\"}]}",
+      "headers": [
+       [
+        "Content-Type",
+        "application/json"
+       ],
+       [
+        "Authorization",
+        "Bearer sk-1"
+       ]
+      ],
+      "url": "https://api.openai.com/v1/chat/completions"
+     }
+    ],
+    "result": {
+     "provider": "openai",
+     "text": "Translate {b}this",
+     "warnings": [
+      "The service did not keep: {/b} – add them by hand."
+     ]
+    }
+   },
+   "op": "mt.translate",
+   "params": {
+    "cfg": {
+     "api_key": "sk-1",
+     "consent": true,
+     "provider": "openai",
+     "target_lang": "Czech"
+    },
+    "responses": [
+     {
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "\"\"Translate <x id=\"1\"/>this\"\""
+         }
+        }
+       ]
+      },
+      "status": 200
+     }
+    ],
+    "text": "Přeložit {b}tohle{/b} – s uvozovkami „a“ a emoji 😀"
+   }
+  }
+ ]
+}

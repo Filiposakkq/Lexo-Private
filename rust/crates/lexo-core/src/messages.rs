@@ -40,7 +40,9 @@ impl Message {
     pub fn text(&self) -> String {
         let one = self.plural.is_none() || self.params.get("n") == Some(&json!(1));
         let template = if one { &self.template } else { self.plural.as_ref().unwrap() };
-        placeholder().replace_all(template, |c: &regex::Captures| self.params.get(&c[1]).map(py_str).unwrap_or_else(|| c[0].to_string())).into_owned()
+        placeholder()
+            .replace_all(template, |c: &regex::Captures| self.params.get(&c[1]).map(|v| py_str(&render(v))).unwrap_or_else(|| c[0].to_string()))
+            .into_owned()
     }
 
     /// `{"$m": template, "p": values}` and `"$n"` for a counted message.

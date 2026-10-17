@@ -12,7 +12,7 @@ use std::sync::OnceLock;
 const LETTER: &str = r"[^\W\d_]";
 pub const MODES: [&str; 4] = ["plain", "word", "stem", "regex"];
 
-fn token_re() -> &'static Regex {
+pub(crate) fn token_re() -> &'static Regex {
     static R: OnceLock<Regex> = OnceLock::new();
     R.get_or_init(|| Regex::new(r"\{[^}]*\}|\[[^\]]*\]|\\.").unwrap())
 }

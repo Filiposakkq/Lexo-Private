@@ -1067,6 +1067,145 @@ class DataRunner:
             res = editor.open_in_editor(self.p(a["path"]), a.get("line", 1), cfg, self.p(a["root"]) if a.get("root") else None, runner, lambda kind: found.get(kind), opener)
         return {"result": res, "calls": calls, "opened": opened}
 
+    # -- the game tools (unpack, workspace, unrpyc, translate) and machine translation; the programs and the network are fakes
+    def _fake_runner(self, responses, calls):
+        """Every call answers with the next response ({code, text, writes: {path: text}, raise}); the last one is repeated."""
+        from lexo import gametools
+        from lexo.messages import msg
+        state = [0]
+
+        def runner(argv, cwd):
+            calls.append([list(argv), str(cwd)])
+            r = responses[min(state[0], len(responses) - 1)] if responses else {"code": 0, "text": ""}
+            state[0] += 1
+            for rel, content in r.get("writes", {}).items():
+                p = self.p(rel)
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_bytes(content.encode("utf-8"))
+            if r.get("raise"):
+                raise gametools.ToolError(msg(r["raise"]))
+            return r["code"], r["text"]
+        return runner
+
+    def _tool(self, fn):
+        from lexo import gametools, rpa
+        try:
+            return fn()
+        except (gametools.ToolError, rpa.RpaError) as e:
+            return {"error": text_of(e)}
+
+    def op_gametools_safe_target(self, a):
+        from lexo import gametools
+        dest = self.p(a["dest"]).resolve()
+        out = []
+        for n in a["names"]:
+            t = gametools.safe_target(self.p(a["dest"]), n)
+            out.append(None if t is None else t.relative_to(dest).as_posix())
+        return out
+
+    def op_gametools_list(self, a):
+        from lexo import gametools
+        return self._tool(lambda: [list(x) for x in gametools.list_archive(self.p(a["archive"]))])
+
+    def op_gametools_extract(self, a):
+        from lexo import gametools
+        only = set(a["only"]) if a.get("only") is not None else None
+        return self._tool(lambda: gametools.extract_rpa(self.p(a["archive"]), self.p(a["dest"]), None if only is None else only.__contains__, a.get("overwrite", False),
+                                                        a.get("max_file", gametools.DEFAULT_MAX_FILE), a.get("max_total", gametools.DEFAULT_MAX_TOTAL)))
+
+    def op_gametools_workspace(self, a):
+        from lexo import gametools
+        return self._tool(lambda: gametools.make_workspace(self.p(a["game"]), self.p(a["workspace"])))
+
+    def op_gametools_copy_scripts(self, a):
+        from lexo import gametools
+        return self._tool(lambda: gametools.copy_scripts(self.p(a["game"]), self.p(a["workspace"])))
+
+    def op_gametools_decompile(self, a):
+        from lexo import gametools
+        calls = []
+        runner = self._fake_runner(a.get("fake", []), calls)
+        res = self._tool(lambda: gametools.decompile(self.p(a["python"]), self.p(a["script"]), self.p(a["workspace"]), a.get("clobber", False), a.get("try_harder", False),
+                                                     a.get("no_init_offset", False), runner))
+        return {"result": res, "calls": calls}
+
+    def op_gametools_extract_scripts(self, a):
+        from lexo import gametools
+        return self._tool(lambda: gametools.extract_scripts(self.p(a["workspace"])))
+
+    def op_gametools_repair(self, a):
+        from lexo import gametools
+        return [list(gametools.repair_continuations(t)) for t in a["texts"]]
+
+    def op_gametools_repair_files(self, a):
+        from lexo import gametools
+        return gametools.repair_decompiled(self.p(a["dir"]), a["files"])
+
+    def op_gametools_quarantine(self, a):
+        from lexo import gametools
+        return gametools.quarantine_unparsable(self.p(a["dir"]), a["raw"], tuple(a.get("protect", ())))
+
+    def op_gametools_plan(self, a):
+        from lexo import gametools
+        return self._tool(lambda: gametools.plan_translation(self.p(a["base"]), a["language"]))
+
+    def op_gametools_generate(self, a):
+        from unittest import mock
+        from lexo import gametools
+        calls = []
+        runner = self._fake_runner(a.get("fake", []), calls)
+        with mock.patch.object(sys, "platform", self._platform(a)):
+            res = self._tool(lambda: gametools.generate_translation(self.p(a["sdk"]), self.p(a["base"]), a["language"], a.get("write", False), runner))
+        return {"result": res, "calls": calls}
+
+    def op_gametools_prepare(self, a):
+        from unittest import mock
+        from lexo import gametools
+        calls, steps = [], []
+        runner = self._fake_runner(a.get("fake", []), calls)
+        with mock.patch.object(sys, "platform", self._platform(a)):
+            res = self._tool(lambda: gametools.prepare_translation(self.p(a["game"]), self.p(a["workspace"]), a["language"], self.p(a["python"]), self.p(a["script"]), runner, steps.append))
+        return {"result": res, "calls": calls, "steps": steps}
+
+    def op_mt_html(self, a):
+        import html
+        return {"unescape": [html.unescape(t) for t in a["texts"]], "escape": [html.escape(t) for t in a["texts"]]}
+
+    def op_mt_protect(self, a):
+        from lexo import mt
+        return [list(mt.protect(t, a.get("escape", False))) for t in a["texts"]]
+
+    def op_mt_restore(self, a):
+        from lexo import mt
+        out = []
+        for c in a["cases"]:
+            text, warnings = mt.restore(c["text"], c["tokens"], c.get("unescape", False))
+            out.append({"text": text, "warnings": warnings})
+        return out
+
+    def op_mt_target(self, a):
+        from lexo import mt
+        return [mt.target_language(x, y) for x, y in a["cases"]]
+
+    def op_mt_translate(self, a):
+        from lexo import mt
+        from lexo.messages import msg
+        calls, state = [], [0]
+        responses = a.get("responses", [])
+
+        def http(url, headers, data):
+            calls.append({"url": url, "headers": [[k, v] for k, v in headers.items()], "body": data.decode("utf-8")})
+            r = responses[min(state[0], len(responses) - 1)]
+            state[0] += 1
+            if "connection" in r:
+                raise mt.MTError(msg("The connection to the service failed: {reason}", reason=r["connection"]))
+            return r["status"], (json.dumps(r["json"]) if "json" in r else r["body"])
+        try:
+            res = mt.translate(a["cfg"], a["text"], dict(a.get("glossary", [])) or None, a.get("context") or None, http)
+        except mt.MTError as e:
+            return {"error": text_of(e), "calls": calls}
+        return {"result": res, "calls": calls}
+
 
 # =========================================================================================================================== everything
 def collect():
