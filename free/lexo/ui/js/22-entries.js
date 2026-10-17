@@ -194,7 +194,7 @@ export async function viewEntries() {
       S.ent.more.replaceChildren(shown < r.total ? h('button', { class: 'btn', onclick: () => load(false) }, T('Load {n} more (shown {shown} of {total})', { n: Math.min(200, r.total - shown), shown: fmtN(shown), total: fmtN(r.total) })) : null);
       if (!r.total) S.ent.more.replaceChildren(empty(T('Nothing found'), pref('entries.status', 'todo') === 'todo' ? T('There is nothing left to translate here – or change the filters.') : T('Try changing the filters or the search text.')));
       if (reset && around) { const i = S.ent.items.findIndex((x) => x.line === around); S.ent.pendingLine = 0; if (i >= 0) select(i); }
-      else if (reset && S.ent.items.length) { if (S.ent.autoSelect) { S.ent.autoSelect = false; select(0); } else drawDetail(null); }
+      else if (reset && S.ent.items.length) { if (S.ent.autoSelect || film) { S.ent.autoSelect = false; select(0); } else drawDetail(null); }       // the film layouts have no list to click in: open the first line
       else if (reset) drawDetail(null);
     } catch (err) { fail(err); S.ent.more?.replaceChildren(h('div', { class: 'notice bad' }, err.message)); }
     finally { S.ent.loading = false; }
