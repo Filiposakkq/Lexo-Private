@@ -1,0 +1,12 @@
+[package]
+name = "lexo-golden"
+description = "The golden runner: reads core/golden, calls lexo-core, normalises and compares with core/golden/expected (docs/GOLDEN.md)"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+lexo-core = { path = "../lexo-core" }
+regex = "1"
+serde_json = "1"
