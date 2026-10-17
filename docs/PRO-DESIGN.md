@@ -119,6 +119,9 @@ Not done (each is its own piece of work, listed so nothing is forgotten):
 - A demo limit is "items per action"; nothing ties the actions together, so a client that repeats the call gets more (accepted for the cheap taste features).
 - Decisions that belong to the owner and are still open: the licence of the public part (see FEATURES.md, open questions) and the price.
 
+## After the port to Rust
+How the pack connects to the Rust Core, the options for running it without Python (a closed Rust crate that depends on Core is recommended) and what has to be recorded in golden data first: docs/RUST-PORT.md, section 9.
+
 ## For a developer
 - Running from the repository: `py free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
 - A new Pro feature: add it to `features.CATALOG`; write the implementation in `pro/lexo_pro/` on plain data; offer it in `Provider.offers()` (limits in `licence.py`); call it from the app with `self._ext_call(feature, method, payload)` (it gates, calls and turns a refusal into a message); put its tests in `pro/tests/` (base class `ProCase`); put the Czech texts of its messages in `pro/lexo_pro/ui/cs.json`.

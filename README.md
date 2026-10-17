@@ -21,7 +21,7 @@ Working name. **This repository is private**; the application is described in `f
 2. [docs/HARDCODED-AUDIT.md](docs/HARDCODED-AUDIT.md) – everything in the old tool that is tied to Being a DIK or to Czech.
 3. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) – layers, the Core interface, how Free and Pro attach.
 4. [docs/PRO-DESIGN.md](docs/PRO-DESIGN.md) – how Pro is kept apart from the public code, delivered and updated (and what is still open).
-5. [docs/API.md](docs/API.md) – the interface of Core (generated), [docs/GOLDEN.md](docs/GOLDEN.md) – the golden data the Rust port is checked against.
+5. [docs/API.md](docs/API.md) – the interface of Core (generated), [docs/GOLDEN.md](docs/GOLDEN.md) – the golden data the Rust port is checked against, [docs/RUST-PORT.md](docs/RUST-PORT.md) – the plan of the port.
 6. [docs/DATA-LAYOUT.md](docs/DATA-LAYOUT.md), [docs/TEAMWORK.md](docs/TEAMWORK.md), [docs/FEATURES.md](docs/FEATURES.md), [docs/PROJECT-FILE.md](docs/PROJECT-FILE.md), [docs/UI-TEXTS.md](docs/UI-TEXTS.md), [docs/GAME-TOOLS.md](docs/GAME-TOOLS.md).
 
 The old tool stays where it is (`Being-A-DIK-CZ/tools/translation-manager`) and keeps working for the Czech translation.
