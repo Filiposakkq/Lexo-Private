@@ -52,6 +52,7 @@
 
   ok('hlavička ukazuje verzi', /\d+\.\d+\.\d+/.test(document.querySelector('#brandText').textContent), document.querySelector('#brandText').textContent);
 
+  const pack = (await post('features', {})).features;                 // the Pro features exist only in the Pro pack: with it they work, without it they are locked and say so
   await step('Zprávy ze serveru', async () => {                 // messages travel as templates and are translated in the browser
     ok('zpráva se šablonou a hodnotami se přeloží', fromWire({ $m: 'Unknown file: {name}', p: { name: 'a.rpy' } }) === 'Neznámý soubor: a.rpy', 'nepřeloženo');
     ok('počítaná zpráva použije správný tvar', fromWire({ $m: '{n} file', $n: '{n} files', p: { n: 3 } }) === '3 soubory', 'špatný tvar');
@@ -133,6 +134,12 @@
         inputs[0].value = 'a'; inputs[0].dispatchEvent(new Event('input'));
         const shown = await waitFor(() => document.querySelector('#dlg .tablewrap, #dlg .empty, #dlg .notice.bad'), 15000);
         ok('náhled hledání se vykreslí', shown && !document.querySelector('#dlg .notice.bad'), 'náhled selhal');
+        if (!pack['replace.regex'].available) {
+          [...document.querySelectorAll('#dlg .seg button')].find((b) => b.textContent.includes('Regulární'))?.click();
+          ok('bez balíčku Pro je režim regulárního výrazu zamčený a řekne to', await waitFor(() => /Funkce Pro/.test(document.querySelector('#dlg .dlg-head')?.textContent || ''), 4000), 'chybí hláška o verzi Pro');
+          closeDialog();
+          return;
+        }
         let badRegex = null;                                   // on a slow runner the first request can still be in flight: ask again before giving up
         for (let attempt = 0; attempt < 3 && !badRegex; attempt++) {
           inputs[0].value = '('; inputs[0].dispatchEvent(new Event('input'));
@@ -144,7 +151,6 @@
       closeDialog();
     }
   });
-  const pack = (await post('features', {})).features;                 // the Pro features exist only in the Pro pack: with it they work, without it they are locked and say so
   const locked = async (path, body) => { try { await post(path, body); return ''; } catch (e) { return e.message || String(e); } };
   await step('Opravit (bezpečné opravy)', async () => {
     if (!pack['fixes.safe'].available) { ok('bez balíčku Pro jsou bezpečné opravy zamčené a řeknou to', /Pro/.test(await locked('fix/preview', { kinds: ['speaker'] })), 'chybí hláška o verzi Pro'); return; }

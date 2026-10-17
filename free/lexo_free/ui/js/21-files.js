@@ -9,6 +9,7 @@ import { groupsDialog } from './37-groups.js';
 import { filterGroup } from './15-filterbar.js';
 import { go, render } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
+import { requireFeature } from './38-pro.js';
 /* ================================================================ FILES */
 const FL_COLS = () => [
   { k: 'pick', w: 38, label: '', resize: false }, { k: 'name', w: 430, label: T('File'), sortable: true },
@@ -142,6 +143,7 @@ export async function viewFiles() {
   return root;
 }
 async function bulkAssignDialog(names) {
+  if (!await requireFeature('bulk.categorize')) return;
   let data;
   try { data = await post('assign/suggest', { names: names || [] }); } catch (e) { return fail(e); }
   const items = names ? data.items : data.items.filter((i) => !i.current || i.state !== 'keep');

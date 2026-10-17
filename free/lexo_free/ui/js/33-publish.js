@@ -4,6 +4,7 @@ import { get, post } from './10-api.js';
 import { dialog, fail, toast } from './13-feedback.js';
 import { STATUS_LABEL, chip, groupName, loading, sectionName } from './14-renderers.js';
 import { go } from './16-tabs.js';
+import { requireFeature } from './38-pro.js';
 /* ================================================================ PUBLISH */
 export async function viewPublish() {
   const settings = await get('settings');
@@ -40,6 +41,7 @@ export async function viewPublish() {
     } catch (e) { out.replaceChildren(h('div', { class: 'notice bad' }, e.message)); }
   }
   async function publishPlan() {
+    if (!await requireFeature('publish.web')) return;
     let info;
     try { info = await post('publish/plan'); } catch (e) { return fail(e); }
     const ack = h('input', { type: 'checkbox' });

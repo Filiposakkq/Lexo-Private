@@ -108,7 +108,7 @@ Done:
 - `core/lexo/extensions.py`: the host, the interface (version 1), loading by name, the `trust` hook, plain-JSON calls, interface texts of the pack.
 - `pro/lexo_pro/`: the pack. **All five gated features are in it and only in it**: `publish.web` (`publish.py`), `bulk.categorize` (`categorize.py`), `replace.regex` (`regex_replace.py`), `mt.batch` (`mt_batch.py`), `fixes.safe` (`fix_safe.py`).
   Each works on plain data: Core finds the candidate lines and gathers what is needed, the pack decides (a plan, a list of proposals, translations, a substitution) and returns it, Core shows it and writes what the translator confirms. The single writer of `.rpy` files stays in Core.
-- The limits of the demo mode live in the pack (`lexo_pro/licence.py`: 20 items per action for the taste features, no demo for regex replace and publishing) and are enforced there; Core has no limit, no flag and no `Entitlements` any more.
+- The limits of the demo mode live in the pack (`lexo_pro/licence.py`: 20 items per action for batch translation and safe fixes, 5 files for bulk categorisation (it works on files, which are few in a small game), no demo for regex replace and publishing) and are enforced there; Core has no limit, no flag and no `Entitlements` any more.
 - Without the pack every gated feature is locked in every place it is used (a test lists them). The free halves keep working: plain find & replace, one line of machine translation, applying a chosen group assignment, the validation and the spelling hints.
 - Tests: Core and Free never import the pack, and the code of the Pro features (the planners, the regex substitution, the publisher) is not in the public packages (`free/tests/test_pro_boundary.py`); the pack has its own tests (`py run_tests.py pro`, 67). The UI self-test runs with the pack (monorepo) and without it (the Pro steps then check the lock).
 
@@ -118,6 +118,12 @@ Not done (each is its own piece of work, listed so nothing is forgotten):
 - The shapes of the answers of the Pro operations are not recorded in `core/contract/shapes.json` (Core's contract test runs without the pack); the pack tests check `ok` and plain JSON only.
 - A demo limit is "items per action"; nothing ties the actions together, so a client that repeats the call gets more (accepted for the cheap taste features).
 - Decisions that belong to the owner and are still open: the licence of the public part (see FEATURES.md, open questions) and the price.
+
+## The UI of the Pro features
+For now the screens of the five features are part of the Free UI, but each one is entered through `38-pro.js`, which asks Core whether the feature is available and says "Pro feature" when it is not (variant A, possibly temporary). Variant B, where the pack carries its own screens, is open until after the port (docs/RUST-PORT.md, section 8).
+
+## After the port to Rust
+How the pack connects to the Rust Core, the options for running it without Python (a closed Rust crate that depends on Core is recommended) and what has to be recorded in golden data first: docs/RUST-PORT.md, section 9.
 
 ## For a developer
 - Running from the repository: `py free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
