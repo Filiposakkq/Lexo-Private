@@ -1381,7 +1381,7 @@ impl Runner<'_> {
     }
 }
 
-fn roots(base: &Path) -> Vec<String> {
+pub(crate) fn roots(base: &Path) -> Vec<String> {
     let canon = std::fs::canonicalize(base).map(|p| p.to_string_lossy().trim_start_matches(r"\\?\").to_string()).unwrap_or_default();
     let mut out: Vec<String> = Vec::new();
     for p in [base.to_string_lossy().into_owned(), canon] {
@@ -1398,7 +1398,7 @@ fn roots(base: &Path) -> Vec<String> {
     out
 }
 
-fn temp_dir(prefix: &str) -> PathBuf {
+pub(crate) fn temp_dir(prefix: &str) -> PathBuf {
     let d = std::env::temp_dir().join(format!("{prefix}{}-{}", std::process::id(), lexo_core::fsutil::token_hex(4)));
     std::fs::create_dir_all(&d).unwrap();
     d

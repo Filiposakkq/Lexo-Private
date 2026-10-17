@@ -99,6 +99,47 @@ pub fn render(value: &Value) -> Value {
     }
 }
 
+/// What an error carries: a `Message` (which the browser translates) or a plain text (shown as it is, like a plain `str` in Python).
+#[derive(Clone, Debug, PartialEq)]
+pub enum Text {
+    Msg(Message),
+    Plain(String),
+}
+
+impl Text {
+    pub fn text(&self) -> String {
+        match self {
+            Text::Msg(m) => m.text(),
+            Text::Plain(s) => s.clone(),
+        }
+    }
+
+    pub fn wire(&self) -> Value {
+        match self {
+            Text::Msg(m) => m.wire(),
+            Text::Plain(s) => Value::String(s.clone()),
+        }
+    }
+}
+
+impl From<Message> for Text {
+    fn from(m: Message) -> Text {
+        Text::Msg(m)
+    }
+}
+
+impl From<String> for Text {
+    fn from(s: String) -> Text {
+        Text::Plain(s)
+    }
+}
+
+impl From<&str> for Text {
+    fn from(s: &str) -> Text {
+        Text::Plain(s.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

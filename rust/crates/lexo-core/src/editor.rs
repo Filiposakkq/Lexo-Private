@@ -310,3 +310,55 @@ pub fn open_in_editor(
     let list = tried.iter().map(text_of).collect::<Vec<_>>().join("; ");
     json!({"ok": false, "editor": "", "command": [], "jumped": false, "message": msg("The file could not be opened: {tried}", &[("tried", json!(list))]).wire()})
 }
+
+/// The environment of the process, as the search for an editor reads it.
+pub fn real_env() -> Env {
+    std::env::vars().map(|(k, v)| (k, Value::String(v))).collect()
+}
+
+/// Path of the editor executable for `vscode` / `notepadpp`, or `None` when it is not installed.
+pub fn default_finder(kind: &str) -> Option<String> {
+    match kind {
+        "vscode" => find_vscode(&which, &real_env(), Platform::current()),
+        "notepadpp" => find_notepadpp(&which, &real_env()),
+        _ => None,
+    }
+}
+
+/// Start a program and do not wait for it.
+pub fn spawn_detached(argv: &[String]) -> Result<(), String> {
+    let (program, args) = argv.split_first().ok_or("empty command")?;
+    let mut cmd = std::process::Command::new(program);
+    cmd.args(args).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null());
+    #[cfg(windows)]
+    std::os::windows::process::CommandExt::creation_flags(&mut cmd, 0x0800_0000); // no console window
+    cmd.spawn().map(|_| ()).map_err(|e| e.to_string())
+}
+
+/// Open with the default program of the system (cannot jump to a line).
+pub fn system_open(path: &Path) -> Result<(), String> {
+    let p = path.to_string_lossy().into_owned();
+    let argv: Vec<String> = if cfg!(windows) {
+        vec!["explorer".into(), p] // no cmd.exe: the file name is never read as a command
+    } else if cfg!(target_os = "macos") {
+        vec!["open".into(), p]
+    } else {
+        vec!["xdg-open".into(), p]
+    };
+    spawn_detached(&argv)
+}
+
+/// `open_in_editor` with the real programs.
+pub fn open_in_editor_real(path: &Path, line: i64, cfg: &Value, root: Option<&Path>) -> Value {
+    open_in_editor(
+        path,
+        line,
+        cfg,
+        root,
+        &mut |argv: &[String]| spawn_detached(argv),
+        &default_finder,
+        &mut |p: &Path| system_open(p),
+        &which,
+        Platform::current(),
+    )
+}

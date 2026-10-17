@@ -291,6 +291,11 @@ impl Store {
         self.undo_stack.iter().map(|s| s.label.text()).collect()
     }
 
+    /// The labels of the undo steps for an answer (messages stay messages).
+    pub fn undo_label_values(&self) -> Vec<Value> {
+        self.undo_stack.iter().map(|s| s.label.wire()).collect()
+    }
+
     // ------------------------------------------------------------ load
     pub fn load(&mut self) -> &mut Store {
         self.warnings.clear();

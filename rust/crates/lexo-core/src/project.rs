@@ -59,7 +59,7 @@ pub struct FileInfo {
     pub parsed: ParsedFile,
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct RefreshReport {
     pub added: Vec<String>,
     pub removed: Vec<String>,
@@ -208,6 +208,8 @@ pub struct Project {
     /// rel -> signature for every file seen, also empty ones
     known: IndexMap<String, Sig>,
     pub loaded_at: Option<f64>,
+    /// What the last refresh found (also kept for the overview).
+    pub last_report: Option<RefreshReport>,
 }
 
 type Found = IndexMap<String, (PathBuf, Sig)>;
@@ -222,7 +224,17 @@ impl Project {
             files: IndexMap::new(),
             known: IndexMap::new(),
             loaded_at: None,
+            last_report: None,
         }
+    }
+
+    /// The file names (lower case) that are left out of the project.
+    pub fn skip(&self) -> &BTreeSet<String> {
+        &self.skip
+    }
+
+    pub fn set_skip(&mut self, names: &[String]) {
+        self.skip = names.iter().map(|s| s.to_lowercase()).collect();
     }
 
     // ------------------------------------------------------------ discovery
@@ -373,6 +385,7 @@ impl Project {
         report.unchanged = self.files.len().saturating_sub(report.added.len() + report.modified.len() + report.renamed.len());
         report.seconds = t0.elapsed().as_secs_f64();
         self.loaded_at = Some(clock.epoch());
+        self.last_report = Some(report.clone());
         Ok(report)
     }
 

@@ -5,6 +5,7 @@ pub mod data;
 pub mod diff;
 pub mod normalize;
 pub mod run;
+pub mod scenario;
 
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -148,6 +149,10 @@ pub fn run_case(golden: &Path, case: &Case) -> Outcome {
             Err(e) => return Outcome::Fail(e),
         },
         "fontmetrics" => run::fontmetrics_case(golden, &case.id),
+        "scenarios" => match run::scenario_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
         "data" => match run::data_case(golden, &case.id) {
             Ok(v) => v,
             Err(e) => return Outcome::Fail(e),

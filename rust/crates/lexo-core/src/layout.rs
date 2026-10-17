@@ -82,6 +82,74 @@ impl std::fmt::Display for LayoutError {
     }
 }
 
+impl Layout {
+    /// The layout of a project without a `lexo.json` (Python: `Layout()`).
+    pub fn empty() -> Layout {
+        Layout::new(Vec::new(), BTreeMap::new(), "", "", Vec::new())
+    }
+}
+
+/// Read `lexo.json` of a project: the layout and a note for the user (`None`, or a plain text when the file is broken or names a language without a pack).
+pub fn load(data_dir: &std::path::Path, packs: &crate::lang::Packs) -> (Layout, Option<String>) {
+    let path = data_dir.join(FILE_NAME);
+    if !path.is_file() {
+        return (Layout::empty(), None);
+    }
+    let read = || -> Result<Layout, String> {
+        let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+        let text = String::from_utf8(bytes.strip_prefix(&[0xEF, 0xBB, 0xBF]).unwrap_or(&bytes).to_vec()).map_err(|e| e.to_string())?;
+        let raw: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
+        parse(&raw).map_err(|e| e.0)
+    };
+    match read() {
+        Ok(lay) => {
+            let note = (!lay.language.is_empty() && packs.get(&lay.language).is_none())
+                .then(|| format!("{FILE_NAME}: no language pack for \"{}\", neutral rules are used.", lay.language));
+            (lay, note)
+        }
+        Err(e) => (Layout::empty(), Some(format!("{FILE_NAME} was ignored: {e}"))),
+    }
+}
+
+/// Write the groups into `lexo.json` (other keys, such as `language`, stay). `sections` = `(n, groups)`. Returns the new layout; fails for numbers that cannot be used,
+/// before anything is written.
+pub fn save_groups(
+    data_dir: &std::path::Path,
+    label: &str,
+    sections: &[(i64, Vec<i64>)],
+    series: &str,
+    folders: &[String],
+    clock: &dyn crate::clock::Clock,
+) -> Result<Layout, LayoutError> {
+    let path = data_dir.join(FILE_NAME);
+    let mut raw: Map<String, Value> = std::fs::read(&path)
+        .ok()
+        .and_then(|b| String::from_utf8(b.strip_prefix(&[0xEF, 0xBB, 0xBF]).unwrap_or(&b).to_vec()).ok())
+        .and_then(|t| serde_json::from_str::<Value>(&t).ok())
+        .and_then(|v| if let Value::Object(o) = v { Some(o) } else { None })
+        .unwrap_or_default();
+    let mut labels = raw.get("labels").and_then(Value::as_object).cloned().unwrap_or_default();
+    labels.insert("group".into(), json!(label));
+    raw.insert("version".into(), json!(1));
+    raw.insert("labels".into(), Value::Object(labels));
+    raw.insert("sections".into(), Value::Array(sections.iter().map(|(n, g)| json!({"n": n, "status": "active", "groups": g})).collect()));
+    if series.is_empty() {
+        raw.shift_remove("series");
+    } else {
+        raw.insert("series".into(), json!(series));
+    }
+    if folders.is_empty() {
+        raw.shift_remove("folders");
+    } else {
+        raw.insert("folders".into(), json!(folders));
+    }
+    let raw = Value::Object(raw);
+    let lay = parse(&raw)?; // validates: nothing is written for a bad one
+    let text = crate::pyfmt::json_dumps_indent1(&raw) + "\n";
+    crate::fsutil::atomic_write_text(&path, &text, None, None, clock).map_err(|e| LayoutError(e.to_string()))?;
+    Ok(lay)
+}
+
 fn bad<T>(s: impl Into<String>) -> Result<T, LayoutError> {
     Err(LayoutError(s.into()))
 }
