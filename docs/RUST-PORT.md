@@ -84,7 +84,7 @@ Each milestone ends with: its golden cases pass (`cargo test`), the CI job is gr
 ## 7. Risks and what is done about them
 | Risk | Why | What is done |
 |---|---|---|
-| Regular expressions | Python `re` has look-around and Unicode classes; the `regex` crate has no look-around | `fancy-regex`; every pattern is listed with the golden case that exercises it; differences found by the cases, not by memory |
+| Regular expressions | Python `re` has look-around and Unicode classes; the `regex` crate has no look-around (M1 needed none, so it uses the plain `regex` crate; `\w` and `\s` differ from Python for combining marks and U+001C to U+001F, no real file showed it) | `fancy-regex` where look-around is needed; every pattern is listed with the golden case that exercises it; differences found by the cases, not by memory |
 | Python's `round`, `lower`, `sorted(key=str.lower)`, `str.isalpha` | different from Rust's rounding (banker's vs away from zero), case mapping, Unicode categories | golden cases with the values at the edges (percentages, Czech letters, mixed case file names); small helper functions that copy Python's behaviour |
 | Pickle in `.rpa` | no standard Rust reader; a hostile index must never run code | a hand-written restricted reader of the subset Ren'Py uses; the hostile archive is in the golden data |
 | Writing files | the one place that changes user data: line ends, BOM, atomic replace, backups, restore on failure, Windows file locking | the writer is its own milestone (M4), byte-identical `files_after`, the failed-write path is tested with a fake failure |
@@ -114,7 +114,7 @@ Until the pack is ported, the Rust Core answers the five Pro features as "locked
 | Milestone | State | PR |
 |---|---|---|
 | M0 Foundations | **done**: workspace `rust/` (`lexo-core` with `util::norm_ws`, `lexo-golden` with the normalisation, the inventory of 158 cases, the readable diff and the report), CI job `rust.yml`; the report is "0 of 158" | this PR |
-| M1 Parser and archives | planned | |
+| M1 Parser and archives | **done**: `messages` (msg, msgn, wire, render), `lang` (pack, `load_dir`, plural rules, stems), `util` (norm_ws, fold, sha1, the Python white-space rules), `pickle` (restricted reader), `rpa`, `rpy`; golden `rpy` 14 of 14 and `rpa` 6 of 6 (report: 20 of 158); the parser also gives the same answer as Python on 2 894 real translation files of 7 games (`rust/tools/diff_rpy_real_files.py`) | this PR |
 | M2 Checks and layout | planned | |
 | M3 Data files | planned | |
 | M4 Project and the writer | planned | |

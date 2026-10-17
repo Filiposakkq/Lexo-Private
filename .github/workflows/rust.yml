@@ -11,7 +11,11 @@ permissions:
 
 jobs:
   rust:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]       # Linux finds path and encoding assumptions early
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         working-directory: rust
@@ -22,5 +26,5 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy --all-targets --locked -- -D warnings
       - run: cargo test --locked
-      - name: Golden report (milestone M0: every case is still "todo")
+      - name: Golden report (the groups that are ported pass, the others are "todo")
         run: cargo run -q --locked -p lexo-golden
