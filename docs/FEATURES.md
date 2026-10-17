@@ -8,27 +8,30 @@ Revision 2 follows a review of revision 1 (find & replace, spelling and line dif
 Module = where the code lives today in `core/lexo/`. "Coupling" = which other code imports the module (**not** whether the feature is Free or Pro): "only `app.py`" means nothing else uses it, so it can be lifted out later. How Pro features are kept apart and delivered: PRO-DESIGN.md.
 
 ## Free
-| Feature | Module | Coupling |
-|---|---|---|
-| Open project, file list, line editor, filters, search, undo, backups (snapshots) | `project`, `store`, `rpy`, `snapshots` | core |
-| History of a line **and the diff between its versions** | `history`, `texthistory` | core |
-| Proofreading state, quick translate/proofread mode, focus mode | `store`, `app`, UI | core |
-| Validation: tags, variables, brackets, length, dialogue-box fit; language packs | `validator`, `fontmetrics`, `lang` | core |
-| **Find & replace across the project** (plain text) | `textedit` | only `app.py` |
-| **Spelling hints** from the project's own vocabulary (basic) | `spelling` | `app.py` |
-| **Results bar in the film layouts** (quick translating / proofreading): with a search or filter active, "Result 3 of 16", previous / next and a list of all hits to pick from | The list of lines is hidden there | UI only | only `app.py` |
-| **Menu of a choice**: the question (or the lines said before the menu), all choices with their translations, the condition of each, and the first lines after each choice, read from the game script | Choices live in `translate strings`, far from the dialogue; what a choice means is what follows it | `menus`, `app_menu` | only `app.py` |
-| Scene preview with game images (background and the pictures shown over it) and fonts (layered images are not drawn yet, planned; the preview says so) | `gameimages`, `rpa`, `fontmetrics` | only `app.py` |
-| Glossary, import of character names, term check | `app`, `validator` | core |
-| Ren'Py lint with the SDK, open in editor | `lint`, `editor` | only `app.py` |
-| Weekly goals, completion estimate, per-group progress | `goals`, `export` | `export` |
-| Machine translation of single lines (own API key) | `mt` | only `app.py` |
-| Approve identical lines (the basic form) | `bulk` | only `app.py` |
-| Translation file generator, unrpa / unrpyc helpers (planned) | new | new |
-| **Preparing a built game** (workspace of links, scripts out of the archives, unrpyc, generating with the game's own engine; no UI yet) | `gametools`, `lint` | `gametools` |
-| **Texts the generator misses** (`show text`, input prompts, titles in variables; the project's own text functions; ignore list) - **experimental**: a heuristic list that can be wrong either way and must be reviewed, added to `extra_strings.rpy` (putting each text into the file of its own script is a further option) | `missed` | `app_missed` |
-| **Groups of a project from file names** (episode, chapter, part, day, update, act, and `script`, `script2` ... series), group word in all labels, suggested assignment of files | `layout`, `bulk` | `layout` |
-| Projects of any game: searches stay in the game's own `game` folder, a game folder opens its translation, source scripts are not translation files | `project`, `app_*` | core |
+
+Status as of the Core / Free split and the interface contract (roadmap steps 1 to 5). **done** = works and is tested; **partly** = works with a stated gap; **done in code** = the code and its tests exist, the UI does not.
+
+| Feature | Module | Coupling | Status |
+|---|---|---|---|
+| Open project, file list, line editor, filters, search (with a **whole word** switch), undo, backups (snapshots) | `project`, `store`, `rpy`, `snapshots` | core | **done** |
+| History of a line **and the diff between its versions** | `history`, `texthistory` | core | **done** |
+| Proofreading state, quick translate/proofread mode, focus mode | `store`, `app`, UI | core | **done** |
+| Validation: tags, variables, brackets, length, dialogue-box fit; language packs | `validator`, `fontmetrics`, `lang` | core | **done** (packs: Czech and a neutral one; more languages = more packs) |
+| **Find & replace across the project** (plain text; regex is Pro) | `textedit` | only `app.py` | **done** |
+| **Spelling hints** from the project's own vocabulary (basic) | `spelling` | `app.py` | **done** (no dictionary; works for any language) |
+| **Results bar in the film layouts** (quick translating / proofreading): with a search or filter active, "Result 3 of 16", previous / next (← →) and a list of all hits to pick from; the first hit opens by itself | UI | UI only | **done** |
+| **Menu of a choice**: the question (or the lines said before the menu), all choices with their translations and conditions, and the first lines after each choice, read from the game script; marks a text shared with an earlier menu | `menus`, `app_menu` | only `app.py` | **done** (also in the old BaDIK tool) |
+| Scene preview with game images (the background and the pictures shown over it) and fonts | `gameimages`, `rpa`, `fontmetrics` | only `app.py` | **partly**: layered images (`layeredimage`, composites) are not drawn yet, the preview says so |
+| Glossary, import of character names, term check | `app`, `validator` | core | **done** |
+| Ren'Py lint with the SDK, open in editor | `lint`, `editor` | only `app.py` | **done** |
+| Weekly goals, completion estimate, per-group progress | `goals`, `export` | `export` | **done** |
+| Machine translation of single lines (own API key) | `mt` | only `app.py` | **done** |
+| Approve identical lines (the basic form) | `bulk` | only `app.py` | **done** |
+| Translation file generator, unrpa / unrpyc helpers | `gametools` | `gametools` | **done in code** (tested on 8 games); **no UI yet** (planned with the new UI) |
+| **Preparing a built game** (workspace of links, scripts out of the archives, unrpyc, generating with the game's own engine) | `gametools`, `lint` | `gametools` | **done in code**; **no UI yet** |
+| **Texts the generator misses** (`show text`, input prompts, titles in variables; the project's own text functions; ignore list) - **experimental**: a heuristic list that can be wrong either way and must be reviewed, added to `extra_strings.rpy` (putting each text into the file of its own script is a further option) | `missed` | `app_missed` | **done** (experimental; also in the old BaDIK tool) |
+| **Groups of a project from file names** (episode, chapter, part, day, update, act, `script`, `script2` ... series, and one group per folder), group word in all labels, suggested assignment of files | `layout`, `bulk` | `layout` | **done** |
+| Projects of any game: searches stay in the game's own `game` folder, a game folder opens its translation, source scripts are not translation files | `project`, `app_*` | core | **done** (tried on 8 games) |
 
 ## Pro
 Aimed at people with bigger projects, a website or Patreon, or a team. Priced low: a one-off licence or a small yearly one.
