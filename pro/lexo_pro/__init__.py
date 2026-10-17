@@ -7,10 +7,10 @@ Today it offers everything it contains, because the licence check does not exist
 import json
 from pathlib import Path
 
-from lexo import messages
+from lexo import layout, messages
 from lexo.extensions import API, ExtensionError
 
-from . import publish
+from . import categorize, licence, publish
 
 __version__ = "0.1.0"
 
@@ -20,7 +20,7 @@ class Provider:
     version = __version__
 
     def offers(self):
-        return {"publish.web": {"limit": None}}
+        return {f: o for f in ("publish.web", "bulk.categorize") for o in [licence.offer(f)] if o is not None}
 
     def ui_strings(self, code):
         """The Czech (or other) texts of the messages of this pack, from ui/<code>.json."""
@@ -33,7 +33,15 @@ class Provider:
     def call(self, feature, method, payload):
         if feature == "publish.web":
             return self._publish(method, payload)
+        if feature == "bulk.categorize" and method == "suggest":
+            return self._categorize(payload)
         raise ExtensionError(f"The Pro pack has no feature {feature}.")
+
+    def _categorize(self, p):
+        names, cut = licence.cap("bulk.categorize", p["names"])
+        lay = layout.parse(p["layout"])
+        items = categorize.suggest(names, p["current"], known_assign=p["known"], lay=lay)
+        return messages.wire({**cut, "items": items})
 
     def _publish(self, method, p):
         try:

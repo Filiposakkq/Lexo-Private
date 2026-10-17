@@ -16,7 +16,7 @@ a script or the Rust port calls the operation by name. Errors come back as `{"ok
 | `approve/rules` | POST `/api/approve/rules` | read | `rules` (any), `files` (list) | Preview approving by rules (names, interjections). |
 | `assign` | POST `/api/assign` | write | `name`* (str), `v` (str) | Assign a file to a group. |
 | `assign/apply` | POST `/api/assign/apply` | write | `items` (list) | Apply assignments. |
-| `assign/suggest` | POST `/api/assign/suggest` | read | `names` (list) | Suggested group for files. |
+| `assign/suggest` | POST `/api/assign/suggest` | read | `names` (list) | Suggested group for files (a Pro feature: the Pro pack suggests, the app shows the groups to choose from). |
 | `consistency` | GET `/api/consistency` | read | `loose` (flag), `by_speaker` (flag) | Originals translated in several different ways. |
 | `consistency/unify` | POST `/api/consistency/unify` | write | `key` (str), `target` (str), `lines` (any), `loose` (flag), `by_speaker` (flag) | Make all translations of one original the same. |
 | `entries` | GET `/api/entries` | read | `file` (str), `status` (str, default "all"), `kind` (str), `q` (str), `issues` (str), `sort` (str, default "line"), `offset` (int), `limit` (int, default 200), `around` (int), `unit` (str), `word` (flag) | A page of translation lines, filtered and sorted on the server. |

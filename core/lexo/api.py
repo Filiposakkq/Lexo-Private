@@ -352,7 +352,7 @@ def _assign(app, a):
     return app.set_assign(a.name, a.v)
 
 
-@_op("assign/suggest", "POST", "read", "Suggested group for files.", L("names"), example={"names": []})
+@_op("assign/suggest", "POST", "read", "Suggested group for files (a Pro feature: the Pro pack suggests, the app shows the groups to choose from).", L("names"), example=None)
 def _assign_suggest(app, a):
     return _ok(app.assign_suggest(a.names))
 

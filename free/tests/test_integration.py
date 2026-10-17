@@ -305,12 +305,8 @@ class ServerTests(TempCase):
         self.assertEqual(self.app.store.corr["script.rpy"]["t"], "")
 
     def test_bulk_assign_over_api(self):
-        _, s, _ = self.call("POST", "/api/assign/suggest", {"names": []})
-        sugg = {i["name"]: i for i in s["items"]}
-        self.assertEqual(sugg[rel("scripts", "episode2", "ep2_party.rpy")]["suggested"], "ep:2")
-        self.assertEqual(sugg[rel("season2", "scripts", "update5.rpy")]["suggested"], "ep:5")
-        items = [{"name": n, "value": i["suggested"]} for n, i in sugg.items() if i["state"] == "new"]
-        _, res, _ = self.call("POST", "/api/assign/apply", {"items": items})
+        items = [{"name": rel("scripts", "episode2", "ep2_party.rpy"), "value": "ep:2"}, {"name": rel("season2", "scripts", "update5.rpy"), "value": "ep:5"}]
+        _, res, _ = self.call("POST", "/api/assign/apply", {"items": items})              # the suggestions are a Pro feature; applying them is not
         self.assertEqual(len(res["applied"]), len(items))
         _, ov, _ = self.call("GET", "/api/overview")
         self.assertGreater(ov["seasons"][1]["translation"]["total"], 0)

@@ -82,18 +82,11 @@ class GroupsInTheAppTests(TempCase):
         self.assertEqual(self.app.overview()["groups_defined"], False)
         s = self.app.groups_suggest()
         self.assertEqual((s["current"]["groups"], s["proposal"]["groups"], s["proposal"]["label"]), ([], [1, 2, 3], "Episode"))
-        sug = self.app.assign_suggest()
-        self.assertFalse(sug["groups_defined"])
-        self.assertEqual(sorted(i["suggested"] for i in sug["items"]), ["", "", "", "gen"])
 
     def test_applying_the_groups_makes_the_suggestions_work(self):
         self.app.groups_apply("Episode", [1, 2, 3])
         raw = json.loads((self.app.data_dir / layout.FILE_NAME).read_text(encoding="utf-8"))
         self.assertEqual((raw["labels"]["group"], raw["sections"]), ("Episode", [{"n": 1, "status": "active", "groups": [1, 2, 3]}]))
-        sug = {i["name"]: i for i in self.app.assign_suggest()["items"]}
-        self.assertEqual((sug["ep2_story.rpy"]["suggested"], sug["ep2_story.rpy"]["confidence"]), ("ep:2", "high"))
-        self.assertEqual(sug["options.rpy"]["suggested"], "gen")            # the name of a file of the whole game
-        self.assertEqual([o["value"] for o in self.app.assign_suggest()["options"]], ["", "gen", "ep:1", "ep:2", "ep:3"])
         self.assertTrue(self.app.overview()["groups_defined"])
 
     def test_the_word_is_used_in_labels_and_in_the_suggestions(self):
@@ -101,10 +94,7 @@ class GroupsInTheAppTests(TempCase):
             (self.root / f"ep{n}_story.rpy").rename(self.root / f"chapter_{n}.rpy")
         self.app.refresh(force=True)
         self.app.groups_apply("Chapter", [1, 2, 3])
-        opts = {o["value"]: str(o["label"]) for o in self.app.assign_suggest()["options"]}
-        self.assertEqual(opts["ep:2"], "Chapter 2")
-        sug = {i["name"]: i for i in self.app.assign_suggest()["items"]}
-        self.assertEqual(sug["chapter_3.rpy"]["suggested"], "ep:3")
+        self.assertEqual(self.app.overview()["labels"]["group"], "Chapter")
 
     def test_the_series_makes_script_files_suggest_their_group(self):
         for n in (1, 2, 3):
@@ -115,8 +105,6 @@ class GroupsInTheAppTests(TempCase):
         self.app.groups_apply("Episode", [1, 2, 3], s["proposal"]["series"])
         raw = json.loads((self.app.data_dir / layout.FILE_NAME).read_text(encoding="utf-8"))
         self.assertEqual(raw["series"], "script")
-        sug = {i["name"]: i["suggested"] for i in self.app.assign_suggest()["items"]}
-        self.assertEqual((sug["script.rpy"], sug["script2.rpy"], sug["script3.rpy"], sug["options.rpy"]), ("ep:1", "ep:2", "ep:3", "gen"))
         again = self.new_app()                                                    # the setting survives a restart
         self.assertEqual(again.groups_suggest()["current"]["series"], "script")
         again.groups_apply("Episode", [1, 2, 3], "")
@@ -136,10 +124,6 @@ class GroupsInTheAppTests(TempCase):
         self.assertEqual((raw["labels"]["group"], raw["folders"]), ("Folder", ["beach", "home", "work"]))
         ov = self.app.overview()
         self.assertEqual((ov["groups_defined"], ov["group_names"]), (True, {"1": "beach", "2": "home", "3": "work"}))
-        opts = {o["value"]: str(o["label"]) for o in self.app.assign_suggest()["options"]}
-        self.assertEqual((opts["ep:1"], opts["ep:3"]), ("beach", "work"))
-        sug = {i["name"]: i["suggested"] for i in self.app.assign_suggest()["items"]}
-        self.assertEqual((sug[str(Path("home") / "a.rpy")], sug[str(Path("work") / "b.rpy")]), ("ep:2", "ep:3"))
         again = self.new_app()
         self.assertEqual(again.groups_suggest()["current"]["folders"], ["beach", "home", "work"])
         again.groups_apply("Episode", [1, 2], "", [])                                 # back to numbered groups

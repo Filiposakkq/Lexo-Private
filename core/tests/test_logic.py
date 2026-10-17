@@ -31,67 +31,6 @@ class SeasonModelTests(unittest.TestCase):
         self.assertTrue(all(season_of(e) in (1, 2) for e in layout.ACTIVE_EPISODES))
 
 
-class SuggestTests(unittest.TestCase):
-    def setUp(self):
-        layout.use(layout.Layout(EIGHT_EPISODES, language="cs"))
-        self.addCleanup(layout.use, layout.Layout(language="cs"))
-
-    def one(self, name, current=None, known=None):
-        cur = current or {}
-        return bulk.suggest([name], cur, known_assign=known if known is not None else cur)[0]
-
-    def test_episode_in_file_or_folder_name(self):
-        for name, ep in [(rel("scripts", "freeroam", "episode3", "ep3_x.rpy"), "ep:3"),
-                         (rel("season2", "scripts", "madame_ep7.rpy"), "ep:7"),
-                         (rel("scripts", "episode4", "bella.rpy"), "ep:4")]:
-            s = self.one(name)
-            self.assertEqual((s["suggested"], s["state"]), (ep, "new"), name)
-
-    def test_no_false_match_inside_words(self):
-        self.assertEqual(self.one("step5_map.rpy")["suggested"], "")
-        self.assertEqual(self.one("deep2.rpy")["suggested"], "")
-
-    def test_update_files_follow_project_convention(self):
-        s = self.one(rel("season2", "scripts", "update6.rpy"))
-        self.assertEqual((s["suggested"], s["confidence"]), ("ep:6", "medium"))
-
-    def test_ambiguous_when_several_episodes(self):
-        s = self.one("ep2_ep3_mix.rpy")
-        self.assertEqual((s["state"], s["suggested"]), ("ambiguous", ""))
-        self.assertEqual(s["candidates"], ["ep:2", "ep:3"])
-
-    def test_season_folder_resolves_ambiguity(self):
-        s = self.one(rel("season2", "ep3_ep6.rpy"))
-        self.assertEqual(s["suggested"], "ep:6")
-
-    def test_conflict_between_season_folder_and_episode(self):
-        s = self.one(rel("season2", "scripts", "ep3_oops.rpy"))
-        self.assertEqual(s["state"], "conflict")
-        self.assertEqual(s["confidence"], "low")
-
-    def test_unknown_episode_number_not_suggested(self):
-        s = self.one("ep12_future.rpy")
-        self.assertEqual((s["suggested"], s["state"]), ("", "unknown"))
-        self.assertIn("1–8", s["reason"])
-
-    def test_manual_assignment_protected(self):
-        s = self.one("ep4_x.rpy", current={"ep4_x.rpy": "ep:2"})
-        self.assertEqual((s["suggested"], s["state"], s["overwrite"]), ("ep:4", "conflict", True))
-        same = self.one("ep4_x.rpy", current={"ep4_x.rpy": "ep:4"})
-        self.assertEqual(same["state"], "same")
-
-    def test_learns_from_siblings_and_shared_names(self):
-        known = {rel("scripts", "misc", "a.rpy"): "gen"}
-        s = self.one(rel("scripts", "misc", "b.rpy"), known=known)
-        self.assertEqual((s["suggested"], s["confidence"]), ("gen", "medium"))
-        self.assertEqual(self.one("screens.rpy")["suggested"], "gen")
-
-    def test_season_folder_without_episode_is_explained(self):
-        s = self.one(rel("season2", "scripts", "laptop", "laptop.rpy"))
-        self.assertEqual(s["suggested"], "")
-        self.assertIn("season 2", s["reason"])
-
-
 class BulkApplyTests(TempCase):
     def test_apply_respects_overwrite_flag_and_is_undoable(self):
         s = Store(self.root / ".lexo")

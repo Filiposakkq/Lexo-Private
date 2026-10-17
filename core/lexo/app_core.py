@@ -202,6 +202,14 @@ class CorePart:
             raise FeatureLocked(feature)
         return d
 
+    def _ext_call(self, feature, method, payload):
+        """Call a feature of the Pro pack: locked when the pack does not offer it, the pack's message when it refuses."""
+        self._gate(feature)
+        try:
+            return self.ext.call(feature, method, payload)
+        except extensions.ExtensionError as e:
+            raise AppError(text_of(e)) from e
+
     def _cap(self, feature, seq):
         """Gate `feature` and cut `seq` to the free limit. Returns (items, info); info says what was cut, for the UI."""
         d = self._gate(feature)

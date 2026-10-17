@@ -27,7 +27,7 @@ CATALOG = {f.id: f for f in (
     Feature("mt.batch", "Batch machine translation", 20),
     Feature("fixes.safe", "Safe bulk fixes with preview", 20),
     Feature("replace.regex", "Regex find & replace", "locked"),
-    Feature("bulk.categorize", "Bulk categorisation suggestions", 20),
+    Feature("bulk.categorize", "Bulk categorisation suggestions", 20, extracted=True),
     Feature("publish.web", "Publishing progress to a website", "locked", extracted=True),
 )}
 

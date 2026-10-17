@@ -193,64 +193,6 @@
   },
   "type": "object"
  },
- "assign/suggest": {
-  "keys": {
-   "groups_defined": {
-    "type": "boolean"
-   },
-   "items": {
-    "items": {
-     "keys": {
-      "candidates": {
-       "items": null,
-       "type": "array"
-      },
-      "confidence": {
-       "type": "string"
-      },
-      "current": {
-       "type": "string"
-      },
-      "name": {
-       "type": "string"
-      },
-      "overwrite": {
-       "type": "boolean"
-      },
-      "reason": {
-       "type": "string"
-      },
-      "state": {
-       "type": "string"
-      },
-      "suggested": {
-       "type": "string"
-      }
-     },
-     "type": "object"
-    },
-    "type": "array"
-   },
-   "ok": {
-    "type": "boolean"
-   },
-   "options": {
-    "items": {
-     "keys": {
-      "label": {
-       "type": "string"
-      },
-      "value": {
-       "type": "string"
-      }
-     },
-     "type": "object"
-    },
-    "type": "array"
-   }
-  },
-  "type": "object"
- },
  "consistency": {
   "keys": {
    "groups": {

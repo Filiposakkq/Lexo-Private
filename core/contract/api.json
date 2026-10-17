@@ -146,7 +146,7 @@
   "effect": "read",
   "kind": "json",
   "needs_project": true,
-  "doc": "Suggested group for files.",
+  "doc": "Suggested group for files (a Pro feature: the Pro pack suggests, the app shows the groups to choose from).",
   "params": [
    {
     "name": "names",
@@ -155,9 +155,7 @@
     "required": false
    }
   ],
-  "example": {
-   "names": []
-  }
+  "example": null
  },
  {
   "name": "consistency",

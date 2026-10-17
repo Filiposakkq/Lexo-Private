@@ -14,6 +14,7 @@ NOT_EXERCISED = {
     "consistency/unify": "needs a group of originals translated differently (the fixture has none)",
     "entry/mt": "uses the network (a machine translation service)",
     "episode": "needs groups with assignments to set a state on",
+    "assign/suggest": "a Pro feature (locked without the pack; tested with the pack)",
     "game/font": "binary answer; needs a font file of a game",
     "game/image": "binary answer; needs the picture archives of a game",
     "game/fontmetrics": "needs a font file of a game",
