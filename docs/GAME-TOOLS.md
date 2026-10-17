@@ -70,3 +70,11 @@ Drawing them would need the definitions evaluated: reading the attribute groups 
 ### How exact the preview is
 The preview is an estimate from the game script, not a screenshot. For games without layered images it is usually close. The font of the text is taken from the game when it can be found (otherwise a substitute is used);
 the frames of the text box and the name box (their pictures, colours and shapes) are not modelled and can look different in the game. The app says this under the preview.
+
+## Choices and their menu
+A choice (an entry of `translate <lang> strings:` whose game script position is the line of a `"Text":` inside a `menu:`) gets a **Menu** tab in the line detail (it is the default tab for choices). `menus.py` reads the script text:
+- the **question**: a line of dialogue inside the menu before the first choice; a menu without one shows the last two lines said before it (many games have no question);
+- every **choice** with its translation (found by the original text), and `if condition` when it has one;
+- the first two lines of dialogue **after each choice** (the body of the choice), with original and translation, because the choice is read together with what follows it; a menu inside a choice is not mixed into it.
+Limits: the script must be available as `.rpy` (not only `.rpyc`); jumps, `call screen` and menus built in Python are not followed; a text used in several menus shows only the first place Ren'Py recorded for it. Strings that are interface text (not a menu choice) say so.
+

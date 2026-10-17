@@ -87,4 +87,5 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - Machine translation: the target language is empty by default and means the language of the project (its pack code, or the name of its `tl` folder: `german` -> `DE`); without either, nothing is sent and the message says why. No Czech default in the config any more. 565 tests.
 - `free/README.md` rewritten for the product (the old BaDIK README is gone); the repository is private. Layered images: animations of composed images count as layered too (the Four Elements blink case).
 - Step 3 closed: `sectionName()` (Overview, Publishing) follows `labels.section`; the progress sheet accepts only English yes-words; the state-of-group undo label is a translatable message; HARDCODED-AUDIT.md has a current-state section.
+- Choices: the **Menu** tab of a choice shows the question or the lines before the menu, all choices with translations and conditions, and the first lines after each choice (`menus.py`, `app_menu.py`, `/api/entry/menu`). Not tried on a real game yet. 572 tests.
 

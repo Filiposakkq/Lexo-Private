@@ -16,8 +16,9 @@ from .app_fixes import FixesPart
 from .app_mt import MtPart
 from .app_publish import PublishPart
 from .app_missed import MissedPart
+from .app_menu import MenuPart
 from .app_base import AppError, CHARACTERS_MAX_BYTES, CHARACTER_RE, FeatureLocked, LINKS, PAGE_LIMIT, ProjectBusy, SCREEN_KEYWORDS, UI_PREF_MAX  # noqa: F401  (re-exported: the server, the CLI and the tests import them from here)
 
 
-class App(CorePart, ValidationPart, EntriesPart, GlossaryPart, ProofPart, AssignPart, MemoryPart, GamePart, SnapshotsPart, LintPart, FixesPart, MtPart, PublishPart, MissedPart):
+class App(CorePart, ValidationPart, EntriesPart, GlossaryPart, ProofPart, AssignPart, MemoryPart, GamePart, SnapshotsPart, LintPart, FixesPart, MtPart, PublishPart, MissedPart, MenuPart):
     """The application: all parts together; state is created in CorePart.__init__."""
