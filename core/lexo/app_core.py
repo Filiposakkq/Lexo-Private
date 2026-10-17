@@ -29,7 +29,6 @@ from .app_base import AppError, FeatureLocked, LINKS, ProjectBusy, UI_PREF_MAX
 class CorePart:
     def __init__(self, config=None):
         self.config = config or Config().load()
-        self.entitlements = features.default()          # only for the features that are not extracted into the Pro pack yet
         self.ext = extensions.default()                 # the installed Pro pack, if there is one (see extensions.py)
         self.lock = threading.RLock()
         self.project = None
@@ -193,11 +192,11 @@ class CorePart:
 
     # ------------------------------------------------------------ gated (Pro) features
     def features_status(self):
-        return {"ok": True, "tier": "pro" if self.ext.present else self.entitlements.source, "features": features.status_of(self.entitlements, self.ext),
+        return {"ok": True, "tier": "pro" if self.ext.present else "free", "features": features.status_of(self.ext),
                 "pack": self.ext.versions(), "problems": list(self.ext.problems)}
 
     def _gate(self, feature):
-        d = features.decide(feature, self.entitlements, self.ext)
+        d = features.decide(feature, self.ext)
         if not d.available:
             raise FeatureLocked(feature)
         return d
@@ -209,14 +208,6 @@ class CorePart:
             return self.ext.call(feature, method, payload)
         except extensions.ExtensionError as e:
             raise AppError(text_of(e)) from e
-
-    def _cap(self, feature, seq):
-        """Gate `feature` and cut `seq` to the free limit. Returns (items, info); info says what was cut, for the UI."""
-        d = self._gate(feature)
-        seq = list(seq)
-        if d.limit is None or len(seq) <= d.limit:
-            return seq, {}
-        return seq[:d.limit], {"limited": {"feature": feature, "limit": d.limit, "total": len(seq)}}
 
     def undo(self):
         self._need_project()

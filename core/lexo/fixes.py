@@ -1,9 +1,7 @@
 """The only place where the manager changes a translation .rpy file.
 
-Two operations: (1) editing the translated text of one line in the app (edit_translation), and (2) fixing
-one narrow class of mistakes: a dialogue line whose speaker / attributes (`mc happy`) or trailing
-code (`with vpunch`) differ from the original comment above it. The correct form is copied from the
-original, the quoted text is never touched.
+Operations: editing the translated text of one line in the app (edit_translation), writing many edits as one undoable step (apply_edits), and writing
+planned fixes of the speaker / attributes of dialogue lines (apply). What to fix is planned elsewhere (the safe fixes are a Pro feature); this module only writes.
 
 Safety: a plan is built first (nothing written); applying re-reads the file and refuses when it changed
 on disk since it was parsed; a backup of the file is always made; the write is atomic; the file is
@@ -28,53 +26,6 @@ LAST_FILE = "last_fix.json"
 
 class FixError(Exception):
     pass
-
-
-def fixed_line(entry, raw_line):
-    """The code line with speaker and trailing code taken from the original, or None when not applicable."""
-    m = rpy.STR_RE.search(raw_line)
-    if not m:
-        return None
-    indent = raw_line[:len(raw_line) - len(raw_line.lstrip())]
-    who = entry.src_who.strip()
-    suffix = entry.src_suffix.strip()
-    return indent + (who + " " if who else "") + raw_line[m.start():m.end()] + (" " + suffix if suffix else "")
-
-
-def needs_fix(entry):
-    """True when check_entry would report speaker-changed / suffix-changed for this entry."""
-    return any(i.code in ("speaker-changed", "suffix-changed") for i in validator.check_entry(entry))
-
-
-def plan(project, items=None, file=""):
-    """[{file, line, code, before, after, skip}] for every fixable line.
-
-    `items` = [{file, line}] limits the plan to those lines; otherwise all fixable lines of `file`
-    (or of the whole project) are planned."""
-    wanted = None
-    if items:
-        wanted = {(str(i["file"]), int(i["line"])) for i in items}
-    out = []
-    for rel in sorted(project.files, key=str.lower):
-        if file and rel != file:
-            continue
-        for e in project.entries(rel):
-            if wanted is not None and (rel, e.line) not in wanted:
-                continue
-            if e.unit != "dialogue" or e.source is None or (e.pending and e.category):
-                continue
-            codes = [i.code for i in validator.check_entry(e) if i.code in ("speaker-changed", "suffix-changed")]
-            if not codes:
-                continue
-            after = fixed_line(e, e.cur_raw)
-            skip = ""
-            if after is None:
-                skip = msg("The line does not contain text in quotes.")
-            elif norm_ws(after) == norm_ws(e.src_raw):
-                skip = msg("After the fix the line would be identical to the original (it would count as untranslated) – fix it by hand.")
-            out.append({"file": rel, "line": e.line, "code": codes[0], "before": e.cur_raw, "after": after or "",
-                        "skip": skip, "source_line": e.src_raw})
-    return out
 
 
 def apply(project, data_dir, planned):

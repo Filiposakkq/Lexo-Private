@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]            # free/
 CORE = ROOT.parent / "core"
 for extra in (ROOT / "tests", ROOT, CORE / "tests", CORE):      # Core and its test helpers, then Free
     sys.path.insert(0, str(extra))
+if (ROOT.parent / "pro" / "lexo_pro").is_dir() and not os.environ.get("LEXO_NO_PRO"):
+    sys.path.append(str(ROOT.parent / "pro"))                            # the private monorepo: the self-test runs with the Pro pack (without it the Pro steps check the lock)
 
 SCRIPT = '''# game/script.rpy:10
 translate czech a1:

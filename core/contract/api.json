@@ -724,12 +724,7 @@
     "required": false
    }
   ],
-  "example": {
-   "kinds": [
-    "speaker"
-   ],
-   "items": []
-  }
+  "example": null
  },
  {
   "name": "fix/last",
@@ -749,7 +744,7 @@
   "effect": "read",
   "kind": "json",
   "needs_project": true,
-  "doc": "Preview the bulk fixes (speaker, spaces, typos ...).",
+  "doc": "Preview the bulk fixes (speaker, spaces, typos ...): a Pro feature, the Pro pack plans them.",
   "params": [
    {
     "name": "items",
@@ -770,11 +765,7 @@
     "required": false
    }
   ],
-  "example": {
-   "kinds": [
-    "speaker"
-   ]
-  }
+  "example": null
  },
  {
   "name": "fix/undo",
@@ -785,7 +776,7 @@
   "needs_project": true,
   "doc": "Undo the last bulk fix.",
   "params": [],
-  "example": {}
+  "example": null
  },
  {
   "name": "game/characters",

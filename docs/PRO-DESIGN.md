@@ -42,7 +42,6 @@ So the user sees: install -> the taste features work with their limits at once -
 
 What this protects and what it does not (honest): the taste features are on every machine as a built pack, so a determined person could patch the pack, as with any shipped program; they are cheap, so that is accepted. The premium features are not on a machine without a licence at all. In the Python phase a shipped pack is readable Python and easy to change; the real protection of the taste pack comes with the compiled sidecar (Rust phase). Free itself holds neither feature nor limit in any phase.
 
-(Until a feature is extracted its old limit is a number in Core; see FEATURES.md, column "In the Pro pack?".)
 
 ## Entering a licence (what happens, step by step)
 Not built yet; this is the design.
@@ -105,19 +104,22 @@ A small service on Cloudflare. Nothing of it is in the public repository (it liv
 - The licence is a signed file; it is checked **inside the pack** (which decides what to offer: everything, a demo with limits, nothing). The pack is downloaded from a server after the licence is seen; the details belong to the licence server (roadmap step 6).
 
 ## What is done and what is not
-Done (this change):
+Done:
 - `core/lexo/extensions.py`: the host, the interface (version 1), loading by name, the `trust` hook, plain-JSON calls, interface texts of the pack.
-- `pro/lexo_pro/`: the first pack, offering `publish.web`. Its code (`publish.py`, the git work) moved out of Core. Its Czech texts are in the pack (`pro/lexo_pro/ui/cs.json`), not in Core's language pack.
-- The feature `publish.web` is **extracted**: without the pack it is locked whatever the flags say; a test proves it. A test proves that Core and Free never import the pack, and that `core/lexo/publish.py` is gone.
-- `py run_tests.py pro` (the pack's own tests, only in the private repository).
+- `pro/lexo_pro/`: the pack. **All five gated features are in it and only in it**: `publish.web` (`publish.py`), `bulk.categorize` (`categorize.py`), `replace.regex` (`regex_replace.py`), `mt.batch` (`mt_batch.py`), `fixes.safe` (`fix_safe.py`).
+  Each works on plain data: Core finds the candidate lines and gathers what is needed, the pack decides (a plan, a list of proposals, translations, a substitution) and returns it, Core shows it and writes what the translator confirms. The single writer of `.rpy` files stays in Core.
+- The limits of the demo mode live in the pack (`lexo_pro/licence.py`: 20 items per action for the taste features, no demo for regex replace and publishing) and are enforced there; Core has no limit, no flag and no `Entitlements` any more.
+- Without the pack every gated feature is locked in every place it is used (a test lists them). The free halves keep working: plain find & replace, one line of machine translation, applying a chosen group assignment, the validation and the spelling hints.
+- Tests: Core and Free never import the pack, and the code of the Pro features (the planners, the regex substitution, the publisher) is not in the public packages (`free/tests/test_pro_boundary.py`); the pack has its own tests (`py run_tests.py pro`, 67). The UI self-test runs with the pack (monorepo) and without it (the Pro steps then check the lock).
 
 Not done (each is its own piece of work, listed so nothing is forgotten):
-- **Four features are still in Core** behind the old flag (`Feature.extracted = False`): `mt.batch`, `fixes.safe`, `replace.regex`, `bulk.categorize`. Until each is extracted, someone who edits Core can unlock it. Each needs its own split, because the module holds both the free and the paid half (a single line of machine translation is free, a batch is Pro; the safe fixes with a preview are Pro, the plain speaker fix is free; plain replace is free, regex replace is Pro; approving identical lines is free, suggesting groups is Pro).
 - The **sidecar transport**, the **signature check** and the **manifest updater**.
-- The **licence**: the file, the check inside the pack, the demo limits, the server that hands out the pack.
+- The **licence**: the file, the check inside the pack (`licence.licensed()` is a development stub: licensed unless `LEXO_PRO_DEMO=1`), the server that hands out the pack, the split of the pack into the demo pack in the installer and the premium pack downloaded after a licence.
+- The shapes of the answers of the Pro operations are not recorded in `core/contract/shapes.json` (Core's contract test runs without the pack); the pack tests check `ok` and plain JSON only.
+- A demo limit is "items per action"; nothing ties the actions together, so a client that repeats the call gets more (accepted for the cheap taste features).
 - Decisions that belong to the owner and are still open: the licence of the public part (see FEATURES.md, open questions) and the price.
 
 ## For a developer
 - Running from the repository: `py free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
-- A new Pro feature: add it to `features.CATALOG` with `extracted=True`; write the implementation in `pro/lexo_pro/`; offer it in `Provider.offers()`; call it from the app with `self.ext.call(feature, method, payload)`; gate it with `self._gate(feature)`; put its tests in `pro/tests/`; put the Czech texts of its messages in `pro/lexo_pro/ui/cs.json`.
+- A new Pro feature: add it to `features.CATALOG`; write the implementation in `pro/lexo_pro/` on plain data; offer it in `Provider.offers()` (limits in `licence.py`); call it from the app with `self._ext_call(feature, method, payload)` (it gates, calls and turns a refusal into a message); put its tests in `pro/tests/` (base class `ProCase`); put the Czech texts of its messages in `pro/lexo_pro/ui/cs.json`.
 - Messages written in the pack are returned with `messages.wire(...)` so that they stay translatable JSON.

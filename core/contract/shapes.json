@@ -942,9 +942,6 @@
        "available": {
         "type": "boolean"
        },
-       "extracted": {
-        "type": "boolean"
-       },
        "limit": {
         "type": "null"
        },
@@ -960,9 +957,6 @@
      "fixes.safe": {
       "keys": {
        "available": {
-        "type": "boolean"
-       },
-       "extracted": {
         "type": "boolean"
        },
        "limit": {
@@ -982,9 +976,6 @@
        "available": {
         "type": "boolean"
        },
-       "extracted": {
-        "type": "boolean"
-       },
        "limit": {
         "type": "null"
        },
@@ -1002,9 +993,6 @@
        "available": {
         "type": "boolean"
        },
-       "extracted": {
-        "type": "boolean"
-       },
        "limit": {
         "type": "null"
        },
@@ -1020,9 +1008,6 @@
      "replace.regex": {
       "keys": {
        "available": {
-        "type": "boolean"
-       },
-       "extracted": {
         "type": "boolean"
        },
        "limit": {
@@ -1133,34 +1118,6 @@
   },
   "type": "object"
  },
- "fix/apply": {
-  "keys": {
-   "backups": {
-    "items": {
-     "type": "string"
-    },
-    "type": "array"
-   },
-   "fixed": {
-    "type": "number"
-   },
-   "label": {
-    "type": "string"
-   },
-   "ok": {
-    "type": "boolean"
-   },
-   "problems": {
-    "items": null,
-    "type": "array"
-   },
-   "skipped": {
-    "items": null,
-    "type": "array"
-   }
-  },
-  "type": "object"
- },
  "fix/last": {
   "keys": {
    "last": {
@@ -1168,87 +1125,6 @@
    },
    "ok": {
     "type": "boolean"
-   }
-  },
-  "type": "object"
- },
- "fix/preview": {
-  "keys": {
-   "counts": {
-    "keys": {
-     "speaker": {
-      "type": "number"
-     }
-    },
-    "type": "object"
-   },
-   "fixable": {
-    "type": "number"
-   },
-   "items": {
-    "items": {
-     "keys": {
-      "after": {
-       "type": "string"
-      },
-      "before": {
-       "type": "string"
-      },
-      "code": {
-       "type": "boolean"
-      },
-      "default": {
-       "type": "boolean"
-      },
-      "file": {
-       "type": "string"
-      },
-      "kind": {
-       "type": "string"
-      },
-      "line": {
-       "type": "number"
-      },
-      "note": {
-       "type": "string"
-      },
-      "skip": {
-       "type": "string"
-      }
-     },
-     "type": "object"
-    },
-    "type": "array"
-   },
-   "ok": {
-    "type": "boolean"
-   },
-   "total": {
-    "type": "number"
-   }
-  },
-  "type": "object"
- },
- "fix/undo": {
-  "keys": {
-   "label": {
-    "type": "string"
-   },
-   "lines": {
-    "type": "number"
-   },
-   "ok": {
-    "type": "boolean"
-   },
-   "problems": {
-    "items": null,
-    "type": "array"
-   },
-   "restored": {
-    "items": {
-     "type": "string"
-    },
-    "type": "array"
    }
   },
   "type": "object"

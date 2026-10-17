@@ -423,18 +423,18 @@ def _proof_clear_file(app, a):
     return app.proof_clear_file(a.file)
 
 
-@_op("fix/preview", "POST", "read", "Preview the bulk fixes (speaker, spaces, typos ...).", L("items"), S("file"), L("kinds"), example={"kinds": ["speaker"]})
+@_op("fix/preview", "POST", "read", "Preview the bulk fixes (speaker, spaces, typos ...): a Pro feature, the Pro pack plans them.", L("items"), S("file"), L("kinds"), example=None)
 def _fix_preview(app, a):
     return _ok(app.fix_preview(a.items, a.file, a.kinds))
 
 
-@_op("fix/apply", "POST", "write", "Apply the chosen fixes.", L("items"), S("file"), L("kinds"), A("selections"), example={"kinds": ["speaker"], "items": []})
+@_op("fix/apply", "POST", "write", "Apply the chosen fixes.", L("items"), S("file"), L("kinds"), A("selections"), example=None)
 def _fix_apply(app, a):
     sel = a.all.get("selections")
     return app.fix_apply(a.items, a.file, a.kinds, list(sel) if sel is not None else None)
 
 
-@_op("fix/undo", "POST", "write", "Undo the last bulk fix.", example={})
+@_op("fix/undo", "POST", "write", "Undo the last bulk fix.", example=None)
 def _fix_undo(app, a):
     return app.fix_undo()
 

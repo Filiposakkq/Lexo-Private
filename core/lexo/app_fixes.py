@@ -1,6 +1,6 @@
 """Safe fixes, replace in files, undo of the last file change."""
 
-from . import fixes, textedit, texthistory
+from . import fixes, textedit, texthistory, validator
 from .messages import msg
 from .messages import text_of
 from .app_base import AppError
@@ -10,8 +10,29 @@ class FixesPart:
     FIX_KINDS = ("speaker", "spaces", "typo")
     FIX_LABELS = {"speaker": msg("speaker / attributes"), "spaces": msg("double spaces"), "typo": msg("typos")}
 
+    def _fix_candidates(self, kinds, wanted, file):
+        """The lines the Pro pack looks at, as plain data. Core knows from its own checks where a speaker is wrong or a spelling hint exists; the pack decides
+        what the fix is."""
+        speaker, text, spell = [], [], self._spell() if "typo" in kinds else None
+        for rel in sorted(self.project.files, key=str.lower):
+            if file and rel != file:
+                continue
+            for e in self.project.entries(rel):
+                if wanted is not None and (rel, e.line) not in wanted:
+                    continue
+                if "speaker" in kinds and e.unit == "dialogue" and e.source is not None and not (e.pending and e.category):
+                    if any(i.code in ("speaker-changed", "suffix-changed") for i in validator.check_entry(e)):
+                        speaker.append({"file": rel, "line": e.line, "src_who": e.src_who, "src_suffix": e.src_suffix, "cur_raw": e.cur_raw, "src_raw": e.src_raw})
+                if e.unit in ("dialogue", "string") and e.source is not None and not (e.pending and e.category) and e.target and ("spaces" in kinds or "typo" in kinds):
+                    issues = []
+                    if spell is not None:
+                        issues = [{"word": i.extra.get("word"), "better": i.extra.get("better"), "typo_kind": i.extra.get("typo_kind", "")} for i in spell.check(e.source, e.target)]
+                    if (("spaces" in kinds) and "  " in e.target) or issues:
+                        text.append({"file": rel, "line": e.line, "source": e.source, "target": e.target, "issues": issues})
+        return {"kinds": kinds, "speaker": speaker, "text": text}
+
     def fix_preview(self, items=None, file="", kinds=None):
-        """Every safe fix that could be applied. Nothing is written.
+        """Every safe fix that could be applied (the Pro pack plans them). Nothing is written.
 
         kinds: "speaker" (copy speaker / attributes / trailing code from the original), "spaces" (collapse double spaces),
         "typo" (apply the spelling hints). Variables and tags are never touched – their order may differ legitimately.
@@ -21,19 +42,7 @@ class FixesPart:
         kinds = [k for k in (kinds or ["speaker"]) if k in self.FIX_KINDS]
         wanted = {(str(i["file"]), int(i["line"])) for i in items} if items else None
         with self.lock:
-            out = []
-            if "speaker" in kinds:
-                for p in fixes.plan(self.project, items, file):
-                    out.append({"file": p["file"], "line": p["line"], "kind": "speaker", "before": p["before"],
-                                "after": p["after"], "skip": p["skip"], "default": not p["skip"], "code": True,
-                                "note": msg("speaker / attributes from the original")})
-            for p in textedit.plan_text_fixes(self.project, self._spell(), kinds, wanted, file):
-                out.append(dict(p, skip="", code=False))
-            out.sort(key=lambda r: (r["file"].lower(), r["line"], r["kind"]))
-            counts = {k: sum(1 for r in out if r["kind"] == k) for k in kinds}
-            full = len(out)
-            out, cut = self._cap("fixes.safe", out)
-            return {**cut, "items": out, "total": full, "fixable": sum(1 for r in out if not r["skip"]), "counts": counts}
+            return self._ext_call("fixes.safe", "plan", self._fix_candidates(kinds, wanted, file))
 
     def fix_apply(self, items=None, file="", kinds=None, selections=None):
         """Apply fixes. `selections` = [{file, line, kind}] picks exactly what the user ticked in the preview;
@@ -41,7 +50,6 @@ class FixesPart:
         self._need_project()
         with self.lock:
             if selections is not None:
-                selections, _cut = self._cap("fixes.safe", selections)
                 chosen = {(str(x["file"]), int(x["line"]), str(x["kind"])) for x in selections}
                 kinds = sorted({k for _f, _l, k in chosen})
                 items = [{"file": f, "line": l} for f, l, _k in chosen] or None
@@ -57,10 +65,9 @@ class FixesPart:
             fixed, backups = 0, []
             self._snapshot_for_bulk(len(todo), len({p["file"] for p in todo}))
             try:
-                speaker = {(p["file"], p["line"]) for p in todo if p["kind"] == "speaker"}
+                speaker = [p for p in todo if p["kind"] == "speaker"]
                 if speaker:
-                    res = fixes.apply(self.project, self.local_dir, [p for p in fixes.plan(self.project, None, "")
-                                                                    if (p["file"], p["line"]) in speaker and not p["skip"]])
+                    res = fixes.apply(self.project, self.local_dir, speaker)
                     fixed += res["fixed"]
                     backups += res["backups"]
                     skipped += res["skipped"]
@@ -71,11 +78,14 @@ class FixesPart:
                     by_line = {}
                     for f, l, k in texts:
                         by_line.setdefault((f, l), set()).add(k)
-                    pick = {}
-                    for (f, l), ks in by_line.items():                       # one line can carry several kinds: chain them
+                    spell, reqs = self._spell(), []
+                    for (f, l), ks in by_line.items():                       # one line can carry several kinds: the pack chains them
                         e = next((x for x in self.project.entries(f) if x.line == l), None)
                         if e is not None and e.source is not None:
-                            pick[(f, l)] = textedit.chain_fixes(self._spell(), e.source, e.target, ks)
+                            issues = [{"word": i.extra.get("word"), "better": i.extra.get("better"), "typo_kind": i.extra.get("typo_kind", "")}
+                                      for i in spell.check(e.source, e.target)] if spell is not None and "typo" in ks else []
+                            reqs.append({"file": f, "line": l, "source": e.source, "target": e.target, "kinds": sorted(ks), "issues": issues})
+                    pick = {(c["file"], c["line"]): c["text"] for c in self._ext_call("fixes.safe", "chain", {"items": reqs})["items"]}
                     kinds_txt = ", ".join(self.FIX_LABELS[k] for k in sorted({k for _f, _l, k in texts}))
                     res = fixes.apply_edits(self.project, self.local_dir, [(f, l, t) for (f, l), t in pick.items()],
                                             f"Opravy textu ({kinds_txt})")

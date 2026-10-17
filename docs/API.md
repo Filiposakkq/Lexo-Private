@@ -37,7 +37,7 @@ a script or the Rust port calls the operation by name. Errors come back as `{"ok
 | `files` | GET `/api/files` | read | - | The translation files with their counts and states. |
 | `fix/apply` | POST `/api/fix/apply` | write | `items` (list), `file` (str), `kinds` (list), `selections` (any) | Apply the chosen fixes. |
 | `fix/last` | GET `/api/fix/last` | read | - | What the last bulk fix changed (for undo). |
-| `fix/preview` | POST `/api/fix/preview` | read | `items` (list), `file` (str), `kinds` (list) | Preview the bulk fixes (speaker, spaces, typos ...). |
+| `fix/preview` | POST `/api/fix/preview` | read | `items` (list), `file` (str), `kinds` (list) | Preview the bulk fixes (speaker, spaces, typos ...): a Pro feature, the Pro pack plans them. |
 | `fix/undo` | POST `/api/fix/undo` | write | - | Undo the last bulk fix. |
 | `game/characters` | GET `/api/game/characters` | read | - | The characters defined in the game scripts: code, name, colour. |
 | `game/font` | GET `/api/game/font` | read **binary** | `k` (str) | A font of the game by file name (never a path): (bytes, mime). |

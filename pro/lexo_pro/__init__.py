@@ -10,7 +10,7 @@ from pathlib import Path
 from lexo import layout, messages
 from lexo.extensions import API, ExtensionError
 
-from . import categorize, licence, mt_batch, publish, regex_replace
+from . import categorize, fix_safe, licence, mt_batch, publish, regex_replace
 
 __version__ = "0.1.0"
 
@@ -20,7 +20,7 @@ class Provider:
     version = __version__
 
     def offers(self):
-        return {f: o for f in ("publish.web", "bulk.categorize", "replace.regex", "mt.batch") for o in [licence.offer(f)] if o is not None}
+        return {f: o for f in ("publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe") for o in [licence.offer(f)] if o is not None}
 
     def ui_strings(self, code):
         """The Czech (or other) texts of the messages of this pack, from ui/<code>.json."""
@@ -35,6 +35,8 @@ class Provider:
             return self._publish(method, payload)
         if feature == "bulk.categorize" and method == "suggest":
             return self._categorize(payload)
+        if feature == "fixes.safe" and method in ("plan", "chain"):
+            return messages.wire(getattr(fix_safe, method)(payload))
         if feature == "mt.batch" and method in ("targets", "translate"):
             return messages.wire(getattr(mt_batch, method)(payload))
         if feature == "replace.regex" and method == "substitute":

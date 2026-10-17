@@ -5,7 +5,7 @@ Until the licence file exists the pack is "licensed" in a development checkout; 
 """
 import os
 
-DEMO_LIMITS = {"bulk.categorize": 20, "mt.batch": 20}           # the taste features: items per action in demo mode (more are added as features move into the pack)
+DEMO_LIMITS = {"bulk.categorize": 20, "mt.batch": 20, "fixes.safe": 20}           # the taste features: items per action in demo mode (more are added as features move into the pack)
 
 
 def licensed():
