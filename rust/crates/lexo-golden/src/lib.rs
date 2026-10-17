@@ -4,7 +4,9 @@
 pub mod data;
 pub mod diff;
 pub mod normalize;
+pub mod ops_dump;
 pub mod run;
+pub mod scenario;
 
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -148,6 +150,10 @@ pub fn run_case(golden: &Path, case: &Case) -> Outcome {
             Err(e) => return Outcome::Fail(e),
         },
         "fontmetrics" => run::fontmetrics_case(golden, &case.id),
+        "scenarios" => match run::scenario_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
         "data" => match run::data_case(golden, &case.id) {
             Ok(v) => v,
             Err(e) => return Outcome::Fail(e),
@@ -208,7 +214,7 @@ mod tests {
         for c in inventory(&golden)
             .unwrap()
             .into_iter()
-            .filter(|c| ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "data"].contains(&c.group))
+            .filter(|c| ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "data", "scenarios"].contains(&c.group))
         {
             assert_eq!(run_case(&golden, &c), Outcome::Pass, "{}/{}", c.group, c.id);
         }

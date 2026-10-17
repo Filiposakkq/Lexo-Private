@@ -247,3 +247,21 @@ pub fn data_case(golden: &Path, id: &str) -> Result<Value, String> {
     let index: usize = rest.split(' ').next().and_then(|n| n.parse().ok()).ok_or("bad data step id")?;
     result["steps"].get(index).cloned().ok_or_else(|| "no such step".to_string())
 }
+
+/// One step (or the files at the end) of a scenario on a whole project; the scenario is run once and its record kept.
+pub fn scenario_case(golden: &Path, id: &str) -> Result<Value, String> {
+    use std::collections::HashMap;
+    use std::sync::{Mutex, OnceLock};
+    static CACHE: OnceLock<Mutex<HashMap<String, Result<Value, String>>>> = OnceLock::new();
+    let (name, rest) = id.split_once('/').ok_or("bad scenario case id")?;
+    let key = format!("{}|{name}", golden.display());
+    let result = {
+        let mut cache = CACHE.get_or_init(|| Mutex::new(HashMap::new())).lock().unwrap();
+        cache.entry(key).or_insert_with(|| crate::scenario::run_scenario(golden, name)).clone()
+    }?;
+    if rest == "files_after" {
+        return Ok(result["files_after"].clone());
+    }
+    let index: usize = rest.split(' ').next().and_then(|n| n.parse().ok()).ok_or("bad scenario step id")?;
+    result["steps"].get(index).cloned().ok_or_else(|| "no such step".to_string())
+}

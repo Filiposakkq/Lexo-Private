@@ -62,6 +62,11 @@ fn main() {
         println!("{}", lexo_golden::data::game_json(std::path::Path::new(&args[1]), tl));
         return;
     }
+    if args.first().map(String::as_str) == Some("--dump-ops") && args.len() > 2 {
+        // `--dump-ops <translation folder (a COPY)> <scratch folder>`: the answers of the read operations of the application
+        println!("{}", lexo_golden::ops_dump::dump_ops(std::path::Path::new(&args[1]), std::path::Path::new(&args[2])));
+        return;
+    }
     if args.first().map(String::as_str) == Some("--dump-tools") && args.len() > 2 {
         // `--dump-tools <folder holding game/> <scratch folder>`: the archives, the workspace of links and the copied scripts of a built game (made in the scratch folder, removed again)
         println!("{}", lexo_golden::data::tools_json(std::path::Path::new(&args[1]), std::path::Path::new(&args[2])));

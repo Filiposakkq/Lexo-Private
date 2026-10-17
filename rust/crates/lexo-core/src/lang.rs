@@ -210,6 +210,100 @@ pub fn load_dir(folder: &Path) -> Result<Pack, PackError> {
     })
 }
 
+/// The interface texts of a pack: `{English source text: translation | [plural forms]}` from its `ui.json`, or `None` when it has none.
+pub fn load_ui_strings(pack: &Pack) -> Result<Option<serde_json::Map<String, Value>>, PackError> {
+    let Some(folder) = pack.folder.as_ref().filter(|f| f.join("ui.json").is_file()) else { return Ok(None) };
+    let raw = read(&folder.join("ui.json"))?;
+    let Some(strings) = raw.get("strings").and_then(Value::as_object) else {
+        return Err(PackError("ui.json: \"strings\" must be an object {English text: translation}".into()));
+    };
+    let forms = plural_forms(&pack.plural).unwrap_or(2);
+    for (key, val) in strings {
+        if val.is_string() {
+            continue;
+        }
+        match val.as_array() {
+            Some(a) if !a.is_empty() && a.iter().all(Value::is_string) => {
+                if a.len() != forms {
+                    return Err(PackError(format!("ui.json: '{key}' has {} plural forms, the rule '{}' needs {forms}", a.len(), pack.plural)));
+                }
+            }
+            _ => return Err(PackError(format!("ui.json: the value of '{key}' must be text or a list of texts"))),
+        }
+    }
+    Ok(Some(strings.clone()))
+}
+
+/// Where packs come from: the folder shipped with the app and the user's folder (downloaded packs).
+#[derive(Clone, Debug)]
+pub struct Packs {
+    pub bundled: PathBuf,
+    pub user: Option<PathBuf>,
+}
+
+impl Packs {
+    /// All usable packs `{code: Pack}` in the order they were found (the neutral pack last), and what was wrong with the others.
+    pub fn discover(&self) -> (Vec<Pack>, Vec<String>) {
+        let (mut found, mut problems): (Vec<Pack>, Vec<String>) = (Vec::new(), Vec::new());
+        for root in std::iter::once(&self.bundled).chain(self.user.iter()) {
+            let Ok(rd) = std::fs::read_dir(root) else { continue };
+            let mut folders: Vec<PathBuf> = rd.filter_map(|e| e.ok()).map(|e| e.path()).filter(|p| p.is_dir()).collect();
+            folders.sort_by_key(|p| if cfg!(windows) { p.to_string_lossy().to_lowercase() } else { p.to_string_lossy().into_owned() });
+            for folder in folders {
+                match load_dir(&folder) {
+                    Err(e) => problems.push(format!("{}: {e}", folder.file_name().unwrap_or_default().to_string_lossy())),
+                    Ok(pack) => match found.iter().position(|p| p.code == pack.code) {
+                        None => found.push(pack),
+                        Some(i) if pack.version > found[i].version => found[i] = pack,
+                        Some(_) => {}
+                    },
+                }
+            }
+        }
+        if !found.iter().any(|p| p.code == "und") {
+            found.push(Pack::neutral());
+        }
+        (found, problems)
+    }
+
+    /// The pack for a language code, or `None` when none is installed (looked up on every call, so a new download is seen at once).
+    pub fn get(&self, code: &str) -> Option<Pack> {
+        let code = code.trim().to_lowercase();
+        if code.is_empty() {
+            return None;
+        }
+        self.discover().0.into_iter().find(|p| p.code == code)
+    }
+
+    /// `[{code, name}]` of the languages the interface can be shown in: English (built in) and every pack that has a `ui.json`.
+    pub fn ui_languages(&self) -> Value {
+        let mut out = vec![serde_json::json!({"code": "en", "name": "English"})];
+        for p in self.discover().0 {
+            if p.code != "und" && p.folder.as_ref().is_some_and(|f| f.join("ui.json").is_file()) {
+                out.push(serde_json::json!({"code": p.code, "name": p.name}));
+            }
+        }
+        Value::Array(out)
+    }
+
+    /// `{code, name, plural, strings}` for the interface in `code`; English is an empty table. Fails when there is no such interface language.
+    pub fn ui_language(&self, code: &str) -> Result<Value, PackError> {
+        let code = code.trim().to_lowercase();
+        if code.is_empty() || code == "en" {
+            return Ok(serde_json::json!({"code": "en", "name": "English", "plural": "en", "strings": {}}));
+        }
+        let pack = self.get(&code);
+        let strings = match &pack {
+            Some(p) => load_ui_strings(p)?,
+            None => None,
+        };
+        match (pack, strings) {
+            (Some(p), Some(s)) => Ok(serde_json::json!({"code": p.code, "name": p.name, "plural": p.plural, "strings": s})),
+            _ => Err(PackError(format!("no interface language '{code}'"))),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

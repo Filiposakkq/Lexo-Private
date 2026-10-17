@@ -1,6 +1,27 @@
 //! Lexo Core in Rust. The modules mirror `core/lexo` (rpy.rs for rpy.py, ...), see docs/RUST-PORT.md.
 //! No UI, no HTTP: the library only reads and writes files through `std::fs`.
 
+/// The version of Core (`__version__` of the Python package).
+pub const VERSION: &str = "1.7.0";
+
+pub mod api;
+pub mod app;
+pub mod app_assign;
+pub mod app_base;
+pub mod app_core;
+pub mod app_entries;
+pub mod app_fixes;
+pub mod app_game;
+pub mod app_glossary;
+pub mod app_lint;
+pub mod app_memory;
+pub mod app_menu;
+pub mod app_missed;
+pub mod app_mt;
+pub mod app_proof;
+pub mod app_publish;
+pub mod app_snapshots;
+pub mod app_validation;
 pub mod bulk;
 pub mod clock;
 pub mod config;
@@ -9,6 +30,8 @@ pub mod datadir;
 pub mod editor;
 pub mod events;
 pub mod export;
+pub mod extensions;
+pub mod features;
 pub mod fixes;
 pub mod fontmetrics;
 pub mod fsutil;

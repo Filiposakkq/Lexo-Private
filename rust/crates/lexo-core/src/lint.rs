@@ -6,7 +6,7 @@
 use crate::messages::{msg, Message};
 use crate::util::py_strip;
 use regex::Regex;
-use serde_json::{json, Value};
+use serde_json::{json, Map, Value};
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
@@ -183,4 +183,67 @@ pub fn run(sdk: &Path, base: &Path, runner: Runner, plat: Platform) -> Result<Li
     let (code, text) = runner(&argv, &cwd)?;
     let text: String = text.chars().take(MAX_OUTPUT).collect();
     Ok(Linted { ok: code == 0, exit_code: code, issues: parse(&text), raw: text, seconds: t0.elapsed().as_secs_f64() })
+}
+
+/// A runner that can be moved to the thread of a background run.
+pub type SharedRunner = std::sync::Arc<dyn Fn(&[String], &Path) -> Result<(i32, String), LintError> + Send + Sync>;
+
+/// The runner the application uses: the program is started with a time limit of `TIMEOUT` seconds.
+pub fn real_runner() -> SharedRunner {
+    std::sync::Arc::new(|argv: &[String], cwd: &Path| crate::gametools::run_process_for(argv, cwd, TIMEOUT).map_err(|e| LintError(e.0)))
+}
+
+/// One background run at a time; `status()` is polled by the UI.
+#[derive(Clone)]
+pub struct Linter {
+    state: std::sync::Arc<std::sync::Mutex<Value>>,
+}
+
+impl Default for Linter {
+    fn default() -> Self {
+        Linter { state: std::sync::Arc::new(std::sync::Mutex::new(json!({"state": "idle"}))) }
+    }
+}
+
+impl Linter {
+    pub fn new() -> Linter {
+        Linter::default()
+    }
+
+    pub fn start(&self, sdk: &Path, base: &Path, runner: SharedRunner, plat: Platform) -> Result<(), LintError> {
+        {
+            let mut st = self.state.lock().unwrap();
+            if st["state"] == "running" {
+                return Err(LintError(msg("Lint is already running.", &[])));
+            }
+            build_command(sdk, base, &["lint"], plat)?; // fail early with a readable message
+            let started = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0.0, |d| d.as_secs_f64());
+            *st = json!({"state": "running", "started": started});
+        }
+        let (state, sdk, base) = (self.state.clone(), sdk.to_path_buf(), base.to_path_buf());
+        std::thread::spawn(move || {
+            let new = match run(&sdk, &base, &*runner, plat) {
+                Ok(res) => {
+                    let mut o = match res.to_json() {
+                        Value::Object(o) => o,
+                        _ => Map::new(),
+                    };
+                    o.insert("state".into(), json!("done"));
+                    Value::Object(o)
+                }
+                Err(e) => json!({"state": "error", "error": e.0.wire()}),
+            };
+            *state.lock().unwrap() = new;
+        });
+        Ok(())
+    }
+
+    pub fn status(&self) -> Value {
+        let mut st = self.state.lock().unwrap().clone();
+        if st["state"] == "running" {
+            let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0.0, |d| d.as_secs_f64());
+            st["elapsed"] = json!(crate::pyfmt::round_digits(now - st["started"].as_f64().unwrap_or(now), 1));
+        }
+        st
+    }
 }

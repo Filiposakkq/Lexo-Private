@@ -224,7 +224,7 @@ fn scheme_and_netloc(url: &str) -> (String, String) {
     (scheme, netloc)
 }
 
-fn check_url(url: &str) -> Result<String, MtError> {
+pub fn check_url(url: &str) -> Result<String, MtError> {
     let (scheme, netloc) = scheme_and_netloc(url);
     if (scheme != "http" && scheme != "https") || netloc.is_empty() {
         return Err(MtError(msg("The service address must start with http:// or https://.", &[])));

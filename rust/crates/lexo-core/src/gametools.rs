@@ -72,26 +72,26 @@ fn text_of(p: &Path) -> Value {
 
 // ---------------------------------------------------------------- paths the way Python orders and compares them
 /// The parts of a path as `PurePath` compares them: lower-cased on Windows.
-fn keys(p: &Path) -> Vec<String> {
+pub(crate) fn keys(p: &Path) -> Vec<String> {
     p.components().map(|c| if cfg!(windows) { c.as_os_str().to_string_lossy().to_lowercase() } else { c.as_os_str().to_string_lossy().into_owned() }).collect()
 }
 
 /// `inner` lies below `outer` (Python: `outer in inner.parents`).
-fn below(inner: &Path, outer: &Path) -> bool {
+pub(crate) fn below(inner: &Path, outer: &Path) -> bool {
     let (i, o) = (keys(inner), keys(outer));
     i.len() > o.len() && i.starts_with(&o)
 }
 
-fn same(a: &Path, b: &Path) -> bool {
+pub(crate) fn same(a: &Path, b: &Path) -> bool {
     keys(a) == keys(b)
 }
 
-fn sort_paths(v: &mut [PathBuf]) {
+pub(crate) fn sort_paths(v: &mut [PathBuf]) {
     v.sort_by_cached_key(|p| keys(p));
 }
 
 /// A name ends with a suffix (Windows ignores the case, like `Path.glob`).
-fn has_suffix(name: &str, suffix: &str) -> bool {
+pub(crate) fn has_suffix(name: &str, suffix: &str) -> bool {
     if cfg!(windows) {
         name.to_lowercase().ends_with(suffix)
     } else {
@@ -100,7 +100,7 @@ fn has_suffix(name: &str, suffix: &str) -> bool {
 }
 
 /// Everything below `root` (files and folders), without following links to folders: `Path.rglob("*")`.
-fn rglob(root: &Path) -> Vec<PathBuf> {
+pub(crate) fn rglob(root: &Path) -> Vec<PathBuf> {
     fn go(dir: &Path, out: &mut Vec<PathBuf>) {
         let Ok(rd) = fs::read_dir(dir) else { return };
         for e in rd.filter_map(|e| e.ok()) {
@@ -116,11 +116,11 @@ fn rglob(root: &Path) -> Vec<PathBuf> {
     out
 }
 
-fn rglob_suffix(root: &Path, suffixes: &[&str]) -> Vec<PathBuf> {
+pub(crate) fn rglob_suffix(root: &Path, suffixes: &[&str]) -> Vec<PathBuf> {
     rglob(root).into_iter().filter(|p| p.file_name().is_some_and(|n| suffixes.iter().any(|s| has_suffix(&n.to_string_lossy(), s)))).collect()
 }
 
-fn rel_text(p: &Path, root: &Path) -> String {
+pub(crate) fn rel_text(p: &Path, root: &Path) -> String {
     p.strip_prefix(root).unwrap_or(p).to_string_lossy().replace('\\', "/")
 }
 
