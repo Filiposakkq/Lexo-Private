@@ -297,6 +297,7 @@
   "Editor (opens a file at a line)": "Editor (otevření souboru na řádku)",
   "Empty": "Prázdné",
   "empty": "prázdný",
+  "Empty = the language of the project": "Prázdné = jazyk projektu",
   "English is left in the translation ({words}). Did you forget to translate part of it?": "V překladu zůstala angličtina ({words}). Nezapomněl/a ses část nepřeložit?",
   "Enter the path to the folder.": "Zadej cestu ke složce.",
   "Enter the text to find": "Zadej hledaný text",
@@ -778,6 +779,7 @@
   "Problems: ": "Problémy: ",
   "Progress by group": "Postup podle skupin",
   "Project": "Projekt",
+  "project": "projekt",
   "Project opened.": "Projekt otevřen.",
   "Proofread": "Zkontrolováno",
   "Proofread mark removed on {n} line  (Ctrl+Z undoes)|Proofread mark removed on {n} lines  (Ctrl+Z undoes)": [
@@ -1239,6 +1241,7 @@
   "The tag {tag} is not closed.": "Značka {tag} není zavřená.",
   "The tag {tag} of the original is missing from the translation or differs (Ren'Py ignores it when displaying).": "Značka {tag} z originálu v překladu chybí nebo se liší (Ren'Py ji při zobrazení ignoruje).",
   "The target is not a folder: {dest}": "Cíl není složka: {dest}",
+  "The target language is not known. Set it in Settings → Machine translation.": "Cílový jazyk není znám. Nastav ho v Nastavení → Strojový překlad.",
   "The term does not occur in the original.": "V originále se termín nevyskytuje.",
   "The term is not missing in the translated lines.": "V přeložených řádcích termín nechybí.",
   "The term “{en}” is translated as “{cz}” in the Glossary, but I do not see that in the translation.": "Termín „{en}“ se ve Slovníku překládá jako „{cz}“, ale v překladu to nevidím.",

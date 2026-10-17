@@ -69,7 +69,7 @@ class ProviderTests(unittest.TestCase):
 
     def test_openai_compatible_gets_context_glossary_and_a_cleaned_answer(self):
         http = FakeHttp(reply={"choices": [{"message": {"content": '"Vezmi si <x id="1"/>."'}}]})
-        cfg = {"provider": "openai", "api_key": "k", "consent": True, "model": "m1", "base_url": "http://localhost:1234/v1/"}
+        cfg = {"provider": "openai", "api_key": "k", "consent": True, "model": "m1", "base_url": "http://localhost:1234/v1/", "target_lang": "CS"}
         res = mt.translate(cfg, "Take [item].", {"Dik Coins": "dikmince"}, ["Previous line."], http=http)
         self.assertEqual(res["text"], "Vezmi si [item].")
         url, headers, data = http.calls[0]
@@ -82,7 +82,7 @@ class ProviderTests(unittest.TestCase):
 
     def test_libretranslate(self):
         http = FakeHttp(reply={"translatedText": 'Ahoj &amp; ahoj <x id="1"/>'})
-        res = mt.translate({"provider": "libretranslate", "consent": True, "base_url": "https://lt.example"}, "Hi & hi [a]", http=http)
+        res = mt.translate({"provider": "libretranslate", "consent": True, "base_url": "https://lt.example", "target_lang": "CS"}, "Hi & hi [a]", http=http)
         self.assertEqual(res["text"], "Ahoj & ahoj [a]")
         self.assertEqual(http.calls[0][0], "https://lt.example/translate")
         self.assertEqual(json.loads(http.calls[0][2])["target"], "cs")
@@ -153,6 +153,42 @@ class MTInAppTests(TempCase):
         with self.assertRaises(AppError) as cm:
             self.app.mt_suggest("a.rpy", self.line)
         self.assertIn("key", str(cm.exception))
+
+
+class TargetLanguageTests(unittest.TestCase):
+    def test_the_code_comes_from_the_pack_or_the_tl_folder(self):
+        self.assertEqual(mt.target_language("cs", ""), "CS")
+        self.assertEqual(mt.target_language("de", "czech"), "DE")             # the pack wins
+        self.assertEqual(mt.target_language("", "German"), "DE")
+        self.assertEqual(mt.target_language("", "czech"), "CS")
+        self.assertEqual(mt.target_language("", "klingon"), "")
+        self.assertEqual(mt.target_language("", ""), "")
+
+    def test_without_a_target_language_nothing_is_sent(self):
+        http = FakeHttp(reply={})
+        with self.assertRaises(mt.MTError) as cm:
+            mt.translate({"provider": "libretranslate", "consent": True, "base_url": "https://lt.example"}, "Hello there", http=http)
+        self.assertIn("target language", str(cm.exception))
+        self.assertEqual(http.calls, [])
+
+
+class TargetLanguageInTheAppTests(TempCase):
+    def project(self, folder):
+        tl = self.tmp / "g" / "game" / "tl" / folder
+        tl.mkdir(parents=True)
+        (tl / "script.rpy").write_text(dialog("a1", "mc", "Hello there, friend.", None, 5), encoding="utf-8")
+        app = self.new_app(open_root=False)
+        app.open_project(tl)
+        return app
+
+    def test_an_empty_setting_means_the_language_of_the_project(self):
+        self.assertEqual(self.project("german")._mt_config()["target_lang"], "DE")
+
+    def test_a_setting_wins_and_an_unknown_folder_gives_no_language(self):
+        app = self.project("klingon")
+        self.assertEqual(app._mt_config()["target_lang"], "")
+        app.config.set("mt.target_lang", "FR")
+        self.assertEqual(app._mt_config()["target_lang"], "FR")
 
 
 if __name__ == "__main__":

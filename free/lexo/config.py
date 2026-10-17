@@ -33,7 +33,7 @@ DEFAULTS = {
     },
     "goals": {"translate_per_week": 0, "proofread_per_week": 0},      # 0 = automatic, from the recent pace
     "snapshots": {"enabled": True, "interval_hours": 12, "keep": 20},  # zip backups of the translation folder
-    "mt": {"provider": "", "api_key": "", "base_url": "", "model": "", "source_lang": "EN", "target_lang": "CS", "consent": False},  # optional machine translation
+    "mt": {"provider": "", "api_key": "", "base_url": "", "model": "", "source_lang": "EN", "target_lang": "", "consent": False},  # optional machine translation
     "lint": {"sdk": ""},                                               # Ren'Py SDK folder for the game check
     "web": {"repo": "", "path": "web/progress.json", "title": ""},
     "ui": {},

@@ -59,3 +59,4 @@ The publishing tab uses the project's group word ("Chapter 3"); the website data
 - The publishing settings no longer suggest `Filiposakkq/Being-A-DIK-CZ`; the "About" text and the "Scope" notice describe the product (Ren'Py games, English interface with Czech as a language pack) instead of "only Being a DIK".
 - `fonts_czech.rpy` is no longer skipped by default (only Ren'Py's own `common.rpy`), `fonts_czech` is no longer a "file of the whole game" name, the self-test folder is `.lexo-selftest`, the browser channel is `lexo-focus`.
 - The migration of the older BaDIK tool's data (Czech file names, `_progress_data`, the BaDIK layout detected from `prirazeni.csv`) was removed: it had one user. Still Czech by default: `mt.target_lang` ("CS").
+- Machine translation no longer defaults to Czech: an empty target language is taken from the project (pack code or `tl` folder name).
