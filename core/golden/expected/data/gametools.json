@@ -1,0 +1,2300 @@
+{
+ "files_after": {
+  "arch/lies.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMDM5IDAwMDAxMjM0CmZpbmUKc2hvcnQKYmV5b25kCmh1Z2UKeJxrYKotZNCIYGNgYMjP1isqqCxkjC1k8hUT8jUUigAKMhQytxeyJEZwApnFGflFJWA1rLGFbL7CQr57GDOA0uyJEVxA6aTUyvy8FLA8R2whp1dJAD+Dr7EQSAVXYgQHUEVGaXoqWJ47tpDHl0Goi9VEiOEAA0gFb2KpHgCmKyP+",
+   "sha1": "d525c0d181876a4b22767b3dd26182de5eaf665d"
+  },
+  "fix/a.rpy": {
+   "sha1": "f3b0cd4bd2e390e606628d1771fd8c280651bd48",
+   "text": "init python:\n    x = 1 + \\\n    2\nlabel a:\n    return\n"
+  },
+  "fix/b.rpy": {
+   "sha1": "14b2c59910381bd7bf172a931ee389741d36a790",
+   "text": "init python:\n    x = 1 + \\\n    2\n"
+  },
+  "fix/bad.rpy": {
+   "base64": "aW5pdCBweXRob246CiAgICB4ID0gXAr/Cg==",
+   "sha1": "e07abeab03504672aa3eeade5cd69377632d61f7"
+  },
+  "fix/c.rpy": {
+   "sha1": "e9e8d28319869fcd2bb694e35a8be6eb13c6b8ca",
+   "text": "label c:\r\n    return\r\n"
+  },
+  "fix/d_bom.rpy": {
+   "sha1": "6d6f88ca2898b4320a7d6ad75d22ad38ab7da448",
+   "text": "﻿init python:\n    x = \\\n    2\n"
+  },
+  "fix/e_no_python.rpy": {
+   "sha1": "37bf100d85974cb023e125fa91c9720603dd132c",
+   "text": "label e:\n    \"text\" \\\ncontinued\n"
+  },
+  "out/all/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "out/all/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "out/all/images/x.png": {
+   "base64": "iVBORyBub3QgcmVhbGx5",
+   "sha1": "d86b951e8492a423fd968e84aea8a07acdf5448f"
+  },
+  "out/all/prefixed.rpy": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "out/all/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "out/all/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "out/all/scripts/b.rpy": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "out/all/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "out/all/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "out/lies/ok.rpy": {
+   "sha1": "a9e60c687da7d68a10a5e2d62ff1d01d2fee9f59",
+   "text": "fine\n"
+  },
+  "out/small/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "out/small/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "out/small/images/x.png": {
+   "base64": "iVBORyBub3QgcmVhbGx5",
+   "sha1": "d86b951e8492a423fd968e84aea8a07acdf5448f"
+  },
+  "proj/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "proj/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "proj/game/script.rpy": {
+   "sha1": "b74814f29f711546662f38444b0f77874c54622b",
+   "text": "label start:\n    \"Hi\"\n"
+  },
+  "proj/game/tl/german/readme.txt": {
+   "sha1": "a701cb13449c6098b3c568e799e22c5799b1b38f",
+   "text": "not a script"
+  },
+  "proj/game/tl/german/script.rpy": {
+   "sha1": "a16b6d56138b94a30654282ecd4b946dc0cc678b",
+   "text": "translate german start_1:\n"
+  },
+  "proj/game/tl/german/sub/more.rpy": {
+   "sha1": "8ba4d2c70e4c827dadddda28ddd2abcd1e1342f5",
+   "text": "translate german more_1:\n"
+  },
+  "proj/game/tl/italian/script.rpy": {
+   "sha1": "3fef852f7815a6cdf2c1086f7a4eb50e5071f048",
+   "text": "translate italian a:\n"
+  },
+  "proj/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "proj/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "q/a.rpy.unparsable": {
+   "sha1": "2c912d931de181e77e5ac116e8e7832ae30f9a92",
+   "text": "label a:\n"
+  },
+  "q/b.rpym.unparsable": {
+   "sha1": "7216647030fa717a54ab5b4271c3bae57f87ad38",
+   "text": "label b:\n"
+  },
+  "q/d.rpy": {
+   "sha1": "cd4868b35f5c8629f666c30c3cbfd3b8697577bd",
+   "text": "label d:\n"
+  },
+  "q/sub/e.rpy.unparsable": {
+   "sha1": "b01e82836978ea70445308fe8ce1ffcc76bae6e3",
+   "text": "label e:\n"
+  },
+  "q/tl/czech/c.rpy": {
+   "sha1": "11da6bf1ad8a5d1fdf277f408bf760ee72c816d2",
+   "text": "translate czech x:\n"
+  },
+  "scripts_only/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "scripts_only/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "scripts_only/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "src/.lexo/y.txt": {
+   "sha1": "95cb0bfd2977c761298d9624e4b4d4c72a39974a",
+   "text": "y"
+  },
+  "src/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "src/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "src/_progress_data/x.json": {
+   "sha1": "bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f",
+   "text": "{}"
+  },
+  "src/game/cache/bytecode.rpyb": {
+   "sha1": "b03592806efabfeeb709f5a70a7c172669b00538",
+   "text": "cache"
+  },
+  "src/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "src/game/saves/1-1.save": {
+   "sha1": "13a4a11319d31c1b323d5774f44240a9ffc984d0",
+   "text": "save"
+  },
+  "src/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "src/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "src/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "src/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "src/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "src/game/tl/czech/old.rpy": {
+   "sha1": "66e798813944a41174ad84220fa783c2ab71ef77",
+   "text": "translate czech start:\n    \"Old\"\n"
+  },
+  "src/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "src/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "src/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  },
+  "tools/python.exe": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "tools/unrpyc.py": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "ws/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "ws/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "ws/game/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "ws/game/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "ws/game/late.rpy": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "ws/game/new/deep.rpy": {
+   "sha1": "739c55ce1e8bc51bc5e0fff33ccb22017f44b2eb",
+   "text": "label deep:\n"
+  },
+  "ws/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "ws/game/prefixed.rpy": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "ws/game/script.rpy": {
+   "sha1": "b647c9cc95a17e456023c93a998c531cde2b4a40",
+   "text": "label start:\n"
+  },
+  "ws/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "ws/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "ws/game/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "ws/game/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "ws/game/scripts/b.rpy": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "ws/game/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "ws/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "ws/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "ws/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "ws/game/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "ws/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  },
+  "ws2/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "ws2/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "ws2/game/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "ws2/game/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "ws2/game/main.rpy": {
+   "sha1": "7a0d5edabc6df1c3f4022b12df6dea5c07d069bc",
+   "text": "init python:\n    value = 1 + \\\n    2\n"
+  },
+  "ws2/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "ws2/game/prefixed.rpy": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "ws2/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "ws2/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "ws2/game/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "ws2/game/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "ws2/game/scripts/b.rpy.unparsable": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "ws2/game/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "ws2/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "ws2/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "ws2/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "ws2/game/tl/czech/script.rpy": {
+   "sha1": "a6b9d7c25e004fbdecb885687b5df5ded86a32ad",
+   "text": "translate czech start_1:\n"
+  },
+  "ws2/game/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "ws2/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws2/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws2/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  },
+  "ws3/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "ws3/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "ws3/game/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "ws3/game/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "ws3/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "ws3/game/prefixed.rpy": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "ws3/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "ws3/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "ws3/game/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "ws3/game/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "ws3/game/scripts/b.rpy": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "ws3/game/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "ws3/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "ws3/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "ws3/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "ws3/game/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "ws3/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws3/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws3/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  },
+  "ws4/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "ws4/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "ws4/game/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "ws4/game/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "ws4/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "ws4/game/prefixed.rpy": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "ws4/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "ws4/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "ws4/game/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "ws4/game/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "ws4/game/scripts/b.rpy": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "ws4/game/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "ws4/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "ws4/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "ws4/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "ws4/game/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "ws4/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws4/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws4/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  },
+  "ws5/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "ws5/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "ws5/game/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "ws5/game/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "ws5/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "ws5/game/prefixed.rpy": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "ws5/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "ws5/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "ws5/game/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "ws5/game/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "ws5/game/scripts/b.rpy": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "ws5/game/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "ws5/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "ws5/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "ws5/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "ws5/game/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "ws5/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws5/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws5/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  },
+  "ws6/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "ws6/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "ws6/game/back/slash/d.rpy.unparsable": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "ws6/game/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "ws6/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "ws6/game/prefixed.rpy.unparsable": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "ws6/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "ws6/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "ws6/game/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "ws6/game/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "ws6/game/scripts/b.rpy.unparsable": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "ws6/game/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "ws6/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "ws6/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "ws6/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "ws6/game/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "ws6/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws6/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws6/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  },
+  "ws8/Game.exe": {
+   "sha1": "d659d96d15c7a1206f44eb36ed72495563140859",
+   "text": "exe"
+  },
+  "ws8/Game.py": {
+   "sha1": "0596b11219ddb3fa341ec541c4aa88111340241a",
+   "text": "# launcher"
+  },
+  "ws8/game/back/slash/d.rpy": {
+   "sha1": "fae745698770695f933de346dd77af29e1227178",
+   "text": "windows separators\n"
+  },
+  "ws8/game/dot/e.rpy": {
+   "sha1": "8ad150906bf897ae4d30e09303f7f05c83e6b5c5",
+   "text": "dots\n"
+  },
+  "ws8/game/options.rpy": {
+   "sha1": "ef226789bf6c73c45e499f0afc4cb95e968f102c",
+   "text": "define config.name = \"Test\"\n"
+  },
+  "ws8/game/prefixed.rpy": {
+   "sha1": "f3512a5ac8eb943774c376cda948f2598b96a40a",
+   "text": "# head\ntail of a prefixed script\n"
+  },
+  "ws8/game/script.rpyc": {
+   "sha1": "975c527c8ae4fa0f69743c9c423f072f61fd63fa",
+   "text": "RPYC2 script"
+  },
+  "ws8/game/scripts.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMGViIDAwMDAxMjM0ClJQWUMyIGNvbXBpbGVkIGEKbGFiZWwgYjoKICAgICJIZWxsbyIKUlBZQzIgbW9kdWxlClJQWUMyIHVwcGVyIGNhc2Ugc3VmZml4ColQTkcgbm90IHJlYWxseXRyYW5zbGF0ZSBydXNzaWFuIHN0YXJ0XzE6CiAgICAieCIKdGFpbCBvZiBhIHByZWZpeGVkIHNjcmlwdApvdXRzaWRlCmFic29sdXRlCmRyaXZlCnVwCndpbmRvd3Mgc2VwYXJhdG9ycwpkb3RzCnicTdHJTgJBEIDhERcUZLEUcRdEXBIzHb0YtxMXL5UYvTQJfShghIksUwy4JJp48+ST+DY+g4lP4NXYFheSPs3/pbrS8xp5YWdPJx3HCWs9P+iHitxe8FTjMcMRXAQsgrbR4fE3niCdGIHVf8iThqcwCpiHpiVR0qkR0v4n7RpPG57BZ8ATQTHSMIJumt1B372+Kpc4bngWCfBAXIL0rHV+mxpeqB7doNPgpOEUlgHPRKRJZ6zot1RvEIY+ddRwqGw2ZxjwEjArdH44LOh5t/6jVxexYDiDH4AZ0FHbCrmmR/UYL75xlnTcfnFd5d37LcFLhpfxHfBcxq2QnrZAUTWUump4DX8AL6Suk47ZWjpVD35H+obhTfwFPJKeI3lyUvYCewaBmLzhLfwCPBZTIJ22pkq1u0rYorBZGS69bbiI34C7onaG/8RV9W5f2W2F7Brew0/AQyH7NHD/AMZricI=",
+   "sha1": "cb6dc837795ed1276787fd6f54c30f1e206b4713"
+  },
+  "ws8/game/scripts/Shout.RPYC": {
+   "sha1": "6f952e91b286218b74cd6d1e3f38a95b93fc0801",
+   "text": "RPYC2 upper case suffix\n"
+  },
+  "ws8/game/scripts/a.rpyc": {
+   "sha1": "0e6d6a977ba38cae82320c48c6202016e0efbbf2",
+   "text": "RPYC2 compiled a\n"
+  },
+  "ws8/game/scripts/b.rpy": {
+   "sha1": "da7d051d60a58d03e30def7260f35165b5dd96e3",
+   "text": "label b:\n    \"Hello\"\n"
+  },
+  "ws8/game/scripts/m.rpymc": {
+   "sha1": "89cd5f1cc7cbbca1d0c446625391b6064b2c3003",
+   "text": "RPYC2 module\n"
+  },
+  "ws8/game/sub/Mod.RPYMC": {
+   "sha1": "98bb1b030b9c3559107d1cda908b9dd73c1d2b1a",
+   "text": "RPYC2 module"
+  },
+  "ws8/game/sub/more.rpyc": {
+   "sha1": "f51a1972a748afc1338729d7bb229efd07b72b99",
+   "text": "RPYC2 more"
+  },
+  "ws8/game/sub/pic.png": {
+   "sha1": "deaabdb02c825d2f83ea1848151174e6a473265e",
+   "text": "not really a picture"
+  },
+  "ws8/game/tl/russian/script.rpy": {
+   "sha1": "b012735492d38c89ed0096e7bd41e28e740a4ef9",
+   "text": "translate russian start_1:\n    \"x\"\n"
+  },
+  "ws8/lib/py3-linux-x86_64/python": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws8/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "4235227b51436ad86d07c7cf5d69bda2644984de",
+   "text": "python"
+  },
+  "ws8/renpy/common.py": {
+   "sha1": "f8c984b3bcff9ec743e9c28fe04c6ed0b5b9d764",
+   "text": "# engine"
+  }
+ },
+ "steps": [
+  {
+   "answer": [
+    "a.txt",
+    "a/b/c.txt",
+    "a/b.txt",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "a/b",
+    null,
+    "a/b",
+    null,
+    null,
+    "ünï/çode.rpy"
+   ],
+   "op": "gametools.safe_target",
+   "params": {
+    "dest": "out",
+    "names": [
+     "a.txt",
+     "a/b/c.txt",
+     "a\\b.txt",
+     "../x",
+     "a/../b",
+     "a/../../x",
+     "/abs",
+     "\\\\unc",
+     "C:/x",
+     "c:rel",
+     "",
+     ".",
+     "./",
+     "a//b",
+     "..",
+     "a/./b",
+     "x/y/..",
+     "a\u0000b",
+     "ünï/çode.rpy"
+    ]
+   }
+  },
+  {
+   "answer": [
+    [
+     "../evil.rpy",
+     8
+    ],
+    [
+     "./dot/./e.rpy",
+     5
+    ],
+    [
+     "/abs.rpy",
+     9
+    ],
+    [
+     "C:/win.rpy",
+     6
+    ],
+    [
+     "a/../../up.rpy",
+     3
+    ],
+    [
+     "back/slash/d.rpy",
+     19
+    ],
+    [
+     "images/x.png",
+     15
+    ],
+    [
+     "prefixed.rpy",
+     33
+    ],
+    [
+     "scripts/Shout.RPYC",
+     24
+    ],
+    [
+     "scripts/a.rpyc",
+     17
+    ],
+    [
+     "scripts/b.rpy",
+     21
+    ],
+    [
+     "scripts/m.rpymc",
+     13
+    ],
+    [
+     "tl/russian/script.rpy",
+     35
+    ]
+   ],
+   "op": "gametools.list",
+   "params": {
+    "archive": "src/game/scripts.rpa"
+   }
+  },
+  {
+   "answer": [
+    [
+     "beyond.rpy",
+     7
+    ],
+    [
+     "huge.rpy",
+     3221225472
+    ],
+    [
+     "ok.rpy",
+     5
+    ],
+    [
+     "short.rpy",
+     5000
+    ]
+   ],
+   "op": "gametools.list",
+   "params": {
+    "archive": "arch/lies.rpa"
+   }
+  },
+  {
+   "answer": {
+    "bytes": 182,
+    "skipped": [
+     [
+      "../evil.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "/abs.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "C:/win.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "a/../../up.rpy",
+      "the path would lead outside the target folder"
+     ]
+    ],
+    "written": [
+     "./dot/./e.rpy",
+     "back/slash/d.rpy",
+     "images/x.png",
+     "prefixed.rpy",
+     "scripts/Shout.RPYC",
+     "scripts/a.rpyc",
+     "scripts/b.rpy",
+     "scripts/m.rpymc",
+     "tl/russian/script.rpy"
+    ]
+   },
+   "op": "gametools.extract",
+   "params": {
+    "archive": "src/game/scripts.rpa",
+    "dest": "out/all"
+   }
+  },
+  {
+   "answer": {
+    "bytes": 0,
+    "skipped": [
+     [
+      "../evil.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "./dot/./e.rpy",
+      "the file already exists"
+     ],
+     [
+      "/abs.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "C:/win.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "a/../../up.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "back/slash/d.rpy",
+      "the file already exists"
+     ],
+     [
+      "images/x.png",
+      "the file already exists"
+     ],
+     [
+      "prefixed.rpy",
+      "the file already exists"
+     ],
+     [
+      "scripts/Shout.RPYC",
+      "the file already exists"
+     ],
+     [
+      "scripts/a.rpyc",
+      "the file already exists"
+     ],
+     [
+      "scripts/b.rpy",
+      "the file already exists"
+     ],
+     [
+      "scripts/m.rpymc",
+      "the file already exists"
+     ],
+     [
+      "tl/russian/script.rpy",
+      "the file already exists"
+     ]
+    ],
+    "written": []
+   },
+   "op": "gametools.extract",
+   "params": {
+    "archive": "src/game/scripts.rpa",
+    "dest": "out/all"
+   }
+  },
+  {
+   "answer": {
+    "bytes": 36,
+    "skipped": [],
+    "written": [
+     "images/x.png",
+     "scripts/b.rpy"
+    ]
+   },
+   "op": "gametools.extract",
+   "params": {
+    "archive": "src/game/scripts.rpa",
+    "dest": "out/all",
+    "only": [
+     "scripts/b.rpy",
+     "images/x.png",
+     "nothing/here.rpy"
+    ],
+    "overwrite": true
+   }
+  },
+  {
+   "answer": {
+    "bytes": 39,
+    "skipped": [
+     [
+      "../evil.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "/abs.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "C:/win.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "a/../../up.rpy",
+      "the path would lead outside the target folder"
+     ],
+     [
+      "prefixed.rpy",
+      "the file is too large"
+     ],
+     [
+      "scripts/Shout.RPYC",
+      "the file is too large"
+     ],
+     [
+      "scripts/a.rpyc",
+      "the total limit of the extraction was exceeded"
+     ],
+     [
+      "scripts/b.rpy",
+      "the file is too large"
+     ],
+     [
+      "scripts/m.rpymc",
+      "the total limit of the extraction was exceeded"
+     ],
+     [
+      "tl/russian/script.rpy",
+      "the file is too large"
+     ]
+    ],
+    "written": [
+     "./dot/./e.rpy",
+     "back/slash/d.rpy",
+     "images/x.png"
+    ]
+   },
+   "op": "gametools.extract",
+   "params": {
+    "archive": "src/game/scripts.rpa",
+    "dest": "out/small",
+    "max_file": 20,
+    "max_total": 40
+   }
+  },
+  {
+   "answer": {
+    "bytes": 5,
+    "skipped": [
+     [
+      "beyond.rpy",
+      "cannot be written: the archive ends earlier than the index promises"
+     ],
+     [
+      "huge.rpy",
+      "the file is too large"
+     ],
+     [
+      "short.rpy",
+      "cannot be written: the archive ends earlier than the index promises"
+     ]
+    ],
+    "written": [
+     "ok.rpy"
+    ]
+   },
+   "op": "gametools.extract",
+   "params": {
+    "archive": "arch/lies.rpa",
+    "dest": "out/lies"
+   }
+  },
+  {
+   "answer": {
+    "error": "not an RPA 2 / 3 archive"
+   },
+   "op": "gametools.extract",
+   "params": {
+    "archive": "src/game/script.rpyc",
+    "dest": "out/none"
+   }
+  },
+  {
+   "answer": {
+    "error": "The target is not a folder: <TMP>/src/game/script.rpyc"
+   },
+   "op": "gametools.extract",
+   "params": {
+    "archive": "src/game/scripts.rpa",
+    "dest": "src/game/script.rpyc"
+   }
+  },
+  {
+   "answer": {
+    "copied": 4,
+    "linked": 7
+   },
+   "op": "gametools.workspace",
+   "params": {
+    "game": "src",
+    "workspace": "ws"
+   }
+  },
+  {
+   "answer": {
+    "copied": 0,
+    "linked": 0
+   },
+   "op": "gametools.workspace",
+   "params": {
+    "game": "src",
+    "workspace": "ws"
+   }
+  },
+  {
+   "answer": {
+    "error": "The workspace must not be inside the game folder."
+   },
+   "op": "gametools.workspace",
+   "params": {
+    "game": "src",
+    "workspace": "src/ws_inside"
+   }
+  },
+  {
+   "answer": {
+    "error": "The workspace must not be inside the game folder."
+   },
+   "op": "gametools.workspace",
+   "params": {
+    "game": "src/game",
+    "workspace": "src"
+   }
+  },
+  {
+   "answer": {
+    "error": "The workspace must not be inside the game folder."
+   },
+   "op": "gametools.workspace",
+   "params": {
+    "game": "src",
+    "workspace": "src"
+   }
+  },
+  {
+   "answer": {
+    "error": "There is no game subfolder in the folder: <TMP>/tools"
+   },
+   "op": "gametools.workspace",
+   "params": {
+    "game": "tools",
+    "workspace": "ws_nogame"
+   }
+  },
+  {
+   "answer": 3,
+   "op": "gametools.copy_scripts",
+   "params": {
+    "game": "src/game",
+    "workspace": "scripts_only"
+   }
+  },
+  {
+   "answer": {
+    "error": "The workspace must not be inside the game folder."
+   },
+   "op": "gametools.copy_scripts",
+   "params": {
+    "game": "src/game",
+    "workspace": "src/game/inside"
+   }
+  },
+  {
+   "answer": {
+    "archives": 1,
+    "skipped": 4,
+    "written": 8
+   },
+   "op": "gametools.extract_scripts",
+   "params": {
+    "workspace": "ws"
+   }
+  },
+  {
+   "answer": {
+    "archives": 1,
+    "skipped": 12,
+    "written": 0
+   },
+   "op": "gametools.extract_scripts",
+   "params": {
+    "workspace": "ws"
+   }
+  },
+  {
+   "answer": {
+    "archives": 0,
+    "skipped": 0,
+    "written": 0
+   },
+   "op": "gametools.extract_scripts",
+   "params": {
+    "workspace": "nothing_here"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "--try-harder",
+       "<TMP>/ws/game"
+      ],
+      "<TMP>/tools"
+     ]
+    ],
+    "result": {
+     "exit_code": 0,
+     "ok": true,
+     "raw": "decompiled 3 files",
+     "seconds": "<volatile>",
+     "written": [
+      "new/deep.rpy",
+      "script.rpy"
+     ]
+    }
+   },
+   "op": "gametools.decompile",
+   "params": {
+    "fake": [
+     {
+      "code": 0,
+      "text": "decompiled 3 files",
+      "writes": {
+       "ws/game/new/deep.rpy": "label deep:\n",
+       "ws/game/script.rpy": "label start:\n",
+       "ws/game/scripts/b.rpy": "label b:\n    \"Hello\"\n"
+      }
+     }
+    ],
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "try_harder": true,
+    "workspace": "ws/game"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "-c",
+       "--no-init-offset",
+       "<TMP>/ws/game"
+      ],
+      "<TMP>/tools"
+     ]
+    ],
+    "result": {
+     "exit_code": 1,
+     "ok": false,
+     "raw": "Traceback ...",
+     "seconds": "<volatile>",
+     "written": [
+      "late.rpy"
+     ]
+    }
+   },
+   "op": "gametools.decompile",
+   "params": {
+    "clobber": true,
+    "fake": [
+     {
+      "code": 1,
+      "text": "Traceback ...",
+      "writes": {
+       "ws/game/late.rpy": "x"
+      }
+     }
+    ],
+    "no_init_offset": true,
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws/game"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "<TMP>/ws/game"
+      ],
+      "<TMP>/tools"
+     ]
+    ],
+    "result": {
+     "error": "The command took longer than 5 s and was stopped."
+    }
+   },
+   "op": "gametools.decompile",
+   "params": {
+    "fake": [
+     {
+      "raise": "The command took longer than 5 s and was stopped."
+     }
+    ],
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws/game"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "The Python for unrpyc does not exist: <TMP>/tools/missing.exe"
+    }
+   },
+   "op": "gametools.decompile",
+   "params": {
+    "python": "tools/missing.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws/game"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "The script unrpyc.py does not exist: <TMP>/tools/missing.py"
+    }
+   },
+   "op": "gametools.decompile",
+   "params": {
+    "python": "tools/python.exe",
+    "script": "tools/missing.py",
+    "workspace": "ws/game"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "The workspace folder does not exist: <TMP>/ws/missing"
+    }
+   },
+   "op": "gametools.decompile",
+   "params": {
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws/missing"
+   }
+  },
+  {
+   "answer": [
+    [
+     "",
+     0
+    ],
+    [
+     "x",
+     0
+    ],
+    [
+     "init python:\n    a = 1 + \\\n    2",
+     1
+    ],
+    [
+     "init python hide:\n    a = \\\n    b\\\n    c\n\nz = 2",
+     2
+    ],
+    [
+     "label x:\n    \"hi\" \\\ncont",
+     0
+    ],
+    [
+     "python:\r\n  a = \\\r\n    b\r\n",
+     1
+    ],
+    [
+     "init python:\n    a = 1 \\  \n    next\n   \nlast",
+     1
+    ],
+    [
+     "define x = 1\ninit python:\n    pass\n\\\nstray",
+     0
+    ]
+   ],
+   "op": "gametools.repair",
+   "params": {
+    "texts": [
+     "",
+     "x",
+     "init python:\n    a = 1 + \\\n2",
+     "init python hide:\n    a = \\\nb\\\nc\n\nz = 2",
+     "label x:\n    \"hi\" \\\ncont",
+     "python:\r\n  a = \\\r\nb\r\n",
+     "init python:\n    a = 1 \\  \nnext\n   \nlast",
+     "define x = 1\ninit python:\n    pass\n\\\nstray"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "a.rpy": 1,
+    "b.rpy": 1,
+    "d_bom.rpy": 1
+   },
+   "op": "gametools.repair_files",
+   "params": {
+    "dir": "fix",
+    "files": [
+     "a.rpy",
+     "b.rpy",
+     "c.rpy",
+     "d_bom.rpy",
+     "e_no_python.rpy",
+     "bad.rpy",
+     "missing.rpy"
+    ]
+   }
+  },
+  {
+   "answer": [
+    "a.rpy",
+    "b.rpym",
+    "sub/e.rpy"
+   ],
+   "op": "gametools.quarantine",
+   "params": {
+    "dir": "q",
+    "protect": [
+     "tl/czech/"
+    ],
+    "raw": "File \"game/a.rpy\", line 3, in script\nError\nFile \"game/b.rpym\", line 1\nFile \"game/tl/czech/c.rpy\", line 5\nFile \"game/missing.rpy\", line 9\nFile \"game/sub/e.rpy\", line 2\nFile \"game/a.rpy\", line 8\nFile \"other/d.rpy\", line 1\nFile \"game/d.txt\", line 2"
+   }
+  },
+  {
+   "answer": [],
+   "op": "gametools.quarantine",
+   "params": {
+    "dir": "q",
+    "protect": [],
+    "raw": ""
+   }
+  },
+  {
+   "answer": {
+    "exists": true,
+    "folder": "<TMP>/src/game/tl/czech"
+   },
+   "op": "gametools.plan",
+   "params": {
+    "base": "src",
+    "language": "czech"
+   }
+  },
+  {
+   "answer": {
+    "exists": false,
+    "folder": "<TMP>/src/game/tl/german"
+   },
+   "op": "gametools.plan",
+   "params": {
+    "base": "src",
+    "language": "german"
+   }
+  },
+  {
+   "answer": {
+    "exists": false,
+    "folder": "<TMP>/src/game/tl/_x9"
+   },
+   "op": "gametools.plan",
+   "params": {
+    "base": "src",
+    "language": "_x9"
+   }
+  },
+  {
+   "answer": {
+    "error": "The language name may contain only letters, digits and an underscore and must not start with a digit."
+   },
+   "op": "gametools.plan",
+   "params": {
+    "base": "src",
+    "language": "1bad"
+   }
+  },
+  {
+   "answer": {
+    "error": "The language name may contain only letters, digits and an underscore and must not start with a digit."
+   },
+   "op": "gametools.plan",
+   "params": {
+    "base": "src",
+    "language": ""
+   }
+  },
+  {
+   "answer": {
+    "error": "The language name may contain only letters, digits and an underscore and must not start with a digit."
+   },
+   "op": "gametools.plan",
+   "params": {
+    "base": "src",
+    "language": "cz ech"
+   }
+  },
+  {
+   "answer": {
+    "error": "The language name may contain only letters, digits and an underscore and must not start with a digit."
+   },
+   "op": "gametools.plan",
+   "params": {
+    "base": "src",
+    "language": "über"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "Generating writes into the project (game/tl/german); it must be confirmed explicitly."
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "language": "german",
+    "sdk": "src",
+    "write": false
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "The folder <TMP>/src/game/tl/czech already exists and I will not overwrite it."
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "src",
+    "language": "czech",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "There is no game subfolder in the folder: <TMP>/tools"
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "tools",
+    "language": "german",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "The language name may contain only letters, digits and an underscore and must not start with a digit."
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "language": "1bad",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "The Ren'Py SDK folder does not exist: <TMP>/nowhere"
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "language": "german",
+    "sdk": "nowhere",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "I did not find renpy.py and the built-in Python (lib/py3-…, lib/windows-x86_64 …) nor renpy.sh in the SDK. Is it the folder of an unpacked Ren'Py SDK?"
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "language": "german",
+    "sdk": "proj/game",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/src/lib/py3-linux-x86_64/python",
+       "-EO",
+       "<TMP>/src/Game.py",
+       "<TMP>/proj",
+       "translate",
+       "german"
+      ],
+      "<TMP>/src"
+     ]
+    ],
+    "result": {
+     "exit_code": 1,
+     "files": [],
+     "folder": "<TMP>/proj/game/tl/german",
+     "ok": false,
+     "raw": "failed without files",
+     "seconds": "<volatile>"
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "fake": [
+     {
+      "code": 1,
+      "text": "failed without files"
+     }
+    ],
+    "language": "german",
+    "platform": "linux",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/src/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/src/Game.py",
+       "<TMP>/proj",
+       "translate",
+       "french"
+      ],
+      "<TMP>/src"
+     ]
+    ],
+    "result": {
+     "exit_code": 0,
+     "files": [],
+     "folder": "<TMP>/proj/game/tl/french",
+     "ok": false,
+     "raw": "nothing written",
+     "seconds": "<volatile>"
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "fake": [
+     {
+      "code": 0,
+      "text": "nothing written"
+     }
+    ],
+    "language": "french",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/src/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/src/Game.py",
+       "<TMP>/proj",
+       "translate",
+       "italian"
+      ],
+      "<TMP>/src"
+     ]
+    ],
+    "result": {
+     "exit_code": 1,
+     "files": [
+      "script.rpy"
+     ],
+     "folder": "<TMP>/proj/game/tl/italian",
+     "ok": false,
+     "raw": "failed but wrote",
+     "seconds": "<volatile>"
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "fake": [
+     {
+      "code": 1,
+      "text": "failed but wrote",
+      "writes": {
+       "proj/game/tl/italian/script.rpy": "translate italian a:\n"
+      }
+     }
+    ],
+    "language": "italian",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/src/lib/py3-linux-x86_64/python",
+       "-EO",
+       "<TMP>/src/Game.py",
+       "<TMP>/proj",
+       "translate",
+       "german"
+      ],
+      "<TMP>/src"
+     ]
+    ],
+    "result": {
+     "exit_code": 0,
+     "files": [
+      "script.rpy",
+      "sub/more.rpy"
+     ],
+     "folder": "<TMP>/proj/game/tl/german",
+     "ok": true,
+     "raw": "Ren'Py translate ok",
+     "seconds": "<volatile>"
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "fake": [
+     {
+      "code": 0,
+      "text": "Ren'Py translate ok",
+      "writes": {
+       "proj/game/tl/german/readme.txt": "not a script",
+       "proj/game/tl/german/script.rpy": "translate german start_1:\n",
+       "proj/game/tl/german/sub/more.rpy": "translate german more_1:\n"
+      }
+     }
+    ],
+    "language": "german",
+    "platform": "linux",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "The folder <TMP>/proj/game/tl/german already exists and I will not overwrite it."
+    }
+   },
+   "op": "gametools.generate",
+   "params": {
+    "base": "proj",
+    "language": "german",
+    "sdk": "src",
+    "write": true
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "--try-harder",
+       "<TMP>/ws2/game"
+      ],
+      "<TMP>/tools"
+     ],
+     [
+      [
+       "<TMP>/ws2/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/ws2/Game.py",
+       "<TMP>/ws2",
+       "translate",
+       "czech"
+      ],
+      "<TMP>/ws2"
+     ],
+     [
+      [
+       "<TMP>/ws2/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/ws2/Game.py",
+       "<TMP>/ws2",
+       "translate",
+       "czech"
+      ],
+      "<TMP>/ws2"
+     ]
+    ],
+    "result": {
+     "decompile": {
+      "exit_code": 0,
+      "ok": true,
+      "raw": "decompiled",
+      "seconds": "<volatile>",
+      "written": [
+       "main.rpy"
+      ]
+     },
+     "extract": {
+      "archives": 1,
+      "skipped": 4,
+      "written": 8
+     },
+     "generate": {
+      "exit_code": 0,
+      "files": [
+       "script.rpy"
+      ],
+      "folder": "<TMP>/ws2/game/tl/czech",
+      "ok": true,
+      "raw": "generated",
+      "seconds": "<volatile>"
+     },
+     "ok": true,
+     "quarantined": [
+      "scripts/b.rpy"
+     ],
+     "repaired": {
+      "main.rpy": 1
+     },
+     "workspace": "<TMP>/ws2",
+     "workspace_files": {
+      "copied": 4,
+      "linked": 7
+     }
+    },
+    "steps": [
+     "workspace",
+     "extract",
+     "decompile",
+     "generate"
+    ]
+   },
+   "op": "gametools.prepare",
+   "params": {
+    "fake": [
+     {
+      "code": 0,
+      "text": "decompiled",
+      "writes": {
+       "ws2/game/main.rpy": "init python:\n    value = 1 + \\\n2\n"
+      }
+     },
+     {
+      "code": 1,
+      "text": "File \"game/scripts/b.rpy\", line 2\n  error",
+      "writes": {
+       "ws2/game/tl/czech/note.txt": "left behind"
+      }
+     },
+     {
+      "code": 0,
+      "text": "generated",
+      "writes": {
+       "ws2/game/tl/czech/script.rpy": "translate czech start_1:\n"
+      }
+     }
+    ],
+    "game": "src",
+    "language": "czech",
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws2"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "--try-harder",
+       "<TMP>/ws3/game"
+      ],
+      "<TMP>/tools"
+     ]
+    ],
+    "result": {
+     "decompile": {
+      "exit_code": 1,
+      "ok": false,
+      "raw": "unrpyc failed",
+      "seconds": "<volatile>",
+      "written": []
+     },
+     "extract": {
+      "archives": 1,
+      "skipped": 4,
+      "written": 8
+     },
+     "ok": false,
+     "workspace": "<TMP>/ws3",
+     "workspace_files": {
+      "copied": 4,
+      "linked": 7
+     }
+    },
+    "steps": [
+     "workspace",
+     "extract",
+     "decompile"
+    ]
+   },
+   "op": "gametools.prepare",
+   "params": {
+    "fake": [
+     {
+      "code": 1,
+      "text": "unrpyc failed"
+     }
+    ],
+    "game": "src",
+    "language": "czech",
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws3"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "--try-harder",
+       "<TMP>/ws4/game"
+      ],
+      "<TMP>/tools"
+     ]
+    ],
+    "result": {
+     "error": "The command took longer than 5 s and was stopped."
+    },
+    "steps": [
+     "workspace",
+     "extract",
+     "decompile"
+    ]
+   },
+   "op": "gametools.prepare",
+   "params": {
+    "fake": [
+     {
+      "raise": "The command took longer than 5 s and was stopped."
+     }
+    ],
+    "game": "src",
+    "language": "czech",
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws4"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "--try-harder",
+       "<TMP>/ws5/game"
+      ],
+      "<TMP>/tools"
+     ],
+     [
+      [
+       "<TMP>/ws5/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/ws5/Game.py",
+       "<TMP>/ws5",
+       "translate",
+       "czech"
+      ],
+      "<TMP>/ws5"
+     ]
+    ],
+    "result": {
+     "decompile": {
+      "exit_code": 0,
+      "ok": true,
+      "raw": "decompiled",
+      "seconds": "<volatile>",
+      "written": []
+     },
+     "extract": {
+      "archives": 1,
+      "skipped": 4,
+      "written": 8
+     },
+     "generate": {
+      "exit_code": 1,
+      "files": [],
+      "folder": "<TMP>/ws5/game/tl/czech",
+      "ok": false,
+      "raw": "File \"game/none.rpy\", line 1\n  error",
+      "seconds": "<volatile>"
+     },
+     "ok": false,
+     "quarantined": [],
+     "repaired": {},
+     "workspace": "<TMP>/ws5",
+     "workspace_files": {
+      "copied": 4,
+      "linked": 7
+     }
+    },
+    "steps": [
+     "workspace",
+     "extract",
+     "decompile",
+     "generate"
+    ]
+   },
+   "op": "gametools.prepare",
+   "params": {
+    "fake": [
+     {
+      "code": 0,
+      "text": "decompiled"
+     },
+     {
+      "code": 1,
+      "text": "File \"game/none.rpy\", line 1\n  error"
+     }
+    ],
+    "game": "src",
+    "language": "czech",
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws5"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "--try-harder",
+       "<TMP>/ws6/game"
+      ],
+      "<TMP>/tools"
+     ],
+     [
+      [
+       "<TMP>/ws6/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/ws6/Game.py",
+       "<TMP>/ws6",
+       "translate",
+       "czech"
+      ],
+      "<TMP>/ws6"
+     ],
+     [
+      [
+       "<TMP>/ws6/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/ws6/Game.py",
+       "<TMP>/ws6",
+       "translate",
+       "czech"
+      ],
+      "<TMP>/ws6"
+     ],
+     [
+      [
+       "<TMP>/ws6/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/ws6/Game.py",
+       "<TMP>/ws6",
+       "translate",
+       "czech"
+      ],
+      "<TMP>/ws6"
+     ]
+    ],
+    "result": {
+     "decompile": {
+      "exit_code": 0,
+      "ok": true,
+      "raw": "decompiled",
+      "seconds": "<volatile>",
+      "written": []
+     },
+     "extract": {
+      "archives": 1,
+      "skipped": 4,
+      "written": 8
+     },
+     "generate": {
+      "exit_code": 1,
+      "files": [],
+      "folder": "<TMP>/ws6/game/tl/czech",
+      "ok": false,
+      "raw": "File \"game/back/slash/d.rpy\", line 2",
+      "seconds": "<volatile>"
+     },
+     "ok": false,
+     "quarantined": [
+      "scripts/b.rpy",
+      "prefixed.rpy",
+      "back/slash/d.rpy"
+     ],
+     "repaired": {},
+     "workspace": "<TMP>/ws6",
+     "workspace_files": {
+      "copied": 4,
+      "linked": 7
+     }
+    },
+    "steps": [
+     "workspace",
+     "extract",
+     "decompile",
+     "generate"
+    ]
+   },
+   "op": "gametools.prepare",
+   "params": {
+    "fake": [
+     {
+      "code": 0,
+      "text": "decompiled"
+     },
+     {
+      "code": 1,
+      "text": "File \"game/scripts/b.rpy\", line 2"
+     },
+     {
+      "code": 1,
+      "text": "File \"game/prefixed.rpy\", line 2"
+     },
+     {
+      "code": 1,
+      "text": "File \"game/back/slash/d.rpy\", line 2"
+     }
+    ],
+    "game": "src",
+    "language": "czech",
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws6"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "result": {
+     "error": "There is no game subfolder in the folder: <TMP>/src/game"
+    },
+    "steps": [
+     "workspace"
+    ]
+   },
+   "op": "gametools.prepare",
+   "params": {
+    "game": "src/game",
+    "language": "czech",
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws7"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/tools/python.exe",
+       "<TMP>/tools/unrpyc.py",
+       "--try-harder",
+       "<TMP>/ws8/game"
+      ],
+      "<TMP>/tools"
+     ]
+    ],
+    "result": {
+     "error": "The language name may contain only letters, digits and an underscore and must not start with a digit."
+    },
+    "steps": [
+     "workspace",
+     "extract",
+     "decompile",
+     "generate"
+    ]
+   },
+   "op": "gametools.prepare",
+   "params": {
+    "fake": [
+     {
+      "code": 0,
+      "text": "decompiled"
+     }
+    ],
+    "game": "src",
+    "language": "bad lang",
+    "python": "tools/python.exe",
+    "script": "tools/unrpyc.py",
+    "workspace": "ws8"
+   }
+  }
+ ]
+}

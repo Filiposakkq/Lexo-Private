@@ -62,6 +62,11 @@ fn main() {
         println!("{}", lexo_golden::data::game_json(std::path::Path::new(&args[1]), tl));
         return;
     }
+    if args.first().map(String::as_str) == Some("--dump-tools") && args.len() > 2 {
+        // `--dump-tools <folder holding game/> <scratch folder>`: the archives, the workspace of links and the copied scripts of a built game (made in the scratch folder, removed again)
+        println!("{}", lexo_golden::data::tools_json(std::path::Path::new(&args[1]), std::path::Path::new(&args[2])));
+        return;
+    }
     let (list, strict) = (args.iter().any(|a| a == "--list"), args.iter().any(|a| a == "--strict"));
     let golden = golden_dir();
     let cases = match inventory(&golden) {

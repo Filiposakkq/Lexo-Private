@@ -84,7 +84,7 @@ class InputsTests(unittest.TestCase):
     def test_the_recorded_answers_hold_nothing_that_belongs_to_one_machine(self):
         for p in gt.EXPECTED.rglob("*.json"):
             text = p.read_text(encoding="utf-8")
-            self.assertIsNone(re.search(r"[A-Za-z]:(?:/|\\(?![nrt\"\\u]))", text.replace("\\\\", "\\")) if "<TMP>" not in text else re.search(r"[A-Za-z]:\\\\Users", text), p.name)
+            self.assertIsNone(re.search(r"(?<![A-Za-z])[A-Za-z]:(?:/|\\(?![nrt\"\\u]))",text.replace("\\\\", "\\")) if "<TMP>" not in text else re.search(r"[A-Za-z]:\\\\Users", text), p.name)
             self.assertNotIn("filip", text.lower(), p.name)
 
     def test_the_inputs_are_not_touched_by_a_checkout(self):

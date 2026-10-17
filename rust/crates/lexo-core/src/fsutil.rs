@@ -197,3 +197,41 @@ pub fn text_matcher(query: &str, whole: bool) -> Option<Matcher> {
     let rx = Regex::new(&format!(r"(?i)(?<!\w){}(?!\w)", fancy_regex::escape(q))).ok()?;
     Some(Box::new(move |text: &str| rx.is_match(text).unwrap_or(false)))
 }
+
+/// `Path.resolve()` of Python (not strict): absolute, `.` and `..` folded, the links of the part that exists followed, the rest appended as it is. No `\?\` prefix on Windows.
+pub fn resolve(p: &Path) -> PathBuf {
+    use std::path::Component;
+    let abs = if p.is_absolute() { p.to_path_buf() } else { std::env::current_dir().map(|c| c.join(p)).unwrap_or_else(|_| p.to_path_buf()) };
+    let mut flat = PathBuf::new();
+    for c in abs.components() {
+        match c {
+            Component::ParentDir => {
+                flat.pop();
+            }
+            Component::CurDir => {}
+            other => flat.push(other.as_os_str()),
+        }
+    }
+    let (mut existing, mut rest) = (flat, Vec::new());
+    let base = loop {
+        if let Ok(c) = fs::canonicalize(&existing) {
+            break c;
+        }
+        match existing.file_name().map(|n| n.to_owned()) {
+            Some(n) => {
+                rest.push(n);
+                existing.pop();
+            }
+            None => break existing,
+        }
+    };
+    let text = base.to_string_lossy().into_owned();
+    let mut out = match text.strip_prefix(r"\\?\UNC\") {
+        Some(unc) => PathBuf::from(format!(r"\\{unc}")),
+        None => PathBuf::from(text.strip_prefix(r"\\?\").unwrap_or(&text)),
+    };
+    for n in rest.iter().rev() {
+        out.push(n);
+    }
+    out
+}
