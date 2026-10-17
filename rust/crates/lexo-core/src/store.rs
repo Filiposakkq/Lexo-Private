@@ -218,7 +218,7 @@ enum Snapshot {
 
 #[derive(Clone, Debug)]
 struct UndoStep {
-    label: String,
+    label: Label,
     kinds: Vec<Kind>,
     before: Vec<Snapshot>,
 }
@@ -288,7 +288,7 @@ impl Store {
     }
 
     pub fn undo_labels(&self) -> Vec<String> {
-        self.undo_stack.iter().map(|s| s.label.clone()).collect()
+        self.undo_stack.iter().map(|s| s.label.text()).collect()
     }
 
     // ------------------------------------------------------------ load
@@ -736,7 +736,7 @@ impl Store {
     }
 
     /// Run `f` (which mutates in-memory state), save `kinds`, and record an undo step. If saving fails, memory is rolled back and the error returned.
-    pub fn change<F: FnOnce(&mut Store)>(&mut self, label: &str, kinds: &[Kind], f: F, clock: &dyn Clock) -> Result<(), WriteFailed> {
+    pub fn change<F: FnOnce(&mut Store)>(&mut self, label: Label, kinds: &[Kind], f: F, clock: &dyn Clock) -> Result<(), WriteFailed> {
         let before: Vec<Snapshot> = kinds.iter().map(|k| self.snapshot(*k)).collect();
         f(self);
         for k in kinds {
@@ -749,7 +749,7 @@ impl Store {
         }
         let after: Vec<Snapshot> = kinds.iter().map(|k| self.snapshot(*k)).collect();
         if before != after {
-            self.undo_stack.push(UndoStep { label: label.to_string(), kinds: kinds.to_vec(), before });
+            self.undo_stack.push(UndoStep { label, kinds: kinds.to_vec(), before });
             if self.undo_stack.len() > UNDO_LIMIT {
                 self.undo_stack.remove(0);
             }
@@ -759,7 +759,7 @@ impl Store {
     }
 
     /// Revert the most recent change. Returns its label, or `None` when there is nothing to undo.
-    pub fn undo(&mut self, clock: &dyn Clock) -> Result<Option<String>, WriteFailed> {
+    pub fn undo(&mut self, clock: &dyn Clock) -> Result<Option<Label>, WriteFailed> {
         let Some(step) = self.undo_stack.last().cloned() else { return Ok(None) };
         let current: Vec<Snapshot> = step.kinds.iter().map(|k| self.snapshot(*k)).collect();
         for s in step.before.iter().cloned() {

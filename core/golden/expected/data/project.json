@@ -1,0 +1,842 @@
+{
+ "files_after": {
+  "nordy/readme.txt": {
+   "sha1": "90bea5cd2f3a2f3e731dad38a864df33100535ca",
+   "text": "no scripts\n"
+  },
+  "root/game/tl/czech/.lexo/approved.csv": {
+   "sha1": "162b43404c77ae67b074982d0b7b99045f8f0b98",
+   "text": "﻿file;block;original\r\na.rpy;strings;Maybe\r\na.rpy;translate czech a_2;Bye\r\n"
+  },
+  "root/game/tl/czech/.lexo/assignments.csv": {
+   "sha1": "1f596d968b97beceb739971ee50673495f351588",
+   "text": "﻿file;group\r\n"
+  },
+  "root/game/tl/czech/.lexo/ignored_folder.rpy": {
+   "sha1": "7de2a8423b8094599b973b602772d5ff9a713c16",
+   "text": "translate czech x_1:\n\n    # \"Hidden\"\n    \"Skryte\"\n"
+  },
+  "root/game/tl/czech/.lexo/line_marks.csv": {
+   "sha1": "61049c1d9e1d440013192edc7e0f9bda00152f56",
+   "text": "﻿file;block;original;state;hash;note;date\r\na.rpy;strings;Yes;fix;e6b262e775e3;check it;2026-10-02\r\na.rpy;translate czech a_1;Hello;ok;5bda927208c5;;2026-10-01\r\na.rpy;translate czech a_2;Bye;ok;0;;\r\na.rpy;translate czech a_3;[name], the {i}end{/i}.;ok;000000000000;;2026-10-01\r\n"
+  },
+  "root/game/tl/czech/.lexo/proofread.csv": {
+   "sha1": "256180853e56b707478b04b4b4a4793997c62d7d",
+   "text": "﻿file;proofread;translated_manual\r\na.rpy;1;\r\nc_renamed.rpy;;50%\r\ncrlf_bom.rpy;;50%\r\nnothing.rpy;7;7\r\n"
+  },
+  "root/game/tl/czech/c_renamed.rpy": {
+   "sha1": "bf757d43a0afca274675873a59cc3f9877f2ef87",
+   "text": "﻿translate czech c_1:\r\n\r\n    # mc \"One\"\r\n    mc \"Jedna\"\r\n\r\n    # mc \"Two\"\r\n    mc \"Dva\"\r\n"
+  },
+  "root/game/tl/czech/common.rpy": {
+   "sha1": "bfc6f6803cc0ee0c03a8d919958d2d254c23f178",
+   "text": "translate czech common_1:\n\n    # \"Skipped\"\n    \"Preskoceno\"\n"
+  },
+  "root/game/tl/czech/empty.rpy": {
+   "sha1": "5da435b070de1142f6a36680a790432b018b6fb6",
+   "text": "# nothing to translate here\n"
+  },
+  "root/game/tl/czech/moved/b.rpy": {
+   "sha1": "bca4008b8a072e617aa27e14766df91b29d7f91d",
+   "text": "translate czech b_1:\n\n    # js \"Where are you going?\"\n    js \"Kam jdeš?\"\n\ntranslate czech b_2:\n\n    # js \"I don't know.\"\n    js \"Nevim.\"\n\ntranslate czech b_3:\n\n    # js \"Hmm.\"\n    js \"Hmm.\"\n\ntranslate czech b_4:\n\n    # js \"Extra\"\n    js \"Navic\"\n"
+  },
+  "root/local/backups/approved.csv.<stamp>.bak": {
+   "sha1": "3ca635b9ea366e7247500232a557381f7b9eb40e",
+   "text": "file;block;original\r\na.rpy;translate czech a_2;Bye\r\na.rpy;strings;Maybe\r\n"
+  },
+  "root/local/backups/line_marks.csv.<stamp>.bak": {
+   "sha1": "cf0b331c548bb6bee1c0001ce3abf40dae6e303d",
+   "text": "file;block;original;state;hash;note;date\r\na.rpy;translate czech a_1;Hello;ok;5bda927208c5;;2026-10-01\r\na.rpy;translate czech a_3;[name], the {i}end{/i}.;ok;000000000000;;2026-10-01\r\na.rpy;strings;Yes;fix;e6b262e775e3;check it;2026-10-02\r\na.rpy;translate czech a_2;Bye;ok;0;;\r\n"
+  },
+  "root/local/backups/proofread.csv.<stamp>.bak": {
+   "sha1": "4c2c22c7f1dbfe932cffea31a48b5d9621d3fa56",
+   "text": "﻿file;proofread;translated_manual\r\na.rpy;1;\r\ncrlf_bom.rpy;;50%\r\nnothing.rpy;7;7\r\n"
+  },
+  "root2/game/tl/czech/a.rpy": {
+   "sha1": "4e7fe670619ae80fec029c41677118f982b1d148",
+   "text": "translate czech a_1:\n\n    # mc \"Hi\"\n    mc \"Ahoj\"\n"
+  },
+  "root2/game/tl/german/a.rpy": {
+   "sha1": "9905590a808e11c67b9eed16039a4d7c3a147913",
+   "text": "translate german a_1:\n\n    # mc \"Hi\"\n    mc \"Hallo\"\n"
+  },
+  "root3/game/tl/czech/.lexo/x.txt": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root3/game/tl/czech/a.rpy": {
+   "sha1": "4e7fe670619ae80fec029c41677118f982b1d148",
+   "text": "translate czech a_1:\n\n    # mc \"Hi\"\n    mc \"Ahoj\"\n"
+  },
+  "solo/game/tl/czech/z.rpy": {
+   "sha1": "2cb2dd30e82ba17b538e78704748f79c813fcb00",
+   "text": "translate czech z_1:\n\n    # mc \"Hi\"\n    mc \"Ahoj\"\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "message": "The folder does not exist: <TMP>/missing",
+    "ok": false
+   },
+   "op": "project.check_dir",
+   "params": {
+    "path": "missing"
+   }
+  },
+  {
+   "answer": {
+    "message": "It is not a folder: <TMP>/root/game/tl/czech/a.rpy",
+    "ok": false
+   },
+   "op": "project.check_dir",
+   "params": {
+    "path": "root/game/tl/czech/a.rpy"
+   }
+  },
+  {
+   "answer": {
+    "message": "There are no .rpy files in the folder: <TMP>/nordy",
+    "ok": false
+   },
+   "op": "project.check_dir",
+   "params": {
+    "path": "nordy"
+   }
+  },
+  {
+   "answer": {
+    "message": null,
+    "ok": true
+   },
+   "op": "project.check_dir",
+   "params": {
+    "path": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "message": "There are no .rpy files in the folder: <TMP>/root3/game/tl/czech/.lexo",
+    "ok": false
+   },
+   "op": "project.check_dir",
+   "params": {
+    "path": "root3/game/tl/czech/.lexo"
+   }
+  },
+  {
+   "answer": {
+    "folder": "<TMP>/solo/game/tl/czech",
+    "note": "The folder solo is a game folder; its translation czech was opened."
+   },
+   "op": "project.find_tl",
+   "params": {
+    "path": "solo"
+   }
+  },
+  {
+   "answer": {
+    "folder": "<TMP>/solo/game/tl/czech",
+    "note": "The folder game is a game folder; its translation czech was opened."
+   },
+   "op": "project.find_tl",
+   "params": {
+    "path": "solo/game"
+   }
+  },
+  {
+   "answer": {
+    "folder": "<TMP>/solo/game/tl/czech",
+    "note": "The folder tl is a game folder; its translation czech was opened."
+   },
+   "op": "project.find_tl",
+   "params": {
+    "path": "solo/game/tl"
+   }
+  },
+  {
+   "answer": {
+    "folder": "<TMP>/solo/game/tl/czech",
+    "note": null
+   },
+   "op": "project.find_tl",
+   "params": {
+    "path": "solo/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "error": "The folder holds several translations (czech, german); choose one of them."
+   },
+   "op": "project.find_tl",
+   "params": {
+    "path": "root2"
+   }
+  },
+  {
+   "answer": {
+    "folder": "<TMP>/nordy",
+    "note": null
+   },
+   "op": "project.find_tl",
+   "params": {
+    "path": "nordy"
+   }
+  },
+  {
+   "answer": true,
+   "op": "store.open",
+   "params": {
+    "local": "root/local",
+    "shared": "root/game/tl/czech/.lexo"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Maybe"
+      ],
+      [
+       "translate czech a_2",
+       "Bye"
+      ]
+     ]
+    },
+    "assign": {},
+    "corr": {
+     "a.rpy": {
+      "c": "1",
+      "t": ""
+     },
+     "crlf_bom.rpy": {
+      "c": "",
+      "t": "50%"
+     },
+     "nothing.rpy": {
+      "c": "7",
+      "t": "7"
+     }
+    },
+    "episodes": {},
+    "glossary": {},
+    "ignored": {},
+    "proof": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes",
+       {
+        "d": "2026-10-02",
+        "h": "e6b262e775e3",
+        "n": "check it",
+        "s": "fix"
+       }
+      ],
+      [
+       "translate czech a_1",
+       "Hello",
+       {
+        "d": "2026-10-01",
+        "h": "5bda927208c5",
+        "n": "",
+        "s": "ok"
+       }
+      ],
+      [
+       "translate czech a_2",
+       "Bye",
+       {
+        "d": "",
+        "h": "0",
+        "n": "",
+        "s": "ok"
+       }
+      ],
+      [
+       "translate czech a_3",
+       "[name], the {i}end{/i}.",
+       {
+        "d": "2026-10-01",
+        "h": "000000000000",
+        "n": "",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.load",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "project.open",
+   "params": {
+    "root": "root/game/tl/czech",
+    "skip": [
+     "COMMON.rpy"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "added": [
+     "a.rpy",
+     "crlf_bom.rpy",
+     "sub/b.rpy"
+    ],
+    "changed": true,
+    "empty": [
+     "empty.rpy"
+    ],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "added 3.",
+    "unchanged": 0
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": false,
+    "empty": [],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "No changes.",
+    "unchanged": 3
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     "a.rpy",
+     "crlf_bom.rpy",
+     "sub/b.rpy"
+    ],
+    "rows": [
+     [
+      "a.rpy",
+      5,
+      2,
+      7,
+      2,
+      5
+     ],
+     [
+      "crlf_bom.rpy",
+      1,
+      1,
+      2,
+      0,
+      2
+     ],
+     [
+      "sub/b.rpy",
+      1,
+      2,
+      3,
+      0,
+      1
+     ]
+    ],
+    "totals": [
+     7,
+     12,
+     2,
+     58.333333333333336,
+     16.666666666666664
+    ]
+   },
+   "op": "project.rows",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": [
+     5,
+     2,
+     2
+    ],
+    "proof_counts": [
+     1,
+     1
+    ],
+    "stale": 2,
+    "states": [
+     "ok",
+     "stale",
+     "stale",
+     "fix",
+     "",
+     "",
+     ""
+    ],
+    "translated": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
+   },
+   "op": "project.proof",
+   "params": {
+    "rel": "a.rpy"
+   }
+  },
+  {
+   "answer": {
+    "counts": [
+     2,
+     0,
+     0
+    ],
+    "proof_counts": [
+     0,
+     0
+    ],
+    "stale": 0,
+    "states": [
+     "",
+     ""
+    ],
+    "translated": [
+     true,
+     true
+    ]
+   },
+   "op": "project.proof",
+   "params": {
+    "rel": "crlf_bom.rpy"
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "append": true,
+    "path": "root/game/tl/czech/sub/b.rpy",
+    "text": "\ntranslate czech b_4:\n\n    # js \"Extra\"\n    js \"Navic\"\n"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "sub/b.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 1.",
+    "unchanged": 2
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [
+     "empty.rpy"
+    ],
+    "errors": [],
+    "modified": [
+     "a.rpy",
+     "crlf_bom.rpy",
+     "sub/b.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 3.",
+    "unchanged": 0
+   },
+   "op": "project.refresh",
+   "params": {
+    "force": true
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "path": "root/game/tl/czech/c_renamed.rpy",
+    "text": "﻿translate czech c_1:\r\n\r\n    # mc \"One\"\r\n    mc \"Jedna\"\r\n\r\n    # mc \"Two\"\r\n    mc \"Dva\"\r\n"
+   }
+  },
+  {
+   "answer": true,
+   "op": "remove_file",
+   "params": {
+    "path": "root/game/tl/czech/crlf_bom.rpy"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [
+     {
+      "from": "crlf_bom.rpy",
+      "to": "c_renamed.rpy"
+     }
+    ],
+    "seconds": "<volatile>",
+    "summary": "renamed 1.",
+    "unchanged": 2
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "moved": 1,
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "strings",
+        "Maybe"
+       ],
+       [
+        "translate czech a_2",
+        "Bye"
+       ]
+      ]
+     },
+     "assign": {},
+     "corr": {
+      "a.rpy": {
+       "c": "1",
+       "t": ""
+      },
+      "c_renamed.rpy": {
+       "c": "",
+       "t": "50%"
+      },
+      "crlf_bom.rpy": {
+       "c": "",
+       "t": "50%"
+      },
+      "nothing.rpy": {
+       "c": "7",
+       "t": "7"
+      }
+     },
+     "episodes": {},
+     "glossary": {},
+     "ignored": {},
+     "proof": {
+      "a.rpy": [
+       [
+        "strings",
+        "Yes",
+        {
+         "d": "2026-10-02",
+         "h": "e6b262e775e3",
+         "n": "check it",
+         "s": "fix"
+        }
+       ],
+       [
+        "translate czech a_1",
+        "Hello",
+        {
+         "d": "2026-10-01",
+         "h": "5bda927208c5",
+         "n": "",
+         "s": "ok"
+        }
+       ],
+       [
+        "translate czech a_2",
+        "Bye",
+        {
+         "d": "",
+         "h": "0",
+         "n": "",
+         "s": "ok"
+        }
+       ],
+       [
+        "translate czech a_3",
+        "[name], the {i}end{/i}.",
+        {
+         "d": "2026-10-01",
+         "h": "000000000000",
+         "n": "",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "project.migrate",
+   "params": {
+    "renames": [
+     [
+      "crlf_bom.rpy",
+      "c_renamed.rpy"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": {
+    "files": [
+     "a.rpy",
+     "c_renamed.rpy",
+     "sub/b.rpy"
+    ],
+    "rows": [
+     [
+      "a.rpy",
+      5,
+      2,
+      7,
+      2,
+      5
+     ],
+     [
+      "c_renamed.rpy",
+      1,
+      1,
+      2,
+      0,
+      2
+     ],
+     [
+      "sub/b.rpy",
+      2,
+      2,
+      4,
+      0,
+      2
+     ]
+    ],
+    "totals": [
+     8,
+     13,
+     2,
+     61.53846153846154,
+     15.384615384615385
+    ]
+   },
+   "op": "project.rows",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "path": "root/game/tl/czech/moved/b.rpy",
+    "text": "translate czech b_1:\n\n    # js \"Where are you going?\"\n    js \"Kam jdeš?\"\n\ntranslate czech b_2:\n\n    # js \"I don't know.\"\n    js \"Nevim.\"\n\ntranslate czech b_3:\n\n    # js \"Hmm.\"\n    js \"Hmm.\"\n\ntranslate czech b_4:\n\n    # js \"Extra\"\n    js \"Navic\"\n"
+   }
+  },
+  {
+   "answer": true,
+   "op": "remove_file",
+   "params": {
+    "path": "root/game/tl/czech/sub/b.rpy"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [
+     {
+      "from": "sub/b.rpy",
+      "to": "moved/b.rpy"
+     }
+    ],
+    "seconds": "<volatile>",
+    "summary": "renamed 1.",
+    "unchanged": 2
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "remove_file",
+   "params": {
+    "path": "root/game/tl/czech/a.rpy"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [],
+    "removed": [
+     "a.rpy"
+    ],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "removed 1.",
+    "unchanged": 2
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     "c_renamed.rpy",
+     "moved/b.rpy"
+    ],
+    "rows": [
+     [
+      "c_renamed.rpy",
+      1,
+      1,
+      2,
+      0,
+      2
+     ],
+     [
+      "moved/b.rpy",
+      3,
+      1,
+      4,
+      0,
+      3
+     ]
+    ],
+    "totals": [
+     4,
+     6,
+     0,
+     66.66666666666666,
+     0.0
+    ]
+   },
+   "op": "project.rows",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "project.open",
+   "params": {
+    "root": "root/gone"
+   }
+  },
+  {
+   "error": "The project folder is not available: <TMP>/root/gone",
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "project.open",
+   "params": {
+    "root": "root/game/tl/czech",
+    "symbols_as_done": true
+   }
+  },
+  {
+   "answer": {
+    "added": [
+     "c_renamed.rpy",
+     "common.rpy",
+     "moved/b.rpy"
+    ],
+    "changed": true,
+    "empty": [
+     "empty.rpy"
+    ],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "added 3.",
+    "unchanged": 0
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     "c_renamed.rpy",
+     "common.rpy",
+     "moved/b.rpy"
+    ],
+    "rows": [
+     [
+      "c_renamed.rpy",
+      1,
+      1,
+      2,
+      0,
+      2
+     ],
+     [
+      "common.rpy",
+      1,
+      0,
+      1,
+      0,
+      1
+     ],
+     [
+      "moved/b.rpy",
+      3,
+      1,
+      4,
+      0,
+      3
+     ]
+    ],
+    "totals": [
+     5,
+     7,
+     0,
+     71.42857142857143,
+     0.0
+    ]
+   },
+   "op": "project.rows",
+   "params": {}
+  }
+ ]
+}

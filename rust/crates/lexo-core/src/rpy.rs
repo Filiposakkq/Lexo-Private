@@ -38,6 +38,11 @@ fn patterns() -> &'static Patterns {
     })
 }
 
+/// The string literal of a line of code: `"..."` with escapes (group 1 = the text between the quotes).
+pub fn string_re() -> &'static Regex {
+    &patterns().string
+}
+
 /// Statement keywords that start lines containing quotes but are not dialogue.
 const NON_TEXT: [&str; 26] = [
     "voice",
@@ -158,7 +163,7 @@ impl Entry {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ParsedFile {
     pub entries: Vec<Entry>,
     /// (language, id, line)
@@ -394,7 +399,7 @@ pub fn parse_bytes(data: &[u8], pack: &Pack) -> ParsedFile {
 }
 
 /// (translated, untranslated, manually approved): approved pending lines count as translated.
-pub fn count(entries: &[Entry], approved: &HashSet<(String, String)>, symbols_as_done: Option<bool>) -> (usize, usize, usize) {
+pub fn count(entries: &[Entry], approved: &std::collections::BTreeSet<(String, String)>, symbols_as_done: Option<bool>) -> (usize, usize, usize) {
     let symbols_as_done = symbols_as_done.unwrap_or(COUNT_SYMBOL_ONLY_AS_DONE);
     let (mut done, mut todo, mut appr) = (0, 0, 0);
     for e in entries {

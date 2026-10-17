@@ -8,7 +8,6 @@ use lexo_core::util::sha1_hex;
 use lexo_core::validator::SpellCheck;
 use lexo_core::{fontmetrics, layout, menus, textedit, validator};
 use serde_json::{json, Map, Value};
-use std::collections::HashSet;
 use std::path::Path;
 
 /// The pack named in `core/golden/rpy/cases.json`: `cs` is the Czech pack of the app, `neutral` any non-ASCII letter.
@@ -33,7 +32,7 @@ fn entry_json(e: &Entry) -> Value {
 pub fn parsed_json(p: &ParsedFile) -> Value {
     let mut languages: Vec<&String> = p.languages.iter().collect();
     languages.sort();
-    let (done, todo, appr) = rpy::count(&p.entries, &HashSet::new(), None);
+    let (done, todo, appr) = rpy::count(&p.entries, &Default::default(), None);
     render(&json!({
         "entries": p.entries.iter().map(entry_json).collect::<Vec<_>>(),
         "block_ids": p.block_ids.iter().map(|(l, i, n)| json!([l, i, n])).collect::<Vec<_>>(),

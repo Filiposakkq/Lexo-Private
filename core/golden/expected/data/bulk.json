@@ -1,0 +1,1228 @@
+{
+ "files_after": {
+  "root/local/backups/approved.csv.<stamp>.bak": {
+   "sha1": "e0551144e850ee586d6ef6af51fc7be8450bfd6c",
+   "text": "file;block;original\r\nb.rpy;translate czech b_1;Hmm.\r\n"
+  },
+  "root/local/backups/assignments.csv.<stamp>.bak": {
+   "sha1": "65e61de339e6259069309a3d091a763c6cc790db",
+   "text": "file;group\r\na.rpy;general\r\n"
+  },
+  "root/tl/.lexo/approved.csv": {
+   "sha1": "77f6ffeb1d5e2c2e023c954fd140fb741e5cab65",
+   "text": "﻿file;block;original\r\na.rpy;translate czech a_2;Hmm.\r\nb.rpy;translate czech b_3;Hello there, my friend, how are you doing today?\r\n"
+  },
+  "root/tl/.lexo/assignments.csv": {
+   "sha1": "22d791eb1d2512a4f791217d12a42701f9ff6726",
+   "text": "﻿file;group\r\na.rpy;episode 1\r\nx.rpy;general\r\n"
+  },
+  "root/tl/.lexo/glossary.csv": {
+   "sha1": "8f2eb849f7452918fcbb8aab8fc47f5f35a9ada6",
+   "text": "code;name;type;note\r\nmc;Kira;speaker;\r\nsage;The Sage;term;mudrc\r\n"
+  },
+  "root/tl/a.rpy": {
+   "sha1": "ccdb206740132fe1fd95569faf59c1ed83d0b732",
+   "text": "translate czech a_1:\n\n    # mc \"Hmm.\"\n    mc \"Hmm.\"\n\ntranslate czech a_2:\n\n    # js \"Hmm.\"\n    js \"Hmm.\"\n\ntranslate czech a_3:\n\n    # mc \"Hello there, my friend, how are you doing today?\"\n    mc \"Hello there, my friend, how are you doing today?\"\n\ntranslate czech a_4:\n\n    # mc \"...\"\n    mc \"...\"\n\ntranslate czech a_5:\n\n    # mc \"Ah, Wow!\"\n    mc \"Ah, Wow!\"\n\ntranslate czech a_6:\n\n    # mc \"Kira\"\n    mc \"Kira\"\n\ntranslate czech a_7:\n\n    # mc \"Empty\"\n    mc \"\"\n\ntranslate czech strings: \n\n    old \"Hmm.\"\n    new \"Hmm.\"\n\n    old \"Kira and the {i}Sage{/i}\"\n    new \"Kira and the {i}Sage{/i}\"\n"
+  },
+  "root/tl/b.rpy": {
+   "sha1": "8edfba5fe6bc54420058899e41a910069dc7f023",
+   "text": "translate czech b_1:\n\n    # mc \"Hmm.\"\n    mc \"Hmm.\"\n\ntranslate czech b_2:\n\n    # mc \"Hmm.\"\n    mc \"Hmm...\"\n\ntranslate czech b_3:\n\n    # mc \"Hello there, my friend, how are you doing today?\"\n    mc \"Hello there, my friend, how are you doing today?\"\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "sections": [
+     {
+      "groups": [
+       1,
+       2
+      ],
+      "n": 1,
+      "status": "active"
+     }
+    ],
+    "version": 1
+   },
+   "op": "layout.use",
+   "params": {
+    "raw": {
+     "sections": [
+      {
+       "groups": [
+        1,
+        2
+       ],
+       "n": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "answer": true,
+   "op": "store.open",
+   "params": {
+    "local": "root/local",
+    "shared": "root/tl/.lexo"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "b.rpy": [
+      [
+       "translate czech b_1",
+       "Hmm."
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "gen"
+    },
+    "corr": {},
+    "episodes": {},
+    "glossary": {
+     "mc": {
+      "c": "",
+      "n": "Kira",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "mudrc",
+      "n": "The Sage",
+      "t": "term"
+     }
+    },
+    "ignored": {},
+    "proof": {},
+    "undo": [],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.load",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "project.open",
+   "params": {
+    "root": "root/tl"
+   }
+  },
+  {
+   "answer": {
+    "added": [
+     "a.rpy",
+     "b.rpy"
+    ],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "added 2.",
+    "unchanged": 0
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "applied": [
+     "b.rpy",
+     "a.rpy",
+     "x.rpy"
+    ],
+    "skipped": [
+     [
+      "a.rpy",
+      "has an assignment set by hand (the overwrite was not confirmed)"
+     ],
+     [
+      "c.rpy",
+      "invalid assignment"
+     ]
+    ],
+    "state": {
+     "approved": {
+      "b.rpy": [
+       [
+        "translate czech b_1",
+        "Hmm."
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "b.rpy": "ep:2",
+      "x.rpy": "gen"
+     },
+     "corr": {},
+     "episodes": {},
+     "glossary": {
+      "mc": {
+       "c": "",
+       "n": "Kira",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "mudrc",
+       "n": "The Sage",
+       "t": "term"
+      }
+     },
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "Assignment of files (7)"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "bulk.assign",
+   "params": {
+    "items": [
+     {
+      "name": "a.rpy",
+      "value": "ep:1"
+     },
+     {
+      "name": "b.rpy",
+      "value": "ep:2"
+     },
+     {
+      "name": "c.rpy",
+      "value": "ep:9"
+     },
+     {
+      "name": "a.rpy",
+      "overwrite": true,
+      "value": "ep:1"
+     },
+     {
+      "name": "b.rpy",
+      "value": "ep:2"
+     },
+     {
+      "name": "d.rpy",
+      "value": ""
+     },
+     {
+      "name": "x.rpy",
+      "overwrite": true,
+      "value": "gen"
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "applied": [
+     "b.rpy"
+    ],
+    "skipped": [
+     [
+      "a.rpy",
+      "has an assignment set by hand (the overwrite was not confirmed)"
+     ]
+    ],
+    "state": {
+     "approved": {
+      "b.rpy": [
+       [
+        "translate czech b_1",
+        "Hmm."
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "x.rpy": "gen"
+     },
+     "corr": {},
+     "episodes": {},
+     "glossary": {
+      "mc": {
+       "c": "",
+       "n": "Kira",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "mudrc",
+       "n": "The Sage",
+       "t": "term"
+      }
+     },
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "Assignment of files (7)",
+      "Assignment of files (2)"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "bulk.assign",
+   "params": {
+    "items": [
+     {
+      "name": "b.rpy",
+      "overwrite": true,
+      "value": ""
+     },
+     {
+      "name": "a.rpy",
+      "value": "gen"
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "files": 2,
+     "selected": 1,
+     "total": 4
+    },
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_1",
+      "file": "a.rpy",
+      "is_reference": true,
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 4,
+      "notes": [],
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "mc"
+     },
+     {
+      "approved": false,
+      "block": "translate czech a_2",
+      "file": "a.rpy",
+      "is_reference": false,
+      "key": [
+       "translate czech a_2",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 9,
+      "notes": [
+       "another speaker (“js” instead of “mc”)"
+      ],
+      "selectable": true,
+      "selected": false,
+      "text": "Hmm.",
+      "who": "js"
+     },
+     {
+      "approved": false,
+      "block": "strings",
+      "file": "a.rpy",
+      "is_reference": false,
+      "key": [
+       "strings",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 39,
+      "notes": [
+       "another speaker (“—” instead of “mc”)"
+      ],
+      "selectable": true,
+      "selected": false,
+      "text": "Hmm.",
+      "who": ""
+     },
+     {
+      "approved": true,
+      "block": "translate czech b_1",
+      "file": "b.rpy",
+      "is_reference": false,
+      "key": [
+       "translate czech b_1",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 4,
+      "notes": [
+       "already approved"
+      ],
+      "selectable": false,
+      "selected": false,
+      "text": "Hmm.",
+      "who": "mc"
+     }
+    ],
+    "reference": {
+     "file": "a.rpy",
+     "line": 4,
+     "text": "Hmm.",
+     "who": "mc"
+    },
+    "scope": "project"
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 4,
+    "rel": "a.rpy"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "files": 1,
+     "selected": 1,
+     "total": 3
+    },
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_1",
+      "file": "a.rpy",
+      "is_reference": true,
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 4,
+      "notes": [],
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "mc"
+     },
+     {
+      "approved": false,
+      "block": "translate czech a_2",
+      "file": "a.rpy",
+      "is_reference": false,
+      "key": [
+       "translate czech a_2",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 9,
+      "notes": [
+       "another speaker (“js” instead of “mc”)"
+      ],
+      "selectable": true,
+      "selected": false,
+      "text": "Hmm.",
+      "who": "js"
+     },
+     {
+      "approved": false,
+      "block": "strings",
+      "file": "a.rpy",
+      "is_reference": false,
+      "key": [
+       "strings",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 39,
+      "notes": [
+       "another speaker (“—” instead of “mc”)"
+      ],
+      "selectable": true,
+      "selected": false,
+      "text": "Hmm.",
+      "who": ""
+     }
+    ],
+    "reference": {
+     "file": "a.rpy",
+     "line": 4,
+     "text": "Hmm.",
+     "who": "mc"
+    },
+    "scope": "file"
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 4,
+    "rel": "a.rpy",
+    "scope": "file"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "files": 1,
+     "selected": 1,
+     "total": 1
+    },
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_1",
+      "file": "a.rpy",
+      "is_reference": true,
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 4,
+      "notes": [],
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "mc"
+     }
+    ],
+    "reference": {
+     "file": "a.rpy",
+     "line": 4,
+     "text": "Hmm.",
+     "who": "mc"
+    },
+    "scope": "occurrence"
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 4,
+    "rel": "a.rpy",
+    "scope": "occurrence"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "files": 2,
+     "selected": 3,
+     "total": 4
+    },
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_1",
+      "file": "a.rpy",
+      "is_reference": true,
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 4,
+      "notes": [],
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "mc"
+     },
+     {
+      "approved": false,
+      "block": "translate czech a_2",
+      "file": "a.rpy",
+      "is_reference": false,
+      "key": [
+       "translate czech a_2",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 9,
+      "notes": [],
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "js"
+     },
+     {
+      "approved": false,
+      "block": "strings",
+      "file": "a.rpy",
+      "is_reference": false,
+      "key": [
+       "strings",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 39,
+      "notes": [],
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": ""
+     },
+     {
+      "approved": true,
+      "block": "translate czech b_1",
+      "file": "b.rpy",
+      "is_reference": false,
+      "key": [
+       "translate czech b_1",
+       "Hmm."
+      ],
+      "kind": "same",
+      "line": 4,
+      "notes": [
+       "already approved"
+      ],
+      "selectable": false,
+      "selected": false,
+      "text": "Hmm.",
+      "who": "mc"
+     }
+    ],
+    "reference": {
+     "file": "a.rpy",
+     "line": 4,
+     "text": "Hmm.",
+     "who": "mc"
+    },
+    "scope": "project"
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 4,
+    "rel": "a.rpy",
+    "same_speaker": false
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "files": 2,
+     "selected": 1,
+     "total": 2
+    },
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_3",
+      "file": "a.rpy",
+      "is_reference": true,
+      "key": [
+       "translate czech a_3",
+       "Hello there, my friend, how are you doing today?"
+      ],
+      "kind": "english",
+      "line": 14,
+      "notes": [
+       "looks like untranslated English"
+      ],
+      "selectable": true,
+      "selected": true,
+      "text": "Hello there, my friend, how are you doing today?",
+      "who": "mc"
+     },
+     {
+      "approved": false,
+      "block": "translate czech b_3",
+      "file": "b.rpy",
+      "is_reference": false,
+      "key": [
+       "translate czech b_3",
+       "Hello there, my friend, how are you doing today?"
+      ],
+      "kind": "english",
+      "line": 14,
+      "notes": [
+       "looks like untranslated English"
+      ],
+      "selectable": true,
+      "selected": false,
+      "text": "Hello there, my friend, how are you doing today?",
+      "who": "mc"
+     }
+    ],
+    "reference": {
+     "file": "a.rpy",
+     "line": 14,
+     "text": "Hello there, my friend, how are you doing today?",
+     "who": "mc"
+    },
+    "scope": "project"
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 14,
+    "rel": "a.rpy"
+   }
+  },
+  {
+   "answer": {
+    "error": "The line is not among the untranslated ones."
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 34,
+    "rel": "a.rpy"
+   }
+  },
+  {
+   "answer": {
+    "error": "The line is not among the untranslated ones."
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 99,
+    "rel": "a.rpy"
+   }
+  },
+  {
+   "answer": {
+    "error": "unknown scope"
+   },
+   "op": "bulk.candidates",
+   "params": {
+    "line": 4,
+    "rel": "a.rpy",
+    "scope": "everything"
+   }
+  },
+  {
+   "answer": {
+    "changed": 2,
+    "skipped": [
+     [
+      "a.rpy",
+      "the line changed in the meantime – refresh the files"
+     ],
+     [
+      "a.rpy",
+      "the line changed in the meantime – refresh the files"
+     ],
+     [
+      "nothing.rpy",
+      "unknown file"
+     ]
+    ],
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "translate czech a_1",
+        "Hmm."
+       ]
+      ],
+      "b.rpy": [
+       [
+        "translate czech b_1",
+        "Hmm."
+       ],
+       [
+        "translate czech b_3",
+        "Hello there, my friend, how are you doing today?"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "x.rpy": "gen"
+     },
+     "corr": {},
+     "episodes": {},
+     "glossary": {
+      "mc": {
+       "c": "",
+       "n": "Kira",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "mudrc",
+       "n": "The Sage",
+       "t": "term"
+      }
+     },
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "Assignment of files (7)",
+      "Assignment of files (2)",
+      "Approving 2 lines"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "bulk.approve",
+   "params": {
+    "selections": [
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ]
+     },
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_7",
+       "Empty"
+      ]
+     },
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_99",
+       "None"
+      ]
+     },
+     {
+      "file": "nothing.rpy",
+      "key": [
+       "x",
+       "y"
+      ]
+     },
+     {
+      "file": "b.rpy",
+      "key": [
+       "translate czech b_3",
+       "Hello  there, my friend, how are you doing today?"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "changed": 2,
+    "skipped": [],
+    "state": {
+     "approved": {
+      "b.rpy": [
+       [
+        "translate czech b_3",
+        "Hello there, my friend, how are you doing today?"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "x.rpy": "gen"
+     },
+     "corr": {},
+     "episodes": {},
+     "glossary": {
+      "mc": {
+       "c": "",
+       "n": "Kira",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "mudrc",
+       "n": "The Sage",
+       "t": "term"
+      }
+     },
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "Assignment of files (7)",
+      "Assignment of files (2)",
+      "Approving 2 lines",
+      "Removing the approval of 2 lines"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "bulk.approve",
+   "params": {
+    "on": false,
+    "selections": [
+     {
+      "file": "b.rpy",
+      "key": [
+       "translate czech b_1",
+       "Hmm."
+      ]
+     },
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ]
+     },
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "changed": 1,
+    "skipped": [],
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "translate czech a_2",
+        "Hmm."
+       ]
+      ],
+      "b.rpy": [
+       [
+        "translate czech b_3",
+        "Hello there, my friend, how are you doing today?"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "x.rpy": "gen"
+     },
+     "corr": {},
+     "episodes": {},
+     "glossary": {
+      "mc": {
+       "c": "",
+       "n": "Kira",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "mudrc",
+       "n": "The Sage",
+       "t": "term"
+      }
+     },
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "Assignment of files (7)",
+      "Assignment of files (2)",
+      "Approving 2 lines",
+      "Removing the approval of 2 lines",
+      "Approved by hand"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "bulk.approve",
+   "params": {
+    "label": "Approved by hand",
+    "selections": [
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_2",
+       "Hmm."
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "by_rule": {
+      "interjections": 5,
+      "names": 1,
+      "symbols": 1
+     },
+     "selectable": 6,
+     "total": 7
+    },
+    "files": 2,
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_1",
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_1",
+       "Hmm."
+      ],
+      "line": 4,
+      "notes": [],
+      "rule": "interjections",
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "mc"
+     },
+     {
+      "approved": true,
+      "block": "translate czech a_2",
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_2",
+       "Hmm."
+      ],
+      "line": 9,
+      "notes": [
+       "already approved"
+      ],
+      "rule": "interjections",
+      "selectable": false,
+      "selected": false,
+      "text": "Hmm.",
+      "who": "js"
+     },
+     {
+      "approved": false,
+      "block": "translate czech a_4",
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_4",
+       "..."
+      ],
+      "line": 19,
+      "notes": [],
+      "rule": "symbols",
+      "selectable": true,
+      "selected": true,
+      "text": "...",
+      "who": "mc"
+     },
+     {
+      "approved": false,
+      "block": "translate czech a_5",
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_5",
+       "Ah, Wow!"
+      ],
+      "line": 24,
+      "notes": [],
+      "rule": "interjections",
+      "selectable": true,
+      "selected": true,
+      "text": "Ah, Wow!",
+      "who": "mc"
+     },
+     {
+      "approved": false,
+      "block": "translate czech a_6",
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_6",
+       "Kira"
+      ],
+      "line": 29,
+      "notes": [],
+      "rule": "names",
+      "selectable": true,
+      "selected": true,
+      "text": "Kira",
+      "who": "mc"
+     },
+     {
+      "approved": false,
+      "block": "strings",
+      "file": "a.rpy",
+      "key": [
+       "strings",
+       "Hmm."
+      ],
+      "line": 39,
+      "notes": [],
+      "rule": "interjections",
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": ""
+     },
+     {
+      "approved": false,
+      "block": "translate czech b_1",
+      "file": "b.rpy",
+      "key": [
+       "translate czech b_1",
+       "Hmm."
+      ],
+      "line": 4,
+      "notes": [],
+      "rule": "interjections",
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "mc"
+     }
+    ],
+    "rules": {
+     "interjections": "Interjections (Hmm, Ah, Haha, Wow, Ugh…) – the same in the translation",
+     "names": "Only names from the Glossary (speakers, terms)",
+     "symbols": "Symbols only (…, ?!, numbers) – nothing to translate"
+    }
+   },
+   "op": "bulk.rules",
+   "params": {
+    "rules": [
+     "symbols",
+     "interjections",
+     "names"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "by_rule": {
+      "symbols": 1
+     },
+     "selectable": 1,
+     "total": 1
+    },
+    "files": 2,
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_4",
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_4",
+       "..."
+      ],
+      "line": 19,
+      "notes": [],
+      "rule": "symbols",
+      "selectable": true,
+      "selected": true,
+      "text": "...",
+      "who": "mc"
+     }
+    ],
+    "rules": {
+     "interjections": "Interjections (Hmm, Ah, Haha, Wow, Ugh…) – the same in the translation",
+     "names": "Only names from the Glossary (speakers, terms)",
+     "symbols": "Symbols only (…, ?!, numbers) – nothing to translate"
+    }
+   },
+   "op": "bulk.rules",
+   "params": {
+    "rules": [
+     "symbols"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "by_rule": {
+      "interjections": 1
+     },
+     "selectable": 1,
+     "total": 1
+    },
+    "files": 1,
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech b_1",
+      "file": "b.rpy",
+      "key": [
+       "translate czech b_1",
+       "Hmm."
+      ],
+      "line": 4,
+      "notes": [],
+      "rule": "interjections",
+      "selectable": true,
+      "selected": true,
+      "text": "Hmm.",
+      "who": "mc"
+     }
+    ],
+    "rules": {
+     "interjections": "Interjections (Hmm, Ah, Haha, Wow, Ugh…) – the same in the translation",
+     "names": "Only names from the Glossary (speakers, terms)",
+     "symbols": "Symbols only (…, ?!, numbers) – nothing to translate"
+    }
+   },
+   "op": "bulk.rules",
+   "params": {
+    "rels": [
+     "b.rpy"
+    ],
+    "rules": [
+     "interjections",
+     "nonsense"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "by_rule": {
+      "names": 1
+     },
+     "selectable": 1,
+     "total": 1
+    },
+    "files": 1,
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech a_6",
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_6",
+       "Kira"
+      ],
+      "line": 29,
+      "notes": [],
+      "rule": "names",
+      "selectable": true,
+      "selected": true,
+      "text": "Kira",
+      "who": "mc"
+     }
+    ],
+    "rules": {
+     "interjections": "Interjections (Hmm, Ah, Haha, Wow, Ugh…) – the same in the translation",
+     "names": "Only names from the Glossary (speakers, terms)",
+     "symbols": "Symbols only (…, ?!, numbers) – nothing to translate"
+    }
+   },
+   "op": "bulk.rules",
+   "params": {
+    "rels": [
+     "a.rpy",
+     "missing.rpy"
+    ],
+    "rules": [
+     "names"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "by_rule": {},
+     "selectable": 0,
+     "total": 0
+    },
+    "files": 2,
+    "items": [],
+    "rules": {
+     "interjections": "Interjections (Hmm, Ah, Haha, Wow, Ugh…) – the same in the translation",
+     "names": "Only names from the Glossary (speakers, terms)",
+     "symbols": "Symbols only (…, ?!, numbers) – nothing to translate"
+    }
+   },
+   "op": "bulk.rules",
+   "params": {
+    "rules": []
+   }
+  }
+ ]
+}

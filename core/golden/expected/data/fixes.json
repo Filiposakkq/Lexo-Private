@@ -1,0 +1,898 @@
+{
+ "files_after": {
+  "root/game/tl/czech/a.rpy": {
+   "sha1": "636ae469b36abe7f3a88df1bf9cf2d3426f18080",
+   "text": "translate czech a_1:\n\n    # mc \"Hello\"\n    mc \"Ahoj, svete\"\n\ntranslate czech a_2:\n\n    # mc \"Bye {w}now\"\n    mc \"Nashle {w}ted\\n\" with vpunch\n\ntranslate czech a_3:\n\n    # mc \"[name], the end.\"\n      mc \"[name], konec!\"   \n# edited elsewhere\n"
+  },
+  "root/game/tl/czech/crlf_bom.rpy": {
+   "sha1": "bf757d43a0afca274675873a59cc3f9877f2ef87",
+   "text": "﻿translate czech c_1:\r\n\r\n    # mc \"One\"\r\n    mc \"Jedna\"\r\n\r\n    # mc \"Two\"\r\n    mc \"Dva\"\r\n"
+  },
+  "root/game/tl/czech/latin1.rpy": {
+   "base64": "dHJhbnNsYXRlIGN6ZWNoIGxfMToKCiAgICAjIG1jICJIaSIKICAgIG1jICJBaG9qIPoiCg==",
+   "sha1": "f21551a3384341fdb4bed8ea457860281bfbdd09"
+  },
+  "root/game/tl/czech/strings.rpy": {
+   "sha1": "221529ce27e58eabbb2bb132d78c145725d29c2d",
+   "text": "translate czech strings:\n\n    old \"Yes\"\n    new \"Ano\"\n\n    old \"No\"\n    new \"Ne\"\n"
+  },
+  "root/local/backups/a.rpy.<stamp>.bak": {
+   "sha1": "636ae469b36abe7f3a88df1bf9cf2d3426f18080",
+   "text": "translate czech a_1:\n\n    # mc \"Hello\"\n    mc \"Ahoj, svete\"\n\ntranslate czech a_2:\n\n    # mc \"Bye {w}now\"\n    mc \"Nashle {w}ted\\n\" with vpunch\n\ntranslate czech a_3:\n\n    # mc \"[name], the end.\"\n      mc \"[name], konec!\"   \n# edited elsewhere\n"
+  },
+  "root/local/backups/crlf_bom.rpy.<stamp>.bak": {
+   "sha1": "da54236a324f3c8adf7b627dc9f776b2231d49ff",
+   "text": "﻿translate czech c_1:\r\n\r\n    # mc \"One\"\r\n    mc \"Jednicka\"\r\n\r\n    # mc \"Two\"\r\n    mc \"Dva\"\r\n"
+  },
+  "root/local/backups/strings.rpy.<stamp>.bak": {
+   "sha1": "221529ce27e58eabbb2bb132d78c145725d29c2d",
+   "text": "translate czech strings:\n\n    old \"Yes\"\n    new \"Ano\"\n\n    old \"No\"\n    new \"Ne\"\n"
+  },
+  "root/local/last_fix.json": {
+   "json": [
+    {
+     "files": [
+      {
+       "after": "78c4093856cfa8b3c13c4c401b799c8f1213e8c0",
+       "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+       "file": "a.rpy",
+       "lines": 1
+      }
+     ],
+     "label": "Editing line 4 in a.rpy",
+     "time": "<volatile>"
+    },
+    {
+     "files": [
+      {
+       "after": "bb72d49be332e537d465076fab75f25fb3db769a",
+       "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+       "file": "a.rpy",
+       "lines": 1
+      }
+     ],
+     "label": "Editing line 9 in a.rpy",
+     "time": "<volatile>"
+    },
+    {
+     "files": [
+      {
+       "after": "642ff5a1ef4e2446528c609a1fb5a3d5e7b580d2",
+       "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+       "file": "a.rpy",
+       "lines": 1
+      }
+     ],
+     "label": "Editing line 14 in a.rpy",
+     "time": "<volatile>"
+    }
+   ]
+  }
+ },
+ "steps": [
+  {
+   "answer": [
+    null,
+    null,
+    null,
+    "Write a quote in the text as \\\" – a bare quote would end the string.",
+    "The text must not contain a real line break. Write a new line as \n.",
+    "The text must not end with a lone backslash “\\” (write \\ or \n).",
+    null,
+    null
+   ],
+   "op": "fixes.check_literal",
+   "params": {
+    "texts": [
+     "fine",
+     "a\\nb",
+     "say \\\"hi\\\"",
+     "bare \" quote",
+     "line\nbreak",
+     "ends with \\",
+     "double \\\\",
+     ""
+    ]
+   }
+  },
+  {
+   "answer": true,
+   "op": "store.open",
+   "params": {
+    "local": "root/local",
+    "shared": "root/game/tl/czech/.lexo"
+   }
+  },
+  {
+   "answer": {
+    "approved": {},
+    "assign": {},
+    "corr": {},
+    "episodes": {},
+    "glossary": {},
+    "ignored": {},
+    "proof": {},
+    "undo": [],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.load",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "project.open",
+   "params": {
+    "root": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "added": [
+     "a.rpy",
+     "crlf_bom.rpy",
+     "latin1.rpy",
+     "strings.rpy"
+    ],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "added 4.",
+    "unchanged": 0
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": null,
+   "op": "fixes.last",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "error": "Nothing to undo.",
+   "op": "fixes.undo",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+    "changed": true,
+    "details": [
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_1",
+       "Hello"
+      ],
+      "line": 4,
+      "new": "Ahoj, svete",
+      "old": "Ahoj"
+     }
+    ]
+   },
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 4,
+    "rel": "a.rpy",
+    "text": "Ahoj, svete"
+   }
+  },
+  {
+   "error": "a.rpy: the file changed on the disk since it was loaded (maybe in the editor). Refresh the files and try again.",
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 4,
+    "rel": "a.rpy",
+    "text": "Ahoj, svete"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "a.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 1.",
+    "unchanged": 3
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "changed": false
+   },
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 4,
+    "rel": "a.rpy",
+    "text": "Ahoj, svete"
+   }
+  },
+  {
+   "error": "Write a quote in the text as \\\" – a bare quote would end the string.",
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 4,
+    "rel": "a.rpy",
+    "text": "bad \" quote"
+   }
+  },
+  {
+   "error": "The line is no longer in the file – refresh the files.",
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 99,
+    "rel": "a.rpy",
+    "text": "x"
+   }
+  },
+  {
+   "answer": {
+    "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+    "changed": true,
+    "details": [
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_2",
+       "Bye {w}now"
+      ],
+      "line": 9,
+      "new": "Nashle {w}ted\\n",
+      "old": "Nashle {w}ted"
+     }
+    ]
+   },
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 9,
+    "rel": "a.rpy",
+    "text": "Nashle {w}ted\\n"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "a.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 1.",
+    "unchanged": 3
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "depth": 2,
+    "files": [
+     {
+      "after": "bb72d49be332e537d465076fab75f25fb3db769a",
+      "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+      "file": "a.rpy",
+      "lines": 1
+     }
+    ],
+    "label": "Editing line 9 in a.rpy",
+    "lines": 1,
+    "time": "<volatile>"
+   },
+   "op": "fixes.last",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+    "changed": true,
+    "details": [
+     {
+      "file": "a.rpy",
+      "key": [
+       "translate czech a_3",
+       "[name], the end."
+      ],
+      "line": 14,
+      "new": "[name], konec!",
+      "old": "[name], konec."
+     }
+    ]
+   },
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 14,
+    "rel": "a.rpy",
+    "text": "[name], konec!"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "a.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 1.",
+    "unchanged": 3
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     "a.rpy",
+     "crlf_bom.rpy",
+     "latin1.rpy",
+     "strings.rpy"
+    ],
+    "rows": [
+     [
+      "a.rpy",
+      3,
+      0,
+      3,
+      0,
+      3
+     ],
+     [
+      "crlf_bom.rpy",
+      2,
+      0,
+      2,
+      0,
+      2
+     ],
+     [
+      "latin1.rpy",
+      1,
+      0,
+      1,
+      0,
+      1
+     ],
+     [
+      "strings.rpy",
+      2,
+      0,
+      2,
+      0,
+      2
+     ]
+    ],
+    "totals": [
+     8,
+     8,
+     0,
+     100.0,
+     0.0
+    ]
+   },
+   "op": "project.rows",
+   "params": {}
+  },
+  {
+   "answer": {
+    "backups": [
+     "<TMP>/root/local/backups/crlf_bom.rpy.<stamp>.bak",
+     "<TMP>/root/local/backups/strings.rpy.<stamp>.bak"
+    ],
+    "changed": 3,
+    "details": [
+     {
+      "file": "crlf_bom.rpy",
+      "key": [
+       "translate czech c_1",
+       "One"
+      ],
+      "line": 4,
+      "new": "Jednicka",
+      "old": "Jedna"
+     },
+     {
+      "file": "crlf_bom.rpy",
+      "key": [
+       "translate czech c_1",
+       "Two"
+      ],
+      "line": 7,
+      "new": "Dvojka",
+      "old": "Dva"
+     },
+     {
+      "file": "strings.rpy",
+      "key": [
+       "strings",
+       "Yes"
+      ],
+      "line": 4,
+      "new": "Jo",
+      "old": "Ano"
+     }
+    ],
+    "files": 2
+   },
+   "op": "fixes.edits",
+   "params": {
+    "data": "root/local",
+    "edits": [
+     [
+      "crlf_bom.rpy",
+      4,
+      "Jednicka"
+     ],
+     [
+      "crlf_bom.rpy",
+      7,
+      "Dvojka"
+     ],
+     [
+      "strings.rpy",
+      4,
+      "Jo"
+     ],
+     [
+      "strings.rpy",
+      7,
+      "Ne"
+     ]
+    ],
+    "label": "Replace in two files"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "crlf_bom.rpy",
+     "strings.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 2.",
+    "unchanged": 2
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "depth": 4,
+    "files": [
+     {
+      "after": "f6827f7c596d793bf1bf1efa809537fd9c6ee892",
+      "backup": "<TMP>/root/local/backups/crlf_bom.rpy.<stamp>.bak",
+      "file": "crlf_bom.rpy",
+      "lines": 2
+     },
+     {
+      "after": "346f5d34e88972e4ec54ab59960a788f2b6be582",
+      "backup": "<TMP>/root/local/backups/strings.rpy.<stamp>.bak",
+      "file": "strings.rpy",
+      "lines": 1
+     }
+    ],
+    "label": "Replace in two files",
+    "lines": 3,
+    "time": "<volatile>"
+   },
+   "op": "fixes.last",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "label": "Replace in two files",
+    "lines": 3,
+    "restored": [
+     "crlf_bom.rpy",
+     "strings.rpy"
+    ]
+   },
+   "op": "fixes.undo",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "depth": 3,
+    "files": [
+     {
+      "after": "642ff5a1ef4e2446528c609a1fb5a3d5e7b580d2",
+      "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+      "file": "a.rpy",
+      "lines": 1
+     }
+    ],
+    "label": "Editing line 14 in a.rpy",
+    "lines": 1,
+    "time": "<volatile>"
+   },
+   "op": "fixes.last",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "append": true,
+    "path": "root/game/tl/czech/a.rpy",
+    "text": "# edited elsewhere\n"
+   }
+  },
+  {
+   "error": "a.rpy: the file changed elsewhere since the last change (e.g. in the editor). Undoing would delete later edits – the backup is in <TMP>/root/local/backups.",
+   "op": "fixes.undo",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "error": "a.rpy: the file changed on the disk since it was loaded (maybe in the editor). Refresh the files and try again.",
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 4,
+    "rel": "a.rpy",
+    "text": "Znovu"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "a.rpy",
+     "crlf_bom.rpy",
+     "strings.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 3.",
+    "unchanged": 1
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "backups": [
+     "<TMP>/root/local/backups/crlf_bom.rpy.<stamp>.bak"
+    ],
+    "changed": 1,
+    "details": [
+     {
+      "file": "crlf_bom.rpy",
+      "key": [
+       "translate czech c_1",
+       "One"
+      ],
+      "line": 4,
+      "new": "Jednicka",
+      "old": "Jedna"
+     }
+    ],
+    "files": 1
+   },
+   "op": "fixes.edits",
+   "params": {
+    "data": "root/local",
+    "edits": [
+     [
+      "a.rpy",
+      4,
+      "Ahoj, svete"
+     ],
+     [
+      "crlf_bom.rpy",
+      4,
+      "Jednicka"
+     ]
+    ],
+    "label": "Nothing changes"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "crlf_bom.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 1.",
+    "unchanged": 3
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "error": "The file is not inside the project folder."
+   },
+   "op": "project.path_of",
+   "params": {
+    "rel": "../outside.rpy"
+   }
+  },
+  {
+   "answer": {
+    "path": "<TMP>/root/game/tl/czech/a.rpy"
+   },
+   "op": "project.path_of",
+   "params": {
+    "rel": "sub/../a.rpy"
+   }
+  },
+  {
+   "error": "a.rpy:4: the line no longer matches the loaded state. Refresh the files.",
+   "op": "fixes.apply",
+   "params": {
+    "data": "root/local",
+    "plan": [
+     {
+      "after": "js \"Nashle {w}ted\\n\" with vpunch",
+      "before": "mc \"Nashle {w}ted\\n\" with vpunch",
+      "file": "a.rpy",
+      "line": 9
+     },
+     {
+      "after": "mc \"[name], konec!\"",
+      "before": "mc \"[name], konec!\"",
+      "file": "a.rpy",
+      "line": 14,
+      "skip": "not a speaker problem"
+     },
+     {
+      "after": "x",
+      "before": "wrong",
+      "file": "a.rpy",
+      "line": 4
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "backups": [
+     "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+     "<TMP>/root/local/backups/crlf_bom.rpy.<stamp>.bak"
+    ],
+    "fixed": 3,
+    "skipped": [
+     [
+      "strings.rpy",
+      4,
+      "nothing to fix"
+     ]
+    ]
+   },
+   "op": "fixes.apply",
+   "params": {
+    "data": "root/local",
+    "plan": [
+     {
+      "after": "js \"Nashle {w}ted\\n\" with vpunch",
+      "before": "mc \"Nashle {w}ted\\n\" with vpunch",
+      "file": "a.rpy",
+      "line": 9
+     },
+     {
+      "after": "  js \"[name], konec!\"  ",
+      "before": "mc \"[name], konec!\"",
+      "file": "a.rpy",
+      "line": 14,
+      "skip": ""
+     },
+     {
+      "after": "js \"Jednicka\"",
+      "before": "mc \"Jednicka\"",
+      "file": "crlf_bom.rpy",
+      "line": 4,
+      "skip": ""
+     },
+     {
+      "after": "new \"Jo\"",
+      "before": "new \"Jo\"",
+      "file": "strings.rpy",
+      "line": 4,
+      "skip": "nothing to fix"
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "depth": 5,
+    "files": [
+     {
+      "after": "73c01dcbf771673bf889ffa43adedf72e2390ff0",
+      "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+      "file": "a.rpy",
+      "lines": 2
+     },
+     {
+      "after": "3548c6b6618d3171188ce0401276932548b046ba",
+      "backup": "<TMP>/root/local/backups/crlf_bom.rpy.<stamp>.bak",
+      "file": "crlf_bom.rpy",
+      "lines": 1
+     }
+    ],
+    "label": "Fix of speakers from the original",
+    "lines": 3,
+    "time": "<volatile>"
+   },
+   "op": "fixes.last",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "a.rpy",
+     "crlf_bom.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 2.",
+    "unchanged": 2
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "Fix of speakers from the original",
+    "lines": 3,
+    "restored": [
+     "a.rpy",
+     "crlf_bom.rpy"
+    ]
+   },
+   "op": "fixes.undo",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "label": "Nothing changes",
+    "lines": 1,
+    "restored": [
+     "crlf_bom.rpy"
+    ]
+   },
+   "op": "fixes.undo",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "error": "a.rpy: the file changed elsewhere since the last change (e.g. in the editor). Undoing would delete later edits – the backup is in <TMP>/root/local/backups.",
+   "op": "fixes.undo",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "depth": 3,
+    "files": [
+     {
+      "after": "642ff5a1ef4e2446528c609a1fb5a3d5e7b580d2",
+      "backup": "<TMP>/root/local/backups/a.rpy.<stamp>.bak",
+      "file": "a.rpy",
+      "lines": 1
+     }
+    ],
+    "label": "Editing line 14 in a.rpy",
+    "lines": 1,
+    "time": "<volatile>"
+   },
+   "op": "fixes.last",
+   "params": {
+    "data": "root/local"
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": true,
+    "empty": [],
+    "errors": [],
+    "modified": [
+     "a.rpy",
+     "crlf_bom.rpy"
+    ],
+    "removed": [],
+    "renamed": [],
+    "seconds": "<volatile>",
+    "summary": "changed 2.",
+    "unchanged": 2
+   },
+   "op": "project.refresh",
+   "params": {}
+  },
+  {
+   "error": "latin1.rpy: the file is not valid UTF-8, I rather do not edit it.",
+   "op": "fixes.edit",
+   "params": {
+    "data": "root/local",
+    "line": 4,
+    "rel": "latin1.rpy",
+    "text": "Ahoj"
+   }
+  },
+  {
+   "answer": [
+    "a.rpy.<stamp>.bak",
+    "a.rpy.<stamp>.bak",
+    "a.rpy.<stamp>.bak",
+    "a.rpy.<stamp>.bak",
+    "crlf_bom.rpy.<stamp>.bak",
+    "crlf_bom.rpy.<stamp>.bak",
+    "crlf_bom.rpy.<stamp>.bak",
+    "strings.rpy.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/local/backups"
+   }
+  }
+ ]
+}

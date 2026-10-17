@@ -1,11 +1,14 @@
 //! Lexo Core in Rust. The modules mirror `core/lexo` (rpy.rs for rpy.py, ...), see docs/RUST-PORT.md.
 //! No UI, no HTTP: the library only reads and writes files through `std::fs`.
 
+pub mod bulk;
 pub mod clock;
 pub mod config;
 pub mod csvio;
 pub mod datadir;
 pub mod events;
+pub mod export;
+pub mod fixes;
 pub mod fontmetrics;
 pub mod fsutil;
 pub mod history;
@@ -16,6 +19,7 @@ pub mod memory;
 pub mod menus;
 pub mod messages;
 pub mod pickle;
+pub mod project;
 pub mod pyfmt;
 pub mod rpa;
 pub mod rpy;

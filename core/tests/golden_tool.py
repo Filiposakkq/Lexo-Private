@@ -25,6 +25,8 @@ sys.path[:0] = [str(HERE.parent), str(HERE)]
 from lexo import api, layout, lang, menus, rpa, rpy, validator    # noqa: E402
 from lexo.app_base import AppError                                   # noqa: E402
 from lexo.messages import render, text_of, wire                      # noqa: E402
+from lexo.fixes import FixError                                     # noqa: E402
+from lexo.project import ProjectUnavailable                         # noqa: E402
 from lexo.snapshots import SnapshotError                            # noqa: E402
 from lexo.util import WriteFailed                                   # noqa: E402
 
@@ -281,7 +283,7 @@ def _patches(clock):
             return cls(u.year, u.month, u.day, u.hour, u.minute, u.second, u.microsecond, tzinfo=u.tzinfo).astimezone(tz)
 
     fake_time = SimpleNamespace(time=clock.epoch, sleep=_t.sleep)
-    stack = [mock.patch(f"lexo.{m}.datetime", FakeDT) for m in ("util", "events", "texthistory", "snapshots")]
+    stack = [mock.patch(f"lexo.{m}.datetime", FakeDT) for m in ("util", "events", "texthistory", "snapshots", "fixes")]
     stack += [mock.patch("lexo.util.time", fake_time), mock.patch("lexo.lock.time", fake_time)]
     return stack
 
@@ -293,6 +295,9 @@ def _file_records(root, skip=()):
             b = f.read_bytes()
             if f.name == "text_history.jsonl":
                 b = b.replace(b"\r\n", b"\n")                  # Python writes it in text mode: CRLF on Windows, LF elsewhere
+            if f.name == "last_fix.json":                      # it holds absolute paths of backups: compared as data, after the paths were normalised
+                files[f.relative_to(root).as_posix()] = {"json": json.loads(b.decode("utf-8"))}
+                continue
             if f.suffix == ".zip":                             # the bytes of a zip depend on the compressor: its files and their digests are compared
                 import zipfile
                 with zipfile.ZipFile(f) as z:
@@ -333,7 +338,7 @@ def run_data_scenario(path):
                 entry = {"op": st["op"], "params": {k: v for k, v in st.items() if k != "op"}}
                 try:
                     entry["answer"] = plain(runner.run(st["op"], st))
-                except (AppError, WriteFailed, SnapshotError) as e:
+                except (AppError, WriteFailed, SnapshotError, FixError, ProjectUnavailable) as e:
                     entry["error"] = str(text_of(e))
                 steps.append(entry)
         runner.close()
@@ -747,6 +752,151 @@ class DataRunner:
         import zipfile
         with zipfile.ZipFile(self.p(a["data"]) / "snapshots" / a["name"]) as z:
             return sorted([i.filename, hashlib.sha1(z.read(i)).hexdigest()] for i in z.infolist())
+
+    # -- the project and the writer of the .rpy files
+    @staticmethod
+    def _nat(s):
+        return s.replace("/", os.sep)
+
+    def op_project_check_dir(self, a):
+        from lexo import project
+        ok, m = project.check_project_dir(str(self.p(a["path"])))
+        return {"ok": ok, "message": m or None}
+
+    def op_project_find_tl(self, a):
+        from lexo import project
+        try:
+            folder, note = project.find_translation_folder(self.p(a["path"]))
+        except ValueError as e:
+            return {"error": text_of(e)}
+        return {"folder": str(folder), "note": note or None}
+
+    def op_project_open(self, a):
+        from lexo.project import Project
+        self.project = Project(self.p(a["root"]), self.store, skip=a.get("skip", ()), symbols_as_done=a.get("symbols_as_done"))
+        return True
+
+    def op_project_refresh(self, a):
+        self.report = self.project.refresh(force=a.get("force", False))
+        return self.report.to_dict()
+
+    def op_project_rows(self, a):
+        from lexo.project import totals_of
+        rows = self.project.rows()
+        return {"rows": [list(r) for r in rows], "totals": list(totals_of(rows)), "files": sorted(self.project.files)}
+
+    def op_project_proof(self, a):
+        p, rel = self.project, self._nat(a["rel"])
+        ents = p.entries(rel)
+        return {"counts": list(p.counts(rel)), "proof_counts": list(p.proof_counts(rel)), "stale": p.proof_stale(rel),
+                "states": [p.proof_state(rel, e) for e in ents], "translated": [p.is_translated(rel, e) for e in ents]}
+
+    def op_project_path_of(self, a):
+        try:
+            return {"path": str(self.project.path_of(self._nat(a["rel"])))}
+        except ValueError as e:
+            return {"error": text_of(e)}
+
+    def op_project_migrate(self, a):
+        moved = self.project.migrate_metadata([(self._nat(o), self._nat(n)) for o, n in a["renames"]])
+        return {"moved": moved, "state": self._dump_store()}
+
+    def op_fixes_edit(self, a):
+        from lexo import fixes
+        return fixes.edit_translation(self.project, self.p(a["data"]), self._nat(a["rel"]), a["line"], a["text"])
+
+    def op_fixes_edits(self, a):
+        from lexo import fixes
+        return fixes.apply_edits(self.project, self.p(a["data"]), [(self._nat(r), l, t) for r, l, t in a["edits"]], a["label"])
+
+    def op_fixes_undo(self, a):
+        from lexo import fixes
+        return fixes.undo(self.project, self.p(a["data"]))
+
+    def op_fixes_last(self, a):
+        from lexo import fixes
+        return fixes.last(self.p(a["data"]))
+
+    def op_fixes_apply(self, a):
+        from lexo import fixes
+        plan = [{"file": self._nat(p["file"]), "line": p["line"], "before": p["before"], "after": p["after"], "skip": p.get("skip", "")} for p in a["plan"]]
+        res = fixes.apply(self.project, self.p(a["data"]), plan)
+        return {"fixed": res["fixed"], "skipped": [list(s) for s in res["skipped"]], "backups": res["backups"]}
+
+    def op_fixes_check_literal(self, a):
+        from lexo import fixes
+        out = []
+        for t in a["texts"]:
+            try:
+                fixes.check_literal(t)
+                out.append(None)
+            except fixes.FixError as e:
+                out.append(text_of(e))
+        return out
+
+    # -- the public progress file and the bulk operations
+    def op_export_build(self, a):
+        from datetime import date, datetime
+        from lexo import export
+        self.progress = export.build_progress(self.project.rows(), self.store, self.hist, a.get("title", ""), now=datetime.fromisoformat(a["now"]), today=date.fromisoformat(a["today"]))
+        return self.progress
+
+    def op_export_validate(self, a):
+        import copy
+        from lexo import export
+        data = copy.deepcopy(self.progress)
+        for path, value in a.get("mutate", []):
+            node = data
+            for key in path[:-1]:
+                node = node[key]
+            node[path[-1]] = value
+        if "replace" in a:
+            data = a["replace"]
+        return export.validate_progress(data)
+
+    def op_export_render(self, a):
+        from lexo import export
+        return export.render(self.progress)
+
+    def op_export_write(self, a):
+        from lexo import export
+        try:
+            export.write_local(self.p(a["path"]), self.progress, self.p(a["backup_dir"]) if a.get("backup_dir") else None)
+        except ValueError as e:
+            return {"error": text_of(e)}
+        return True
+
+    def op_export_clean_target(self, a):
+        from lexo import export
+        out = []
+        for rel in a["rels"]:
+            try:
+                out.append(export.clean_target(rel))
+            except export.TargetError as e:
+                out.append({"error": text_of(e)})
+        return out
+
+    def op_bulk_assign(self, a):
+        from lexo import bulk
+        res = bulk.apply_assignments(self.store, [{"name": self._nat(i["name"]), "value": i.get("value", ""), "overwrite": i.get("overwrite", False)} for i in a["items"]])
+        return {"applied": res["applied"], "skipped": [list(s) for s in res["skipped"]], "state": self._dump_store()}
+
+    def op_bulk_candidates(self, a):
+        from lexo import bulk
+        try:
+            return bulk.approval_candidates(self.project, self._nat(a["rel"]), a["line"], a.get("scope", "project"), a.get("same_speaker", True))
+        except ValueError as e:
+            return {"error": text_of(e)}
+
+    def op_bulk_approve(self, a):
+        from lexo import bulk
+        res = bulk.apply_approvals(self.project, [{"file": self._nat(s["file"]), "key": s["key"]} for s in a["selections"]], a.get("on", True), a.get("label"))
+        return {"changed": res["changed"], "skipped": [list(s) for s in res["skipped"]], "state": self._dump_store()}
+
+    def op_bulk_rules(self, a):
+        from lexo import bulk
+        rels = [self._nat(r) for r in a["rels"]] if a.get("rels") else None
+        return bulk.rule_candidates(self.project, self.store.glossary, a["rules"], rels)
 
 
 # =========================================================================================================================== everything

@@ -49,6 +49,13 @@ fn main() {
         }
         return;
     }
+    if args.first().map(String::as_str) == Some("--dump-project") && args.len() > 1 {
+        // `--dump-project <translation folder>...`: the files, rows and proofread counts of a project, one `folder<TAB>json` line each (nothing is written)
+        for dir in &args[1..] {
+            println!("{dir}	{}", lexo_golden::data::project_json(std::path::Path::new(dir), &["common.rpy".to_string()]));
+        }
+        return;
+    }
     let (list, strict) = (args.iter().any(|a| a == "--list"), args.iter().any(|a| a == "--strict"));
     let golden = golden_dir();
     let cases = match inventory(&golden) {
