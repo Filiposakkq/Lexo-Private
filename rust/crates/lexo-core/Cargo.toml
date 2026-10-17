@@ -1,0 +1,9 @@
+[package]
+name = "lexo-core"
+description = "Lexo Core in Rust: the port of core/lexo (see docs/RUST-PORT.md)"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]

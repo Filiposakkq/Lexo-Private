@@ -1,0 +1,138 @@
+//! The golden runner (docs/GOLDEN.md): reads the inputs and the recorded answers of `core/golden`, asks `lexo-core` for its own answers,
+//! normalises them like `core/tests/golden_tool.py` does and compares. Milestone M0 is the skeleton: the inventory of cases and the report;
+//! every case is still `NotImplemented`, and each later milestone replaces that for the cases of its modules.
+pub mod diff;
+pub mod normalize;
+
+use serde_json::Value;
+use std::path::{Path, PathBuf};
+
+/// The folder `core/golden`: `LEXO_GOLDEN` if set, otherwise the one of this repository.
+pub fn golden_dir() -> PathBuf {
+    match std::env::var_os("LEXO_GOLDEN") {
+        Some(p) => PathBuf::from(p),
+        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../core/golden"),
+    }
+}
+
+/// One thing that is checked: the answer Core gave to one input.
+#[derive(Debug, Clone)]
+pub struct Case {
+    pub group: &'static str,
+    pub id: String,
+    pub expected: Value,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Outcome {
+    Pass,
+    Fail(String),
+    NotImplemented,
+}
+
+fn read_json(path: &Path) -> Result<Value, String> {
+    let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+fn keys(v: &Value) -> Vec<String> {
+    v.as_object().map(|o| o.keys().cloned().collect()).unwrap_or_default()
+}
+
+/// Every case the recorded answers hold, in a stable order.
+pub fn inventory(golden: &Path) -> Result<Vec<Case>, String> {
+    let exp = golden.join("expected");
+    let mut out = Vec::new();
+    let rpy = read_json(&exp.join("rpy.json"))?;
+    for k in keys(&rpy) {
+        out.push(Case { group: "rpy", id: k.clone(), expected: rpy[&k].clone() });
+    }
+    let rpa = read_json(&exp.join("rpa.json"))?;
+    for k in keys(&rpa) {
+        out.push(Case { group: "rpa", id: k.clone(), expected: rpa[&k].clone() });
+    }
+    let layout = read_json(&exp.join("layout.json"))?;
+    for k in keys(&layout["propose"]) {
+        out.push(Case { group: "layout", id: format!("propose/{k}"), expected: layout["propose"][&k].clone() });
+    }
+    for k in ["folder_number", "series_number"] {
+        out.push(Case { group: "layout", id: k.to_string(), expected: layout[k].clone() });
+    }
+    let menus = read_json(&exp.join("menus.json"))?;
+    for (i, m) in menus.as_array().ok_or("menus.json is not a list")?.iter().enumerate() {
+        out.push(Case { group: "menus", id: format!("{i} {}:{}", m["script"].as_str().unwrap_or("?"), m["line"]), expected: m["result"].clone() });
+    }
+    let validator = read_json(&exp.join("validator.json"))?;
+    for v in validator.as_array().ok_or("validator.json is not a list")? {
+        out.push(Case { group: "validator", id: v["name"].as_str().unwrap_or("?").to_string(), expected: v.clone() });
+    }
+    let mut names: Vec<String> = std::fs::read_dir(exp.join("scenarios"))
+        .map_err(|e| e.to_string())?
+        .filter_map(|e| e.ok()?.path().file_stem().map(|s| s.to_string_lossy().into_owned()))
+        .collect();
+    names.sort();
+    for name in names {
+        let sc = read_json(&exp.join("scenarios").join(format!("{name}.json")))?;
+        for (i, st) in sc["steps"].as_array().ok_or("a scenario has no steps")?.iter().enumerate() {
+            out.push(Case { group: "scenarios", id: format!("{name}/{i} {}", st["op"].as_str().unwrap_or("?")), expected: st.clone() });
+        }
+        out.push(Case { group: "scenarios", id: format!("{name}/files_after"), expected: sc["files_after"].clone() });
+    }
+    Ok(out)
+}
+
+/// The answer of Rust Core to one case, compared with the recorded one. Nothing is ported yet (M0).
+pub fn run_case(_golden: &Path, _case: &Case) -> Outcome {
+    Outcome::NotImplemented
+}
+
+/// Per group: (passed, failed, not implemented).
+pub fn summarize(results: &[(Case, Outcome)]) -> Vec<(&'static str, usize, usize, usize)> {
+    let mut groups: Vec<&'static str> = Vec::new();
+    for (c, _) in results {
+        if !groups.contains(&c.group) {
+            groups.push(c.group);
+        }
+    }
+    groups
+        .into_iter()
+        .map(|g| {
+            let of = |f: &dyn Fn(&Outcome) -> bool| results.iter().filter(|(c, o)| c.group == g && f(o)).count();
+            (g, of(&|o| *o == Outcome::Pass), of(&|o| matches!(o, Outcome::Fail(_))), of(&|o| *o == Outcome::NotImplemented))
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_inventory_finds_every_group_and_unique_ids() {
+        let cases = inventory(&golden_dir()).expect("core/golden/expected is readable");
+        for g in ["rpy", "rpa", "layout", "menus", "validator", "scenarios"] {
+            assert!(cases.iter().any(|c| c.group == g), "no case in {g}");
+        }
+        let mut ids: Vec<_> = cases.iter().map(|c| (c.group, c.id.clone())).collect();
+        ids.sort();
+        let n = ids.len();
+        ids.dedup();
+        assert_eq!(ids.len(), n, "a case id is not unique");
+    }
+
+    #[test]
+    fn nothing_is_ported_yet_so_the_report_is_zero_of_n() {
+        let golden = golden_dir();
+        let results: Vec<_> = inventory(&golden)
+            .unwrap()
+            .into_iter()
+            .map(|c| {
+                let o = run_case(&golden, &c);
+                (c, o)
+            })
+            .collect();
+        let total: usize = summarize(&results).iter().map(|(_, p, f, n)| p + f + n).sum();
+        assert_eq!(total, results.len());
+        assert!(summarize(&results).iter().all(|(_, p, f, _)| *p == 0 && *f == 0));
+    }
+}

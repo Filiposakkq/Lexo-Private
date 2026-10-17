@@ -113,7 +113,7 @@ Until the pack is ported, the Rust Core answers the five Pro features as "locked
 ## 11. Progress
 | Milestone | State | PR |
 |---|---|---|
-| M0 Foundations | planned (needs the toolchain: ask the owner) | |
+| M0 Foundations | **done**: workspace `rust/` (`lexo-core` with `util::norm_ws`, `lexo-golden` with the normalisation, the inventory of 158 cases, the readable diff and the report), CI job `rust.yml`; the report is "0 of 158" | this PR |
 | M1 Parser and archives | planned | |
 | M2 Checks and layout | planned | |
 | M3 Data files | planned | |
