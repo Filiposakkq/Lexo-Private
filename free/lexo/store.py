@@ -28,7 +28,7 @@ def ep_states():
     """[(key, label)] of the episode states; labels are messages, so call this at run time."""
     return list(zip(EP_STATE_KEYS, (msg("Not started"), msg("In progress"), msg("Translated"), msg("In proofreading"), msg("Done"))))
 
-YES_WORDS = {"yes", "y", "x", "done", "ok", "1x", "ano", "a", "hotovo"}      # the Czech words stay accepted for people who type them
+YES_WORDS = {"yes", "y", "x", "done", "ok", "1x"}
 UNDO_LIMIT = 30
 
 KINDS = ("corr", "assign", "approved", "episodes", "proof", "glossary", "ignored")

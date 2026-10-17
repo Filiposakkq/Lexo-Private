@@ -106,7 +106,7 @@ class ProofreadTests(TempCase):
         self.assertEqual(self.corr(), 2)
         self.app.proof_set([self.item("a3")], "ok")
         self.assertEqual(self.corr(), 3)
-        self.app.save_file("a.rpy", "ano", "")                # whole file = every line of it
+        self.app.save_file("a.rpy", "yes", "")                # whole file = every line of it
         self.assertEqual(self.corr(), 4)
         self.app.save_file("a.rpy", "2", "")                  # typing less cannot drop below the marked lines
         self.assertEqual(self.app.store.corr["a.rpy"]["c"], "1")

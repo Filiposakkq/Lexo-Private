@@ -2,7 +2,7 @@
 
 Source: `Being-A-DIK-CZ/tools/translation-manager/prehled` (v1.7.0, ~7 400 lines of Python, 430 tests).
 Found with a text search plus reading the key modules; the list is a starting point, not a proof of completeness.
-Status of every row is "to do" until a step in the roadmap handles it.
+The tables below are the original findings; the "Update" sections at the end say what has been done since, and the last section is the current state.
 
 ## 1. Game structure (Being a DIK only)
 | Where | What is hard-wired | Generalisation |
@@ -60,3 +60,11 @@ The publishing tab uses the project's group word ("Chapter 3"); the website data
 - `fonts_czech.rpy` is no longer skipped by default (only Ren'Py's own `common.rpy`), `fonts_czech` is no longer a "file of the whole game" name, the self-test folder is `.lexo-selftest`, the browser channel is `lexo-focus`.
 - The migration of the older BaDIK tool's data (Czech file names, `_progress_data`, the BaDIK layout detected from `prirazeni.csv`) was removed: it had one user. Still Czech by default: `mt.target_lang` ("CS").
 - Machine translation no longer defaults to Czech: an empty target language is taken from the project (pack code or `tl` folder name).
+
+## Current state (step 3 closed)
+- Group and section wording come from `labels` (`groupName()`, `sectionName()` in the UI); the Overview and the Publishing tab no longer say "Season" for a project that calls its sections something else.
+- Word lists, the line classifier letters, the machine translation target and the input keywords are language-neutral or come from the language pack; the "yes" words of the progress sheet are English only (`yes`, `y`, `x`, `done`, `ok`, `1x`).
+- `spelling.py` is language-neutral in its logic: the vocabulary is the project's own translated text, so it needs no dictionary and works for any language that has diacritics or doubled letters; it can be switched off in the settings. Only its docstring still mentions Czech examples.
+- Left on purpose: the website export (`progress.json`, schema 2) keeps `season` / `episode` keys because a website reads them; a few validation messages of the overview still say "season" (they appear only when a project defines several sections by hand).
+- Not done here: step 4 onward (the Core / UI split), see ROADMAP.md.
+

@@ -148,7 +148,7 @@ class StoreTests(TempCase):
 
     def test_parse_value(self):
         self.assertEqual(parse_value("50%", 200), 100)
-        self.assertEqual(parse_value("ano", 7), 7)
+        self.assertEqual(parse_value("yes", 7), 7)
         self.assertEqual(parse_value("12", 7), 7)
         self.assertIsNone(parse_value("abc", 7))
         self.assertIsNone(parse_value("", 7))

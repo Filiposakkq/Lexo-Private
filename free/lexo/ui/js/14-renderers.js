@@ -168,5 +168,10 @@ export function groupName(n) {
     Day: () => t('Day {n}', { n }), Update: () => t('Update {n}', { n }), Act: () => t('Act {n}', { n }) }[word];
   return f ? f() : `${word} ${n}`;
 }
+/* "Season 2" ...: the word is the project's section label (layout.labels.section, "Season" by default); another word is shown as it is. */
+export function sectionName(n) {
+  const word = S.overview?.labels?.section || 'Season';
+  return word === 'Season' ? t('Season {n}', { n }) : `${t(word)} ${n}`;
+}
 /* the group numbers of the open project (from the overview) */
 export const groupNumbers = () => (S.overview?.episodes || []).map((e) => e.n);

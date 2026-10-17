@@ -30,7 +30,7 @@ class AssignPart:
         with self.lock:
             if n not in layout.ACTIVE_EPISODES or state not in EP_STATE_KEYS:
                 raise AppError(msg("Invalid value."))
-            self.store.change(f"Stav epizody {n}", ("episodes",), lambda: self.store.episodes.__setitem__(n, state))
+            self.store.change(msg("State of group {n}", n=n), ("episodes",), lambda: self.store.episodes.__setitem__(n, state))
             return self._changed("episode")
 
     def assign_suggest(self, names=None):

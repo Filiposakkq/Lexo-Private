@@ -4,7 +4,7 @@ import { get, post } from './10-api.js';
 import { S } from './11-state.js';
 import { enterProof, enterQuick, pref } from './12-chrome.js';
 import { fail, status, toast } from './13-feedback.js';
-import { STATUS_LABEL, bar, chip, empty, groupName } from './14-renderers.js';
+import { STATUS_LABEL, bar, chip, empty, groupName, sectionName } from './14-renderers.js';
 import { groupsDialog } from './37-groups.js';
 import { go, render } from './16-tabs.js';
 import { refreshHeader, renderStatusRight } from './17-project.js';
@@ -135,12 +135,12 @@ function estimatePanel(e) {
 }
 function seasonPanel(s, episodes) {
   if (s.status === 'planned') {
-    return h('div', { class: 'panel season planned' }, h('div', { class: 'season-head' }, h('h3', null, T('Season {n}', { n: s.n })), chip('planned', T('Planned')), h('span', { class: 'grow' })),
+    return h('div', { class: 'panel season planned' }, h('div', { class: 'season-head' }, h('h3', null, sectionName(s.n)), chip('planned', T('Planned')), h('span', { class: 'grow' })),
       h('div', { class: 'panel-body muted' }, T('The season is planned for the future and is not being translated yet. It does not count in any percentage or in the finish estimate.')));
   }
   const eps = episodes.filter((e) => e.season === s.n);
   const single = (S.overview?.seasons || []).filter((x) => x.status !== 'planned').length === 1;     // one section: no "Season 1" heading
-  const head = h('div', { class: 'season-head' }, h('h3', null, single ? T('Progress by group') : T('Season {n}', { n: s.n })), h('span', { class: 'muted' }, s.episodes.length > 1 ? `${groupName(s.episodes[0])} – ${groupName(s.episodes.at(-1))}` : s.episodes.length ? groupName(s.episodes[0]) : ''),
+  const head = h('div', { class: 'season-head' }, h('h3', null, single ? T('Progress by group') : sectionName(s.n)), h('span', { class: 'muted' }, s.episodes.length > 1 ? `${groupName(s.episodes[0])} – ${groupName(s.episodes.at(-1))}` : s.episodes.length ? groupName(s.episodes[0]) : ''),
     h('span', { class: 'grow' }),
     h('div', { class: 'season-stats' },
       h('div', { class: 'st' }, h('span', { class: 'lbl' }, T('Translation')), h('b', null, fmtPct(s.translation.percent)), h('div', { class: 'muted num' }, `${fmtN(s.translation.done)} / ${fmtN(s.translation.total)}`)),
