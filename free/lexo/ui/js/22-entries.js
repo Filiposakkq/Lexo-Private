@@ -405,6 +405,13 @@ export async function viewEntries() {
       pane.replaceChildren(defs.find(([key]) => key === k)[2]());
     }
     show(cur);
+    if (d.unit !== 'string' && d.ref) {                    // a line of dialogue that belongs to a menu (its question, the start of a choice, the lines before it) gets the tab too
+      menuFor(d.file, d.line).then((r) => {
+        if (!r.available || !bar.isConnected || defs.some(([k]) => k === 'menu')) return;
+        defs.splice(Math.max(0, defs.findIndex(([k]) => k === 'scene')), 0, ['menu', T('Menu'), () => inPane(menuBox(d))]);
+        show(cur);
+      });
+    }
     return h('div', { class: 'dtabswrap' }, bar, pane);
   }
   function translationEditor(d) {
@@ -731,17 +738,20 @@ export async function viewEntries() {
     else box.append(h('button', { class: 'btn small ghost', onclick: show }, T('Show the context in the game script')));
     return box;
   }
-  /* The menu a choice belongs to (read from the game script): the question or the lines said before it, all choices with their translations,
-     and the first lines after each choice, because what a choice means is what follows it. Click a line to jump to it. */
+  /* The menu a line belongs to (read from the game script): the question or the lines said before it, all choices with their translations, and the
+     first lines after each choice, because what a choice means is what follows it. The open line is marked; click any line to jump to it. */
+  const menuFor = (file, line) => ((S.menuCache ||= new Map()).has(file + '\t' + line) ? S.menuCache.get(file + '\t' + line)
+    : (S.menuCache.set(file + '\t' + line, get('entry/menu', { file, line }).catch((e) => ({ available: false, reason: e.message }))), S.menuCache.get(file + '\t' + line)));
   function menuBox(d) {
     const box = h('div', { class: 'menubox' });
     box.append(loading());
     const textOf = (e) => (e.status === 'todo' ? h('span', { class: 'muted' }, T('untranslated')) : fmtText(e.target));
     const sayRow = (x, cls) => x.entry
-      ? h('div', { class: 'mline ' + cls, onclick: () => goLine(x.entry.file, x.entry.line) },
-        h('div', { class: 'mwho muted' }, speakerLabel(x.entry.who) || '—'), h('div', { class: 'mtxt' }, textOf(x.entry)), h('div', { class: 'msrc muted' }, fmtText(x.entry.source ?? '')))
+      ? h('div', { class: 'mline ' + cls + (x.here ? ' cur' : ''), onclick: () => goLine(x.entry.file, x.entry.line) },
+        h('div', { class: 'mwho' }, speakerBadge(x.entry.who), h('b', null, speakerLabel(x.entry.who) || '—'), x.here ? ' ' : null, x.here ? h('span', { class: 'mhere' }, T('this line')) : null),
+        h('div', { class: 'mtxt' }, textOf(x.entry)), h('div', { class: 'msrc muted' }, fmtText(x.entry.source ?? '')))
       : h('div', { class: 'mline ' + cls + ' muted mono' }, x.script);
-    get('entry/menu', { file: d.file, line: d.line }).then((r) => {
+    menuFor(d.file, d.line).then((r) => {
       if (!r.available) return box.replaceChildren(h('div', { class: 'muted' }, r.reason));
       const parts = [];
       if (r.question.length) parts.push(h('h4', null, T('Question')), ...r.question.map((x) => sayRow(x, 'q')));
@@ -749,11 +759,11 @@ export async function viewEntries() {
       parts.push(h('h4', null, T('Choices')));
       for (const o of r.options) {
         parts.push(h('div', { class: 'mopt' + (o.current ? ' cur' : '') },
-          h('div', { class: 'mline', onclick: o.entry ? () => goLine(o.entry.file, o.entry.line) : null },
-            h('div', { class: 'mwho' }, o.cond ? h('span', { class: 'chip', title: o.cond }, T('if {cond}', { cond: o.cond })) : ''),
+          h('div', { class: 'mline mchoice', onclick: o.entry ? () => goLine(o.entry.file, o.entry.line) : null },
+            h('div', { class: 'mwho' }, h('span', { class: 'chip choice' }, T('Choice')), o.cond ? h('span', { class: 'chip', title: o.cond }, T('if {cond}', { cond: o.cond })) : null, o.current ? h('span', { class: 'mhere' }, T('this line')) : null),
             h('div', { class: 'mtxt' }, o.entry ? textOf(o.entry) : h('span', { class: 'muted' }, T('(not found in the translation)'))),
             h('div', { class: 'msrc muted' }, fmtText(o.text))),
-          ...o.after.map((x) => sayRow(x, 'after'))));
+          o.after.length ? h('div', { class: 'mafter' }, h('div', { class: 'mafterhead muted' }, T('then:')), ...o.after.map((x) => sayRow(x, 'after'))) : null));
       }
       box.replaceChildren(h('div', { class: 'muted mono', style: { fontSize: '12px' } }, T('Game script: '), r.script), ...parts);
     }).catch((e) => box.replaceChildren(h('div', { class: 'notice bad' }, e.message)));

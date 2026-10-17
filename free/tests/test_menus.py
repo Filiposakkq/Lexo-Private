@@ -65,6 +65,44 @@ class FindMenuTests(unittest.TestCase):
             self.assertFalse(menus.is_say(line), line)
 
 
+NESTED = [
+    'label a:',                                      # 1
+    '    mc "Before the if."',                       # 2
+    '    if x:',                                     # 3
+    '        mc "In the if branch."',                # 4
+    '    else:',                                     # 5
+    '        menu:',                                 # 6
+    '            "Warm it up":',                     # 7
+    '                na "You warm it."',             # 8
+    '            "Leave it":',                       # 9
+    '                $ y = 1',                       # 10
+    '    mc "After."',                               # 11
+    '    menu:',                                     # 12
+    '        "A":',                                  # 13
+    '            mc "Said A."',                      # 14
+    '            if y:',                             # 15
+    '                mc "Deep in A."',               # 16
+    '        "B":',                                  # 17
+    '            pass',                              # 18
+]
+
+
+class MenuAroundTests(unittest.TestCase):
+    def test_a_menu_that_opens_an_if_block_looks_back_past_the_if_but_not_into_a_sibling_branch(self):
+        self.assertEqual(menus.find_menu(NESTED, 6)["before"], [2])          # not "In the if branch." (another path), nor the lines of an earlier menu
+        self.assertEqual(menus.find_menu(NESTED, 12)["before"], [2, 11])     # the bodies of the first menu are skipped; the if / else is walked over
+
+    def test_the_lines_of_a_choice_belong_to_its_menu(self):
+        self.assertEqual(menus.menu_around(NESTED, 14)["menu_line"], 12)     # first line of the body of A
+        self.assertEqual(menus.menu_around(NESTED, 16)["menu_line"], 12)     # inside an `if` in the body: beyond the lines the menu shows? it is the 2nd say line
+        self.assertEqual(menus.menu_around(NESTED, 8)["menu_line"], 6)
+
+    def test_the_line_said_before_a_menu_belongs_to_it_but_a_far_one_does_not(self):
+        self.assertEqual(menus.menu_around(NESTED, 11)["menu_line"], 12)
+        self.assertEqual(menus.menu_around(NESTED, 2)["menu_line"], 6)       # `if` / `else` between: the menu is still the next thing the story reaches
+        self.assertIsNone(menus.menu_around(['label a:', '    mc "x."', '    mc "y."', '    mc "z."', '    menu:', '        "A":', '            pass'], 2))   # only the last two lines
+
+
 class MenuInTheAppTests(TempCase):
     def test_the_choice_is_joined_with_its_menu_the_question_and_the_translations(self):
         game = self.tmp / "game"
@@ -88,8 +126,11 @@ class MenuInTheAppTests(TempCase):
         self.assertEqual(r["options"][0]["after"][0]["entry"]["target"], "Dáš si kafe?")       # what follows the choice
         self.assertIsNone(r["options"][0]["after"][1]["entry"])                                    # not in the translation: the script line is shown
         self.assertEqual(r["options"][0]["after"][1]["script"], 'js "Sure."')
-        dialogue = next(e for e in app.project.entries("script.rpy") if e.unit == "dialogue")
-        self.assertFalse(app.entry_menu("script.rpy", dialogue.line)["available"])
+        dialogue = next(e for e in app.project.entries("script.rpy") if e.unit == "dialogue" and e.source == "Same.")      # said just before the menu
+        r = app.entry_menu("script.rpy", dialogue.line)
+        self.assertTrue(r["available"])
+        self.assertEqual([x["here"] for x in r["before"]], [False, True])                                      # the open line is marked
+        self.assertFalse(any(x["here"] for o in r["options"] for x in o["after"]))
 
 
     def test_choices_recorded_at_the_menu_line_are_told_apart_by_their_text(self):

@@ -48,6 +48,71 @@ def literal_of(text):
     return (m.group(1) if m.group(1) is not None else m.group(2)) if m else ""
 
 
+def _said_before(lines, head):
+    """The last lines of dialogue before the menu on line index `head`, on the way the story reaches it: lines of the same block, and, when the
+    menu is the first thing in an `if` / `else` block, the lines before that `if` (the body of an earlier branch or of an earlier menu is skipped)."""
+    out, level = [], indent_of(lines[head])
+    for i in range(head - 1, max(-1, head - 1 - LOOK_BACK), -1):
+        text = lines[i]
+        if blank(text):
+            continue
+        ind = indent_of(text)
+        if ind > level:
+            continue
+        if ind < level:
+            if re.match(r"\s*(?:if|elif|else|while|for|with)\b", text):
+                level = ind
+                continue
+            break
+        if is_say(text):
+            out.insert(0, i + 1)
+            if len(out) >= BEFORE_LINES:
+                break
+        elif MENU_RE.match(text) or re.match(r"\s*label\b", text):
+            break
+    return out
+
+
+def menu_around(lines, line, choice=None):
+    """The menu a line of the script is part of, or None: the choice itself (see find_menu), the question, the first lines of the body of a
+    choice, or the lines said just before the menu. Only lines that the menu shows count."""
+    found = find_menu(lines, line, choice)
+    if found or not 1 <= line <= len(lines) or not is_say(lines[line - 1]):
+        return found
+    head, own = None, indent_of(lines[line - 1])
+    for i in range(line - 2, max(-1, line - 2 - 400), -1):          # inside a menu: the first ancestor that is the menu or one of its choices
+        if blank(lines[i]):
+            continue
+        ind = indent_of(lines[i])
+        if ind >= own:
+            continue
+        if MENU_RE.match(lines[i]):
+            head = i
+            break
+        if OPTION_RE.match(lines[i]):
+            inner = find_menu(lines, i + 1)
+            head = inner["menu_line"] - 1 if inner else None
+            break
+        if re.match(r"\s*label\b", lines[i]):
+            break
+        own = ind                                                    # an `if` inside the choice: keep going up
+    if head is None:                                                 # said just before a menu
+        seen = 0
+        for i in range(line, min(len(lines), line + 80)):
+            if blank(lines[i]):
+                continue
+            seen += 1
+            if seen > 10 or re.match(r"\s*label\b", lines[i]):
+                break
+            if MENU_RE.match(lines[i]):
+                head = i
+                break
+    inner = find_menu(lines, head + 1) if head is not None else None
+    if inner and line in inner["question"] + inner["before"] + [n for o in inner["options"] for n in o["after"]]:
+        return inner
+    return None
+
+
 def find_menu(lines, line, choice=None):
     """The menu a choice belongs to, or None. `line` (1-based) is where Ren'Py recorded the choice: the line of the choice itself, or (Ren'Py 7 and
     others) the line of the `menu:` statement, the same for all its choices; `choice` is the original text of the choice, which then tells which one it is.
@@ -91,18 +156,7 @@ def find_menu(lines, line, choice=None):
                 options[-1]["after"].append(i + 1)
     for o in options:
         o["after"] = [n for n in o["after"] if n]
-    before = []
-    if not question:                                                    # a menu without a question: the lines said just before it give the context
-        for i in range(head - 1, max(-1, head - 1 - LOOK_BACK), -1):
-            text = lines[i]
-            if blank(text):
-                continue
-            if is_say(text):
-                before.insert(0, i + 1)
-                if len(before) >= BEFORE_LINES:
-                    break
-            elif indent_of(text) < indent_of(lines[head]) or MENU_RE.match(text) or re.match(r"\s*label\b", text):
-                break
+    before = _said_before(lines, head) if not question else []     # a menu without a question: the lines said just before it give the context
     cur = next((k for k, o in enumerate(options) if o["n"] == line), -1)
     if cur < 0 and choice is not None:
         want = " ".join(str(choice).split())

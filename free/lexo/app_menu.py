@@ -31,9 +31,9 @@ class MenuPart:
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             return {"available": False, "reason": msg("The script {name} was not found (the original .rpy files of the game are not at hand, maybe only .rpyc).", name=m.group(1))}
-        found = menus.find_menu(lines, int(m.group(2)), ent.source)
+        found = menus.menu_around(lines, int(m.group(2)), ent.source if ent.unit == "string" else None)
         if found is None:
-            return {"available": False, "reason": msg("This line is not a choice of a menu in the game script.")}
+            return {"available": False, "reason": msg("This line is not part of a menu in the game script.")}
         by_ref, by_text = {}, {}
         for r, fi in self.project.files.items():
             for e in fi.parsed.entries:
@@ -48,7 +48,7 @@ class MenuPart:
 
         def say(n):
             hit = by_ref.get(f"{m.group(1)}:{n}")
-            return {"n": n, "entry": row(*hit) if hit else None, "script": "" if hit else lines[n - 1].strip()}
+            return {"n": n, "entry": row(*hit) if hit else None, "script": "" if hit else lines[n - 1].strip(), "here": n == int(m.group(2)) and ent.unit != "string"}
 
         out_opts = []
         for k, o in enumerate(found["options"]):
