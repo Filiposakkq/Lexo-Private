@@ -236,7 +236,7 @@ class SceneInfoTests(TempCase):
         app, _base = self.make()
         info = app.scene_info("tl.rpy", app.project.entries("tl.rpy")[0].line)
         self.assertEqual((info["available"], info["found"], info["image"]), (True, True, "ep1_cafe"))
-        self.assertEqual(info["url"], "/api/game/image?k=ep1_cafe")
+        self.assertRegex(info["url"], r"^/api/game/image\?g=[0-9a-f]{8}&k=ep1_cafe$")
         self.assertEqual((info["gui"]["screen_width"], info["gui"]["screen_height"]), (1920, 1080))
         self.assertEqual(info["script"], "game/x.rpy:2")
 
@@ -279,7 +279,7 @@ class SceneInfoTests(TempCase):
         (base / "game" / "tl" / "czech" / "fonts.rpy").write_text('translate czech style say_dialogue:\n    font "Czech.otf"\n', encoding="utf-8")
         self.assertEqual(app.game_fonts()["text"], "Czech.otf")
         info = app.scene_info("tl.rpy", app.project.entries("tl.rpy")[0].line)
-        self.assertEqual(info["fonts_text"]["url"], "/api/game/font?k=czech.otf")
+        self.assertRegex(info["fonts_text"]["url"], r"^/api/game/font\?g=[0-9a-f]{8}&k=czech\.otf$")
         self.assertEqual(app.game_font("Czech.otf"), (b"FONT-Czech.otf", "font/otf"))
 
     def test_without_the_game_sources_the_reason_is_explained(self):

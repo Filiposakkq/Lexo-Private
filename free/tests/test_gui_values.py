@@ -40,5 +40,19 @@ class GuiValuesTests(TempCase):
         self.assertEqual(g["name_ypos"], -66)
 
 
+class GameTokenTests(TempCase):
+    def test_two_games_never_share_a_picture_or_font_url(self):
+        tokens = []
+        for name in ("GameA", "GameB"):
+            tl = self.tmp / name / "game" / "tl" / "czech"
+            tl.mkdir(parents=True)
+            (tl / "script.rpy").write_text(dialog("a1", "mc", "Hello there, friend.", None, 5), encoding="utf-8")
+            app = self.new_app(open_root=False)
+            app.open_project(tl)
+            tokens.append(app._game_token())
+        self.assertEqual(len({*tokens, ""}), 3)
+        self.assertTrue(all(len(t) == 8 for t in tokens))
+
+
 if __name__ == "__main__":
     unittest.main()
