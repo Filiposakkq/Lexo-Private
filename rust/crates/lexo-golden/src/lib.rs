@@ -1,8 +1,9 @@
 //! The golden runner (docs/GOLDEN.md): reads the inputs and the recorded answers of `core/golden`, asks `lexo-core` for its own answers,
-//! normalises them like `core/tests/golden_tool.py` does and compares. Milestone M0 is the skeleton: the inventory of cases and the report;
-//! every case is still `NotImplemented`, and each later milestone replaces that for the cases of its modules.
+//! normalises them like `core/tests/golden_tool.py` does and compares. M0 was the skeleton (the inventory and the report); each milestone from M1 on
+//! replaces `NotImplemented` for the cases of the modules it ports.
 pub mod diff;
 pub mod normalize;
+pub mod run;
 
 use serde_json::Value;
 use std::path::{Path, PathBuf};
@@ -81,9 +82,26 @@ pub fn inventory(golden: &Path) -> Result<Vec<Case>, String> {
     Ok(out)
 }
 
-/// The answer of Rust Core to one case, compared with the recorded one. Nothing is ported yet (M0).
-pub fn run_case(_golden: &Path, _case: &Case) -> Outcome {
-    Outcome::NotImplemented
+/// The answer of Rust Core to one case, compared with the recorded one. A group is "not implemented" until its milestone has ported the modules it needs.
+pub fn run_case(golden: &Path, case: &Case) -> Outcome {
+    let got = match case.group {
+        "rpy" => {
+            let cases = match read_json(&golden.join("rpy/cases.json")) {
+                Ok(c) => c,
+                Err(e) => return Outcome::Fail(e),
+            };
+            match run::rpy_case(golden, &case.id, &cases[&case.id]) {
+                Ok(v) => v,
+                Err(e) => return Outcome::Fail(e),
+            }
+        }
+        "rpa" => run::rpa_case(golden, &case.id),
+        _ => return Outcome::NotImplemented,
+    };
+    match diff::first_difference(&got, &case.expected) {
+        None => Outcome::Pass,
+        Some(d) => Outcome::Fail(d),
+    }
 }
 
 /// Per group: (passed, failed, not implemented).
@@ -121,7 +139,15 @@ mod tests {
     }
 
     #[test]
-    fn nothing_is_ported_yet_so_the_report_is_zero_of_n() {
+    fn every_ported_group_matches_the_recorded_answers() {
+        let golden = golden_dir();
+        for c in inventory(&golden).unwrap().into_iter().filter(|c| c.group == "rpy" || c.group == "rpa") {
+            assert_eq!(run_case(&golden, &c), Outcome::Pass, "{}/{}", c.group, c.id);
+        }
+    }
+
+    #[test]
+    fn the_groups_not_ported_yet_are_reported_as_todo_not_as_failures() {
         let golden = golden_dir();
         let results: Vec<_> = inventory(&golden)
             .unwrap()
@@ -133,6 +159,6 @@ mod tests {
             .collect();
         let total: usize = summarize(&results).iter().map(|(_, p, f, n)| p + f + n).sum();
         assert_eq!(total, results.len());
-        assert!(summarize(&results).iter().all(|(_, p, f, _)| *p == 0 && *f == 0));
+        assert!(summarize(&results).iter().all(|(g, _, f, _)| *f == 0 || *g == "never"));
     }
 }
