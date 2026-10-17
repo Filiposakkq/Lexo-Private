@@ -70,3 +70,14 @@ Drawing them would need the definitions evaluated: reading the attribute groups 
 ### How exact the preview is
 The preview is an estimate from the game script, not a screenshot. For games with layered images (characters or backgrounds built from several parts, animations, conditions) it can be wrong or incomplete, and it may not be a good picture of the scene; the app says so under the preview. The font of the text is taken from the game when it can be found (otherwise a substitute is used);
 the frames of the text box and the name box (their pictures, colours and shapes) are not modelled and can look different in the game. The app says this under the preview.
+
+## Choices and their menu
+A choice (an entry of `translate <lang> strings:` whose game script position is the line of a `"Text":` inside a `menu:`) gets a **Menu** tab in the line detail (it is the default tab for choices). `menus.py` reads the script text:
+- the **question**: a line of dialogue inside the menu before the first choice; a menu without one shows the last two lines said before it (many games have no question);
+- every **choice** with its translation (found by the original text), and `if condition` when it has one;
+- the first two lines of dialogue **after each choice** (the body of the choice), with original and translation, because the choice is read together with what follows it; a menu inside a choice is not mixed into it.
+The same tab also appears for a **line of dialogue that belongs to a menu**: its question, the first lines of a choice, or the two lines said just before the menu; that line is marked "this line". The lines before a menu are taken from the story path to it: a menu that opens an `if` / `else` block looks back past the `if`, and the bodies of earlier branches or earlier menus are skipped.
+A choice that is followed by no dialogue (many only set a variable and `jump`) shows the first four lines of its body instead, so the translator sees what it does. The menu is also shown under the film strip in the quick translating and quick proofreading modes (only for lines that belong to a menu).
+Limits: the script must be available as `.rpy` (not only `.rpyc`); jumps, `call screen` and menus built in Python are not followed; a text used in several menus shows only the first place Ren'Py recorded for it. Strings that are interface text (not a menu choice) say so.
+Ren'Py 7 records the line of the `menu:` statement as the position of every choice of that menu (Being a DIK); newer versions record the line of the choice itself. Both work: with the menu line, the choice is told apart by its original text. Checked on the script of Being a DIK: all 92 menus are found.
+

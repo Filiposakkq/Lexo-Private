@@ -338,7 +338,7 @@ export async function viewEntries() {
       const editor = S.compEditor ? pair : null;
       return (S.compFull ? [inPane(gamePreview(d, ed.ta)), editor] : [editor, tabsFn()]).filter(Boolean);
     }
-    if (film) return [inPane(gamePreview(d, ed.ta)), pair, fileStrip(d), filmStrip(d), ...(S.quick === 'proof' ? [proofPane(d)] : S.quick ? [] : [tabsFn()])];
+    if (film) return [inPane(gamePreview(d, ed.ta)), pair, fileStrip(d), filmStrip(d), quickMenu(d), ...(S.quick === 'proof' ? [proofPane(d)] : S.quick ? [] : [tabsFn()])];
     if (S.companionOpen && pref('ui.slimMain', true)) {
       return [pair, h('div', { class: 'slimnote muted' }, T('The scene, check, proofreading and other tabs are in the second window. '),
         h('button', { class: 'btn small ghost', onclick: () => { setPref('ui.slimMain', false); drawDetail(S.ent.detail); } }, T('Show them here too')))];
@@ -388,6 +388,7 @@ export async function viewEntries() {
     const defs0 = [
       ['check', nIssues ? T('Check ({n})', { n: nIssues }) : T('Check'), () => issuesPane(d)],
       ['proof', T('Proofreading'), () => proofPane(d)],
+      ...(d.unit === 'string' && d.ref ? [['menu', T('Menu'), () => inPane(menuBox(d))]] : []),
       ['scene', T('Scene'), () => h('div', null, inPane(gamePreview(d, ed.ta)), inPane(sceneBox(d)))],
       ['memory', T('Memory'), () => inPane(memoryPanel(d, ed.ta, ed.insert))],
       ['history', T('History'), () => inPane(historyPanel(d, ed.ta))],
@@ -395,6 +396,7 @@ export async function viewEntries() {
     ];
     const defs = (COMPANION && !S.compEditor ? defs0.filter(([k]) => !needsEditor.has(k)) : defs0).filter(([k]) => !(film && k === 'scene'));
     let cur = pref('ui.detailTab', nIssues ? 'check' : 'scene');
+    if (d.unit === 'string' && cur === 'scene' && defs.some(([k]) => k === 'menu')) cur = 'menu';       // a choice is read together with its menu, not with a scene
     if (!defs.some(([k]) => k === cur)) cur = defs[0][0];
     const bar = h('div', { class: 'dtabs', role: 'tablist' }), pane = h('div', { class: 'dpane' });
     function show(k) {
@@ -403,6 +405,13 @@ export async function viewEntries() {
       pane.replaceChildren(defs.find(([key]) => key === k)[2]());
     }
     show(cur);
+    if (d.unit !== 'string' && d.ref) {                    // a line of dialogue that belongs to a menu (its question, the start of a choice, the lines before it) gets the tab too
+      menuFor(d.file, d.line).then((r) => {
+        if (!r.available || !bar.isConnected || defs.some(([k]) => k === 'menu')) return;
+        defs.splice(Math.max(0, defs.findIndex(([k]) => k === 'scene')), 0, ['menu', T('Menu'), () => inPane(menuBox(d))]);
+        show(cur);
+      });
+    }
     return h('div', { class: 'dtabswrap' }, bar, pane);
   }
   function translationEditor(d) {
@@ -727,6 +736,44 @@ export async function viewEntries() {
     };
     if (d.unit === 'string') show();      // a choice / UI string has no dialogue around it: show where the game uses it
     else box.append(h('button', { class: 'btn small ghost', onclick: show }, T('Show the context in the game script')));
+    return box;
+  }
+  /* The menu a line belongs to (read from the game script): the question or the lines said before it, all choices with their translations, and the
+     first lines after each choice, because what a choice means is what follows it. The open line is marked; click any line to jump to it. */
+  const menuFor = (file, line) => ((S.menuCache ||= new Map()).has(file + '\t' + line) ? S.menuCache.get(file + '\t' + line)
+    : (S.menuCache.set(file + '\t' + line, get('entry/menu', { file, line }).catch((e) => ({ available: false, reason: e.message }))), S.menuCache.get(file + '\t' + line)));
+  /* The same menu in the quick translating / proofreading modes: shown under the film strip only when the line belongs to a menu. */
+  function quickMenu(d) {
+    const box = h('details', { class: 'quickmenu', hidden: true, open: true }, h('summary', null, T('Menu')));
+    if (d.ref) menuFor(d.file, d.line).then((r) => { if (r.available && box.isConnected !== false) { box.append(menuBox(d)); box.hidden = false; } });
+    return box;
+  }
+  function menuBox(d) {
+    const box = h('div', { class: 'menubox' });
+    box.append(loading());
+    const textOf = (e) => (e.status === 'todo' ? h('span', { class: 'muted' }, T('untranslated')) : fmtText(e.target));
+    const sayRow = (x, cls) => x.entry
+      ? h('div', { class: 'mline ' + cls + (x.here ? ' cur' : ''), onclick: () => goLine(x.entry.file, x.entry.line) },
+        h('div', { class: 'mwho' }, speakerBadge(x.entry.who), h('b', null, speakerLabel(x.entry.who) || '—'), x.here ? ' ' : null, x.here ? h('span', { class: 'mhere' }, T('this line')) : null),
+        h('div', { class: 'mtxt' }, textOf(x.entry)), h('div', { class: 'msrc muted' }, fmtText(x.entry.source ?? '')))
+      : h('div', { class: 'mline ' + cls + ' muted mono' }, x.script);
+    menuFor(d.file, d.line).then((r) => {
+      if (!r.available) return box.replaceChildren(h('div', { class: 'muted' }, r.reason));
+      const parts = [];
+      if (r.question.length) parts.push(h('h4', null, T('Question')), ...r.question.map((x) => sayRow(x, 'q')));
+      else if (r.before.length) parts.push(h('h4', null, T('Said before the menu')), ...r.before.map((x) => sayRow(x, 'q')));
+      parts.push(h('h4', null, T('Choices')));
+      for (const o of r.options) {
+        parts.push(h('div', { class: 'mopt' + (o.current ? ' cur' : '') },
+          h('div', { class: 'mline mchoice', onclick: o.entry ? () => goLine(o.entry.file, o.entry.line) : null },
+            h('div', { class: 'mwho' }, h('span', { class: 'chip choice' }, T('Choice')), o.cond ? h('span', { class: 'chip', title: o.cond }, T('if {cond}', { cond: o.cond })) : null, o.current ? h('span', { class: 'mhere' }, T('this line')) : null),
+            h('div', { class: 'mtxt' }, o.entry ? textOf(o.entry) : h('span', { class: 'muted' }, T('(not found in the translation)'))),
+            h('div', { class: 'msrc muted' }, fmtText(o.text))),
+          !o.after.length && o.body?.length ? h('div', { class: 'mbody' }, h('div', { class: 'muted' }, T('No dialogue follows; the script continues with:')), h('pre', { class: 'ctxcode' }, o.body.join('\n'))) : null,
+          o.after.length ? h('div', { class: 'mafter' }, h('div', { class: 'mafterhead muted' }, T('then:')), ...o.after.map((x) => sayRow(x, 'after'))) : null));
+      }
+      box.replaceChildren(h('div', { class: 'muted mono', style: { fontSize: '12px' } }, T('Game script: '), r.script), ...parts);
+    }).catch((e) => box.replaceChildren(h('div', { class: 'notice bad' }, e.message)));
     return box;
   }
   /* The scene around the line: original next to translation, the current line marked; click a row to jump to it. */
