@@ -23,5 +23,12 @@ export async function request(method, path, body) {
 }
 export const get = (p, q) => request('GET', p, q);
 export const clearCtx = () => { S.ctxCache?.clear(); S.ctxDone?.clear(); S.scenesCache = {}; };       // the scene list itself (S.scenesDone) stays: it is refreshed in the background
-export const post = (p, b) => { if (p !== 'focus' && p !== 'prefs' && p !== 'entry/check') clearCtx(); return request('POST', p, b); };   // a write may change the neighbouring lines
+const clearMenus = () => { S.menuCache?.clear(); };       // the menu of a line shows translations of other lines: a write makes it stale (cleared before and after, so a fetch in between is dropped too)
+export const post = (p, b) => {
+  const writes = p !== 'focus' && p !== 'prefs' && p !== 'entry/check';
+  if (writes) { clearCtx(); clearMenus(); }       // a write may change the neighbouring lines
+  const r = request('POST', p, b);
+  if (writes) r.then(clearMenus, clearMenus);
+  return r;
+};
 
