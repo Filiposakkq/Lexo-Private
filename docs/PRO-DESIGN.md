@@ -52,8 +52,22 @@ Not built yet; this is the design.
 4. At start each **pack** reads the licence file and verifies **its** signature with its own public key (offline, no network). A valid licence: it offers everything it contains. Missing, expired or broken: the demo pack offers its limits, the premium pack offers nothing.
 5. **Putting a key into Free changes nothing by itself**: Free only fetches. What the user gets is decided by the packs and the signed file, which Free cannot forge (the private key stays with the author).
 
-## The "30-day check" (optional online refresh)
-A one-off licence can work completely offline forever. For a yearly licence, or to be able to revoke a leaked key, the pack can **ask the server every 30 days** whether the licence is still valid and fetch a renewed signed file. Rules that keep it fair: it never blocks on a failed check (no internet is normal); after a missed check the pack keeps working for a **grace period** (for example another 30 days) and then falls back to the demo limits, with a clear message; the user's translations and files are never touched. This is a choice for the owner (offline forever vs. yearly with a refresh), not a technical limit; the host and the interface do not change either way, because the check lives in the pack.
+## Sharing the pack and the licence: what is done about it
+Nobody can fully stop a licensed person from sending files on; the aim is that sharing is inconvenient, traceable and not worth it. Decided with the owner:
+
+1. **The pack alone unlocks nothing.** The premium pack offers nothing without a valid, signed licence file.
+2. **A licence is bound to devices: 2 per licence.** The licence file carries a device id and the server counts activations. A copied file does not work on a third computer. The user frees a device (a button in Settings, which tells the server) when changing computers.
+3. **Every download is made for one licence.** The server **encrypts** the premium pack with a key that belongs only to that licence (the key arrives with the signed licence file and lives in memory only while the application runs), and puts an invisible **watermark** into it (the licence id, in several places of the pack). A leaked pack is useless without its key and can be traced to the licence it was made for.
+4. **Online check, now and then.** The pack asks the server whether the licence is still valid and receives a renewed signed licence file. The interval is a value **inside the signed licence file** (default **30 days**; **14 days** is possible for a licence that is suspected of being shared), so it can be changed without updating the application. A failed check never blocks work (no internet is normal): after a missed check the pack keeps working for a grace period of the same length, then falls back to the demo limits with a clear message. Translations and project files are never touched. A revoked licence is simply not renewed.
+5. The value of Pro is in what cannot be copied from a screenshot (carry-over, fuzzy memory, style check, release builder); the cheap taste features are in the installer's demo pack and are not what the income stands on.
+
+What it does not prevent: a licensed person who is determined to patch the program, or to share a whole computer. The price is meant to be low enough that buying is simpler than working around it.
+
+## Decisions of the owner and the open one
+- Watermark and per-licence encryption of the premium pack: **yes**.
+- Online check every **30 days** (14 for suspicious licences), grace period of the same length: **yes**.
+- **2 devices** per licence: **yes**.
+- **Open: one-off or yearly.** Recommendation: a **one-off licence for the current major version** (1.x, updates and fixes included), and a paid upgrade for the next major version. Why: there is no running cost per user (the user brings their own machine translation key, nothing is hosted), the target users are hobby translators who dislike subscriptions, and the 30-day check can still revoke a leaked licence, since a revocation does not need an expiry date. A yearly licence makes sense only if the product grows a running cost (hosted translation, a team server). Because the licence file says what it covers and until when, either model works with the same code; only the file's contents differ, so this can be decided late, before the first public release.
 
 ## Updates (the question "one app, but two things")
 - Free and the pack have **separate version numbers**, and both know the **interface version** (`API` in `extensions.py`, now 1).
@@ -73,7 +87,7 @@ Not done (each is its own piece of work, listed so nothing is forgotten):
 - **Four features are still in Core** behind the old flag (`Feature.extracted = False`): `mt.batch`, `fixes.safe`, `replace.regex`, `bulk.categorize`. Until each is extracted, someone who edits Core can unlock it. Each needs its own split, because the module holds both the free and the paid half (a single line of machine translation is free, a batch is Pro; the safe fixes with a preview are Pro, the plain speaker fix is free; plain replace is free, regex replace is Pro; approving identical lines is free, suggesting groups is Pro).
 - The **sidecar transport**, the **signature check** and the **manifest updater**.
 - The **licence**: the file, the check inside the pack, the demo limits, the server that hands out the pack.
-- Decisions that belong to the owner: price and form of the licence, and the licence of the public part (see FEATURES.md, open questions).
+- Decisions that belong to the owner: one-off or yearly (see above) and the licence of the public part (see FEATURES.md, open questions).
 
 ## For a developer
 - Running from the repository: `py free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
