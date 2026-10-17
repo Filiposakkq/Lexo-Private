@@ -13,7 +13,6 @@ CZECH = re.compile(r"[ěščřžýáíéůúťďňĚŠČŘŽÝÁÍÉŮÚŤĎŇ]"
 
 # (module, text) pairs that are data, not messages
 DATA = {
-    ("migrate.py", "Obecné"),
 }
 
 

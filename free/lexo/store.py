@@ -9,7 +9,6 @@
   glossary.csv        code;name;type;note                         speaker code -> full name (type "term" for later entries)
   history.csv         see history.py
 
-Data written by the BaDIK tool (Czech file names) is copied to these names once by migrate.py.
 Every write is atomic and backed up (<local data dir>/backups). Mutations go through `change()`,
 which keeps an undo stack of the most recent changes.
 """
@@ -79,7 +78,7 @@ def assign_to_text(v):
 
 def assign_from_text(t):
     f = fold(t)
-    if f in ("general", "gen", "obecne"):
+    if f in ("general", "gen"):
         return "gen"
     digits = "".join(ch for ch in f if ch.isdigit())
     return f"ep:{int(digits)}" if digits else ""

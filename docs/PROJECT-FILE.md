@@ -19,10 +19,6 @@ that game are grouped for statistics. It is **optional**: without it the project
 Rules: `n` and group numbers are positive integers; a group belongs to one section only; `planned` sections are shown but
 never counted. A broken file is ignored with a notice, never auto-repaired.
 
-Migration: data written by the BaDIK tool (it has `prirazeni.csv` or `epizody.csv` but no `lexo.json`) keeps the
-first game's layout (seasons 1-2, episodes 1-8), so nothing is dropped on opening. This rule goes away when the app can
-write the file from its own UI.
-
 Not done yet: the UI still says "Epizoda" / "Sezóna" (the `labels` are stored but not used), the file is edited by hand,
 and assigning files to groups still relies on the `ep1`-style name hints of the first game.
 

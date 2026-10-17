@@ -2,7 +2,7 @@
 import json
 import unittest
 
-from helpers import TempCase, dialog
+from helpers import EIGHT_EPISODES, TempCase, dialog
 from lexo import layout
 from lexo.app import AppError
 
@@ -120,7 +120,7 @@ class GroupsInTheAppTests(TempCase):
                 self.app.groups_apply(label, groups)
 
     def test_several_sections_are_left_to_the_file(self):
-        self.use_layout(layout.BADIK_SECTIONS)
+        self.use_layout(EIGHT_EPISODES)
         app = self.new_app()
         with self.assertRaises(AppError):
             app.groups_apply("Episode", [1, 2])

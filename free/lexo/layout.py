@@ -29,13 +29,6 @@ from . import lang
 from .util import atomic_write_text
 
 FILE_NAME = "lexo.json"
-LEGACY_MARKERS = ("prirazeni.csv", "epizody.csv")      # data written by the BaDIK tool, before layouts existed
-
-BADIK_SECTIONS = (
-    {"n": 1, "status": "active", "episodes": (1, 2, 3, 4)},
-    {"n": 2, "status": "active", "episodes": (5, 6, 7, 8)},
-    {"n": 3, "status": "planned", "episodes": ()},
-)
 DEFAULT_LABELS = {"section": "Season", "group": "Episode"}
 
 
@@ -104,7 +97,7 @@ def parse(raw):
 
 
 def load(data_dir):
-    """(Layout, note). note is "" or a message for the user (legacy data, broken file)."""
+    """(Layout, note). note is "" or a message for the user (broken file)."""
     path = Path(data_dir) / FILE_NAME
     if path.is_file():
         try:
@@ -113,8 +106,6 @@ def load(data_dir):
                          if lay.language and lang.get(lay.language) is None else "")
         except (OSError, ValueError) as e:             # LayoutError and JSONDecodeError are ValueErrors
             return Layout(), f"{FILE_NAME} was ignored: {e}"
-    if any((Path(data_dir) / m).is_file() for m in LEGACY_MARKERS):
-        return Layout(BADIK_SECTIONS, language="cs"), ""
     return Layout(), ""
 
 

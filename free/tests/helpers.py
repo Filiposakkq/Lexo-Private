@@ -16,6 +16,13 @@ from lexo import lang  # noqa: E402
 from lexo.config import Config  # noqa: E402
 from lexo.app import App  # noqa: E402
 
+# eight numbered episodes in two seasons and a planned third one: the layout most tests use
+EIGHT_EPISODES = (
+    {"n": 1, "status": "active", "episodes": (1, 2, 3, 4)},
+    {"n": 2, "status": "active", "episodes": (5, 6, 7, 8)},
+    {"n": 3, "status": "planned", "episodes": ()},
+)
+
 lang.use(lang.CS)      # tests that call the validator directly (no project open) use the Czech rules
 
 
@@ -51,7 +58,7 @@ class TempCase(unittest.TestCase):
         os.environ["LEXO_CONFIG_DIR"] = str(self.cfg_dir)
         self.addCleanup(self._restore_env)
         self.addCleanup(layout.use, layout.Layout(language="cs"))   # the older tests expect Czech rules
-        self.use_layout(layout.BADIK_SECTIONS)
+        self.use_layout(EIGHT_EPISODES)
 
     def use_layout(self, sections, labels=None, language="cs"):
         """Write the project layout file (lexo.json) of the temp project; None = no file (no groups)."""
