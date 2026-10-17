@@ -38,6 +38,13 @@ class FindMenuTests(unittest.TestCase):
                          [(6, "Invite her", "met_her", [7, 8]), (10, "Leave", "", [11])])         # the inner menu is not part of "Leave"
         self.assertEqual(m["current"], 1)
 
+    def test_ren_py_may_record_the_line_of_the_menu_for_every_choice(self):
+        m = menus.find_menu(SCRIPT, 5, "Leave")                                    # the ref of every choice of this menu is line 5
+        self.assertEqual((m["menu_line"], [o["text"] for o in m["options"]], m["current"]), (5, ["Invite her", "Leave"], 1))
+        self.assertEqual(menus.find_menu(SCRIPT, 5, "  Invite   her ")["current"], 0)       # white space does not matter
+        self.assertEqual(menus.find_menu(SCRIPT, 5)["current"], -1)                         # without the text no choice is marked
+        self.assertEqual(menus.find_menu(SCRIPT, 12, "Do not")["current"], 1)
+
     def test_a_menu_inside_a_choice_is_found_on_its_own(self):
         m = menus.find_menu(SCRIPT, 15)
         self.assertEqual((m["menu_line"], [o["text"] for o in m["options"]], m["current"]), (12, ["Look back", "Do not"], 1))
@@ -83,6 +90,21 @@ class MenuInTheAppTests(TempCase):
         self.assertEqual(r["options"][0]["after"][1]["script"], 'js "Sure."')
         dialogue = next(e for e in app.project.entries("script.rpy") if e.unit == "dialogue")
         self.assertFalse(app.entry_menu("script.rpy", dialogue.line)["available"])
+
+
+    def test_choices_recorded_at_the_menu_line_are_told_apart_by_their_text(self):
+        game = self.tmp / "game"
+        tl = game / "tl" / "czech"
+        tl.mkdir(parents=True)
+        (game / "script.rpy").write_text("\n".join(SCRIPT) + "\n", encoding="utf-8")
+        (tl / "script.rpy").write_text(
+            'translate czech strings:\n\n    # game/script.rpy:5\n    old "Invite her"\n    new "Pozvat ji"\n\n'
+            '    # game/script.rpy:5\n    old "Leave"\n    new "Odejít"\n\n', encoding="utf-8")
+        app = self.new_app(open_root=False)
+        app.open_project(tl)
+        leave = next(e for e in app.project.entries("script.rpy") if e.source == "Leave")
+        r = app.entry_menu("script.rpy", leave.line)
+        self.assertEqual([(o["text"], o["current"]) for o in r["options"]], [("Invite her", False), ("Leave", True)])
 
 
 if __name__ == "__main__":

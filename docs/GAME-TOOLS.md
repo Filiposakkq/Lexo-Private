@@ -77,4 +77,5 @@ A choice (an entry of `translate <lang> strings:` whose game script position is 
 - every **choice** with its translation (found by the original text), and `if condition` when it has one;
 - the first two lines of dialogue **after each choice** (the body of the choice), with original and translation, because the choice is read together with what follows it; a menu inside a choice is not mixed into it.
 Limits: the script must be available as `.rpy` (not only `.rpyc`); jumps, `call screen` and menus built in Python are not followed; a text used in several menus shows only the first place Ren'Py recorded for it. Strings that are interface text (not a menu choice) say so.
+Ren'Py 7 records the line of the `menu:` statement as the position of every choice of that menu (Being a DIK); newer versions record the line of the choice itself. Both work: with the menu line, the choice is told apart by its original text. Checked on the script of Being a DIK: all 92 menus are found.
 

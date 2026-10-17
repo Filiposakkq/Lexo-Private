@@ -48,20 +48,27 @@ def literal_of(text):
     return (m.group(1) if m.group(1) is not None else m.group(2)) if m else ""
 
 
-def find_menu(lines, line):
-    """The menu whose choice stands on the 1-based `line` of the script, or None.
+def find_menu(lines, line, choice=None):
+    """The menu a choice belongs to, or None. `line` (1-based) is where Ren'Py recorded the choice: the line of the choice itself, or (Ren'Py 7 and
+    others) the line of the `menu:` statement, the same for all its choices; `choice` is the original text of the choice, which then tells which one it is.
     {menu_line, question:[line numbers], before:[line numbers], options:[{n, text, cond, after:[line numbers]}], current: index of the choice}."""
-    if not 1 <= line <= len(lines) or not OPTION_RE.match(lines[line - 1]):
+    if not 1 <= line <= len(lines):
         return None
-    level = indent_of(lines[line - 1])
     head = None
-    for i in range(line - 2, max(-1, line - 2 - 400), -1):          # up to the `menu:` line: the first line with less indent
-        if blank(lines[i]):
-            continue
-        if indent_of(lines[i]) < level:
-            head = i if MENU_RE.match(lines[i]) else None
-            break
+    if MENU_RE.match(lines[line - 1]):
+        head = line - 1
+    elif OPTION_RE.match(lines[line - 1]):
+        own = indent_of(lines[line - 1])
+        for i in range(line - 2, max(-1, line - 2 - 400), -1):      # up to the `menu:` line: the first line with less indent
+            if blank(lines[i]):
+                continue
+            if indent_of(lines[i]) < own:
+                head = i if MENU_RE.match(lines[i]) else None
+                break
     if head is None:
+        return None
+    level = next((indent_of(x) for x in lines[head + 1:] if not blank(x)), indent_of(lines[head]) + 1)
+    if level <= indent_of(lines[head]):
         return None
     question, options = [], []
     for i in range(head + 1, len(lines)):
@@ -97,4 +104,7 @@ def find_menu(lines, line):
             elif indent_of(text) < indent_of(lines[head]) or MENU_RE.match(text) or re.match(r"\s*label\b", text):
                 break
     cur = next((k for k, o in enumerate(options) if o["n"] == line), -1)
+    if cur < 0 and choice is not None:
+        want = " ".join(str(choice).split())
+        cur = next((k for k, o in enumerate(options) if " ".join(o["text"].split()) == want), -1)
     return {"menu_line": head + 1, "question": question, "before": before, "options": options, "current": cur}

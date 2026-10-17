@@ -31,7 +31,7 @@ class MenuPart:
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             return {"available": False, "reason": msg("The script {name} was not found (the original .rpy files of the game are not at hand, maybe only .rpyc).", name=m.group(1))}
-        found = menus.find_menu(lines, int(m.group(2)))
+        found = menus.find_menu(lines, int(m.group(2)), ent.source)
         if found is None:
             return {"available": False, "reason": msg("This line is not a choice of a menu in the game script.")}
         by_ref, by_text = {}, {}
