@@ -5,7 +5,8 @@ from unittest import mock
 
 from helpers import TempCase
 
-from lexo import __version__, export, rpy, server
+from lexo import __version__, export, rpy
+from lexo_free import server
 from lexo.app import LINKS, AppError
 
 SAMPLE = """# game/script.rpy:2155

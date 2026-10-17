@@ -19,10 +19,10 @@ import time
 import webbrowser
 from pathlib import Path
 
-from . import __version__
-from .app import App, AppError
-from .config import Config, config_dir
-from .project import check_project_dir, totals_of
+from lexo import __version__
+from lexo.app import App, AppError
+from lexo.config import Config, config_dir
+from lexo.project import check_project_dir, totals_of
 from .server import log_exception, start_server
 
 NOWIN = {"creationflags": 0x08000000} if sys.platform.startswith("win") else {}

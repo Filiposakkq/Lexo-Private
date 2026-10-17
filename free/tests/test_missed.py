@@ -4,7 +4,8 @@ import json
 import unittest
 
 from helpers import TempCase
-from lexo import missed, server
+from lexo import missed
+from lexo_free import server
 from lexo.app import AppError
 
 SCRIPT = '''label start:

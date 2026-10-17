@@ -172,7 +172,7 @@ class ProofreadTests(TempCase):
 
     def test_http_api_roundtrip(self):
         import http.client
-        from lexo import server
+        from lexo_free import server
         srv, sess, _ = server.start_server(self.app)
         self.addCleanup(srv.shutdown)
 

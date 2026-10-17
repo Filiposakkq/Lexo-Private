@@ -22,7 +22,7 @@ never counted. A broken file is ignored with a notice, never auto-repaired.
 Not done yet: the UI still says "Epizoda" / "Sezóna" (the `labels` are stored but not used), the file is edited by hand,
 and assigning files to groups still relies on the `ep1`-style name hints of the first game.
 
-`language` (e.g. `"cs"`) selects the language pack for language-dependent checks (see `free/lexo/lang.py`); without it neutral rules apply, and legacy BaDIK data keeps `"cs"`.
+`language` (e.g. `"cs"`) selects the language pack for language-dependent checks (see `core/lexo/lang.py`); without it neutral rules apply, and legacy BaDIK data keeps `"cs"`.
 
 ## Groups without a hand-written file: Files > "Groups…"
 A project that has no groups (a game other than Being a DIK) gets them from the file names: Lexo looks for numbers after `episode`/`ep`, `chapter`, `part`, `day`, `update`, `act`

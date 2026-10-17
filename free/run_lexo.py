@@ -7,9 +7,10 @@ import sys
 from pathlib import Path
 
 if not getattr(sys, "frozen", False):
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    here = Path(__file__).resolve().parent
+    sys.path[:0] = [str(here), str(here.parent / "core")]      # Free (lexo_free) and Core (lexo)
 
-from lexo.cli import run  # noqa: E402
+from lexo_free.cli import run  # noqa: E402
 
 if __name__ == "__main__":
     run()

@@ -103,7 +103,7 @@ class IgnoreOverHttpTests(TempCase):
     def test_routes(self):
         import http.client
         import json
-        from lexo import server
+        from lexo_free import server
         self.write("script.rpy", dialog("a1", "mc", "Hello.", "Ahoj [jmeno].", 5))
         app = self.new_app()
         srv, sess, _url = server.start_server(app)

@@ -15,12 +15,12 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse
 
-from . import __version__, lang
-from .messages import msg, text_of, wire
-from .app import AppError, ProjectBusy
-from .config import config_dir
-from .project import check_project_dir
-from .util import WriteFailed
+from lexo import __version__, lang
+from lexo.messages import msg, text_of, wire
+from lexo.app import AppError, ProjectBusy
+from lexo.config import config_dir
+from lexo.project import check_project_dir
+from lexo.util import WriteFailed
 
 UI_DIR = Path(__file__).resolve().parent / "ui"
 MAX_BODY = 5 * 1024 * 1024

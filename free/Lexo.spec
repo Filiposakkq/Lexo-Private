@@ -1,14 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
 # PyInstaller spec for Lexo.exe (one file, no console window).
 # Build with build_exe.bat (or: py -m PyInstaller --noconfirm --clean Lexo.spec).
-# The UI files (lexo/ui) are bundled; settings live in %APPDATA%\Lexo, project data in
+# The UI files (lexo_free/ui) and the language packs (core/lexo/packs) are bundled; settings live in %APPDATA%\Lexo, project data in
 # <translation folder>\_progress_data, so the exe does not depend on the folder it is started from.
 import os
 
 here = os.path.dirname(os.path.abspath(SPEC))
 
-datas = [(os.path.join(here, "lexo", "ui"), os.path.join("lexo", "ui")),
-         (os.path.join(here, "lexo", "packs"), os.path.join("lexo", "packs"))]
+core = os.path.join(os.path.dirname(here), "core")
+datas = [(os.path.join(here, "lexo_free", "ui"), os.path.join("lexo_free", "ui")),
+         (os.path.join(core, "lexo", "packs"), os.path.join("lexo", "packs"))]
 binaries, hiddenimports = [], []
 try:                                   # pywebview is optional; without it the browser fallback is used
     from PyInstaller.utils.hooks import collect_all
@@ -21,7 +22,7 @@ except Exception as exc:               # noqa: BLE001
 
 a = Analysis(
     [os.path.join(here, "run_lexo.py")],
-    pathex=[here],
+    pathex=[here, core],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,

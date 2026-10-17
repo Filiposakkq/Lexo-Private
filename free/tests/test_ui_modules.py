@@ -3,7 +3,7 @@ import re
 import unittest
 from pathlib import Path
 
-UI = Path(__file__).resolve().parent.parent / "lexo" / "ui"
+UI = Path(__file__).resolve().parent.parent / "lexo_free" / "ui"
 
 IMPORT_RE = re.compile(r"^import \{([^}]*)\} from '\./([^']+)';", re.M)
 SIDE_RE = re.compile(r"^import '\./([^']+)';", re.M)

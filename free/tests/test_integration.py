@@ -8,12 +8,15 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from helpers import ROOT, TempCase, dialog, rel
+from helpers import ROOT, TempCase, dialog, rel  # noqa: F401  (ROOT = Core)
 
-from lexo import cli, editor, publish as pub, server
+from lexo import editor, publish as pub
+from lexo_free import cli, server
 from lexo.app import AppError
 from lexo.messages import render
 from lexo.config import Config
+
+FREE = Path(__file__).resolve().parent.parent            # free/ (ROOT from helpers is core/)
 
 
 class ConfigTests(TempCase):
@@ -56,7 +59,7 @@ class ConfigTests(TempCase):
     def test_saved_dir_that_disappeared_is_reported(self):
         c = Config().load()
         c.set("project_dir", str(self.tmp / "gone"))
-        with mock.patch("lexo.cli.app_dir", return_value=self.tmp / "nowhere"):
+        with mock.patch("lexo_free.cli.app_dir", return_value=self.tmp / "nowhere"):
             path, note = cli.choose_project_dir(c, None)
         self.assertIsNone(path)
         self.assertIn("does not exist", note)
@@ -321,7 +324,7 @@ class PublishTests(TempCase):
             self.app.publish_confirm(info["token"], "main")         # clone needs its own confirmation marker
 
     def test_no_auto_publish_code_path_remains(self):
-        src = (ROOT / "lexo" / "cli.py").read_text(encoding="utf-8")
+        src = (FREE / "lexo_free" / "cli.py").read_text(encoding="utf-8")
         self.assertNotIn("push: true", src)
         self.assertNotIn('["push"]', src)
 
@@ -508,7 +511,7 @@ class ServerTests(TempCase):
 class CliTests(TempCase):
     def run_cli(self, *args, cwd=None):
         env = dict(os.environ, PYTHONIOENCODING="utf-8", LEXO_CONFIG_DIR=str(self.cfg_dir))
-        return subprocess.run([sys.executable, str(ROOT / "run_lexo.py"), *args], cwd=cwd or self.tmp,
+        return subprocess.run([sys.executable, str(FREE / "run_lexo.py"), *args], cwd=cwd or self.tmp,
                               capture_output=True, text=True, env=env, timeout=60, encoding="utf-8")
 
     def test_console_summary_writes_data_next_to_project_not_cwd(self):

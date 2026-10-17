@@ -15,9 +15,10 @@ import time
 import webbrowser
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "tests"))
+ROOT = Path(__file__).resolve().parents[2]            # free/
+CORE = ROOT.parent / "core"
+for extra in (ROOT / "tests", ROOT, CORE / "tests", CORE):      # Core and its test helpers, then Free
+    sys.path.insert(0, str(extra))
 
 SCRIPT = '''# game/script.rpy:10
 translate czech a1:
@@ -94,7 +95,7 @@ def start_synthetic():
     """Start the app server on a synthetic project (isolated config folder). Returns (server, app, url, cleanup)."""
     cfg = tempfile.mkdtemp(prefix="lexo-cfg-")
     os.environ["LEXO_CONFIG_DIR"] = cfg
-    from lexo import server
+    from lexo_free import server
     from lexo.app import App
     from lexo.config import Config
 

@@ -9,7 +9,8 @@ from pathlib import Path
 
 from helpers import TempCase, dialog
 
-from lexo import gameimages, rpa, server
+from lexo import gameimages, rpa
+from lexo_free import server
 from lexo.app import App, AppError
 from lexo.config import Config
 
