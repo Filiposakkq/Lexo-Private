@@ -3,6 +3,9 @@
 Rule for every step: the old test suite (or its port) must stay green, nothing is pushed or merged without the owner's approval,
 and the game folders on disk are read-only (work on copies).
 
+> **Where to look.** The table "Where we are" further down is the current state and the plan; the log under it is the history. The "Step 0 ... Step 6" sections here are the **original plan** (kept for the reasons
+> in them; their numbering is not the table's).
+
 ## Step 0 – Foundation (this repo)
 Done when: `README.md`, `docs/`, empty `core/ free/ pro/`, the audit exists. *(started)*
 
@@ -66,6 +69,17 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 | 5 | Interface contract between UI and Core (JSON calls with tests, also the check for the Rust port) | **done** (`core/lexo/api.py`: 80 operations; `core/contract/*.json`, `docs/API.md`; tests in core and free) |
 | 6 | Cleanup and test data for the Python/Rust comparison | **done** (`core/golden/`: parser, archive, layout, menu and validator cases, 4 projects and 4 scenarios with recorded answers; docs/GOLDEN.md; unused imports and dead code removed) |
 Done on the way: project file, language packs (format + loader), feature registry, game tools (.rpa, unrpyc as a helper, translation files through the SDK, no UI yet), `app.js` split into ES modules, UI text conversion.
+| 7 | **Port Core to Rust** (Tauri: Rust core, web UI), module by module against `core/golden` (docs/GOLDEN.md): `rpy`, `rpa` first; the Python Core stays the reference until everything matches | **next** |
+| 8 | Menu with game selection, onboarding, the "prepare a game" window (the code exists and is tested on 8 games), the new UI | after the port |
+| 9 | Licence server, signed packs, the sidecar transport, updates, the installer, the user guide, the Free / Pro release | after the port |
+
+Done on the way and not forgotten: layered images are not drawn in the scene preview (planned); the licence check of the pack is a development stub (`pro/lexo_pro/licence.py`).
+
+### Open decisions (the owner's)
+- **Licence and openness of Core and Free** before the first release: an open-source licence (GPL-3.0 suits "no closed forks", Apache-2.0 suits adoption) or closed freeware with an EULA (more control, less trust); the Pro pack is closed either way. The reasoning is in the chat of the session of 17 October 2026; nothing in the code depends on it.
+- **The name "Lexo"** is a working name: check that it is free (name, domain, trademark) before the release.
+- **Price** (a one-off licence per major version is decided).
+- **The old BaDIK tool**: it received the same features by copying; decide when Lexo replaces it for the real translation work (it is a dogfooding step: translating in Lexo shows what the tests do not).
 Not before the port: the menu with game selection and the new UI, the licence server, Free/Pro release.
 - Step 1 finished: Python-side messages are English templates (`msg`, `msgn`, `join`) translated in the browser; ~1 400 texts in the Czech pack; `test_python_messages.py` keeps Czech sentences out of the Python code. 470 tests, UI self-test 137/137 (Czech). Next: data layout (step 2).
 - Step 2a done: data files have English names, headers and values; `migrate.py` copies the old Czech-named files once (old ones untouched); text-history sources are translatable messages; project status labels removed (only keys remained in use). 475 tests, UI self-test 137/137. Still Czech as data: `rpy.py` line kinds. Next: 2b.

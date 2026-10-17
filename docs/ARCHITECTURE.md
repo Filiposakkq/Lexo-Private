@@ -1,4 +1,4 @@
-# Architecture (draft)
+# Architecture
 
 ```
 Pro modules (private)  ──┐
@@ -52,10 +52,11 @@ Pro pack (`pro/lexo_pro`); without the pack the feature is locked and no flag in
 Planned names for further features: `translate_provider` (machine translation batches), `memory_provider` (fuzzy translation memory), `exporter`, `team_sync`.
 The UI shows a feature when the pack offers it, otherwise a locked hint.
 
-## Free / Pro split (proposal)
-- **Free**: the whole translating workflow (see docs/FEATURES.md): editor, proofreading, validation, find & replace, spelling, history with diff, scene preview, statistics, translation generator.
-- **Pro**: carrying translations over to a new game version, fuzzy translation memory, LLM style check, character profiles, batch machine translation, release builder, safe bulk fixes and regex batches, publishing, teamwork.
+## Free / Pro split
+- **Free**: the whole translating workflow (see FEATURES.md): editor, proofreading, validation, find & replace, spelling, history with diff, scene preview, choices and their menu, statistics, translation generator.
+- **Pro** (in the pack): batch machine translation, safe bulk fixes, regex replace, group suggestions, publishing today; carrying translations over to a new game version, fuzzy translation memory, LLM style check, character profiles, release builder, teamwork planned. Status per feature in FEATURES.md.
 
 ## Licensing and basic protection
-Signed licence key (public key in the app, private key only with the author), checked offline, optional online refresh later.
-Pro code is never in the public repository. Beyond that nothing heavy: it cannot be made unbreakable, so keep it simple and fair.
+Decided and designed in PRO-DESIGN.md: the licence is a signed file (public key in the app and the pack, private key only on the server), checked offline inside the pack, refreshed online every 30 days with a grace period,
+2 devices, one-off payment per major version. The premium pack is downloaded after a licence, encrypted per licence and watermarked; Pro code is never in the public packages. It cannot be made unbreakable; the aim is that
+sharing is inconvenient and traceable and that buying is simpler than working around it. Not built yet (the pack has a development stub): the licence file, the server, the sidecar transport, the signatures.
