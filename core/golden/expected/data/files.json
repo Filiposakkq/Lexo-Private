@@ -1,0 +1,526 @@
+{
+ "files_after": {
+  "root/data/bak/existing.txt.<stamp>.bak": {
+   "sha1": "374e68b2057e6dcb23f026bc76d01d00663a379b",
+   "text": "old text\r\nline 2\r\n"
+  },
+  "root/data/crlf.txt": {
+   "sha1": "ee218d56ed3ff1121e975e2bd0d66a8430c5c1d4",
+   "text": "a\r\nb\r\nc"
+  },
+  "root/data/existing.txt": {
+   "sha1": "1eb8a29393c0e376645481c0185ec8ef05c0b65c",
+   "text": "new text"
+  },
+  "root/data/new.txt": {
+   "sha1": "3ca69e8d6c234a469d16ac28a4a658c92267c423",
+   "text": "a\nb\nc\n"
+  },
+  "root/in_blank.csv": {
+   "sha1": "f43847616736df6b68a630bf1b4cfcb2ce8ab5b8",
+   "text": "  \n\n"
+  },
+  "root/in_bom_semicolon.csv": {
+   "sha1": "5c5c5c9b5db2669a66c92dd028ba250c9a77adaf",
+   "text": "﻿a;b;c\r\n1;\"x;y\";3\r\n\r\n\"multi\nline\";\"q\"\"uote\";\r\n;;\r\n"
+  },
+  "root/in_comma.csv": {
+   "sha1": "d8a7f8bcb5f937f9d4891fa1e1300fc1a6c0fb01",
+   "text": "a,b\n1,2\n3,\"4,5\"\n"
+  },
+  "root/in_cr_only.csv": {
+   "sha1": "f8cda297a8e0efe42023be97d0540e9e8cb763b1",
+   "text": "a;b\r1;2\r3;4\r"
+  },
+  "root/in_not_utf8.csv": {
+   "base64": "YTtiCmH/O2LpCg==",
+   "sha1": "d68830ad10c558edb6368e233460e45d9f984089"
+  },
+  "root/in_quote_inside.csv": {
+   "sha1": "f6f984f099d7cda5fc8c143d074bba1c9eb62e6a",
+   "text": "a;b\"c;\"d\"e\n"
+  },
+  "root/in_tie.csv": {
+   "sha1": "c859f91d80ff6deed528b2e1313589affdd34ae0",
+   "text": "a;b,c\nx;y,z\n"
+  },
+  "root/in_unterminated.csv": {
+   "sha1": "d28dbe09f1640f5ff5df394ff573dc6b56fbc23c",
+   "text": "a;\"b\nc;d\n"
+  },
+  "root/out/backups/data.csv.<stamp>.bak": {
+   "sha1": "f3162a985ca25d9c9eecbbb541111932a472969a",
+   "text": "﻿h1;h2\r\n3;í\r\n"
+  },
+  "root/out/data.csv": {
+   "sha1": "70b5cfcfa963d88f580378b92b21452e0dde95bd",
+   "text": "﻿h1;h2\r\n4;ó\r\n"
+  },
+  "root/out/keep2/data.csv.<stamp>.bak": {
+   "sha1": "70b5cfcfa963d88f580378b92b21452e0dde95bd",
+   "text": "﻿h1;h2\r\n4;ó\r\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": [
+    [
+     "a",
+     "b",
+     "c"
+    ],
+    [
+     "1",
+     "x;y",
+     "3"
+    ],
+    [
+     "multi\nline",
+     "q\"uote",
+     ""
+    ],
+    [
+     "",
+     "",
+     ""
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_bom_semicolon.csv"
+   }
+  },
+  {
+   "answer": [
+    [
+     "a",
+     "b"
+    ],
+    [
+     "1",
+     "2"
+    ],
+    [
+     "3",
+     "4,5"
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_comma.csv"
+   }
+  },
+  {
+   "answer": [
+    [
+     "a;b",
+     "c"
+    ],
+    [
+     "x;y",
+     "z"
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_tie.csv"
+   }
+  },
+  {
+   "answer": [
+    [
+     "  "
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_blank.csv"
+   }
+  },
+  {
+   "answer": [],
+   "op": "csv.read",
+   "params": {
+    "path": "root/missing.csv"
+   }
+  },
+  {
+   "answer": [
+    [
+     "a",
+     "b\nc;d\n"
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_unterminated.csv"
+   }
+  },
+  {
+   "answer": [
+    [
+     "a",
+     "b"
+    ],
+    [
+     "1",
+     "2"
+    ],
+    [
+     "3",
+     "4"
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_cr_only.csv"
+   }
+  },
+  {
+   "answer": [
+    [
+     "a",
+     "b"
+    ],
+    [
+     "a�",
+     "b�"
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_not_utf8.csv"
+   }
+  },
+  {
+   "answer": [
+    [
+     "a",
+     "b\"c",
+     "de"
+    ]
+   ],
+   "op": "csv.read",
+   "params": {
+    "path": "root/in_quote_inside.csv"
+   }
+  },
+  {
+   "answer": "file;group\r\na.rpy;episode 1\r\n\"b;c\";\"q\"\"uote\"\r\n\"multi\nline\"; lead\r\n;\r\ntab\there;čeština\r\n",
+   "op": "csv.text",
+   "params": {
+    "rows": [
+     [
+      "file",
+      "group"
+     ],
+     [
+      "a.rpy",
+      "episode 1"
+     ],
+     [
+      "b;c",
+      "q\"uote"
+     ],
+     [
+      "multi\nline",
+      " lead"
+     ],
+     [
+      "",
+      ""
+     ],
+     [
+      "tab\there",
+      "čeština"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": "\"\"\r\n\r\n;\r\nx\r\n",
+   "op": "csv.text",
+   "params": {
+    "rows": [
+     [
+      ""
+     ],
+     [],
+     [
+      "",
+      ""
+     ],
+     [
+      "x"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": "\"a,b\",c\r\n",
+   "op": "csv.text",
+   "params": {
+    "delimiter": ",",
+    "rows": [
+     [
+      "a,b",
+      "c"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_csv",
+   "params": {
+    "backup_dir": "root/out/backups",
+    "path": "root/out/data.csv",
+    "rows": [
+     [
+      "h1",
+      "h2"
+     ],
+     [
+      "1",
+      "á"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_csv",
+   "params": {
+    "backup_dir": "root/out/backups",
+    "path": "root/out/data.csv",
+    "rows": [
+     [
+      "h1",
+      "h2"
+     ],
+     [
+      "2",
+      "é"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_csv",
+   "params": {
+    "backup_dir": "root/out/backups",
+    "path": "root/out/data.csv",
+    "rows": [
+     [
+      "h1",
+      "h2"
+     ],
+     [
+      "3",
+      "í"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "data.csv.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/out/backups"
+   }
+  },
+  {
+   "answer": true,
+   "op": "advance",
+   "params": {
+    "seconds": "<volatile>"
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_csv",
+   "params": {
+    "backup_dir": "root/out/backups",
+    "path": "root/out/data.csv",
+    "rows": [
+     [
+      "h1",
+      "h2"
+     ],
+     [
+      "4",
+      "ó"
+     ]
+    ]
+   }
+  },
+  {
+   "answer": [
+    "data.csv.<stamp>.bak",
+    "data.csv.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/out/backups"
+   }
+  },
+  {
+   "answer": "data.csv.<stamp>.bak",
+   "op": "make_backup",
+   "params": {
+    "backup_dir": "root/out/keep2",
+    "keep": 2,
+    "min_interval": 0,
+    "path": "root/out/data.csv"
+   }
+  },
+  {
+   "answer": "data.csv.<stamp>.bak",
+   "op": "make_backup",
+   "params": {
+    "backup_dir": "root/out/keep2",
+    "keep": 2,
+    "min_interval": 0,
+    "path": "root/out/data.csv"
+   }
+  },
+  {
+   "answer": "data.csv.<stamp>.bak",
+   "op": "make_backup",
+   "params": {
+    "backup_dir": "root/out/keep2",
+    "keep": 2,
+    "min_interval": 0,
+    "path": "root/out/data.csv"
+   }
+  },
+  {
+   "answer": [
+    "data.csv.<stamp>.bak",
+    "data.csv.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/out/keep2"
+   }
+  },
+  {
+   "answer": null,
+   "op": "make_backup",
+   "params": {
+    "backup_dir": "root/out/keep2",
+    "path": "root/out/nothing.csv"
+   }
+  },
+  {
+   "answer": true,
+   "op": "atomic_write",
+   "params": {
+    "newline": "\n",
+    "path": "root/data/new.txt",
+    "text": "a\r\nb\nc\r\n"
+   }
+  },
+  {
+   "answer": true,
+   "op": "atomic_write",
+   "params": {
+    "newline": "\r\n",
+    "path": "root/data/crlf.txt",
+    "text": "a\nb\r\nc"
+   }
+  },
+  {
+   "answer": true,
+   "op": "atomic_write",
+   "params": {
+    "backup_dir": "root/data/bak",
+    "path": "root/data/existing.txt",
+    "text": "new text"
+   }
+  },
+  {
+   "answer": [
+    "bak",
+    "crlf.txt",
+    "existing.txt",
+    "new.txt"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/data"
+   }
+  },
+  {
+   "answer": [
+    true,
+    true,
+    true,
+    false
+   ],
+   "op": "text_match",
+   "params": {
+    "query": "sage",
+    "texts": [
+     "Sage",
+     "a massage",
+     "Sage's",
+     "no"
+    ]
+   }
+  },
+  {
+   "answer": [
+    true,
+    false,
+    true,
+    true,
+    true,
+    false
+   ],
+   "op": "text_match",
+   "params": {
+    "query": "sage",
+    "texts": [
+     "Sage",
+     "a massage",
+     "Sage's",
+     "sage,",
+     "SAGE",
+     "sages"
+    ],
+    "whole": true
+   }
+  },
+  {
+   "answer": null,
+   "op": "text_match",
+   "params": {
+    "query": "  ",
+    "texts": [
+     "x"
+    ]
+   }
+  },
+  {
+   "answer": [
+    true,
+    false,
+    false
+   ],
+   "op": "text_match",
+   "params": {
+    "query": "a.b",
+    "texts": [
+     "a.b",
+     "axb",
+     "a.bc"
+    ],
+    "whole": true
+   }
+  }
+ ]
+}

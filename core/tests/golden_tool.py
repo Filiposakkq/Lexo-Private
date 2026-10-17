@@ -25,6 +25,7 @@ sys.path[:0] = [str(HERE.parent), str(HERE)]
 from lexo import api, layout, lang, menus, rpa, rpy, validator    # noqa: E402
 from lexo.app_base import AppError                                   # noqa: E402
 from lexo.messages import render, text_of, wire                      # noqa: E402
+from lexo.util import WriteFailed                                   # noqa: E402
 
 GOLDEN = ROOT / "core" / "golden"
 EXPECTED = GOLDEN / "expected"
@@ -242,6 +243,212 @@ def scenario_names():
     return sorted(p.stem for p in (GOLDEN / "scenarios").glob("*.json"))
 
 
+def data_names():
+    return sorted(p.stem for p in (GOLDEN / "data").glob("*.json"))
+
+
+# =========================================================================================================================== data files (docs/GOLDEN.md "data scenarios")
+class _Clock:
+    """The clock of a data scenario: local and UTC time fixed (so the names and lines Core writes are the same in every run), the epoch real but shifted
+    by `advance` steps (file times are real, so only a shift lets the "is the newest backup old enough" rule be tested), or fixed by `set_epoch`."""
+
+    def __init__(self, spec):
+        from datetime import datetime, timezone
+        self.local = datetime.fromisoformat(spec.get("local", "2026-10-17T11:00:00"))
+        self.utc = datetime.fromisoformat(spec.get("utc", "2026-10-17T09:00:00+00:00")).astimezone(timezone.utc)
+        self.offset, self.fixed = 0.0, None
+
+    def epoch(self):
+        import time as _t
+        return self.fixed if self.fixed is not None else _t.time() + self.offset
+
+
+def _patches(clock):
+    """Replace the clocks Core reads: `datetime.now()` of the modules that stamp their files, `time.time()` where an age is measured."""
+    from datetime import datetime
+    from types import SimpleNamespace
+    from unittest import mock
+    import time as _t
+
+    class FakeDT(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            if tz is None:
+                loc = clock.local
+                return cls(loc.year, loc.month, loc.day, loc.hour, loc.minute, loc.second, loc.microsecond)
+            u = clock.utc
+            return cls(u.year, u.month, u.day, u.hour, u.minute, u.second, u.microsecond, tzinfo=u.tzinfo).astimezone(tz)
+
+    fake_time = SimpleNamespace(time=clock.epoch, sleep=_t.sleep)
+    stack = [mock.patch(f"lexo.{m}.datetime", FakeDT) for m in ("util", "events", "texthistory", "snapshots")]
+    stack += [mock.patch("lexo.util.time", fake_time), mock.patch("lexo.lock.time", fake_time)]
+    return stack
+
+
+def _file_records(root, skip=()):
+    files = {}
+    for f in sorted(root.rglob("*")):
+        if f.is_file() and f.name not in skip:
+            b = f.read_bytes()
+            rec = {"sha1": hashlib.sha1(b).hexdigest()}
+            try:
+                rec["text"] = b.decode("utf-8")
+            except UnicodeDecodeError:
+                rec["base64"] = base64.b64encode(b).decode("ascii")
+            files[f.relative_to(root).as_posix()] = rec
+    return files
+
+
+DATA_SKIP = ("lock.json", "project-id")          # random by design: a token, a time, a project id
+
+
+def run_data_scenario(path):
+    spec = load_json(path)
+    tmp = Path(tempfile.mkdtemp(prefix="lexo-golden-"))
+    old_cfg = os.environ.get("LEXO_CONFIG_DIR")
+    os.environ["LEXO_CONFIG_DIR"] = str(tmp / "cfg")
+    from contextlib import ExitStack
+    try:
+        root = tmp
+        for rel, content in spec.get("files", {}).items():
+            p = root / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(base64.b64decode(content["base64"]) if isinstance(content, dict) else content.encode("utf-8"))
+        clock = _Clock(spec.get("clock", {}))
+        runner = DataRunner(root, tmp / "cfg", clock)
+        steps = []
+        with ExitStack() as stack:
+            for p in _patches(clock):
+                stack.enter_context(p)
+            for st in spec["steps"]:
+                entry = {"op": st["op"], "params": {k: v for k, v in st.items() if k != "op"}}
+                try:
+                    entry["answer"] = plain(runner.run(st["op"], st))
+                except (AppError, WriteFailed) as e:
+                    entry["error"] = str(text_of(e))
+                steps.append(entry)
+        runner.close()
+        return normalize({"steps": steps, "files_after": _file_records(tmp, DATA_SKIP)}, _roots(tmp))
+    finally:
+        if old_cfg is None:
+            os.environ.pop("LEXO_CONFIG_DIR", None)
+        else:
+            os.environ["LEXO_CONFIG_DIR"] = old_cfg
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+class DataRunner:
+    """The steps of a data scenario: each one calls one function of Core with plain parameters and returns plain JSON."""
+
+    def __init__(self, root, cfg_dir, clock):
+        self.root, self.cfg_dir, self.clock = root, cfg_dir, clock
+        self.locks = {}
+        self.config = None
+
+    def p(self, rel):
+        return self.root / rel
+
+    def close(self):
+        for lk in self.locks.values():
+            lk.release()
+
+    def run(self, op, a):
+        return getattr(self, "op_" + op.replace(".", "_"))(a)
+
+    # -- time
+    def op_advance(self, a):
+        self.clock.offset += a["seconds"]
+        return True
+
+    def op_set_epoch(self, a):
+        self.clock.fixed = a["value"]
+        return True
+
+    # -- util: files and CSV
+    def op_csv_read(self, a):
+        from lexo import util
+        return util.read_rows(self.p(a["path"]))
+
+    def op_csv_text(self, a):
+        from lexo import util
+        return util.csv_text(a["rows"], a.get("delimiter", ";"))
+
+    def op_write_csv(self, a):
+        from lexo import util
+        util.write_csv(self.p(a["path"]), a["rows"], self.p(a["backup_dir"]) if a.get("backup_dir") else None)
+        return True
+
+    def op_atomic_write(self, a):
+        from lexo import util
+        util.atomic_write_text(self.p(a["path"]), a["text"], newline=a.get("newline"), backup_dir=self.p(a["backup_dir"]) if a.get("backup_dir") else None)
+        return True
+
+    def op_make_backup(self, a):
+        from lexo import util
+        got = util.make_backup(self.p(a["path"]), self.p(a["backup_dir"]), a.get("keep", 20), a.get("min_interval", 300))
+        return got.name if got else None
+
+    def op_list_dir(self, a):
+        d = self.p(a["path"])
+        return sorted(f.name for f in d.iterdir()) if d.is_dir() else None
+
+    def op_text_match(self, a):
+        from lexo import util
+        fn = util.text_matcher(a["query"], a.get("whole", False))
+        return None if fn is None else [fn(t) for t in a["texts"]]
+
+    # -- config
+    def op_config_load(self, a):
+        from lexo.config import Config
+        self.config = Config().load()
+        return {"data": self.config.data, "load_error": str(self.config.load_error).split(" (")[0], "public": self.config.public()}
+
+    def op_config_set(self, a):
+        self.config.set(a["key"], a["value"])
+        return self.config.get(a["key"])
+
+    def op_config_get(self, a):
+        return self.config.get(a["key"], a.get("default"))
+
+    def op_config_update(self, a):
+        self.config.update(a["patch"])
+        return self.config.data
+
+    # -- data folders
+    def op_datadir_project_id(self, a):
+        from lexo import datadir
+        pid = datadir.project_id(self.p(a["shared"]))
+        return {"ok": pid.isalnum() and len(pid) >= 8, "again": datadir.project_id(self.p(a["shared"])) == pid}
+
+    def op_datadir_local_dir(self, a):
+        from lexo import datadir
+        d = datadir.local_dir(self.p(a["shared"]), self.p(a["root"]))
+        return str(d)
+
+    # -- lock
+    def op_lock_acquire(self, a):
+        from lexo import lock
+        from unittest import mock
+        lk = self.locks.get(a["name"]) or lock.ProjectLock(self.p(a["dir"]))
+        if "token" in a:
+            lk.token = a["token"]
+        with mock.patch("os.getpid", lambda: a.get("pid", 1)), mock.patch("socket.gethostname", lambda: a.get("host", "pc")):
+            try:
+                lk.acquire(force=a.get("force", False))
+            except lock.ProjectLocked as e:
+                return {"locked": True, "holder": e.holder, "message": str(text_of(e))}
+        self.locks[a["name"]] = lk
+        return {"locked": False}
+
+    def op_lock_check(self, a):
+        return self.locks[a["name"]].check()
+
+    def op_lock_release(self, a):
+        lk = self.locks.pop(a["name"])
+        lk.release()
+        return not lk.held
+
+
 # =========================================================================================================================== everything
 def collect():
     """{path under expected/: object} as Core answers it today."""
@@ -249,6 +456,8 @@ def collect():
            "spelling.json": run_spelling(), "textedit.json": run_textedit(), "fontmetrics.json": run_fontmetrics()}
     for name in scenario_names():
         out[f"scenarios/{name}.json"] = run_scenario(GOLDEN / "scenarios" / f"{name}.json")
+    for name in data_names():
+        out[f"data/{name}.json"] = run_data_scenario(GOLDEN / "data" / f"{name}.json")
     return out
 
 

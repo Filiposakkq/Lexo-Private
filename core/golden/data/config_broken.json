@@ -1,0 +1,11 @@
+{
+ "_doc": "config: a broken file is reported (the part Core writes itself) and the defaults are used; a missing file is silent.",
+ "files": {
+  "cfg/config.json": "{\"project_dir\": \"/games/demo\", "
+ },
+ "steps": [
+  {"op": "config.load"},
+  {"op": "config.update", "patch": {"author": "x"}},
+  {"op": "list_dir", "path": "cfg/backups"}
+ ]
+}

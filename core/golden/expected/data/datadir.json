@@ -1,0 +1,62 @@
+{
+ "files_after": {},
+ "steps": [
+  {
+   "answer": {
+    "again": true,
+    "ok": true
+   },
+   "op": "datadir.project_id",
+   "params": {
+    "shared": "root/new"
+   }
+  },
+  {
+   "answer": {
+    "again": true,
+    "ok": true
+   },
+   "op": "datadir.project_id",
+   "params": {
+    "shared": "root/has_id"
+   }
+  },
+  {
+   "answer": "<TMP>/cfg/projects/Projectid99",
+   "op": "datadir.local_dir",
+   "params": {
+    "root": "root",
+    "shared": "root/has_id"
+   }
+  },
+  {
+   "answer": {
+    "again": true,
+    "ok": true
+   },
+   "op": "datadir.project_id",
+   "params": {
+    "shared": "root/short_id"
+   }
+  },
+  {
+   "answer": {
+    "again": true,
+    "ok": true
+   },
+   "op": "datadir.project_id",
+   "params": {
+    "shared": "root/with_space"
+   }
+  },
+  {
+   "answer": [
+    "Projectid99"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "cfg/projects"
+   }
+  }
+ ]
+}

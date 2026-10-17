@@ -1,0 +1,18 @@
+{
+ "_doc": "config: defaults merged with a file (compatible types only, unknown keys kept), dotted get / set, the public view without the key, atomic save with a backup.",
+ "files": {
+  "cfg/config.json": "\ufeff{\"version\": true, \"project_dir\": \"/games/demo\", \"skip_files\": [\"a.rpy\"], \"count_symbol_only_as_done\": 1, \"editor\": {\"preferred\": \"vscode\", \"extra\": 1}, \"validation\": {\"enabled\": \"yes\", \"show_info\": true, \"length\": {\"max_ratio\": 3, \"min_ratio\": \"x\"}, \"new_section\": {\"a\": 1}}, \"snapshots\": {\"keep\": 5.5, \"interval_hours\": true}, \"mt\": {\"provider\": \"deepl\", \"api_key\": \"SECRET\", \"consent\": true}, \"ui\": {\"theme\": \"dark\"}, \"goals\": null, \"future_key\": [1, 2]}"
+ },
+ "steps": [
+  {"op": "config.load"},
+  {"op": "config.get", "key": "validation.length.max_ratio"},
+  {"op": "config.get", "key": "validation.length.nothing", "default": "fallback"},
+  {"op": "config.get", "key": "editor.preferred.deeper"},
+  {"op": "config.set", "key": "ui.language", "value": "cs"},
+  {"op": "config.set", "key": "brand.new.path", "value": 7},
+  {"op": "config.update", "patch": {"author": "tester", "goals": {"translate_per_week": 50}, "unknown_new": {"k": 1}, "ui": {"theme": "light"}, "web": {"repo": 5}}},
+  {"op": "list_dir", "path": "cfg/backups"},
+  {"op": "config.update", "patch": {"author": "tester-2"}},
+  {"op": "list_dir", "path": "cfg/backups"}
+ ]
+}

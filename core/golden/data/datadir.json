@@ -1,0 +1,16 @@
+{
+ "_doc": "datadir: the project id kept in the shared folder (made once, an invalid one replaced) and the local folder named after it.",
+ "files": {
+  "root/has_id/project-id": "Projectid99\n",
+  "root/short_id/project-id": "ab\n",
+  "root/with_space/project-id": "has space1234\n"
+ },
+ "steps": [
+  {"op": "datadir.project_id", "shared": "root/new"},
+  {"op": "datadir.project_id", "shared": "root/has_id"},
+  {"op": "datadir.local_dir", "shared": "root/has_id", "root": "root"},
+  {"op": "datadir.project_id", "shared": "root/short_id"},
+  {"op": "datadir.project_id", "shared": "root/with_space"},
+  {"op": "list_dir", "path": "cfg/projects"}
+ ]
+}

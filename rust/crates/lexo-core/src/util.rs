@@ -1,4 +1,5 @@
 //! Port of `core/lexo/util.py` (the parts the ported modules need so far) and the few Python string rules the other modules rely on.
+use serde_json::Value;
 use sha1::{Digest, Sha1};
 use std::collections::HashMap;
 use unicode_normalization::{char::is_combining_mark, UnicodeNormalization};
@@ -86,6 +87,18 @@ pub fn fold(text: &str) -> String {
 /// The SHA-1 of `data` as 40 lower-case hex digits (`hashlib.sha1(data).hexdigest()`).
 pub fn sha1_hex(data: &[u8]) -> String {
     Sha1::digest(data).iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// Python's truthiness of a JSON value.
+pub fn truthy(v: &Value) -> bool {
+    match v {
+        Value::Null => false,
+        Value::Bool(b) => *b,
+        Value::Number(n) => n.as_f64() != Some(0.0),
+        Value::String(s) => !s.is_empty(),
+        Value::Array(a) => !a.is_empty(),
+        Value::Object(o) => !o.is_empty(),
+    }
 }
 
 /// A multiset that remembers the order of first appearance (Python's `Counter`).

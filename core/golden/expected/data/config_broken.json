@@ -1,0 +1,213 @@
+{
+ "files_after": {
+  "cfg/backups/config.json.<stamp>.bak": {
+   "sha1": "07ea969244e6b10ad5b7cb2ef6d44b1a2f1d0b0c",
+   "text": "{\"project_dir\": \"/games/demo\", "
+  },
+  "cfg/config.json": {
+   "sha1": "12ba692cb210aef5a6090c7ccfa9adbd91a21f98",
+   "text": "{\n  \"version\": 1,\n  \"project_dir\": \"\",\n  \"skip_files\": [\n    \"common.rpy\"\n  ],\n  \"count_symbol_only_as_done\": false,\n  \"editor\": {\n    \"preferred\": \"auto\",\n    \"custom\": \"\"\n  },\n  \"validation\": {\n    \"enabled\": true,\n    \"show_info\": false,\n    \"spelling\": true,\n    \"textbox\": {\n      \"enabled\": true,\n      \"chars_per_line\": 65,\n      \"max_lines\": 4\n    },\n    \"length\": {\n      \"enabled\": true,\n      \"min_source_chars\": 12,\n      \"max_ratio\": 2.2,\n      \"min_ratio\": 0.45,\n      \"min_extra_chars\": 25,\n      \"min_missing_chars\": 18\n    }\n  },\n  \"goals\": {\n    \"translate_per_week\": 0,\n    \"proofread_per_week\": 0\n  },\n  \"snapshots\": {\n    \"enabled\": true,\n    \"interval_hours\": 12,\n    \"keep\": 20\n  },\n  \"mt\": {\n    \"provider\": \"\",\n    \"api_key\": \"\",\n    \"base_url\": \"\",\n    \"model\": \"\",\n    \"source_lang\": \"EN\",\n    \"target_lang\": \"\",\n    \"consent\": false\n  },\n  \"lint\": {\n    \"sdk\": \"\"\n  },\n  \"web\": {\n    \"repo\": \"\",\n    \"path\": \"web/progress.json\",\n    \"title\": \"\"\n  },\n  \"ui\": {},\n  \"author\": \"x\"\n}\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "data": {
+     "author": "<volatile>",
+     "count_symbol_only_as_done": false,
+     "editor": {
+      "custom": "",
+      "preferred": "auto"
+     },
+     "goals": {
+      "proofread_per_week": 0,
+      "translate_per_week": 0
+     },
+     "lint": {
+      "sdk": ""
+     },
+     "mt": {
+      "api_key": "",
+      "base_url": "",
+      "consent": false,
+      "model": "",
+      "provider": "",
+      "source_lang": "EN",
+      "target_lang": ""
+     },
+     "project_dir": "",
+     "skip_files": [
+      "common.rpy"
+     ],
+     "snapshots": {
+      "enabled": true,
+      "interval_hours": 12,
+      "keep": 20
+     },
+     "ui": {},
+     "validation": {
+      "enabled": true,
+      "length": {
+       "enabled": true,
+       "max_ratio": 2.2,
+       "min_extra_chars": 25,
+       "min_missing_chars": 18,
+       "min_ratio": 0.45,
+       "min_source_chars": 12
+      },
+      "show_info": false,
+      "spelling": true,
+      "textbox": {
+       "chars_per_line": 65,
+       "enabled": true,
+       "max_lines": 4
+      }
+     },
+     "version": 1,
+     "web": {
+      "path": "web/progress.json",
+      "repo": "",
+      "title": ""
+     }
+    },
+    "load_error": "The settings cannot be loaded",
+    "public": {
+     "author": "<volatile>",
+     "count_symbol_only_as_done": false,
+     "editor": {
+      "custom": "",
+      "preferred": "auto"
+     },
+     "goals": {
+      "proofread_per_week": 0,
+      "translate_per_week": 0
+     },
+     "lint": {
+      "sdk": ""
+     },
+     "mt": {
+      "api_key": "",
+      "base_url": "",
+      "consent": false,
+      "has_key": false,
+      "model": "",
+      "provider": "",
+      "source_lang": "EN",
+      "target_lang": ""
+     },
+     "project_dir": "",
+     "skip_files": [
+      "common.rpy"
+     ],
+     "snapshots": {
+      "enabled": true,
+      "interval_hours": 12,
+      "keep": 20
+     },
+     "ui": {},
+     "validation": {
+      "enabled": true,
+      "length": {
+       "enabled": true,
+       "max_ratio": 2.2,
+       "min_extra_chars": 25,
+       "min_missing_chars": 18,
+       "min_ratio": 0.45,
+       "min_source_chars": 12
+      },
+      "show_info": false,
+      "spelling": true,
+      "textbox": {
+       "chars_per_line": 65,
+       "enabled": true,
+       "max_lines": 4
+      }
+     },
+     "version": 1,
+     "web": {
+      "path": "web/progress.json",
+      "repo": "",
+      "title": ""
+     }
+    }
+   },
+   "op": "config.load",
+   "params": {}
+  },
+  {
+   "answer": {
+    "author": "<volatile>",
+    "count_symbol_only_as_done": false,
+    "editor": {
+     "custom": "",
+     "preferred": "auto"
+    },
+    "goals": {
+     "proofread_per_week": 0,
+     "translate_per_week": 0
+    },
+    "lint": {
+     "sdk": ""
+    },
+    "mt": {
+     "api_key": "",
+     "base_url": "",
+     "consent": false,
+     "model": "",
+     "provider": "",
+     "source_lang": "EN",
+     "target_lang": ""
+    },
+    "project_dir": "",
+    "skip_files": [
+     "common.rpy"
+    ],
+    "snapshots": {
+     "enabled": true,
+     "interval_hours": 12,
+     "keep": 20
+    },
+    "ui": {},
+    "validation": {
+     "enabled": true,
+     "length": {
+      "enabled": true,
+      "max_ratio": 2.2,
+      "min_extra_chars": 25,
+      "min_missing_chars": 18,
+      "min_ratio": 0.45,
+      "min_source_chars": 12
+     },
+     "show_info": false,
+     "spelling": true,
+     "textbox": {
+      "chars_per_line": 65,
+      "enabled": true,
+      "max_lines": 4
+     }
+    },
+    "version": 1,
+    "web": {
+     "path": "web/progress.json",
+     "repo": "",
+     "title": ""
+    }
+   },
+   "op": "config.update",
+   "params": {
+    "patch": {
+     "author": "<volatile>"
+    }
+   }
+  },
+  {
+   "answer": [
+    "config.json.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "cfg/backups"
+   }
+  }
+ ]
+}

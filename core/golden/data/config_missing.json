@@ -1,0 +1,9 @@
+{
+ "_doc": "config: no file yet gives the defaults silently; the first save creates the file and no backup.",
+ "files": {},
+ "steps": [
+  {"op": "config.load"},
+  {"op": "config.update", "patch": {"project_dir": "/games/x", "editor": {"preferred": "system"}}},
+  {"op": "list_dir", "path": "cfg"}
+ ]
+}

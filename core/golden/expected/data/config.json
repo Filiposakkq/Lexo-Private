@@ -1,0 +1,396 @@
+{
+ "files_after": {
+  "cfg/backups/config.json.<stamp>.bak": {
+   "sha1": "39b182e55db62f9d2278c6e88252e3a47e7cdadc",
+   "text": "﻿{\"version\": true, \"project_dir\": \"/games/demo\", \"skip_files\": [\"a.rpy\"], \"count_symbol_only_as_done\": 1, \"editor\": {\"preferred\": \"vscode\", \"extra\": 1}, \"validation\": {\"enabled\": \"yes\", \"show_info\": true, \"length\": {\"max_ratio\": 3, \"min_ratio\": \"x\"}, \"new_section\": {\"a\": 1}}, \"snapshots\": {\"keep\": 5.5, \"interval_hours\": true}, \"mt\": {\"provider\": \"deepl\", \"api_key\": \"SECRET\", \"consent\": true}, \"ui\": {\"theme\": \"dark\"}, \"goals\": null, \"future_key\": [1, 2]}"
+  },
+  "cfg/config.json": {
+   "sha1": "19f07cc1ad7c7efb3463db8e414b77452f142f12",
+   "text": "{\n  \"version\": true,\n  \"project_dir\": \"/games/demo\",\n  \"skip_files\": [\n    \"a.rpy\"\n  ],\n  \"count_symbol_only_as_done\": 1,\n  \"editor\": {\n    \"preferred\": \"vscode\",\n    \"custom\": \"\",\n    \"extra\": 1\n  },\n  \"validation\": {\n    \"enabled\": true,\n    \"show_info\": true,\n    \"spelling\": true,\n    \"textbox\": {\n      \"enabled\": true,\n      \"chars_per_line\": 65,\n      \"max_lines\": 4\n    },\n    \"length\": {\n      \"enabled\": true,\n      \"min_source_chars\": 12,\n      \"max_ratio\": 3,\n      \"min_ratio\": 0.45,\n      \"min_extra_chars\": 25,\n      \"min_missing_chars\": 18\n    },\n    \"new_section\": {\n      \"a\": 1\n    }\n  },\n  \"goals\": {\n    \"translate_per_week\": 50,\n    \"proofread_per_week\": 0\n  },\n  \"snapshots\": {\n    \"enabled\": true,\n    \"interval_hours\": true,\n    \"keep\": 5.5\n  },\n  \"mt\": {\n    \"provider\": \"deepl\",\n    \"api_key\": \"SECRET\",\n    \"base_url\": \"\",\n    \"model\": \"\",\n    \"source_lang\": \"EN\",\n    \"target_lang\": \"\",\n    \"consent\": true\n  },\n  \"lint\": {\n    \"sdk\": \"\"\n  },\n  \"web\": {\n    \"repo\": \"\",\n    \"path\": \"web/progress.json\",\n    \"title\": \"\"\n  },\n  \"ui\": {\n    \"theme\": \"light\",\n    \"language\": \"cs\"\n  },\n  \"author\": \"tester-2\",\n  \"future_key\": [\n    1,\n    2\n  ],\n  \"brand\": {\n    \"new\": {\n      \"path\": 7\n    }\n  },\n  \"unknown_new\": {\n    \"k\": 1\n  }\n}\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "data": {
+     "author": "<volatile>",
+     "count_symbol_only_as_done": 1,
+     "editor": {
+      "custom": "",
+      "extra": 1,
+      "preferred": "vscode"
+     },
+     "future_key": [
+      1,
+      2
+     ],
+     "goals": {
+      "proofread_per_week": 0,
+      "translate_per_week": 0
+     },
+     "lint": {
+      "sdk": ""
+     },
+     "mt": {
+      "api_key": "SECRET",
+      "base_url": "",
+      "consent": true,
+      "model": "",
+      "provider": "deepl",
+      "source_lang": "EN",
+      "target_lang": ""
+     },
+     "project_dir": "/games/demo",
+     "skip_files": [
+      "a.rpy"
+     ],
+     "snapshots": {
+      "enabled": true,
+      "interval_hours": true,
+      "keep": 5.5
+     },
+     "ui": {
+      "theme": "dark"
+     },
+     "validation": {
+      "enabled": true,
+      "length": {
+       "enabled": true,
+       "max_ratio": 3,
+       "min_extra_chars": 25,
+       "min_missing_chars": 18,
+       "min_ratio": 0.45,
+       "min_source_chars": 12
+      },
+      "new_section": {
+       "a": 1
+      },
+      "show_info": true,
+      "spelling": true,
+      "textbox": {
+       "chars_per_line": 65,
+       "enabled": true,
+       "max_lines": 4
+      }
+     },
+     "version": true,
+     "web": {
+      "path": "web/progress.json",
+      "repo": "",
+      "title": ""
+     }
+    },
+    "load_error": "",
+    "public": {
+     "author": "<volatile>",
+     "count_symbol_only_as_done": 1,
+     "editor": {
+      "custom": "",
+      "extra": 1,
+      "preferred": "vscode"
+     },
+     "future_key": [
+      1,
+      2
+     ],
+     "goals": {
+      "proofread_per_week": 0,
+      "translate_per_week": 0
+     },
+     "lint": {
+      "sdk": ""
+     },
+     "mt": {
+      "api_key": "",
+      "base_url": "",
+      "consent": true,
+      "has_key": true,
+      "model": "",
+      "provider": "deepl",
+      "source_lang": "EN",
+      "target_lang": ""
+     },
+     "project_dir": "/games/demo",
+     "skip_files": [
+      "a.rpy"
+     ],
+     "snapshots": {
+      "enabled": true,
+      "interval_hours": true,
+      "keep": 5.5
+     },
+     "ui": {
+      "theme": "dark"
+     },
+     "validation": {
+      "enabled": true,
+      "length": {
+       "enabled": true,
+       "max_ratio": 3,
+       "min_extra_chars": 25,
+       "min_missing_chars": 18,
+       "min_ratio": 0.45,
+       "min_source_chars": 12
+      },
+      "new_section": {
+       "a": 1
+      },
+      "show_info": true,
+      "spelling": true,
+      "textbox": {
+       "chars_per_line": 65,
+       "enabled": true,
+       "max_lines": 4
+      }
+     },
+     "version": true,
+     "web": {
+      "path": "web/progress.json",
+      "repo": "",
+      "title": ""
+     }
+    }
+   },
+   "op": "config.load",
+   "params": {}
+  },
+  {
+   "answer": 3,
+   "op": "config.get",
+   "params": {
+    "key": "validation.length.max_ratio"
+   }
+  },
+  {
+   "answer": "fallback",
+   "op": "config.get",
+   "params": {
+    "default": "fallback",
+    "key": "validation.length.nothing"
+   }
+  },
+  {
+   "answer": null,
+   "op": "config.get",
+   "params": {
+    "key": "editor.preferred.deeper"
+   }
+  },
+  {
+   "answer": "cs",
+   "op": "config.set",
+   "params": {
+    "key": "ui.language",
+    "value": "cs"
+   }
+  },
+  {
+   "answer": 7,
+   "op": "config.set",
+   "params": {
+    "key": "brand.new.path",
+    "value": 7
+   }
+  },
+  {
+   "answer": {
+    "author": "<volatile>",
+    "brand": {
+     "new": {
+      "path": 7
+     }
+    },
+    "count_symbol_only_as_done": 1,
+    "editor": {
+     "custom": "",
+     "extra": 1,
+     "preferred": "vscode"
+    },
+    "future_key": [
+     1,
+     2
+    ],
+    "goals": {
+     "proofread_per_week": 0,
+     "translate_per_week": 50
+    },
+    "lint": {
+     "sdk": ""
+    },
+    "mt": {
+     "api_key": "SECRET",
+     "base_url": "",
+     "consent": true,
+     "model": "",
+     "provider": "deepl",
+     "source_lang": "EN",
+     "target_lang": ""
+    },
+    "project_dir": "/games/demo",
+    "skip_files": [
+     "a.rpy"
+    ],
+    "snapshots": {
+     "enabled": true,
+     "interval_hours": true,
+     "keep": 5.5
+    },
+    "ui": {
+     "language": "cs",
+     "theme": "light"
+    },
+    "unknown_new": {
+     "k": 1
+    },
+    "validation": {
+     "enabled": true,
+     "length": {
+      "enabled": true,
+      "max_ratio": 3,
+      "min_extra_chars": 25,
+      "min_missing_chars": 18,
+      "min_ratio": 0.45,
+      "min_source_chars": 12
+     },
+     "new_section": {
+      "a": 1
+     },
+     "show_info": true,
+     "spelling": true,
+     "textbox": {
+      "chars_per_line": 65,
+      "enabled": true,
+      "max_lines": 4
+     }
+    },
+    "version": true,
+    "web": {
+     "path": "web/progress.json",
+     "repo": "",
+     "title": ""
+    }
+   },
+   "op": "config.update",
+   "params": {
+    "patch": {
+     "author": "<volatile>",
+     "goals": {
+      "translate_per_week": 50
+     },
+     "ui": {
+      "theme": "light"
+     },
+     "unknown_new": {
+      "k": 1
+     },
+     "web": {
+      "repo": 5
+     }
+    }
+   }
+  },
+  {
+   "answer": [
+    "config.json.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "cfg/backups"
+   }
+  },
+  {
+   "answer": {
+    "author": "<volatile>",
+    "brand": {
+     "new": {
+      "path": 7
+     }
+    },
+    "count_symbol_only_as_done": 1,
+    "editor": {
+     "custom": "",
+     "extra": 1,
+     "preferred": "vscode"
+    },
+    "future_key": [
+     1,
+     2
+    ],
+    "goals": {
+     "proofread_per_week": 0,
+     "translate_per_week": 50
+    },
+    "lint": {
+     "sdk": ""
+    },
+    "mt": {
+     "api_key": "SECRET",
+     "base_url": "",
+     "consent": true,
+     "model": "",
+     "provider": "deepl",
+     "source_lang": "EN",
+     "target_lang": ""
+    },
+    "project_dir": "/games/demo",
+    "skip_files": [
+     "a.rpy"
+    ],
+    "snapshots": {
+     "enabled": true,
+     "interval_hours": true,
+     "keep": 5.5
+    },
+    "ui": {
+     "language": "cs",
+     "theme": "light"
+    },
+    "unknown_new": {
+     "k": 1
+    },
+    "validation": {
+     "enabled": true,
+     "length": {
+      "enabled": true,
+      "max_ratio": 3,
+      "min_extra_chars": 25,
+      "min_missing_chars": 18,
+      "min_ratio": 0.45,
+      "min_source_chars": 12
+     },
+     "new_section": {
+      "a": 1
+     },
+     "show_info": true,
+     "spelling": true,
+     "textbox": {
+      "chars_per_line": 65,
+      "enabled": true,
+      "max_lines": 4
+     }
+    },
+    "version": true,
+    "web": {
+     "path": "web/progress.json",
+     "repo": "",
+     "title": ""
+    }
+   },
+   "op": "config.update",
+   "params": {
+    "patch": {
+     "author": "<volatile>"
+    }
+   }
+  },
+  {
+   "answer": [
+    "config.json.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "cfg/backups"
+   }
+  }
+ ]
+}
