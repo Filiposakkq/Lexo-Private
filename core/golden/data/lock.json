@@ -1,0 +1,23 @@
+{
+ "_doc": "lock: who may take a project (a live foreign owner refuses, a stale or own process does not, force takes it over). The epoch is fixed so the age is the same in every run.",
+ "files": {},
+ "steps": [
+  {"op": "set_epoch", "value": 1000.0},
+  {"op": "lock.acquire", "name": "a", "dir": "local", "pid": 1, "host": "pc"},
+  {"op": "lock.check", "name": "a"},
+  {"op": "lock.acquire", "name": "b", "dir": "local", "pid": 2, "host": "pc"},
+  {"op": "lock.acquire", "name": "c", "dir": "local", "pid": 1, "host": "pc"},
+  {"op": "lock.acquire", "name": "d", "dir": "local", "pid": 1, "host": "other-pc"},
+  {"op": "set_epoch", "value": 1030.0},
+  {"op": "lock.acquire", "name": "b", "dir": "local", "pid": 2, "host": "pc"},
+  {"op": "set_epoch", "value": 1100.0},
+  {"op": "lock.acquire", "name": "b", "dir": "local", "pid": 2, "host": "pc"},
+  {"op": "lock.check", "name": "a"},
+  {"op": "lock.check", "name": "b"},
+  {"op": "lock.acquire", "name": "e", "dir": "local", "pid": 3, "host": "pc"},
+  {"op": "lock.acquire", "name": "e", "dir": "local", "pid": 3, "host": "pc", "force": true},
+  {"op": "lock.check", "name": "b"},
+  {"op": "lock.release", "name": "b"},
+  {"op": "lock.release", "name": "e"}
+ ]
+}

@@ -1,0 +1,811 @@
+{
+ "files_after": {
+  "root/data/history.csv": {
+   "sha1": "4310de2d93692f15872062493b6395b48e269615",
+   "text": "﻿date;translated;total;percent;proofread;proofread_percent\r\n2026-08-01 10:00;100;1000;10.0;50;5.0\r\n2026-08-15 10:00;200;1000;20.0;80;8.0\r\nbad stamp;1;2;3;4;5\r\n2026-09-12 10:00;420;1000;42.0;150;15.0\r\n2026-09-26 10:00;520;1000;52.0;200;20.0\r\n2026-10-03 10:00;600;1000;60.0;240;24.0\r\n2026-10-10 10:00;690;1010;68.3;300;29.7\r\n2026-10-12 09:00;700,0;1010;69,3;310;30,7\r\n2026-10-13 08:00;x;1010;1;1;1\r\n2026-10-13 09:00;710;1010;70.3;;\r\n2026-10-15 13:00;740;1010;73.3;320;31.7\r\n"
+  },
+  "root/local/backups/history.csv.<stamp>.bak": {
+   "sha1": "f62a458d2157beb28d80222baa06cf6fac7a5562",
+   "text": "﻿date;translated;total;percent;proofread;proofread_percent\r\n2026-08-01 10:00;100;1000;10.0;50;5.0\r\n2026-08-15 10:00;200;1000;20.0;80;8.0\r\nbad stamp;1;2;3;4;5\r\n2026-09-12 10:00;420;1000;42.0;150;15.0\r\n2026-09-26 10:00;520;1000;52.0;200;20.0\r\n2026-10-03 10:00;600;1000;60.0;240;24.0\r\n2026-10-10 10:00;690;1010;68.3;300;29.7\r\n2026-10-12 09:00;700,0;1010;69,3;310;30,7\r\n2026-10-13 08:00;x;1010;1;1;1\r\n2026-10-13 09:00;710;1010;70.3\r\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": true,
+   "op": "history.open",
+   "params": {
+    "backup_dir": "root/local/backups",
+    "path": "root/data/history.csv"
+   }
+  },
+  {
+   "answer": {
+    "chart": [
+     [
+      "2026-08-01 10:00:00",
+      10.0,
+      5.0
+     ],
+     [
+      "2026-08-15 10:00:00",
+      20.0,
+      8.0
+     ],
+     [
+      "2026-09-12 10:00:00",
+      42.0,
+      15.0
+     ],
+     [
+      "2026-09-26 10:00:00",
+      52.0,
+      20.0
+     ],
+     [
+      "2026-10-03 10:00:00",
+      60.0,
+      24.0
+     ],
+     [
+      "2026-10-10 10:00:00",
+      68.3,
+      29.7
+     ],
+     [
+      "2026-10-12 09:00:00",
+      69.3,
+      30.7
+     ],
+     [
+      "2026-10-13 08:00:00",
+      1.0,
+      1.0
+     ],
+     [
+      "2026-10-13 09:00:00",
+      70.3,
+      0.0
+     ]
+    ],
+    "points": [
+     [
+      "2026-08-01 10:00:00",
+      100,
+      1000,
+      50
+     ],
+     [
+      "2026-08-15 10:00:00",
+      200,
+      1000,
+      80
+     ],
+     [
+      "2026-09-12 10:00:00",
+      420,
+      1000,
+      150
+     ],
+     [
+      "2026-09-26 10:00:00",
+      520,
+      1000,
+      200
+     ],
+     [
+      "2026-10-03 10:00:00",
+      600,
+      1000,
+      240
+     ],
+     [
+      "2026-10-10 10:00:00",
+      690,
+      1010,
+      300
+     ],
+     [
+      "2026-10-12 09:00:00",
+      700,
+      1010,
+      310
+     ],
+     [
+      "2026-10-13 09:00:00",
+      710,
+      1010,
+      0
+     ]
+    ],
+    "rows": [
+     [
+      "2026-08-01 10:00",
+      "100",
+      "1000",
+      "10.0",
+      "50",
+      "5.0"
+     ],
+     [
+      "2026-08-15 10:00",
+      "200",
+      "1000",
+      "20.0",
+      "80",
+      "8.0"
+     ],
+     [
+      "bad stamp",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+     ],
+     [
+      "2026-09-12 10:00",
+      "420",
+      "1000",
+      "42.0",
+      "150",
+      "15.0"
+     ],
+     [
+      "2026-09-26 10:00",
+      "520",
+      "1000",
+      "52.0",
+      "200",
+      "20.0"
+     ],
+     [
+      "2026-10-03 10:00",
+      "600",
+      "1000",
+      "60.0",
+      "240",
+      "24.0"
+     ],
+     [
+      "2026-10-10 10:00",
+      "690",
+      "1010",
+      "68.3",
+      "300",
+      "29.7"
+     ],
+     [
+      "2026-10-12 09:00",
+      "700,0",
+      "1010",
+      "69,3",
+      "310",
+      "30,7"
+     ],
+     [
+      "2026-10-13 08:00",
+      "x",
+      "1010",
+      "1",
+      "1",
+      "1"
+     ],
+     [
+      "2026-10-13 09:00",
+      "710",
+      "1010",
+      "70.3",
+      "",
+      ""
+     ]
+    ]
+   },
+   "op": "history.dump",
+   "params": {}
+  },
+  {
+   "answer": {
+    "basis_days": 33,
+    "confidence": "medium",
+    "days_with_data": 6,
+    "eta": "2026-11-16",
+    "eta_early": "2026-11-04",
+    "eta_late": null,
+    "pace_per_day": 9.1,
+    "reason": "Pace 9 lines/day over the last 33 days (6 days with a record). The estimate changes with the pace of work.",
+    "remaining": 290,
+    "status": "ok"
+   },
+   "op": "history.estimate",
+   "params": {
+    "done_now": 720,
+    "today": "2026-10-15",
+    "total_now": 1010
+   }
+  },
+  {
+   "answer": {
+    "basis_days": 0,
+    "confidence": null,
+    "days_with_data": 0,
+    "eta": null,
+    "eta_early": null,
+    "eta_late": null,
+    "pace_per_day": null,
+    "reason": "Everything is translated.",
+    "remaining": 0,
+    "status": "complete"
+   },
+   "op": "history.estimate",
+   "params": {
+    "done_now": 1010,
+    "today": "2026-10-15",
+    "total_now": 1010
+   }
+  },
+  {
+   "answer": {
+    "basis_days": 0,
+    "confidence": null,
+    "days_with_data": 0,
+    "eta": null,
+    "eta_early": null,
+    "eta_late": null,
+    "pace_per_day": null,
+    "reason": "The history is empty – the estimate cannot be calculated yet.",
+    "remaining": 100,
+    "status": "insufficient_data"
+   },
+   "op": "history.estimate",
+   "params": {
+    "done_now": 0,
+    "points": [],
+    "today": "2026-10-15",
+    "total_now": 100
+   }
+  },
+  {
+   "answer": {
+    "basis_days": 2,
+    "confidence": null,
+    "days_with_data": 3,
+    "eta": null,
+    "eta_early": null,
+    "eta_late": null,
+    "pace_per_day": null,
+    "reason": "Not enough data yet: the history covers 2 days, the records are from 3 days (at least 7 days and 3 days with a record are needed).",
+    "remaining": 88,
+    "status": "insufficient_data"
+   },
+   "op": "history.estimate",
+   "params": {
+    "done_now": 12,
+    "points": [
+     [
+      "2026-10-13 10:00",
+      10,
+      100,
+      0
+     ],
+     [
+      "2026-10-14 10:00",
+      11,
+      100,
+      0
+     ],
+     [
+      "2026-10-15 10:00",
+      12,
+      100,
+      0
+     ]
+    ],
+    "today": "2026-10-15",
+    "total_now": 100
+   }
+  },
+  {
+   "answer": {
+    "basis_days": 35,
+    "confidence": null,
+    "days_with_data": 3,
+    "eta": null,
+    "eta_early": null,
+    "eta_late": null,
+    "pace_per_day": null,
+    "reason": "No translated lines were added in recent weeks – the date cannot be estimated.",
+    "remaining": 500,
+    "status": "no_progress"
+   },
+   "op": "history.estimate",
+   "params": {
+    "done_now": 500,
+    "points": [
+     [
+      "2026-09-01 10:00",
+      500,
+      1000,
+      0
+     ],
+     [
+      "2026-09-10 10:00",
+      500,
+      1000,
+      0
+     ],
+     [
+      "2026-09-20 10:00",
+      500,
+      1000,
+      0
+     ],
+     [
+      "2026-10-01 10:00",
+      500,
+      1000,
+      0
+     ]
+    ],
+    "today": "2026-10-15",
+    "total_now": 1000
+   }
+  },
+  {
+   "answer": {
+    "basis_days": 44,
+    "confidence": "medium",
+    "days_with_data": 3,
+    "eta": null,
+    "eta_early": null,
+    "eta_late": null,
+    "pace_per_day": 0.0,
+    "reason": "At the current pace the finish would take more than 5 years – no date is given.",
+    "remaining": 9999997,
+    "status": "too_far"
+   },
+   "op": "history.estimate",
+   "params": {
+    "done_now": 3,
+    "points": [
+     [
+      "2026-09-01 10:00",
+      1,
+      10000000,
+      0
+     ],
+     [
+      "2026-09-20 10:00",
+      2,
+      10000000,
+      0
+     ],
+     [
+      "2026-10-10 10:00",
+      3,
+      10000000,
+      0
+     ]
+    ],
+    "today": "2026-10-15",
+    "total_now": 10000000
+   }
+  },
+  {
+   "answer": {
+    "basis_days": 35,
+    "confidence": "medium",
+    "days_with_data": 5,
+    "eta": "2027-06-26",
+    "eta_early": "2027-05-06",
+    "eta_late": null,
+    "pace_per_day": 3.4,
+    "reason": "Pace 3 lines/day over the last 35 days (5 days with a record). The estimate changes with the pace of work.",
+    "remaining": 870,
+    "status": "ok"
+   },
+   "op": "history.estimate",
+   "params": {
+    "done_now": 130,
+    "points": [
+     [
+      "2026-09-10 10:00",
+      10,
+      1000,
+      0
+     ],
+     [
+      "2026-09-17 10:00",
+      40,
+      1000,
+      0
+     ],
+     [
+      "2026-09-24 10:00",
+      70,
+      1000,
+      0
+     ],
+     [
+      "2026-10-01 10:00",
+      100,
+      1000,
+      0
+     ],
+     [
+      "2026-10-08 10:00",
+      130,
+      1000,
+      0
+     ]
+    ],
+    "today": "2026-10-15",
+    "total_now": 1000
+   }
+  },
+  {
+   "answer": {
+    "proofread": {
+     "auto": true,
+     "days_left": 4,
+     "done": 0,
+     "goal": 50,
+     "left": 50,
+     "needed_per_day": 13,
+     "pace_per_week": 38,
+     "percent": 0.0,
+     "status": "behind"
+    },
+    "translate": {
+     "auto": true,
+     "days_left": 4,
+     "done": 20,
+     "goal": 80,
+     "left": 60,
+     "needed_per_day": 15,
+     "pace_per_week": 68,
+     "percent": 25.0,
+     "status": "behind"
+    },
+    "week_start": "2026-10-12"
+   },
+   "op": "history.goals",
+   "params": {
+    "remaining_proof": 700,
+    "remaining_translate": 300,
+    "today": "2026-10-15"
+   }
+  },
+  {
+   "answer": {
+    "proofread": {
+     "auto": true,
+     "days_left": 7,
+     "done": 0,
+     "goal": 50,
+     "left": 50,
+     "needed_per_day": 8,
+     "pace_per_week": 38,
+     "percent": 0.0,
+     "status": "behind"
+    },
+    "translate": {
+     "auto": false,
+     "days_left": 7,
+     "done": 0,
+     "goal": 50,
+     "left": 50,
+     "needed_per_day": 8,
+     "pace_per_week": 72,
+     "percent": 0.0,
+     "status": "behind"
+    },
+    "week_start": "2026-10-19"
+   },
+   "op": "history.goals",
+   "params": {
+    "cfg": {
+     "proofread_per_week": 0,
+     "translate_per_week": 50
+    },
+    "remaining_proof": 700,
+    "remaining_translate": 300,
+    "today": "2026-10-19"
+   }
+  },
+  {
+   "answer": {
+    "proofread": {
+     "auto": true,
+     "days_left": 4,
+     "done": 0,
+     "goal": null,
+     "left": 0,
+     "needed_per_day": 0,
+     "pace_per_week": null,
+     "percent": 0,
+     "status": "no_goal"
+    },
+    "translate": {
+     "auto": true,
+     "days_left": 4,
+     "done": 0,
+     "goal": null,
+     "left": 0,
+     "needed_per_day": 0,
+     "pace_per_week": null,
+     "percent": 0,
+     "status": "no_goal"
+    },
+    "week_start": "2026-10-12"
+   },
+   "op": "history.goals",
+   "params": {
+    "points": [],
+    "remaining_proof": 0,
+    "remaining_translate": 0,
+    "today": "2026-10-15"
+   }
+  },
+  {
+   "answer": true,
+   "op": "history.record",
+   "params": {
+    "c_done": 311,
+    "cpct": 30.8,
+    "stamp": "<volatile>",
+    "t_done": 710,
+    "total": 1010,
+    "tpct": 70.3
+   }
+  },
+  {
+   "answer": true,
+   "op": "history.record",
+   "params": {
+    "c_done": 311,
+    "cpct": 30.79,
+    "stamp": "<volatile>",
+    "t_done": 725,
+    "total": 1010,
+    "tpct": 71.78
+   }
+  },
+  {
+   "answer": false,
+   "op": "history.record",
+   "params": {
+    "c_done": 311,
+    "cpct": 30.8,
+    "stamp": "<volatile>",
+    "t_done": 725,
+    "total": 1010,
+    "tpct": 71.8
+   }
+  },
+  {
+   "answer": true,
+   "op": "history.record",
+   "params": {
+    "c_done": 320,
+    "cpct": 31.7,
+    "stamp": "<volatile>",
+    "t_done": 740,
+    "total": 1010,
+    "tpct": 73.3
+   }
+  },
+  {
+   "answer": {
+    "chart": [
+     [
+      "2026-08-01 10:00:00",
+      10.0,
+      5.0
+     ],
+     [
+      "2026-08-15 10:00:00",
+      20.0,
+      8.0
+     ],
+     [
+      "2026-09-12 10:00:00",
+      42.0,
+      15.0
+     ],
+     [
+      "2026-09-26 10:00:00",
+      52.0,
+      20.0
+     ],
+     [
+      "2026-10-03 10:00:00",
+      60.0,
+      24.0
+     ],
+     [
+      "2026-10-10 10:00:00",
+      68.3,
+      29.7
+     ],
+     [
+      "2026-10-12 09:00:00",
+      69.3,
+      30.7
+     ],
+     [
+      "2026-10-13 08:00:00",
+      1.0,
+      1.0
+     ],
+     [
+      "2026-10-13 09:00:00",
+      70.3,
+      0.0
+     ],
+     [
+      "2026-10-15 13:00:00",
+      73.3,
+      31.7
+     ]
+    ],
+    "points": [
+     [
+      "2026-08-01 10:00:00",
+      100,
+      1000,
+      50
+     ],
+     [
+      "2026-08-15 10:00:00",
+      200,
+      1000,
+      80
+     ],
+     [
+      "2026-09-12 10:00:00",
+      420,
+      1000,
+      150
+     ],
+     [
+      "2026-09-26 10:00:00",
+      520,
+      1000,
+      200
+     ],
+     [
+      "2026-10-03 10:00:00",
+      600,
+      1000,
+      240
+     ],
+     [
+      "2026-10-10 10:00:00",
+      690,
+      1010,
+      300
+     ],
+     [
+      "2026-10-12 09:00:00",
+      700,
+      1010,
+      310
+     ],
+     [
+      "2026-10-13 09:00:00",
+      710,
+      1010,
+      0
+     ],
+     [
+      "2026-10-15 13:00:00",
+      740,
+      1010,
+      320
+     ]
+    ],
+    "rows": [
+     [
+      "2026-08-01 10:00",
+      "100",
+      "1000",
+      "10.0",
+      "50",
+      "5.0"
+     ],
+     [
+      "2026-08-15 10:00",
+      "200",
+      "1000",
+      "20.0",
+      "80",
+      "8.0"
+     ],
+     [
+      "bad stamp",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+     ],
+     [
+      "2026-09-12 10:00",
+      "420",
+      "1000",
+      "42.0",
+      "150",
+      "15.0"
+     ],
+     [
+      "2026-09-26 10:00",
+      "520",
+      "1000",
+      "52.0",
+      "200",
+      "20.0"
+     ],
+     [
+      "2026-10-03 10:00",
+      "600",
+      "1000",
+      "60.0",
+      "240",
+      "24.0"
+     ],
+     [
+      "2026-10-10 10:00",
+      "690",
+      "1010",
+      "68.3",
+      "300",
+      "29.7"
+     ],
+     [
+      "2026-10-12 09:00",
+      "700,0",
+      "1010",
+      "69,3",
+      "310",
+      "30,7"
+     ],
+     [
+      "2026-10-13 08:00",
+      "x",
+      "1010",
+      "1",
+      "1",
+      "1"
+     ],
+     [
+      "2026-10-13 09:00",
+      "710",
+      "1010",
+      "70.3",
+      "",
+      ""
+     ],
+     [
+      "2026-10-15 13:00",
+      "740",
+      "1010",
+      "73.3",
+      "320",
+      "31.7"
+     ]
+    ]
+   },
+   "op": "history.dump",
+   "params": {}
+  },
+  {
+   "answer": [
+    "history.csv.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/local/backups"
+   }
+  }
+ ]
+}

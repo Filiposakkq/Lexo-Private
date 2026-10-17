@@ -1,0 +1,24 @@
+{
+ "_doc": "store + events, a computer that has never seen the log: the log is the truth, the CSV rows that it does not know are dropped; then local edits become events, and the events another author wrote since are merged in.",
+ "files": {
+  "root/shared/assignments.csv": "file;group\r\na.rpy;episode 1\r\nb.rpy;general\r\nold.rpy;episode 2\r\n",
+  "root/shared/proofread.csv": "file;proofread;translated_manual\r\na.rpy;5;\r\nold.rpy;9;9\r\n",
+  "root/shared/approved.csv": "file;block;original\r\na.rpy;strings;Kept\r\n",
+  "root/shared/events/alice.jsonl": "{\"v\":1,\"t\":\"2026-10-17T08:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"b.rpy\"],\"value\":null}\n{\"v\":1,\"t\":\"2026-10-17T08:01:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"ep:2\"}\n{\"v\":1,\"t\":\"2026-10-17T08:02:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"corr\",\"key\":[\"a.rpy\"],\"value\":{\"c\":\"8\",\"t\":\"\"}}\n{\"v\":1,\"t\":\"2026-10-17T08:03:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"bad.rpy\"],\"value\":\"ep:99\"}\n{\"v\":1,\"t\":\"2026-10-17T08:04:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"episodes\",\"key\":[2],\"value\":\"nonsense\"}\n{\"v\":1,\"t\":\"2026-10-17T08:05:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"episodes\",\"key\":[1],\"value\":\"done\"}\n"
+ },
+ "steps": [
+  {"op": "layout.use", "raw": {"sections": [{"n": 1, "groups": [1, 2]}]}},
+  {"op": "store.open", "shared": "root/shared", "local": "root/local"},
+  {"op": "store.load"},
+  {"op": "store.attach_events", "dir": "root/shared/events", "seen": "root/local/events-seen.json", "author": "bob"},
+  {"op": "store.sync_events"},
+  {"op": "store.assign", "file": "c.rpy", "value": "gen"},
+  {"op": "store.approve", "file": "c.rpy", "block": "strings", "original": "New", "on": true},
+  {"op": "write_file", "path": "root/shared/events/alice.jsonl", "text": "{\"v\":1,\"t\":\"2026-10-17T12:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"d.rpy\"],\"value\":\"gen\"}\n{\"v\":1,\"t\":\"2026-10-17T12:01:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"c.rpy\"],\"value\":null}\n", "append": true},
+  {"op": "write_file", "path": "root/shared/events/dora.jsonl", "text": "{\"v\":1,\"t\":\"2026-10-17T12:02:00.000000+00:00\",\"a\":\"dora\",\"kind\":\"approved\",\"key\":[\"d.rpy\",\"strings\",\"Yes\"],\"value\":true}\n", "append": true},
+  {"op": "store.sync_events"},
+  {"op": "store.undo"},
+  {"op": "store.sync_events"},
+  {"op": "list_dir", "path": "root/shared/events"}
+ ]
+}

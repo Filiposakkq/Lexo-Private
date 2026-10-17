@@ -230,3 +230,21 @@ pub fn fontmetrics_case(golden: &Path, id: &str) -> Value {
         Some(a) => json!({"upm": a.upm, "adv": a.adv.iter().map(|(k, v)| (k.to_string(), json!(v))).collect::<Map<String, Value>>()}),
     }
 }
+
+/// A step (or the files at the end) of a data scenario. A scenario is run once and its answers are kept for the cases that belong to it.
+pub fn data_case(golden: &Path, id: &str) -> Result<Value, String> {
+    use std::collections::HashMap;
+    use std::sync::{Mutex, OnceLock};
+    static CACHE: OnceLock<Mutex<HashMap<String, Result<Value, String>>>> = OnceLock::new();
+    let (name, rest) = id.split_once('/').ok_or("bad data case id")?;
+    let key = format!("{}|{name}", golden.display());
+    let result = {
+        let mut cache = CACHE.get_or_init(|| Mutex::new(HashMap::new())).lock().unwrap();
+        cache.entry(key).or_insert_with(|| crate::data::run_data_scenario(&golden.join("data").join(format!("{name}.json")))).clone()
+    }?;
+    if rest == "files_after" {
+        return Ok(result["files_after"].clone());
+    }
+    let index: usize = rest.split(' ').next().and_then(|n| n.parse().ok()).ok_or("bad data step id")?;
+    result["steps"].get(index).cloned().ok_or_else(|| "no such step".to_string())
+}

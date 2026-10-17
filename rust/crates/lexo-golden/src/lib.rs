@@ -1,6 +1,7 @@
 //! The golden runner (docs/GOLDEN.md): reads the inputs and the recorded answers of `core/golden`, asks `lexo-core` for its own answers,
 //! normalises them like `core/tests/golden_tool.py` does and compares. M0 was the skeleton (the inventory and the report); each milestone from M1 on
 //! replaces `NotImplemented` for the cases of the modules it ports.
+pub mod data;
 pub mod diff;
 pub mod normalize;
 pub mod run;
@@ -105,6 +106,18 @@ pub fn inventory(golden: &Path) -> Result<Vec<Case>, String> {
         }
         out.push(Case { group: "scenarios", id: format!("{name}/files_after"), expected: sc["files_after"].clone() });
     }
+    let mut data_names: Vec<String> = std::fs::read_dir(exp.join("data"))
+        .map_err(|e| e.to_string())?
+        .filter_map(|e| e.ok()?.path().file_stem().map(|s| s.to_string_lossy().into_owned()))
+        .collect();
+    data_names.sort();
+    for name in data_names {
+        let sc = read_json(&exp.join("data").join(format!("{name}.json")))?;
+        for (i, st) in sc["steps"].as_array().ok_or("a data scenario has no steps")?.iter().enumerate() {
+            out.push(Case { group: "data", id: format!("{name}/{i} {}", st["op"].as_str().unwrap_or("?")), expected: st.clone() });
+        }
+        out.push(Case { group: "data", id: format!("{name}/files_after"), expected: sc["files_after"].clone() });
+    }
     Ok(out)
 }
 
@@ -135,6 +148,10 @@ pub fn run_case(golden: &Path, case: &Case) -> Outcome {
             Err(e) => return Outcome::Fail(e),
         },
         "fontmetrics" => run::fontmetrics_case(golden, &case.id),
+        "data" => match run::data_case(golden, &case.id) {
+            Ok(v) => v,
+            Err(e) => return Outcome::Fail(e),
+        },
         "validator" => match run::validator_case(golden, &case.id) {
             Ok(v) => v,
             Err(e) => return Outcome::Fail(e),
@@ -175,7 +192,7 @@ mod tests {
     #[test]
     fn the_inventory_finds_every_group_and_unique_ids() {
         let cases = inventory(&golden_dir()).expect("core/golden/expected is readable");
-        for g in ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "scenarios"] {
+        for g in ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "data", "scenarios"] {
             assert!(cases.iter().any(|c| c.group == g), "no case in {g}");
         }
         let mut ids: Vec<_> = cases.iter().map(|c| (c.group, c.id.clone())).collect();
@@ -191,7 +208,7 @@ mod tests {
         for c in inventory(&golden)
             .unwrap()
             .into_iter()
-            .filter(|c| ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics"].contains(&c.group))
+            .filter(|c| ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "data"].contains(&c.group))
         {
             assert_eq!(run_case(&golden, &c), Outcome::Pass, "{}/{}", c.group, c.id);
         }

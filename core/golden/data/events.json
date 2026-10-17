@@ -1,0 +1,22 @@
+{
+ "_doc": "events: one append-only file per author; the newest event of a key wins; a damaged line, a cut last line, a key that cannot be a key are skipped. The clock is fixed (09:00 UTC), so the stamps of our own events are known.",
+ "files": {
+  "root/shared/events/alice.jsonl": "{\"v\":1,\"t\":\"2026-10-17T08:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"gen\"}\n{\"v\":1,\"t\":\"2026-10-17T10:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"corr\",\"key\":[\"a.rpy\"],\"value\":{\"c\":\"7\",\"t\":\"\"}}\nthis is not json\n{\"v\":1,\"t\":\"2026-10-17T08:30:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"approved\",\"key\":[\"a.rpy\",\"b\",\"Hello\"],\"value\":true}\n{\"v\":1,\"t\":\"2026-10-17T08:31:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"approved\",\"key\":[\"a.rpy\",\"b\",\"Hello\"],\"value\":null}\n{\"v\":1,\"kind\":\"x\",\"key\":[\"a\"],\"t\":5}\n{\"v\":1,\"t\":\"2026-10-17T08:40:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"episodes\",\"key\":[1],\"value\":\"wip\"}\n{\"v\":1,\"t\":\"2026-10-17T08:41:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"proof\",\"key\":[\"a.rpy\",[\"x\"],\"o\"],\"value\":{\"s\":\"ok\"}}\n{\"v\":1,\"t\":\"2026-10-17T08:50:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"b.rpy\"],\"value\":\"gen\"}",
+  "root/shared/events/carol.jsonl": "{\"v\":1,\"t\":\"2026-10-17T08:00:00.000000+00:00\",\"a\":\"carol\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"ep:1\"}\n[1,2,3]\n{\"kind\":\"\",\"key\":[\"a\"],\"t\":\"2026-10-17T08:00:00.000000+00:00\"}\n{\"kind\":\"assign\",\"key\":\"a.rpy\",\"t\":\"2026-10-17T08:00:00.000000+00:00\"}\n"
+ },
+ "steps": [
+  {"op": "events.clean_author", "names": ["Bob Smith", "  ", "ÁÉ-x_y", "a/b\\c", "---x---", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "", "Ünï"]},
+  {"op": "events.open", "author": "Bob Smith", "dir": "root/shared/events", "seen": "root/local/events-seen.json"},
+  {"op": "events.dump"},
+  {"op": "events.replay_all"},
+  {"op": "events.dump"},
+  {"op": "events.append", "changes": [["assign", ["a.rpy"], "ep:2"], ["corr", ["b.rpy"], {"c": "1", "t": ""}], ["approved", ["a.rpy", "b", "Hello"], true]]},
+  {"op": "events.append", "changes": [["assign", ["a.rpy"], null]]},
+  {"op": "events.append", "changes": []},
+  {"op": "events.dump"},
+  {"op": "write_file", "path": "root/shared/events/alice.jsonl", "text": "\n{\"v\":1,\"t\":\"2026-10-17T11:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"gen\"}\n", "append": true},
+  {"op": "events.open", "author": "bob smith", "dir": "root/shared/events", "seen": "root/local/events-seen.json"},
+  {"op": "events.replay_all"},
+  {"op": "events.dump"}
+ ]
+}

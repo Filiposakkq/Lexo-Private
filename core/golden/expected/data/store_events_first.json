@@ -1,0 +1,419 @@
+{
+ "files_after": {
+  "root/local/backups/assignments.csv.<stamp>.bak": {
+   "sha1": "be855f603d98657e6fa61d3d9e4a8fefa1bc3088",
+   "text": "file;group\r\na.rpy;episode 1\r\nb.rpy;general\r\n"
+  },
+  "root/local/events-seen.json": {
+   "sha1": "3038e0ae4b6bfe4b35e8bcabe8241e508f0004d8",
+   "text": "{\n \"v\": 1,\n \"offsets\": {\n  \"bob.jsonl\": 1145\n }\n}"
+  },
+  "root/shared/approved.csv": {
+   "sha1": "ae7b83c34c77a50298400cc372fd7519b7ddce19",
+   "text": "file;block;original\r\nb.rpy;strings;Zed\r\na.rpy;strings;Alpha\r\na.rpy;b;Beta\r\n"
+  },
+  "root/shared/assignments.csv": {
+   "sha1": "2c2a20652fc750d9831a077884d0237605db2c94",
+   "text": "﻿file;group\r\na.rpy;episode 1\r\nb.rpy;general\r\n"
+  },
+  "root/shared/episode_states.csv": {
+   "sha1": "aa827805ac342ac37156f64da3b05bdb25b2e512",
+   "text": "episode;state\r\n1;proof\r\n"
+  },
+  "root/shared/events/bob.jsonl": {
+   "sha1": "0f91972b2eb8ccf00a3830d598926937a547f3af",
+   "text": "{\"v\":1,\"t\":\"2026-10-17T09:00:00.000000+00:00\",\"a\":\"bob\",\"kind\":\"corr\",\"key\":[\"a.rpy\"],\"value\":{\"c\":\"5\",\"t\":\"\"}}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000001+00:00\",\"a\":\"bob\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"ep:1\"}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000002+00:00\",\"a\":\"bob\",\"kind\":\"assign\",\"key\":[\"b.rpy\"],\"value\":\"gen\"}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000003+00:00\",\"a\":\"bob\",\"kind\":\"approved\",\"key\":[\"b.rpy\",\"strings\",\"Zed\"],\"value\":true}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000004+00:00\",\"a\":\"bob\",\"kind\":\"approved\",\"key\":[\"a.rpy\",\"b\",\"Beta\"],\"value\":true}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000005+00:00\",\"a\":\"bob\",\"kind\":\"approved\",\"key\":[\"a.rpy\",\"strings\",\"Alpha\"],\"value\":true}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000006+00:00\",\"a\":\"bob\",\"kind\":\"episodes\",\"key\":[1],\"value\":\"proof\"}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000007+00:00\",\"a\":\"bob\",\"kind\":\"proof\",\"key\":[\"a.rpy\",\"b1\",\"Hi\"],\"value\":{\"s\":\"ok\",\"h\":\"aaaaaaaaaaaa\",\"n\":\"\",\"d\":\"2026-10-01\"}}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000008+00:00\",\"a\":\"bob\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"ep:2\"}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000009+00:00\",\"a\":\"bob\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"ep:1\"}\n"
+  },
+  "root/shared/line_marks.csv": {
+   "sha1": "c6addfc9d7209b6c933b7eacd322f865b41895ca",
+   "text": "file;block;original;state;hash;note;date\r\na.rpy;b1;Hi;ok;aaaaaaaaaaaa;;2026-10-01\r\n"
+  },
+  "root/shared/proofread.csv": {
+   "sha1": "5aca780059367d6d4a671744aa09d2d31daedf0d",
+   "text": "file;proofread;translated_manual\r\na.rpy;5;\r\nempty.rpy;;\r\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "sections": [
+     {
+      "groups": [
+       1,
+       2
+      ],
+      "n": 1,
+      "status": "active"
+     }
+    ],
+    "version": 1
+   },
+   "op": "layout.use",
+   "params": {
+    "raw": {
+     "sections": [
+      {
+       "groups": [
+        1,
+        2
+       ],
+       "n": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "answer": true,
+   "op": "store.open",
+   "params": {
+    "local": "root/local",
+    "shared": "root/shared"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "b",
+       "Beta"
+      ],
+      [
+       "strings",
+       "Alpha"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "strings",
+       "Zed"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:1",
+     "b.rpy": "gen"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "5",
+      "t": ""
+     },
+     "empty.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "proof"
+    },
+    "glossary": {},
+    "ignored": {},
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.load",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "store.attach_events",
+   "params": {
+    "author": "<volatile>",
+    "dir": "root/shared/events",
+    "seen": "root/local/events-seen.json"
+   }
+  },
+  {
+   "answer": {
+    "known": true,
+    "merged": 0,
+    "offsets": {
+     "bob.jsonl": 937
+    },
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "b",
+        "Beta"
+       ],
+       [
+        "strings",
+        "Alpha"
+       ]
+      ],
+      "b.rpy": [
+       [
+        "strings",
+        "Zed"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "b.rpy": "gen"
+     },
+     "corr": {
+      "a.rpy": {
+       "c": "5",
+       "t": ""
+      },
+      "empty.rpy": {
+       "c": "",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "proof"
+     },
+     "glossary": {},
+     "ignored": {},
+     "proof": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi",
+        {
+         "d": "2026-10-01",
+         "h": "aaaaaaaaaaaa",
+         "n": "",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "store.sync_events",
+   "params": {}
+  },
+  {
+   "answer": {
+    "known": true,
+    "merged": 0,
+    "offsets": {
+     "bob.jsonl": 937
+    },
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "b",
+        "Beta"
+       ],
+       [
+        "strings",
+        "Alpha"
+       ]
+      ],
+      "b.rpy": [
+       [
+        "strings",
+        "Zed"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "b.rpy": "gen"
+     },
+     "corr": {
+      "a.rpy": {
+       "c": "5",
+       "t": ""
+      },
+      "empty.rpy": {
+       "c": "",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "proof"
+     },
+     "glossary": {},
+     "ignored": {},
+     "proof": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi",
+        {
+         "d": "2026-10-01",
+         "h": "aaaaaaaaaaaa",
+         "n": "",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "store.sync_events",
+   "params": {}
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "b",
+       "Beta"
+      ],
+      [
+       "strings",
+       "Alpha"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "strings",
+       "Zed"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "b.rpy": "gen"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "5",
+      "t": ""
+     },
+     "empty.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "proof"
+    },
+    "glossary": {},
+    "ignored": {},
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign"
+    ],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.assign",
+   "params": {
+    "file": "a.rpy",
+    "value": "ep:2"
+   }
+  },
+  {
+   "answer": {
+    "label": "assign",
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "b",
+        "Beta"
+       ],
+       [
+        "strings",
+        "Alpha"
+       ]
+      ],
+      "b.rpy": [
+       [
+        "strings",
+        "Zed"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:1",
+      "b.rpy": "gen"
+     },
+     "corr": {
+      "a.rpy": {
+       "c": "5",
+       "t": ""
+      },
+      "empty.rpy": {
+       "c": "",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "proof"
+     },
+     "glossary": {},
+     "ignored": {},
+     "proof": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi",
+        {
+         "d": "2026-10-01",
+         "h": "aaaaaaaaaaaa",
+         "n": "",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "store.undo",
+   "params": {}
+  },
+  {
+   "answer": [
+    "bob.jsonl"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/shared/events"
+   }
+  }
+ ]
+}

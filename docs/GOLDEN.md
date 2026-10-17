@@ -13,6 +13,7 @@ core/golden/
   spelling/cases.json                 a vocabulary (translated texts), words asked for a hint, checks with that vocabulary
   textedit/cases.json                 find / replace cases in the plain, whole-word and stem modes (protected parts, errors), `case_like`, `mask`
   fonts/*.ttf, fonts/not_a_font.bin   tiny fonts made by `core/tests/make_golden_fonts.py` (cmap formats 4 and 12, bad files) for the advance widths
+  data/<name>.json                    data scenarios: files, a fixed clock and steps that call the functions of the data modules (see below)
   projects/<name>/game/...            whole projects (a game with scripts and game/tl/czech): basic, episodes, folders, messy
   scenarios/<name>.json               a project and a list of operation calls ({op, params}) run in order on a copy of it
   expected/...                        the recorded answers (generated; JSON, normalised)
@@ -27,6 +28,21 @@ The Pro pack has its own tests (`pro/tests`, Python) and is **not part of the Ru
 Open `game/tl/czech` of the project (a copy in a temporary folder), then run every step with `api.call(app, op, params)` (docs/API.md) and record the answer (or the error message).
 At the end record every `.rpy` of the translation folder: its SHA-1 and its text (or base64 when it is not UTF-8). So reads, writes (`entry/save`, `assign`, `groups/apply` ...) and
 their undo are all compared, and a port that writes a line differently by one byte fails.
+
+## What a data scenario is
+`data/<name>.json` holds `files` (path under a temporary folder -> text, or `{"base64": ...}`), a `clock` (`local` and `utc` time, fixed) and `steps`: `{"op": "store.assign", ...parameters}`.
+The runner writes the files, runs the steps in order with the clock replaced, records the answer (or the error text) of every step and, at the end, every file under the folder
+(SHA-1 and text): so the CSV files of the store, the event logs, `history.csv`, `config.json`, the backups and the zips are compared as files. The ops: `csv.read`, `csv.text`,
+`write_csv`, `atomic_write`, `make_backup`, `config.*`, `datadir.*`, `lock.*`, `layout.use`, `store.*`, `events.*`, `history.*`, `texthistory.*`, `memory.*`, `snapshots.*`,
+plus `advance` / `set_epoch` / `set_local` (the clock), `write_file`, `remove_file`, `list_dir`. Both runners implement the same ops (`DataRunner` in `golden_tool.py`, `data.rs` in `lexo-golden`).
+
+Things the data scenarios settle on purpose:
+- **The clock.** `datetime.now()` is the fixed local time, `datetime.now(utc)` the fixed UTC time (so the names of backups, the stamps of events and the manifests of snapshots are known); `time.time()` is the real
+  time shifted by `advance` steps (files have real times; the rule "is the newest backup old enough" needs a shift), or fixed by `set_epoch` (the age of a lock). `set_local` moves the local time.
+- **Random by design** (a lock token and time, a project id): `lock.json` and `project-id` are not recorded; the answers only say that an id was made and is kept.
+- **Zips.** The bytes of a zip depend on the compressor, so a `.zip` is recorded as the list of its files with their SHA-1, and the `size` of a snapshot is left out of the answers.
+- **`text_history.jsonl`** is written by Python in text mode (CRLF on Windows): it is recorded with LF.
+- **Order.** Python's `approved` data is a set; `store.flatten` sorts it now so the events are written in the same order every time. Snapshots with the same time are listed in the order of their names.
 
 ## Normalisation (what is not compared)
 Answers are plain JSON with messages as their English text. Before comparing: the temporary folder becomes `<TMP>` (with `/` as the separator), the random project id in a data folder

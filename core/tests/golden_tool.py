@@ -25,6 +25,8 @@ sys.path[:0] = [str(HERE.parent), str(HERE)]
 from lexo import api, layout, lang, menus, rpa, rpy, validator    # noqa: E402
 from lexo.app_base import AppError                                   # noqa: E402
 from lexo.messages import render, text_of, wire                      # noqa: E402
+from lexo.snapshots import SnapshotError                            # noqa: E402
+from lexo.util import WriteFailed                                   # noqa: E402
 
 GOLDEN = ROOT / "core" / "golden"
 EXPECTED = GOLDEN / "expected"
@@ -242,6 +244,511 @@ def scenario_names():
     return sorted(p.stem for p in (GOLDEN / "scenarios").glob("*.json"))
 
 
+def data_names():
+    return sorted(p.stem for p in (GOLDEN / "data").glob("*.json"))
+
+
+# =========================================================================================================================== data files (docs/GOLDEN.md "data scenarios")
+class _Clock:
+    """The clock of a data scenario: local and UTC time fixed (so the names and lines Core writes are the same in every run), the epoch real but shifted
+    by `advance` steps (file times are real, so only a shift lets the "is the newest backup old enough" rule be tested), or fixed by `set_epoch`."""
+
+    def __init__(self, spec):
+        from datetime import datetime, timezone
+        self.local = datetime.fromisoformat(spec.get("local", "2026-10-17T11:00:00"))
+        self.utc = datetime.fromisoformat(spec.get("utc", "2026-10-17T09:00:00+00:00")).astimezone(timezone.utc)
+        self.offset, self.fixed = 0.0, None
+
+    def epoch(self):
+        import time as _t
+        return self.fixed if self.fixed is not None else _t.time() + self.offset
+
+
+def _patches(clock):
+    """Replace the clocks Core reads: `datetime.now()` of the modules that stamp their files, `time.time()` where an age is measured."""
+    from datetime import datetime
+    from types import SimpleNamespace
+    from unittest import mock
+    import time as _t
+
+    class FakeDT(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            if tz is None:
+                loc = clock.local
+                return cls(loc.year, loc.month, loc.day, loc.hour, loc.minute, loc.second, loc.microsecond)
+            u = clock.utc
+            return cls(u.year, u.month, u.day, u.hour, u.minute, u.second, u.microsecond, tzinfo=u.tzinfo).astimezone(tz)
+
+    fake_time = SimpleNamespace(time=clock.epoch, sleep=_t.sleep)
+    stack = [mock.patch(f"lexo.{m}.datetime", FakeDT) for m in ("util", "events", "texthistory", "snapshots")]
+    stack += [mock.patch("lexo.util.time", fake_time), mock.patch("lexo.lock.time", fake_time)]
+    return stack
+
+
+def _file_records(root, skip=()):
+    files = {}
+    for f in sorted(root.rglob("*")):
+        if f.is_file() and f.name not in skip:
+            b = f.read_bytes()
+            if f.name == "text_history.jsonl":
+                b = b.replace(b"\r\n", b"\n")                  # Python writes it in text mode: CRLF on Windows, LF elsewhere
+            if f.suffix == ".zip":                             # the bytes of a zip depend on the compressor: its files and their digests are compared
+                import zipfile
+                with zipfile.ZipFile(f) as z:
+                    files[f.relative_to(root).as_posix()] = {"zip": sorted([i.filename, hashlib.sha1(z.read(i)).hexdigest()] for i in z.infolist())}
+                continue
+            rec = {"sha1": hashlib.sha1(b).hexdigest()}
+            try:
+                rec["text"] = b.decode("utf-8")
+            except UnicodeDecodeError:
+                rec["base64"] = base64.b64encode(b).decode("ascii")
+            files[f.relative_to(root).as_posix()] = rec
+    return files
+
+
+DATA_SKIP = ("lock.json", "project-id")          # random by design: a token, a time, a project id
+
+
+def run_data_scenario(path):
+    spec = load_json(path)
+    tmp = Path(tempfile.mkdtemp(prefix="lexo-golden-"))
+    old_cfg = os.environ.get("LEXO_CONFIG_DIR")
+    os.environ["LEXO_CONFIG_DIR"] = str(tmp / "cfg")
+    from contextlib import ExitStack
+    try:
+        root = tmp
+        for rel, content in spec.get("files", {}).items():
+            p = root / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(base64.b64decode(content["base64"]) if isinstance(content, dict) else content.encode("utf-8"))
+        clock = _Clock(spec.get("clock", {}))
+        layout.use(layout.Layout())                         # the layout is process-wide state of the Python module: every scenario starts without one
+        runner = DataRunner(root, tmp / "cfg", clock)
+        steps = []
+        with ExitStack() as stack:
+            for p in _patches(clock):
+                stack.enter_context(p)
+            for st in spec["steps"]:
+                entry = {"op": st["op"], "params": {k: v for k, v in st.items() if k != "op"}}
+                try:
+                    entry["answer"] = plain(runner.run(st["op"], st))
+                except (AppError, WriteFailed, SnapshotError) as e:
+                    entry["error"] = str(text_of(e))
+                steps.append(entry)
+        runner.close()
+        return normalize({"steps": steps, "files_after": _file_records(tmp, DATA_SKIP)}, _roots(tmp))
+    finally:
+        if old_cfg is None:
+            os.environ.pop("LEXO_CONFIG_DIR", None)
+        else:
+            os.environ["LEXO_CONFIG_DIR"] = old_cfg
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+class DataRunner:
+    """The steps of a data scenario: each one calls one function of Core with plain parameters and returns plain JSON."""
+
+    def __init__(self, root, cfg_dir, clock):
+        self.root, self.cfg_dir, self.clock = root, cfg_dir, clock
+        self.locks = {}
+        self.config = None
+
+    def p(self, rel):
+        return self.root / rel
+
+    def close(self):
+        for lk in self.locks.values():
+            lk.release()
+
+    def run(self, op, a):
+        return getattr(self, "op_" + op.replace(".", "_"))(a)
+
+    # -- time
+    def op_advance(self, a):
+        self.clock.offset += a["seconds"]
+        return True
+
+    def op_set_epoch(self, a):
+        self.clock.fixed = a["value"]
+        return True
+
+    # -- util: files and CSV
+    def op_csv_read(self, a):
+        from lexo import util
+        return util.read_rows(self.p(a["path"]))
+
+    def op_csv_text(self, a):
+        from lexo import util
+        return util.csv_text(a["rows"], a.get("delimiter", ";"))
+
+    def op_write_csv(self, a):
+        from lexo import util
+        util.write_csv(self.p(a["path"]), a["rows"], self.p(a["backup_dir"]) if a.get("backup_dir") else None)
+        return True
+
+    def op_atomic_write(self, a):
+        from lexo import util
+        util.atomic_write_text(self.p(a["path"]), a["text"], newline=a.get("newline"), backup_dir=self.p(a["backup_dir"]) if a.get("backup_dir") else None)
+        return True
+
+    def op_make_backup(self, a):
+        from lexo import util
+        got = util.make_backup(self.p(a["path"]), self.p(a["backup_dir"]), a.get("keep", 20), a.get("min_interval", 300))
+        return got.name if got else None
+
+    def op_list_dir(self, a):
+        d = self.p(a["path"])
+        return sorted(f.name for f in d.iterdir()) if d.is_dir() else None
+
+    def op_text_match(self, a):
+        from lexo import util
+        fn = util.text_matcher(a["query"], a.get("whole", False))
+        return None if fn is None else [fn(t) for t in a["texts"]]
+
+    # -- config
+    def op_config_load(self, a):
+        from lexo.config import Config
+        self.config = Config().load()
+        return {"data": self.config.data, "load_error": str(self.config.load_error).split(" (")[0], "public": self.config.public()}
+
+    def op_config_set(self, a):
+        self.config.set(a["key"], a["value"])
+        return self.config.get(a["key"])
+
+    def op_config_get(self, a):
+        return self.config.get(a["key"], a.get("default"))
+
+    def op_config_update(self, a):
+        self.config.update(a["patch"])
+        return self.config.data
+
+    # -- data folders
+    def op_datadir_project_id(self, a):
+        from lexo import datadir
+        pid = datadir.project_id(self.p(a["shared"]))
+        return {"ok": pid.isalnum() and len(pid) >= 8, "again": datadir.project_id(self.p(a["shared"])) == pid}
+
+    def op_datadir_local_dir(self, a):
+        from lexo import datadir
+        d = datadir.local_dir(self.p(a["shared"]), self.p(a["root"]))
+        return str(d)
+
+    # -- lock
+    def op_lock_acquire(self, a):
+        from lexo import lock
+        from unittest import mock
+        lk = self.locks.get(a["name"]) or lock.ProjectLock(self.p(a["dir"]))
+        if "token" in a:
+            lk.token = a["token"]
+        with mock.patch("os.getpid", lambda: a.get("pid", 1)), mock.patch("socket.gethostname", lambda: a.get("host", "pc")):
+            try:
+                lk.acquire(force=a.get("force", False))
+            except lock.ProjectLocked as e:
+                return {"locked": True, "holder": e.holder, "message": str(text_of(e))}
+        self.locks[a["name"]] = lk
+        return {"locked": False}
+
+    def op_lock_check(self, a):
+        return self.locks[a["name"]].check()
+
+    def op_lock_release(self, a):
+        lk = self.locks.pop(a["name"])
+        lk.release()
+        return not lk.held
+
+    # -- layout, store and the event log
+    def op_layout_use(self, a):
+        from lexo import layout
+        lay = layout.parse(a["raw"])
+        layout.use(lay)
+        return lay.to_json()
+
+    def op_store_open(self, a):
+        from lexo.store import Store
+        self.store = Store(self.p(a["shared"]), self.p(a["local"]))
+        return True
+
+    def op_store_load(self, a):
+        self.store.load()
+        return self._dump_store()
+
+    def op_store_dump(self, a):
+        return self._dump_store()
+
+    def _dump_store(self):
+        st = self.store
+        return {
+            "corr": st.corr, "assign": st.assign,
+            "approved": {f: sorted([list(k) for k in v]) for f, v in st.approved.items()},
+            "episodes": {str(n): s for n, s in st.episodes.items()},
+            "proof": {f: [[b, o, dict(m)] for (b, o), m in sorted(t.items())] for f, t in st.proof.items()},
+            "ignored": {f: [[b, o, c, dict(m)] for (b, o, c), m in sorted(t.items())] for f, t in st.ignored.items()},
+            "glossary": st.glossary, "warnings": list(st.warnings), "unsaved": sorted(st.unsaved), "undo": [s["label"] for s in st.undo_stack]}
+
+    def _change(self, kind, fn):
+        self.store.change(kind, [kind], fn)
+        return self._dump_store()
+
+    def op_store_assign(self, a):
+        st = self.store
+        return self._change("assign", lambda: st.assign.pop(a["file"], None) if a["value"] == "" else st.assign.__setitem__(a["file"], a["value"]))
+
+    def op_store_corr(self, a):
+        st = self.store
+        return self._change("corr", lambda: st.corr.__setitem__(a["file"], {"c": a["c"], "t": a["t"]}))
+
+    def op_store_approve(self, a):
+        from lexo.util import norm_ws
+        st = self.store
+
+        def fn():
+            if a["on"]:
+                st.approved.setdefault(a["file"], set()).add((a["block"], norm_ws(a["original"])))
+            else:
+                st.approved.get(a["file"], set()).discard((a["block"], norm_ws(a["original"])))
+                if not st.approved.get(a["file"], True):
+                    del st.approved[a["file"]]
+        return self._change("approved", fn)
+
+    def op_store_episode(self, a):
+        st = self.store
+        return self._change("episodes", lambda: st.episodes.pop(a["n"], None) if a["state"] is None else st.episodes.__setitem__(a["n"], a["state"]))
+
+    def _marks(self, kind, a, key):
+        table = getattr(self.store, kind)
+
+        def fn():
+            if a["mark"] is None:
+                table.get(a["file"], {}).pop(key, None)
+                if not table.get(a["file"], True):
+                    del table[a["file"]]
+            else:
+                table.setdefault(a["file"], {})[key] = dict(a["mark"])
+        return self._change(kind, fn)
+
+    def op_store_proof(self, a):
+        from lexo.util import norm_ws
+        return self._marks("proof", a, (a["block"], norm_ws(a["original"])))
+
+    def op_store_ignored(self, a):
+        from lexo.util import norm_ws
+        return self._marks("ignored", a, (a["block"], norm_ws(a["original"]), a["code"]))
+
+    def op_store_glossary(self, a):
+        st = self.store
+        return self._change("glossary", lambda: st.glossary.pop(a["code"], None) if a.get("remove") else st.glossary.__setitem__(a["code"], {"n": a["n"], "t": a["t"], "c": a["c"]}))
+
+    def op_store_undo(self, a):
+        label = self.store.undo()
+        return {"label": label, "state": self._dump_store()}
+
+    def op_store_ensure_files(self, a):
+        self.store.ensure_files(a["names"])
+        return self._dump_store()
+
+    def op_store_attach_events(self, a):
+        from lexo.events import EventLog
+        self.store.attach_events(EventLog(self.p(a["dir"]), self.p(a["seen"]), a["author"]))
+        return True
+
+    def op_store_sync_events(self, a):
+        merged = self.store.sync_events()
+        return {"merged": merged, "state": self._dump_store(), "offsets": self.store.events.offsets, "known": self.store.events.known}
+
+    def op_store_funcs(self, a):
+        from lexo import store
+        return {"parse_value": [store.parse_value(v, a["total"]) for v in a["values"]], "parse_corr": [store.parse_corr(v, a["total"]) for v in a["values"]],
+                "text_hash": [store.text_hash(t) for t in a["texts"]],
+                "assign_from_text": [store.assign_from_text(t) for t in a["assign_texts"]], "assign_to_text": [store.assign_to_text(v) for v in a["assigns"]],
+                "valid_assign": [store.valid_assign(v) for v in a["assigns"]], "assign_label": [store.assign_label(v) for v in a["assigns"]],
+                "group_label": [store.group_label(n) for n in a["groups"]], "ep_states": [[k, v] for k, v in store.ep_states()],
+                "ep_of": [store.ep_of(v) for v in a["assigns"]]}
+
+    def op_events_open(self, a):
+        from lexo.events import EventLog
+        self.log = EventLog(self.p(a["dir"]), self.p(a["seen"]), a["author"])
+        return {"author": self.log.author, "known": self.log.known, "offsets": self.log.offsets}
+
+    def op_events_append(self, a):
+        return self.log.append([(k, tuple(key), v) for k, key, v in a["changes"]])
+
+    def op_events_dump(self, a):
+        seen, unseen, ends = self.log.read_all()
+        return {"state": {kind: {json.dumps(list(key)): [v, list(stamp)] for key, (v, stamp) in slot.items()} for kind, slot in self.log.state.items()},
+                "flat": {kind: {json.dumps(list(key)): v for key, v in slot.items()} for kind, slot in self.log.flat().items()},
+                "offsets": self.log.offsets, "known": self.log.known,
+                "read_all": {"seen": [[e, n] for e, n in seen], "unseen": [[e, n] for e, n in unseen], "ends": ends}}
+
+    def op_events_replay_all(self, a):
+        seen, unseen, ends = self.log.read_all()
+        self.log.state = {}
+        self.log.replay(seen)
+        self.log.replay(unseen)
+        return len(seen), len(unseen)
+
+    def op_write_file(self, a):
+        p = self.p(a["path"])
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "ab" if a.get("append") else "wb") as f:
+            f.write(a["text"].encode("utf-8"))
+        return True
+
+    def op_events_clean_author(self, a):
+        from lexo.events import clean_author
+        return [clean_author(n) for n in a["names"]]
+
+    # -- history.csv, the history of the texts, the translation memory, snapshots
+    def op_set_local(self, a):
+        from datetime import datetime
+        self.clock.local = datetime.fromisoformat(a["value"])
+        return True
+
+    def op_remove_file(self, a):
+        self.p(a["path"]).unlink()
+        return True
+
+    def op_history_open(self, a):
+        from lexo.history import History
+        self.hist = History(self.p(a["path"]), self.p(a["backup_dir"]) if a.get("backup_dir") else None)
+        return True
+
+    def op_history_record(self, a):
+        return self.hist.record(a["stamp"], a["t_done"], a["total"], a["tpct"], a["c_done"], a["cpct"])
+
+    def op_history_dump(self, a):
+        return {"rows": self.hist.rows(), "points": [[str(ts), d, t, c] for ts, d, t, c in self.hist.points()],
+                "chart": [[str(ts), x, y] for ts, x, y in self.hist.chart_points()]}
+
+    @staticmethod
+    def _dates(v):
+        from datetime import date
+        if isinstance(v, date):
+            return v.isoformat()
+        if isinstance(v, dict):
+            return {k: DataRunner._dates(x) for k, x in v.items()}
+        if isinstance(v, (list, tuple)):
+            return [DataRunner._dates(x) for x in v]
+        return v
+
+    def _points(self, a):
+        from datetime import datetime
+        from lexo.history import STAMP_FORMAT
+        if "points" in a:
+            return [(datetime.strptime(ts, STAMP_FORMAT), d, t, c) for ts, d, t, c in a["points"]]
+        return self.hist.points()
+
+    def op_history_estimate(self, a):
+        from datetime import date
+        from lexo import history
+        return self._dates(history.estimate(self._points(a), a["done_now"], a["total_now"], today=date.fromisoformat(a["today"])))
+
+    def op_history_goals(self, a):
+        from datetime import date
+        from lexo import history
+        return self._dates(history.goals(self._points(a), a["remaining_translate"], a["remaining_proof"], a.get("cfg"), date.fromisoformat(a["today"])))
+
+    def op_texthistory_open(self, a):
+        from lexo.texthistory import TextHistory
+        self.th = TextHistory(self.p(a["path"]))
+        return True
+
+    def _dump_th(self):
+        return {"total": self.th.total, "by_key": [[f, b, s, recs] for (f, b, s), recs in sorted(self.th.by_key.items())]}
+
+    def op_texthistory_load(self, a):
+        from unittest import mock
+        from lexo import texthistory as t
+        with mock.patch.object(t, "MAX_LINES", a.get("max_lines", t.MAX_LINES)), mock.patch.object(t, "KEEP_LINES", a.get("keep_lines", t.KEEP_LINES)):
+            self.th.load()
+        return self._dump_th()
+
+    def op_texthistory_record(self, a):
+        n = self.th.record([{"file": i["file"], "key": tuple(i["key"]), "old": i["old"], "new": i["new"]} for i in a["items"]], a["via"])
+        return {"written": n, "state": self._dump_th()}
+
+    def op_texthistory_versions(self, a):
+        return self.th.versions(a["file"], a["key"], a["current"])
+
+    def op_texthistory_diff(self, a):
+        from lexo import rpy, texthistory
+        old, new = rpy.parse_text(a["old"]).entries, rpy.parse_text(a["new"]).entries
+        return [{**d, "key": list(d["key"])} for d in texthistory.diff_files(old, new)]
+
+    def op_memory_build(self, a):
+        from lexo.memory import Memory
+        rows = [tuple(r) for r in a["rows"]]
+        gen = a.get("generate")
+        if gen:
+            rows += [(gen["file"], i + 1, gen.get("who", ""), gen["source"].replace("{i}", str(i)), gen["target"].replace("{i}", str(i))) for i in range(gen["n"])]
+        self.mem = Memory(rows)
+        return {"rows": len(self.mem.rows), "common": sorted(self.mem.common)}
+
+    @staticmethod
+    def _skip(a):
+        return tuple(a["skip"]) if a.get("skip") else None
+
+    def op_memory_exact(self, a):
+        return self.mem.exact_matches(a["source"], self._skip(a))
+
+    def op_memory_similar(self, a):
+        return self.mem.similar(a["source"], self._skip(a), a.get("limit", 5), a.get("min_ratio", 0.7))
+
+    def op_memory_groups(self, a):
+        return self.mem.groups(a.get("limit", 500), a.get("loose", False), a.get("by_speaker", False))
+
+    def op_memory_tokens(self, a):
+        from lexo import memory
+        return {"tokens": [memory.tokens(t) for t in a["texts"]], "tags": [dict(memory.tags_of(t)) for t in a["texts"]]}
+
+    @staticmethod
+    def _snap(m):
+        return None if m is None else {k: v for k, v in m.items() if k != "size"}          # the size of a zip depends on the compressor
+
+    def op_snapshots_create(self, a):
+        from lexo import snapshots
+        return self._snap(snapshots.create(self.p(a["root"]), self.p(a["data"]), a.get("reason", "manual"), a.get("app", "")))
+
+    def op_snapshots_list(self, a):
+        from lexo import snapshots
+        return [self._snap(m) for m in snapshots.list_snapshots(self.p(a["data"]))]
+
+    def op_snapshots_prune(self, a):
+        from lexo import snapshots
+        return snapshots.prune(self.p(a["data"]), a["keep"])
+
+    def op_snapshots_compare(self, a):
+        from lexo import snapshots
+        return snapshots.compare(self.p(a["root"]), self.p(a["data"]), a["name"])
+
+    def op_snapshots_restore(self, a):
+        from lexo import snapshots
+        res = snapshots.restore(self.p(a["root"]), self.p(a["data"]), a["name"], a.get("files"), a.get("app", ""))
+        return {"restored": res["restored"], "safety": self._snap(res["safety"])}
+
+    def op_snapshots_delete(self, a):
+        from lexo import snapshots
+        snapshots.delete(self.p(a["data"]), a["name"])
+        return True
+
+    def op_snapshots_due(self, a):
+        from lexo import snapshots
+        return snapshots.due(self.p(a["data"]), a["interval_hours"])
+
+    def op_snapshots_recent(self, a):
+        from lexo import snapshots
+        return snapshots.recent(self.p(a["data"]), a["minutes"])
+
+    def op_snapshots_age(self, a):
+        from lexo import snapshots
+        return snapshots.last_age_hours(self.p(a["data"]))
+
+    def op_snapshots_read(self, a):
+        import zipfile
+        with zipfile.ZipFile(self.p(a["data"]) / "snapshots" / a["name"]) as z:
+            return sorted([i.filename, hashlib.sha1(z.read(i)).hexdigest()] for i in z.infolist())
+
+
 # =========================================================================================================================== everything
 def collect():
     """{path under expected/: object} as Core answers it today."""
@@ -249,6 +756,8 @@ def collect():
            "spelling.json": run_spelling(), "textedit.json": run_textedit(), "fontmetrics.json": run_fontmetrics()}
     for name in scenario_names():
         out[f"scenarios/{name}.json"] = run_scenario(GOLDEN / "scenarios" / f"{name}.json")
+    for name in data_names():
+        out[f"data/{name}.json"] = run_data_scenario(GOLDEN / "data" / f"{name}.json")
     return out
 
 

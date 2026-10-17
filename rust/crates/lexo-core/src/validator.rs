@@ -6,7 +6,7 @@
 use crate::lang::Pack;
 use crate::messages::{msg, Message};
 use crate::rpy::{self, Entry, ParsedFile};
-use crate::util::{is_letter, is_space, is_word, norm_ws, py_split_ws, py_strip, Counter};
+use crate::util::{is_letter, is_space, is_word, norm_ws, py_split_ws, py_strip, truthy, Counter};
 use regex::Regex;
 use serde_json::{json, Map, Value};
 use std::collections::{BTreeSet, HashSet};
@@ -589,17 +589,6 @@ fn hide_markup(text: &str, variable: &str) -> String {
 pub fn visible_length(text: &str) -> usize {
     let out = hide_markup(text, "XXXXX").replace("\\n", " ").replace("\\\"", "\"");
     norm_ws(&out).chars().count()
-}
-
-fn truthy(v: &Value) -> bool {
-    match v {
-        Value::Null => false,
-        Value::Bool(b) => *b,
-        Value::Number(n) => n.as_f64() != Some(0.0),
-        Value::String(s) => !s.is_empty(),
-        Value::Array(a) => !a.is_empty(),
-        Value::Object(o) => !o.is_empty(),
-    }
 }
 
 /// `dict(DEFAULTS, **(cfg or {}))` for the numbers and flags of a check.

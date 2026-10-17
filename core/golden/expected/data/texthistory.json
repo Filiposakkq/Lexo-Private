@@ -1,0 +1,412 @@
+{
+ "files_after": {
+  "root/local/text_history.jsonl": {
+   "sha1": "b22cdbc85824205ad016726e496dfdb6e3469adc",
+   "text": "{\"t\": \"2026-10-17T11:00:00\", \"f\": \"a.rpy\", \"k\": [\"b1\", \"Hi there\"], \"o\": \"Čau\ntam\", \"n\": \"Nazdar\", \"v\": \"replace\"}\n{\"t\": \"2026-10-17T11:00:00\", \"f\": \"c.rpy\", \"k\": [\"b4\", \"New line\"], \"o\": \"\", \"n\": \"Nový řádek\", \"v\": \"replace\"}\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": true,
+   "op": "texthistory.open",
+   "params": {
+    "path": "root/local/text_history.jsonl"
+   }
+  },
+  {
+   "answer": {
+    "by_key": [
+     [
+      "a.rpy",
+      "b1",
+      "Hi there",
+      [
+       {
+        "f": "a.rpy",
+        "k": [
+         "b1",
+         "Hi there"
+        ],
+        "n": "Ahoj tam",
+        "o": "Ahoj",
+        "t": "2026-10-01T10:00:00",
+        "v": "edit"
+       }
+      ]
+     ],
+     [
+      "b.rpy",
+      "b2",
+      "Bye",
+      [
+       {
+        "f": "b.rpy",
+        "k": [
+         "b2",
+         "Bye"
+        ],
+        "n": "Sbohem",
+        "o": "Nashle",
+        "t": "2026-10-03T10:00:00",
+        "v": "something-new"
+       }
+      ]
+     ]
+    ],
+    "total": 2
+   },
+   "op": "texthistory.load",
+   "params": {}
+  },
+  {
+   "answer": [
+    {
+     "current": false,
+     "text": "Ahoj tam",
+     "time": "<volatile>",
+     "via": "edit in the app"
+    },
+    {
+     "current": false,
+     "text": "Ahoj",
+     "time": "<volatile>",
+     "via": "original text before the first recorded change"
+    }
+   ],
+   "op": "texthistory.versions",
+   "params": {
+    "current": "Čau tam",
+    "file": "a.rpy",
+    "key": [
+     "b1",
+     "Hi   there"
+    ]
+   }
+  },
+  {
+   "answer": [
+    {
+     "current": false,
+     "text": "Ahoj tam",
+     "time": "<volatile>",
+     "via": "edit in the app"
+    },
+    {
+     "current": true,
+     "text": "Ahoj",
+     "time": "<volatile>",
+     "via": "original text before the first recorded change"
+    }
+   ],
+   "op": "texthistory.versions",
+   "params": {
+    "current": "Ahoj",
+    "file": "a.rpy",
+    "key": [
+     "b1",
+     "Hi there"
+    ]
+   }
+  },
+  {
+   "answer": [],
+   "op": "texthistory.versions",
+   "params": {
+    "current": "",
+    "file": "a.rpy",
+    "key": [
+     "nothing",
+     "here"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "state": {
+     "by_key": [
+      [
+       "a.rpy",
+       "b1",
+       "Hi there",
+       [
+        {
+         "f": "a.rpy",
+         "k": [
+          "b1",
+          "Hi there"
+         ],
+         "n": "Ahoj tam",
+         "o": "Ahoj",
+         "t": "2026-10-01T10:00:00",
+         "v": "edit"
+        },
+        {
+         "f": "a.rpy",
+         "k": [
+          "b1",
+          "Hi there"
+         ],
+         "n": "Nazdar",
+         "o": "Čau tam",
+         "t": "2026-10-17T11:00:00",
+         "v": "replace"
+        }
+       ]
+      ],
+      [
+       "b.rpy",
+       "b2",
+       "Bye",
+       [
+        {
+         "f": "b.rpy",
+         "k": [
+          "b2",
+          "Bye"
+         ],
+         "n": "Sbohem",
+         "o": "Nashle",
+         "t": "2026-10-03T10:00:00",
+         "v": "something-new"
+        }
+       ]
+      ],
+      [
+       "c.rpy",
+       "b4",
+       "New line",
+       [
+        {
+         "f": "c.rpy",
+         "k": [
+          "b4",
+          "New line"
+         ],
+         "n": "Nový řádek",
+         "o": "",
+         "t": "2026-10-17T11:00:00",
+         "v": "replace"
+        }
+       ]
+      ]
+     ],
+     "total": 4
+    },
+    "written": 2
+   },
+   "op": "texthistory.record",
+   "params": {
+    "items": [
+     {
+      "file": "a.rpy",
+      "key": [
+       "b1",
+       "Hi  there"
+      ],
+      "new": "Nazdar",
+      "old": "Čau tam"
+     },
+     {
+      "file": "a.rpy",
+      "key": [
+       "b3",
+       "same"
+      ],
+      "new": "x",
+      "old": "x"
+     },
+     {
+      "file": "c.rpy",
+      "key": [
+       "b4",
+       "New  line"
+      ],
+      "new": "Nový řádek",
+      "old": ""
+     }
+    ],
+    "via": "replace"
+   }
+  },
+  {
+   "answer": {
+    "state": {
+     "by_key": [
+      [
+       "a.rpy",
+       "b1",
+       "Hi there",
+       [
+        {
+         "f": "a.rpy",
+         "k": [
+          "b1",
+          "Hi there"
+         ],
+         "n": "Ahoj tam",
+         "o": "Ahoj",
+         "t": "2026-10-01T10:00:00",
+         "v": "edit"
+        },
+        {
+         "f": "a.rpy",
+         "k": [
+          "b1",
+          "Hi there"
+         ],
+         "n": "Nazdar",
+         "o": "Čau tam",
+         "t": "2026-10-17T11:00:00",
+         "v": "replace"
+        }
+       ]
+      ],
+      [
+       "b.rpy",
+       "b2",
+       "Bye",
+       [
+        {
+         "f": "b.rpy",
+         "k": [
+          "b2",
+          "Bye"
+         ],
+         "n": "Sbohem",
+         "o": "Nashle",
+         "t": "2026-10-03T10:00:00",
+         "v": "something-new"
+        }
+       ]
+      ],
+      [
+       "c.rpy",
+       "b4",
+       "New line",
+       [
+        {
+         "f": "c.rpy",
+         "k": [
+          "b4",
+          "New line"
+         ],
+         "n": "Nový řádek",
+         "o": "",
+         "t": "2026-10-17T11:00:00",
+         "v": "replace"
+        }
+       ]
+      ]
+     ],
+     "total": 4
+    },
+    "written": 0
+   },
+   "op": "texthistory.record",
+   "params": {
+    "items": [
+     {
+      "file": "z.rpy",
+      "key": [
+       "b",
+       "s"
+      ],
+      "new": "same",
+      "old": "same"
+     }
+    ],
+    "via": "undo"
+   }
+  },
+  {
+   "answer": [
+    {
+     "current": true,
+     "text": "Nazdar",
+     "time": "<volatile>",
+     "via": "replace"
+    },
+    {
+     "current": false,
+     "text": "Ahoj tam",
+     "time": "<volatile>",
+     "via": "edit in the app"
+    },
+    {
+     "current": false,
+     "text": "Ahoj",
+     "time": "<volatile>",
+     "via": "original text before the first recorded change"
+    }
+   ],
+   "op": "texthistory.versions",
+   "params": {
+    "current": "Nazdar",
+    "file": "a.rpy",
+    "key": [
+     "b1",
+     "Hi there"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "by_key": [
+     [
+      "c.rpy",
+      "b4",
+      "New line",
+      [
+       {
+        "f": "c.rpy",
+        "k": [
+         "b4",
+         "New line"
+        ],
+        "n": "Nový řádek",
+        "o": "",
+        "t": "2026-10-17T11:00:00",
+        "v": "replace"
+       }
+      ]
+     ]
+    ],
+    "total": 1
+   },
+   "op": "texthistory.load",
+   "params": {
+    "keep_lines": 3,
+    "max_lines": 4
+   }
+  },
+  {
+   "answer": [
+    {
+     "block": "translate czech a_1",
+     "key": [
+      "translate czech a_1",
+      "Hello"
+     ],
+     "new": "Čau",
+     "old": "Ahoj",
+     "source": "Hello"
+    },
+    {
+     "block": "strings",
+     "key": [
+      "strings",
+      "Yes"
+     ],
+     "new": "Jo",
+     "old": "Ano",
+     "source": "Yes"
+    }
+   ],
+   "op": "texthistory.diff",
+   "params": {
+    "new": "translate czech a_1:\n\n    # mc \"Hello\"\n    mc \"Čau\"\n\ntranslate czech a_2:\n\n    # mc \"Bye\"\n    mc \"Nashle\"\n\ntranslate czech strings: \n\n    old \"Yes\"\n    new \"Jo\"\n\n    old \"No\"\n    new \"Ne\"\n",
+    "old": "translate czech a_1:\n\n    # mc \"Hello\"\n    mc \"Ahoj\"\n\ntranslate czech a_2:\n\n    # mc \"Bye\"\n    mc \"Nashle\"\n\ntranslate czech strings: \n\n    old \"Yes\"\n    new \"Ano\"\n"
+   }
+  }
+ ]
+}

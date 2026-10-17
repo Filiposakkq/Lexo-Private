@@ -1,0 +1,193 @@
+{
+ "files_after": {},
+ "steps": [
+  {
+   "answer": true,
+   "op": "set_epoch",
+   "params": {
+    "value": 1000.0
+   }
+  },
+  {
+   "answer": {
+    "locked": false
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "host": "pc",
+    "name": "a",
+    "pid": 1
+   }
+  },
+  {
+   "answer": true,
+   "op": "lock.check",
+   "params": {
+    "name": "a"
+   }
+  },
+  {
+   "answer": {
+    "holder": {
+     "host": "pc",
+     "pid": 1,
+     "time": "<volatile>",
+     "token": "<volatile>"
+    },
+    "locked": true,
+    "message": "The project is being used by another copy of the application (computer pc, process 1, last active 0 s ago). Two copies at once would overwrite each other's data."
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "host": "pc",
+    "name": "b",
+    "pid": 2
+   }
+  },
+  {
+   "answer": {
+    "locked": false
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "host": "pc",
+    "name": "c",
+    "pid": 1
+   }
+  },
+  {
+   "answer": {
+    "holder": {
+     "host": "pc",
+     "pid": 1,
+     "time": "<volatile>",
+     "token": "<volatile>"
+    },
+    "locked": true,
+    "message": "The project is being used by another copy of the application (computer pc, process 1, last active 0 s ago). Two copies at once would overwrite each other's data."
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "host": "other-pc",
+    "name": "d",
+    "pid": 1
+   }
+  },
+  {
+   "answer": true,
+   "op": "set_epoch",
+   "params": {
+    "value": 1030.0
+   }
+  },
+  {
+   "answer": {
+    "holder": {
+     "host": "pc",
+     "pid": 1,
+     "time": "<volatile>",
+     "token": "<volatile>"
+    },
+    "locked": true,
+    "message": "The project is being used by another copy of the application (computer pc, process 1, last active 30 s ago). Two copies at once would overwrite each other's data."
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "host": "pc",
+    "name": "b",
+    "pid": 2
+   }
+  },
+  {
+   "answer": true,
+   "op": "set_epoch",
+   "params": {
+    "value": 1100.0
+   }
+  },
+  {
+   "answer": {
+    "locked": false
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "host": "pc",
+    "name": "b",
+    "pid": 2
+   }
+  },
+  {
+   "answer": false,
+   "op": "lock.check",
+   "params": {
+    "name": "a"
+   }
+  },
+  {
+   "answer": true,
+   "op": "lock.check",
+   "params": {
+    "name": "b"
+   }
+  },
+  {
+   "answer": {
+    "holder": {
+     "host": "pc",
+     "pid": 2,
+     "time": "<volatile>",
+     "token": "<volatile>"
+    },
+    "locked": true,
+    "message": "The project is being used by another copy of the application (computer pc, process 2, last active 0 s ago). Two copies at once would overwrite each other's data."
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "host": "pc",
+    "name": "e",
+    "pid": 3
+   }
+  },
+  {
+   "answer": {
+    "locked": false
+   },
+   "op": "lock.acquire",
+   "params": {
+    "dir": "local",
+    "force": true,
+    "host": "pc",
+    "name": "e",
+    "pid": 3
+   }
+  },
+  {
+   "answer": false,
+   "op": "lock.check",
+   "params": {
+    "name": "b"
+   }
+  },
+  {
+   "answer": true,
+   "op": "lock.release",
+   "params": {
+    "name": "b"
+   }
+  },
+  {
+   "answer": true,
+   "op": "lock.release",
+   "params": {
+    "name": "e"
+   }
+  }
+ ]
+}

@@ -38,6 +38,17 @@ fn main() {
     if matches!(args.first().map(String::as_str), Some("--dump" | "--dump-check" | "--dump-spell")) && args.len() > 2 {
         return dump(&args[1..], args[0] != "--dump", args[0] == "--dump-spell");
     }
+    if args.first().map(String::as_str) == Some("--dump-data") && args.len() > 2 {
+        // `--dump-data <today> <data folder>...`: the store, the history and the events read from a data folder, one `folder<TAB>json` line each (nothing is written)
+        let today: chrono::NaiveDate = args[1].parse().unwrap_or_else(|e| {
+            eprintln!("today must be YYYY-MM-DD: {e}");
+            std::process::exit(2)
+        });
+        for dir in &args[2..] {
+            println!("{dir}	{}", lexo_golden::data::folder_json(std::path::Path::new(dir), today));
+        }
+        return;
+    }
     let (list, strict) = (args.iter().any(|a| a == "--list"), args.iter().any(|a| a == "--strict"));
     let golden = golden_dir();
     let cases = match inventory(&golden) {
