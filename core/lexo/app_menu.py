@@ -55,7 +55,9 @@ class MenuPart:
         out_opts = []
         for k, o in enumerate(found["options"]):
             hit = by_text.get(norm_ws(o["text"]))
-            out_opts.append({"n": o["n"], "text": o["text"], "cond": o["cond"], "current": k == found["current"],
+            here = {f"{m.group(1)}:{found['menu_line']}", f"{m.group(1)}:{o['n']}"}
+            where = hit[1].ref if hit and hit[1].ref and hit[1].ref not in here else ""      # the same text stands in an earlier menu: Ren'Py lists it there once
+            out_opts.append({"n": o["n"], "text": o["text"], "cond": o["cond"], "current": k == found["current"], "where": where,
                              "entry": row(*hit) if hit else None, "after": [say(n) for n in o["after"]],
                              "body": [] if o["after"] else textwrap.dedent(NL.join(o["body"])).splitlines()})
         return {"available": True, "script": f"{m.group(1)}:{found['menu_line']}", "question": [say(n) for n in found["question"]],
