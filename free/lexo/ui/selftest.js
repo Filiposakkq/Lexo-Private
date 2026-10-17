@@ -174,6 +174,8 @@
     ok('hlavní okno sdílí vybraný řádek s doprovodným oknem', (await get('focus')).seq === fo.seq && fo.seq > 0, JSON.stringify(fo));
     const pickLayout = async (label) => { clickText('#view .frow button', 'Rozložení')?.click(); await sleep(80); const it = clickText('#view .menu .menuitem', label); it?.click(); await sleep(700); return !!it; };
     ok('seznam řádků má nabídku rozložení', !!clickText('#view .frow button', 'Rozložení'), 'chybí');
+    { const wt = document.querySelector('#view .wordtoggle'); const before = wt?.getAttribute('aria-pressed'); wt?.click(); const after = wt?.getAttribute('aria-pressed'); wt?.click();
+      ok('vedle hledání je přepínač „Celé slovo“ a přepíná se', !!wt && before === 'false' && after === 'true' && wt.getAttribute('aria-pressed') === 'false', before + '/' + after); }
     ok('rozložení „Detail vpravo“ dá detail vedle seznamu', (await pickLayout('Detail vpravo')) && !!document.querySelector('#view .split.ecols'), 'beze změny');
     ok('rozložení „Scéna a filmový pás“ ukáže pás řádků a skryje tabulku', (await pickLayout('Scéna a filmový pás')) && !!document.querySelector('#view .split.film') && !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard'), 4000)), 'chybí pás nebo rozložení');
     { const box = document.querySelector('#search'); if (box) { box.value = 'o'; box.dispatchEvent(new Event('input')); }                // a search in the film layout opens the first hit (the list is hidden, so nothing could be clicked)

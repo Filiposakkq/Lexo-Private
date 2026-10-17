@@ -2,6 +2,14 @@ import { t } from './05-i18n.js';
 import { fmtN, h } from './00-core.js';
 /* ---------------------------------------------------------------- filter bar pieces (shared by all tabs) */
 export const filterGroup = (label, ...controls) => h('label', { class: 'fgroup' }, h('span', { class: 'flabel' }, label), ...controls);
+/* The "whole word" switch next to a search box: `Sage` then does not find "Massage". The state is a preference; onChange runs the search again. */
+export function wordToggle(prefKey, getPref, setPrefFn, onChange) {
+  const b = h('button', { type: 'button', class: 'btn small wordtoggle', title: t('Whole word: “Sage” does not find “Massage”'), 'aria-pressed': String(!!getPref(prefKey, false)) }, t('Whole word'));
+  const paint = () => { const on = !!getPref(prefKey, false); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); };
+  b.onclick = () => { setPrefFn(prefKey, !getPref(prefKey, false)); paint(); onChange(); };
+  paint();
+  return b;
+}
 /* A row of "pills" (one per option, with a count) – the main filter of a list. */
 export function pillRow(options, current, counts, onPick) {
   return options.map(([k, label]) => {

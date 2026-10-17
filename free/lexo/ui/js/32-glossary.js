@@ -5,7 +5,7 @@ import { S } from './11-state.js';
 import { pref, setPref, speakerModeSelect } from './12-chrome.js';
 import { dialog, fail, status, toast } from './13-feedback.js';
 import { buildTable, chip, empty } from './14-renderers.js';
-import { filterGroup } from './15-filterbar.js';
+import { filterGroup, wordToggle } from './15-filterbar.js';
 import { go } from './16-tabs.js';
 import { occurrencesDialog } from './27-glossary-terms.js';
 /* ================================================================ GLOSSARY */
@@ -23,7 +23,7 @@ export async function viewGlossary() {
   root.append(
     h('p', { class: 'muted' }, T('Glossary of names. Speakers in the files are only abbreviations (mc, de, ji…); here you give them the full name. '),
       T('You switch the display in the app (Lines, detail, surroundings of a line) on the right: code / full name / both. A name is saved automatically when you leave the field. The abbreviations are found in the files by themselves – nothing is made up.')),
-    h('div', { class: 'toolbar filterbar' }, filterGroup(T('Type'), seg), search, speakerModeSelect(() => toast(T('Speaker display changed.'), 'ok', 1500)),
+    h('div', { class: 'toolbar filterbar' }, filterGroup(T('Type'), seg), search, wordToggle('glossary.word', pref, setPref, draw), speakerModeSelect(() => toast(T('Speaker display changed.'), 'ok', 1500)),
       h('button', { class: 'btn', onclick: () => addDialog() }, T('+ Add an item (term / name)')),
       h('button', { class: 'btn', title: T("Loads the character names from the game's characters.rpy"), onclick: () => importDialog() }, T('Import from characters.rpy…')), h('span', { class: 'spacer' }), counter), body);
 
@@ -34,7 +34,9 @@ export async function viewGlossary() {
   const stats = () => T('{n} items · without a name: {unnamed}', { n: data.items.length, unnamed: data.unnamed });
   function draw() {
     const q = (pref('glossary.q', '') || '').toLowerCase(), flt = pref('glossary.filter', 'all');
-    const rows = data.items.filter((i) => (!q || i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || i.note.toLowerCase().includes(q)) &&
+    const word = pref('glossary.word', false) && q ? new RegExp('(?<![\\p{L}\\p{N}_])' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}\\p{N}_])', 'iu') : null;
+    const has = (text) => (word ? word.test(text) : text.toLowerCase().includes(q));
+    const rows = data.items.filter((i) => (!q || has(i.code) || has(i.name) || has(i.note)) &&
       (flt === 'all' || (flt === 'unnamed' && i.type === 'speaker' && i.in_project && !i.name) || (flt === 'speaker' && i.type === 'speaker') || (flt === 'term' && i.type === 'term')));
     counter.textContent = stats();
     if (!rows.length) return body.replaceChildren(empty(T('Nothing to show'), flt === 'all' ? T('No speakers were found in the project.') : T('Change the filter or the search text.')));

@@ -9,7 +9,7 @@ from .project import file_status
 from .project import totals_of
 from .store import ep_states
 from .store import text_hash
-from .util import norm_ws
+from .util import norm_ws, text_matcher
 
 
 class ValidationPart:
@@ -187,11 +187,12 @@ class ValidationPart:
             per_file.setdefault(rel, {"error": 0, "warning": 0, "info": 0})["error"] += 1
         return counts, per_file
 
-    def validation_list(self, severity="", category="", file="", q="", offset=0, limit=200, ignored="hide", group=""):
+    def validation_list(self, severity="", category="", file="", q="", offset=0, limit=200, ignored="hide", group="", word=False):
         """Findings. ignored: "hide" (default) | "only" (just the ignored ones) | "all".
         group="line": one item per line with all its (matching) findings in `issues`; total counts lines."""
         self._need_project()
         out = []
+        match = text_matcher(q, word)
         show_info = self.config.get("validation.show_info", False)
         enabled = self.config.get("validation.enabled", True)
         sev_counts = {"error": 0, "warning": 0, "info": 0}     # for the filter pills: every filter except the severity
@@ -206,7 +207,7 @@ class ValidationPart:
             for (line, iss, e), is_ign in rows:
                 if category and iss.category != category:
                     continue
-                if q and q.lower() not in (iss.message + " " + rel + " " + (e.target if e else "")).lower():
+                if match and not match(iss.message + " " + rel + " " + (e.target if e else "")):
                     continue
                 sev_counts[iss.severity] += 1
                 if severity and iss.severity != severity:
