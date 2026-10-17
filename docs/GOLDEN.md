@@ -10,6 +10,9 @@ core/golden/
   layout/cases.json                   file name lists for the group proposals, paths for the folder and series numbers
   menus/scripts/*.rpy, menus/cases.json   game scripts with menus and the calls (script, line, choice) to the menu finder
   validator/cases.json                source / target pairs for the checks
+  spelling/cases.json                 a vocabulary (translated texts), words asked for a hint, checks with that vocabulary
+  textedit/cases.json                 find / replace cases in the plain, whole-word and stem modes (protected parts, errors), `case_like`, `mask`
+  fonts/*.ttf, fonts/not_a_font.bin   tiny fonts made by `core/tests/make_golden_fonts.py` (cmap formats 4 and 12, bad files) for the advance widths
   projects/<name>/game/...            whole projects (a game with scripts and game/tl/czech): basic, episodes, folders, messy
   scenarios/<name>.json               a project and a list of operation calls ({op, params}) run in order on a copy of it
   expected/...                        the recorded answers (generated; JSON, normalised)

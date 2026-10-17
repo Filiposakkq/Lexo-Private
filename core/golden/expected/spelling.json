@@ -1,0 +1,153 @@
+{
+ "by_fold": {
+  "dobre": "dobře",
+  "prijdu": "přijdu",
+  "takovy": "takový"
+ },
+ "check": [
+  {
+   "issues": [],
+   "name": "no typo"
+  },
+  {
+   "issues": [
+    {
+     "better": "přijdu",
+     "category": "text",
+     "code": "typo-suspect",
+     "fixable": true,
+     "kind": "typo",
+     "message": "Missing diacritics? “prijdu” → “přijdu”.",
+     "severity": "warning",
+     "typo_kind": "diacritics",
+     "word": "prijdu"
+    }
+   ],
+   "name": "missing diacritics"
+  },
+  {
+   "issues": [
+    {
+     "better": "takový",
+     "category": "text",
+     "code": "typo-suspect",
+     "fixable": true,
+     "kind": "typo",
+     "message": "A typo? “tkaový” → “takový”.",
+     "severity": "warning",
+     "typo_kind": "swap",
+     "word": "tkaový"
+    }
+   ],
+   "name": "swapped letters"
+  },
+  {
+   "issues": [
+    {
+     "better": "dobře",
+     "category": "text",
+     "code": "typo-suspect",
+     "fixable": true,
+     "kind": "typo",
+     "message": "A typo? “dobbře” → “dobře”.",
+     "severity": "warning",
+     "typo_kind": "double",
+     "word": "dobbře"
+    }
+   ],
+   "name": "doubled letter"
+  },
+  {
+   "issues": [],
+   "name": "word that is in the source"
+  },
+  {
+   "issues": [],
+   "name": "known word"
+  },
+  {
+   "issues": [
+    {
+     "better": "přijdu",
+     "category": "text",
+     "code": "typo-suspect",
+     "fixable": true,
+     "kind": "typo",
+     "message": "Missing diacritics? “prijdu” → “přijdu”.",
+     "severity": "warning",
+     "typo_kind": "diacritics",
+     "word": "prijdu"
+    }
+   ],
+   "name": "tags and variables are not words"
+  },
+  {
+   "issues": [
+    {
+     "better": "přijdu",
+     "category": "text",
+     "code": "typo-suspect",
+     "fixable": true,
+     "kind": "typo",
+     "message": "Missing diacritics? “prijdu” → “přijdu”.",
+     "severity": "warning",
+     "typo_kind": "diacritics",
+     "word": "prijdu"
+    },
+    {
+     "better": "takový",
+     "category": "text",
+     "code": "typo-suspect",
+     "fixable": true,
+     "kind": "typo",
+     "message": "A typo? “tkaový” → “takový”.",
+     "severity": "warning",
+     "typo_kind": "swap",
+     "word": "tkaový"
+    },
+    {
+     "better": "dobře",
+     "category": "text",
+     "code": "typo-suspect",
+     "fixable": true,
+     "kind": "typo",
+     "message": "A typo? “dobbře” → “dobře”.",
+     "severity": "warning",
+     "typo_kind": "double",
+     "word": "dobbře"
+    }
+   ],
+   "name": "three hints at most"
+  }
+ ],
+ "sig": "ec243872a3f2",
+ "suggest": {
+  "dobbře": [
+   "double",
+   "dobře"
+  ],
+  "dobře": null,
+  "neznámé": null,
+  "pak": null,
+  "prijdu": [
+   "diacritics",
+   "přijdu"
+  ],
+  "přijdu": null,
+  "takovy": [
+   "diacritics",
+   "takový"
+  ],
+  "taokvý": [
+   "swap",
+   "takový"
+  ],
+  "tkaový": [
+   "swap",
+   "takový"
+  ],
+  "zorgg": null
+ },
+ "vocab_size": 26,
+ "vocab_total": 51
+}

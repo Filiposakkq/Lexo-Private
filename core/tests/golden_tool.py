@@ -120,6 +120,43 @@ def run_validator():
     return out
 
 
+# =========================================================================================================================== spelling hints, find / replace, font metrics
+def run_spelling():
+    from lexo import spelling
+    spec = load_json(GOLDEN / "spelling" / "cases.json")
+    sp = spelling.Spelling.build(spec["targets"], spec["known"])
+    suggest = {}
+    for w in spec["suggest"]:
+        hit = sp.suggest(w)
+        suggest[w] = list(hit) if hit else None
+    check = [{"name": c["name"], "issues": [plain(i.to_dict()) for i in sp.check(c["source"], c["target"])]} for c in spec["check"]]
+    return {"sig": sp.sig, "vocab_size": len(sp.vocab), "vocab_total": sum(sp.vocab.values()), "by_fold": dict(sorted(sp.by_fold.items())), "suggest": suggest, "check": check}
+
+
+def run_textedit():
+    from lexo import textedit
+    spec = load_json(GOLDEN / "textedit" / "cases.json")
+    out = {"cases": [], "case_like": [textedit.case_like(m, n) for m, n in spec["case_like"]], "mask": [textedit.mask(t) for t in spec["mask"]]}
+    for c in spec["cases"]:
+        entry = {"name": c["name"]}
+        try:
+            fn = textedit.make_replacer(c["find"], c["replace"], c["mode"], c.get("case", False))
+            entry["result"] = list(fn(c["text"], c.get("protect", True)))
+        except ValueError as e:
+            entry["error"] = str(text_of(e))
+        out["cases"].append(entry)
+    return out
+
+
+def run_fontmetrics():
+    from lexo import fontmetrics
+    out = {}
+    for path in sorted((GOLDEN / "fonts").iterdir()):
+        got = fontmetrics.advances(path.read_bytes())
+        out[path.name] = None if got is None else {"upm": got["upm"], "adv": {str(k): v for k, v in sorted(got["adv"].items())}}
+    return out
+
+
 # =========================================================================================================================== scenarios on whole projects
 def _str(value, roots):
     for r in roots:
@@ -208,7 +245,8 @@ def scenario_names():
 # =========================================================================================================================== everything
 def collect():
     """{path under expected/: object} as Core answers it today."""
-    out = {"rpy.json": run_rpy(), "rpa.json": run_rpa(), "layout.json": run_layout(), "menus.json": run_menus(), "validator.json": run_validator()}
+    out = {"rpy.json": run_rpy(), "rpa.json": run_rpa(), "layout.json": run_layout(), "menus.json": run_menus(), "validator.json": run_validator(),
+           "spelling.json": run_spelling(), "textedit.json": run_textedit(), "fontmetrics.json": run_fontmetrics()}
     for name in scenario_names():
         out[f"scenarios/{name}.json"] = run_scenario(GOLDEN / "scenarios" / f"{name}.json")
     return out

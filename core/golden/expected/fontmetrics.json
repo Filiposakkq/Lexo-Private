@@ -1,0 +1,24 @@
+{
+ "bad_upm.ttf": null,
+ "format12.ttf": {
+  "adv": {
+   "32": 700,
+   "65": 600,
+   "66": 700,
+   "67": 700
+  },
+  "upm": 2048
+ },
+ "format4.ttf": {
+  "adv": {
+   "269": 650,
+   "32": 250,
+   "65": 600,
+   "66": 700
+  },
+  "upm": 1000
+ },
+ "no_hmtx.ttf": null,
+ "not_a_font.bin": null,
+ "truncated.ttf": null
+}

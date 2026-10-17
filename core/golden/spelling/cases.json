@@ -1,0 +1,27 @@
+{
+ "_doc": "targets = the translated texts that make the vocabulary; known = words that are never reported; suggest = single words asked for a hint; check = a source and a translation checked with the vocabulary",
+ "targets": [
+  "Přijdu pozdě, ale takový den se nevidí každý den.",
+  "Přijdu hned, řekl jsem ti to přece, dobře?",
+  "Dobře, přijdu zítra, takový je život.",
+  "Takový člověk by přijdu nikdy nepochopil, dobře.",
+  "Přijdu a řeknu ti to, takový jsem.",
+  "Dobře, přijdu, ale jen takový kousek.",
+  "Dobře dobře, takový je zvyk.",
+  "Přijdu, přijdu, dobře, dobře.",
+  "Zorg přijde. Zorg je takový.",
+  "Taková je řeč, dobře známá."
+ ],
+ "known": ["Zorgg"],
+ "suggest": ["prijdu", "tkaový", "dobbře", "dobře", "pak", "zorgg", "takovy", "přijdu", "neznámé", "taokvý", "prijdu"],
+ "check": [
+  {"name": "no typo", "source": "I will come.", "target": "Přijdu zítra, dobře."},
+  {"name": "missing diacritics", "source": "I will come.", "target": "Prijdu zítra."},
+  {"name": "swapped letters", "source": "What a day.", "target": "Jaký tkaový den."},
+  {"name": "doubled letter", "source": "Fine.", "target": "Dobbře."},
+  {"name": "word that is in the source", "source": "Prijdu is a name.", "target": "Prijdu je jméno."},
+  {"name": "known word", "source": "A name.", "target": "Zorgg je jméno."},
+  {"name": "tags and variables are not words", "source": "{i}Hi{/i} [name]", "target": "{i}Prijdu{/i} [prijdu]"},
+  {"name": "three hints at most", "source": "Many.", "target": "Prijdu tkaový dobbře prijdu takovy další."}
+ ]
+}

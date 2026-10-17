@@ -1,0 +1,24 @@
+{
+ "_doc": "find / replace / mode / case (true = case-sensitive) / protect (default true) / text: the answer is [new text, count] or the error text of make_replacer",
+ "cases": [
+  {"name": "plain, ignoring case", "find": "kavárna", "replace": "kavárnu", "mode": "plain", "text": "Kavárna je tu. Ta kavárna."},
+  {"name": "plain, case-sensitive", "find": "ahoj", "replace": "čau", "mode": "plain", "case": true, "text": "Ahoj, ahoj."},
+  {"name": "plain keeps tags variables and escapes", "find": "i", "replace": "I", "mode": "plain", "text": "{i}bi{/i} [vim] \\n bi \\\" i"},
+  {"name": "plain without protection", "find": "i", "replace": "I", "mode": "plain", "protect": false, "text": "{i}bi{/i} [vim]"},
+  {"name": "special characters are literal", "find": "a.b (c)", "replace": "x", "mode": "plain", "text": "a.b (c) a-b (c)"},
+  {"name": "whole word", "find": "pan", "replace": "pán", "mode": "word", "text": "pan, panna, Pan a špan"},
+  {"name": "whole word with Czech letters at the edges", "find": "být", "replace": "byt", "mode": "word", "text": "Být nebo nebýt, být!"},
+  {"name": "stem keeps the ending", "find": "kočka", "replace": "pes", "mode": "stem", "text": "Kočka, kočky, kočkou, Kočkám a kočkaaa"},
+  {"name": "stem with a longer replacement", "find": "kavárna", "replace": "hospoda", "mode": "stem", "text": "Kavárna a kavárny, v kavárně i do kavárny"},
+  {"name": "stem capital letter follows the word", "find": "pekař", "replace": "řezník", "mode": "stem", "case": true, "text": "pekař, Pekař, pekaři"},
+  {"name": "stem needs four letters", "find": "pes", "replace": "kočka", "mode": "stem", "text": "pes"},
+  {"name": "stem replacement needs two letters", "find": "kočka", "replace": "p", "mode": "stem", "text": "kočka"},
+  {"name": "regex is a Pro feature", "find": "a+", "replace": "b", "mode": "regex", "text": "aaa"},
+  {"name": "unknown mode", "find": "a", "replace": "b", "mode": "fuzzy", "text": "a"},
+  {"name": "nothing to find", "find": "", "replace": "b", "mode": "plain", "text": "a"},
+  {"name": "no match", "find": "xyz", "replace": "b", "mode": "plain", "text": "abc"},
+  {"name": "replacement may be empty", "find": " velmi", "replace": "", "mode": "plain", "text": "velmi dobře, velmi velmi"}
+ ],
+ "case_like": [["Ahoj", "čau"], ["ahoj", "čau"], ["", "čau"], ["Ahoj", ""], ["Éva", "ève"], ["Ahoj", "ßa"]],
+ "mask": ["{i}a{/i} [x] \\n b {{c}} ž"]
+}
