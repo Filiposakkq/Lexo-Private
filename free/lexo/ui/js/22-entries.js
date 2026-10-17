@@ -5,7 +5,7 @@ import { S, speakerFull, speakerLabel, speakerMode, speakerName } from './11-sta
 import { COMPANION, layoutMenu, paintFocusBar, pref, setPref, speakerBadge, speakerColor, speakerModeSelect } from './12-chrome.js';
 import { confirmDialog, dialog, fail, status, toast } from './13-feedback.js';
 import { ENTRY_LABEL, KIND_LABEL, SEV_LABEL, bar, buildTable, chip, empty, fmtText, fname, gameText, loading, makeSplitter, menuButton, proofChip } from './14-renderers.js';
-import { activeChips, filterGroup, pillRow } from './15-filterbar.js';
+import { activeChips, filterGroup, pillRow, wordToggle } from './15-filterbar.js';
 import { go, render } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
 import { announceDraft, announceFocus, copy, openEditor } from './21-files.js';
@@ -25,7 +25,7 @@ const EN_COLS = () => [
 ];
 function entQuery(extra = {}) {
   const e = pref('entries', {});
-  return { file: e.file || '', status: e.status || 'todo', unit: e.unit || '', kind: e.kind || '', issues: e.issues || '', q: e.q || '', sort: e.sort || 'line', limit: 200, ...extra };
+  return { file: e.file || '', status: e.status || 'todo', unit: e.unit || '', kind: e.kind || '', issues: e.issues || '', q: e.q || '', word: e.word ? '1' : '', sort: e.sort || 'line', limit: 200, ...extra };
 }
 export async function viewEntries() {
   if (S.goOpts) {
@@ -86,7 +86,7 @@ export async function viewEntries() {
     if (file) active.push([T('File: ') + file.split(/[\\/]/).pop(), () => { setPref('entries.file', ''); fileSel.value = ''; load(true); }]);
     if (st !== 'all') active.push([T('State: ') + lab(STATUS_OPTS, st), () => { setPref('entries.status', 'all'); load(true); }]);
     for (const k of ['unit', 'kind', 'issues']) if (pref('entries.' + k, '')) active.push([`${FILTER_NAMES[k]}: ${lab(OPTS[k], pref('entries.' + k, ''))}`, () => { setPref('entries.' + k, ''); selects[k].value = ''; load(true); }]);
-    if (pref('entries.q', '')) active.push([T('Search: “{q}”', { q: pref('entries.q', '') }), () => { setPref('entries.q', ''); search.value = ''; load(true); }]);
+    if (pref('entries.q', '')) active.push([T('Search: “{q}”', { q: pref('entries.q', '') }) + (pref('entries.word', false) ? ' · ' + T('Whole word') : ''), () => { setPref('entries.q', ''); search.value = ''; load(true); }]);
     chipsBox.replaceChildren(...activeChips(active, resetFilters));
     const open = moreOpen();
     moreBtn.textContent = `${open ? '▾' : '▸'} ${T('More filters')}${extraCount() ? ` (${extraCount()})` : ''}`;
@@ -95,7 +95,7 @@ export async function viewEntries() {
   }
   const pickInfo = h('span', { class: 'pickinfo' });
   main.append(h('div', { class: 'pane-head' }, h('div', { class: 'filterbar' },
-    h('div', { class: 'frow' }, search, filterGroup(T('File'), fileSel), moreBtn,
+    h('div', { class: 'frow' }, search, wordToggle('entries.word', pref, setPref, () => { if (pref('entries.q', '')) load(true); }), filterGroup(T('File'), fileSel), moreBtn,
       menuButton(T('Tools'), [
         { label: T('Find and replace…'), hint: T('in the translations'), run: () => replaceDialog(async () => { S.files = null; await refreshHeader(); load(true); }, S.fl.picked.size ? [...S.fl.picked] : (pref('entries.file', '') ? [pref('entries.file', '')] : [])) },
         { label: T('Approve by rule…'), hint: T('names, interjections'), run: () => ruleApproveDialog(async () => { S.files = null; await refreshHeader(); load(true); }, S.fl.picked.size ? [...S.fl.picked] : (pref('entries.file', '') ? [pref('entries.file', '')] : [])) },
@@ -351,8 +351,8 @@ export async function viewEntries() {
     list.hidden = !open();
     if (open()) paintList();
     wrap.append(h('span', null, T('Result {n} of {total}', { n: fmtN(S.ent.start + S.ent.sel + 1), total: fmtN(S.ent.total) })),
-      h('button', { class: 'btn small icon', title: T('Previous line (↑)'), onclick: () => select(S.ent.sel - 1) }, '↑'),
-      h('button', { class: 'btn small icon', title: T('Next line (↓)'), onclick: () => select(S.ent.sel + 1) }, '↓'),
+      h('button', { class: 'btn small icon', title: T('Previous line (←)'), onclick: () => select(S.ent.sel - 1) }, '←'),
+      h('button', { class: 'btn small icon', title: T('Next line (→)'), onclick: () => select(S.ent.sel + 1) }, '→'),
       toggle, h('span', { class: 'muted' }, entrySearchSummary(e)), list);
     return wrap;
   }

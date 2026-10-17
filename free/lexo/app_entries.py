@@ -10,7 +10,7 @@ from .messages import text_of
 from .project import STATUS_ORDER
 from .project import file_status
 from .store import parse_value
-from .util import norm_ws
+from .util import norm_ws, text_matcher
 from .app_base import AppError, PAGE_LIMIT
 
 
@@ -42,11 +42,11 @@ class EntriesPart:
         return status
 
     def entries(self, file="", status="all", kind="", q="", issues="", sort="line", offset=0, limit=200, around=0,
-                unit=""):
+                unit="", word=False):
         """Paged, filtered list of translation units (server side, so 45k lines stay fast)."""
         self._need_project()
         limit = max(1, min(int(limit), PAGE_LIMIT))
-        ql = q.strip().lower()
+        match = text_matcher(q, word)
         files = [file] if file else sorted(self.project.files, key=str.lower)
         if file and file not in self.project.files:
             raise AppError(msg("Unknown file."))
@@ -79,9 +79,8 @@ class EntriesPart:
                     continue
                 if issues == "overflow" and not any(i.code == "textbox-overflow" for i in iss):
                     continue
-                if ql and ql not in (e.target or "").lower() and ql not in (e.source or "").lower() \
-                        and ql not in e.who.lower() and ql not in rel.lower() \
-                        and ql not in self.store.glossary.get(self.speaker_code(e.who), {}).get("n", "").lower():
+                if match and not (match(e.target) or match(e.source) or match(e.who) or match(rel)
+                                  or match(self.store.glossary.get(self.speaker_code(e.who), {}).get("n", ""))):
                     continue
                 for k, v in member.items():            # counts for the status pills: every filter except the status itself
                     if v:

@@ -5,7 +5,7 @@ import { S } from './11-state.js';
 import { pref, setPref } from './12-chrome.js';
 import { confirmDialog, fail, status, toast } from './13-feedback.js';
 import { SEV_LABEL, buildTable, chip, empty, fmtText, fname, loading } from './14-renderers.js';
-import { activeChips, filterGroup, pillRow } from './15-filterbar.js';
+import { activeChips, filterGroup, pillRow, wordToggle } from './15-filterbar.js';
 import { go } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
 import { openEditor } from './21-files.js';
@@ -79,7 +79,7 @@ export async function viewValidation() {
   }
   root.append(h('div', { class: 'filterbar' },
       h('div', { class: 'frow' }, filterGroup(T('Show'), modeSeg), h('span', { class: 'spacer' }), undoFix, fixAll),
-      h('div', { class: 'frow' }, search, filterGroup(T('File'), fsel), filterGroup(T('Kind'), cat), info),
+      h('div', { class: 'frow' }, search, wordToggle('validation.word', pref, setPref, () => { if (pref('validation.q', '')) load(true); }), filterGroup(T('File'), fsel), filterGroup(T('Kind'), cat), info),
       h('div', { class: 'frow' }, pillsBox, h('span', { class: 'spacer' }), counter), chipsBox),
     h('p', { class: 'muted' }, tx("One line of the translation = one item with all its findings below each other. The check never rewrites anything by itself; only the button {fix} next to a speaker / attributes error writes the fix from the original into the file after you confirm (with a backup). {error} = Ren'Py would probably crash or the structure of the script is broken. {warning} = suspicious, but it may be intended (for example the translation lacks a tag, the text is much longer). It is always compared with the original, not with fixed rules.", { fix: h('b', null, T('Fix')), error: h('b', null, T('Error')), warning: h('b', null, T('Warning')) })), list);
   S.val.items = [];
@@ -164,7 +164,7 @@ export async function viewValidation() {
     if (pref('validation.ignored', 'hide') === 'only') return loadIgnored();
     if (reset) { S.val.items = []; list.replaceChildren(loading()); loadLast(); }
     try {
-      const q = { severity: pref('validation.severity', ''), category: pref('validation.category', ''), file: pref('validation.file', ''), q: pref('validation.q', ''), offset: S.val.items.length, limit: 200, group: 'line' };
+      const q = { severity: pref('validation.severity', ''), category: pref('validation.category', ''), file: pref('validation.file', ''), q: pref('validation.q', ''), word: pref('validation.word', false) ? '1' : '', offset: S.val.items.length, limit: 200, group: 'line' };
       const r = await get('validation', q);
       S.val.items.push(...r.items); S.val.total = r.total; S.val.sevCounts = r.sev_counts;
       const nf = r.findings ?? r.total;

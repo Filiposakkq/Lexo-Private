@@ -126,3 +126,18 @@ def read_rows(path):
     delim = ";" if first.count(";") > first.count(",") else ","
     # parse the whole text (not line by line) so quoted fields may contain line breaks (notes)
     return [r for r in csv.reader(io.StringIO(text, newline=""), delimiter=delim) if r]
+
+
+def text_matcher(query, whole=False):
+    """A function text -> bool for a search box: the query anywhere in the text (case does not matter), or, with `whole`, only as a whole word
+    (`Sage` finds "Sage's" and "Sage," but not "Massage"). None for an empty query."""
+    q = (query or "").strip()
+    if not q:
+        return None
+    if not whole:
+        low = q.lower()
+        return lambda text: low in (text or "").lower()
+    import re
+    rx = re.compile(r"(?<!\w)" + re.escape(q) + r"(?!\w)", re.IGNORECASE)
+    return lambda text: bool(rx.search(text or ""))
+
