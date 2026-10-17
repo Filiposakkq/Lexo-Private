@@ -1,4 +1,5 @@
 """Read-only facts about the game folder: gui, fonts, images, characters, scene preview data."""
+import hashlib
 import re
 import urllib.parse
 from pathlib import Path
@@ -17,6 +18,12 @@ class GamePart:
             if parent.name.lower() == "game":
                 return parent
         return None
+
+    def _game_token(self):
+        """A short id of the open game folder. It is part of the URL of every picture and font, so the browser cannot show the picture of
+        another game that happens to have the same file name or key (the browser keeps pictures for ten minutes)."""
+        base = self._game_root()
+        return hashlib.md5(str(base).encode("utf-8")).hexdigest()[:8] if base is not None else ""
 
     def _game_root(self):
         """Folder that contains `game/` (references look like game/script.rpy:123), found above the translation folder."""
@@ -39,15 +46,28 @@ class GamePart:
             text = (base / "game" / "gui.rpy").read_text(encoding="utf-8", errors="replace")
         except OSError:
             return out
-        found = {}
-        for m in re.finditer(r"^\s*define\s+gui\.(\w+)\s*=\s*(\d+)\b", text, re.MULTILINE):
-            found.setdefault(m.group(1), int(m.group(2)))
+        found, fractions = {}, {}
+        # numbers may be negative (name_ypos = -66) and a number with a decimal point is a FRACTION of the container in Ren'Py (dialogue_ypos = 0.33)
+        for m in re.finditer(r"^\s*define\s+gui\.(\w+)\s*=\s*(-?\d+(?:\.\d+)?)\b", text, re.MULTILINE):
+            if m.group(1) in found:
+                continue
+            if "." in m.group(2):
+                fractions[m.group(1)] = float(m.group(2))
+                found[m.group(1)] = 0
+            else:
+                found[m.group(1)] = int(m.group(2))
         m = re.search(r"gui\.init\(\s*(\d+)\s*,\s*(\d+)", text)
         if m:
             found["screen_width"], found["screen_height"] = int(m.group(1)), int(m.group(2))
         for k in self.GUI_DEFAULTS:
             if k in found:
                 out[k] = found[k]
+        width, height = out["screen_width"], out["screen_height"]
+        tb_height = out["textbox_height"] if "textbox_height" not in fractions else round(fractions["textbox_height"] * height)
+        out["textbox_height"] = tb_height
+        for k, whole in (("name_ypos", tb_height), ("dialogue_ypos", tb_height), ("name_xpos", width), ("dialogue_xpos", width), ("dialogue_width", width)):
+            if k in fractions:
+                out[k] = round(fractions[k] * whole)
         out["source"] = msg("gui.rpy of the game") if any(k in found for k in self.GUI_DEFAULTS) else msg("default values")
         return out
 
@@ -130,13 +150,13 @@ class GamePart:
         fonts = self.game_fonts()
         for kind in ("text", "name"):
             fn = Path(fonts[kind]).name.lower() if fonts[kind] else ""
-            out["fonts_" + kind] = {"file": fn, "url": "/api/game/font?k=" + urllib.parse.quote(fn, safe="")} if fn in gi.fonts else None
+            out["fonts_" + kind] = {"file": fn, "url": "/api/game/font?g=" + self._game_token() + "&k=" + urllib.parse.quote(fn, safe="")} if fn in gi.fonts else None
         ch = gi.characters.get(ent.who or "")
         out["speaker"] = ch
         out.update(available=True, found=sc["found"], image=sc["image"], missing=sc["missing"], script=f"{m.group(1)}:{sc['script_line']}",
                    flat=sc.get("flat", ""), index_errors=gi.errors[:3], images=len(gi.stems))
         if sc["found"] and sc["key"]:
-            out["url"] = "/api/game/image?k=" + urllib.parse.quote(sc["key"], safe="")
+            out["url"] = "/api/game/image?g=" + self._game_token() + "&k=" + urllib.parse.quote(sc["key"], safe="")
         elif not sc["found"]:
             out["reason"] = msg("I found no picture (scene / show) before this line that can be traced in the game archives.")
         return out

@@ -44,6 +44,7 @@ async function afterProjectChange() {
   const st = await get('state');
   S.ready = st.ready; S.notices = st.notices; S.projectDir = st.project_dir;
   S.files = null; S.overview = null; S.ent.items = []; S.ent.sel = -1; S.fl.picked.clear();
+  S.gui = null; S.fontRes = {}; S.metRes = {}; S.metricCache = {}; S.gwinK = null; S.sceneCache = new Map(); S.sceneDone = new Map();      // the look of the previous game must not leak into the next one
   await refreshHeader();
   if (S.ready) await loadGlossary();
   render();

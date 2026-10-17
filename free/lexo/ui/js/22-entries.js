@@ -597,7 +597,7 @@ export async function viewEntries() {
       if (scene.flat) stage.style.background = scene.flat;
       else if (scene.url && imgOk) stage.append(h('img', { class: 'gbg', src: scene.url, alt: '', onerror: () => { imgOk = false; draw(); } }));
       const tb = h('div', { class: 'gtextbox', style: { height: g.textbox_height + 'px' } });
-      const nm = speaker ? h('div', { class: 'gname', style: { left: g.name_xpos + 'px', top: '-' + Math.round(g.name_text_size * 0.9) + 'px', fontSize: g.name_text_size + 'px', ...(nfam ? { fontFamily: `"${nfam}", sans-serif` } : {}), ...(sp?.color ? { color: sp.color } : {}) } }, speaker) : null;
+      const nm = speaker ? h('div', { class: 'gname', style: { left: g.name_xpos + 'px', top: g.name_ypos + 'px', fontSize: g.name_text_size + 'px', ...(nfam ? { fontFamily: `"${nfam}", sans-serif` } : {}), ...(sp?.color ? { color: sp.color } : {}) } }, speaker) : null;
       const dlg = h('div', { class: 'gbox', style: { left: g.dialogue_xpos + 'px', top: g.dialogue_ypos + 'px', width: g.dialogue_width + 'px' } });
       dlg.append(gameText(text));
       placeChars(dlg, mText, g.text_size);
