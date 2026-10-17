@@ -146,7 +146,7 @@
   "effect": "read",
   "kind": "json",
   "needs_project": true,
-  "doc": "Suggested group for files.",
+  "doc": "Suggested group for files (a Pro feature: the Pro pack suggests, the app shows the groups to choose from).",
   "params": [
    {
     "name": "names",
@@ -155,9 +155,7 @@
     "required": false
    }
   ],
-  "example": {
-   "names": []
-  }
+  "example": null
  },
  {
   "name": "consistency",
@@ -726,12 +724,7 @@
     "required": false
    }
   ],
-  "example": {
-   "kinds": [
-    "speaker"
-   ],
-   "items": []
-  }
+  "example": null
  },
  {
   "name": "fix/last",
@@ -751,7 +744,7 @@
   "effect": "read",
   "kind": "json",
   "needs_project": true,
-  "doc": "Preview the bulk fixes (speaker, spaces, typos ...).",
+  "doc": "Preview the bulk fixes (speaker, spaces, typos ...): a Pro feature, the Pro pack plans them.",
   "params": [
    {
     "name": "items",
@@ -772,11 +765,7 @@
     "required": false
    }
   ],
-  "example": {
-   "kinds": [
-    "speaker"
-   ]
-  }
+  "example": null
  },
  {
   "name": "fix/undo",
@@ -787,7 +776,7 @@
   "needs_project": true,
   "doc": "Undo the last bulk fix.",
   "params": [],
-  "example": {}
+  "example": null
  },
  {
   "name": "game/characters",
@@ -1278,7 +1267,7 @@
   "effect": "external",
   "kind": "json",
   "needs_project": true,
-  "doc": "Machine translate many lines (uses the network).",
+  "doc": "Machine translate many lines (a Pro feature; the pack translates, uses the network).",
   "params": [
    {
     "name": "items",
@@ -1296,7 +1285,7 @@
   "effect": "read",
   "kind": "json",
   "needs_project": true,
-  "doc": "The lines a batch machine translation would take.",
+  "doc": "The lines a batch machine translation would take (a Pro feature: the Pro pack cuts the list to its limit).",
   "params": [
    {
     "name": "file",
@@ -1317,9 +1306,7 @@
     "required": false
    }
   ],
-  "example": {
-   "file": "script.rpy"
-  }
+  "example": null
  },
  {
   "name": "open-editor",

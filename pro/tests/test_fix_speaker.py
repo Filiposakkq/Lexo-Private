@@ -1,7 +1,8 @@
-"""Auto-fix of speaker / attribute / trailing-code differences (the only .rpy-writing feature)."""
+"""Auto-fix of speaker / attribute / trailing-code differences (the Pro feature fixes.safe, written to the file by Core)."""
 import unittest
 
-from helpers import TempCase, dialog
+from helpers import dialog
+from procase import ProCase
 from lexo.app import AppError
 
 
@@ -10,7 +11,7 @@ def block(ident, src_who, tgt_who, src, tgt, src_suffix="", tgt_suffix=""):
             f'    # {src_who} "{src}"{src_suffix}\n    {tgt_who} "{tgt}"{tgt_suffix}\n\n')
 
 
-class FixTests(TempCase):
+class FixTests(ProCase):
     def setUp(self):
         super().setUp()
         self.text = (block("a1", "mc happy", "mc sad", "Hello there.", "Ahoj tam.")

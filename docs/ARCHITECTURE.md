@@ -48,8 +48,7 @@ To add an operation: write it in `api.py` (with an `example` the contract test c
 
 ## Extension points for Pro
 Built (see PRO-DESIGN.md): `core/lexo/extensions.py` is the host. A Pro feature is a **JSON call** (`host.call("publish.web", "plan", {...})`) answered by the separately delivered
-Pro pack (`pro/lexo_pro`); without the pack the feature is locked and no flag in Core or Free can change that. The first extracted feature is `publish.web`; four more are still
-in Core behind the old flag (`Feature.extracted = False` in `features.py`), listed in PRO-DESIGN.md.
+Pro pack (`pro/lexo_pro`); without the pack the feature is locked and no flag in Core or Free can change that. All five gated features (`publish.web`, `mt.batch`, `fixes.safe`, `replace.regex`, `bulk.categorize`) live in the pack; what is still open is listed in PRO-DESIGN.md.
 Planned names for further features: `translate_provider` (machine translation batches), `memory_provider` (fuzzy translation memory), `exporter`, `team_sync`.
 The UI shows a feature when the pack offers it, otherwise a locked hint.
 

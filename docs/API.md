@@ -16,7 +16,7 @@ a script or the Rust port calls the operation by name. Errors come back as `{"ok
 | `approve/rules` | POST `/api/approve/rules` | read | `rules` (any), `files` (list) | Preview approving by rules (names, interjections). |
 | `assign` | POST `/api/assign` | write | `name`* (str), `v` (str) | Assign a file to a group. |
 | `assign/apply` | POST `/api/assign/apply` | write | `items` (list) | Apply assignments. |
-| `assign/suggest` | POST `/api/assign/suggest` | read | `names` (list) | Suggested group for files. |
+| `assign/suggest` | POST `/api/assign/suggest` | read | `names` (list) | Suggested group for files (a Pro feature: the Pro pack suggests, the app shows the groups to choose from). |
 | `consistency` | GET `/api/consistency` | read | `loose` (flag), `by_speaker` (flag) | Originals translated in several different ways. |
 | `consistency/unify` | POST `/api/consistency/unify` | write | `key` (str), `target` (str), `lines` (any), `loose` (flag), `by_speaker` (flag) | Make all translations of one original the same. |
 | `entries` | GET `/api/entries` | read | `file` (str), `status` (str, default "all"), `kind` (str), `q` (str), `issues` (str), `sort` (str, default "line"), `offset` (int), `limit` (int, default 200), `around` (int), `unit` (str), `word` (flag) | A page of translation lines, filtered and sorted on the server. |
@@ -37,7 +37,7 @@ a script or the Rust port calls the operation by name. Errors come back as `{"ok
 | `files` | GET `/api/files` | read | - | The translation files with their counts and states. |
 | `fix/apply` | POST `/api/fix/apply` | write | `items` (list), `file` (str), `kinds` (list), `selections` (any) | Apply the chosen fixes. |
 | `fix/last` | GET `/api/fix/last` | read | - | What the last bulk fix changed (for undo). |
-| `fix/preview` | POST `/api/fix/preview` | read | `items` (list), `file` (str), `kinds` (list) | Preview the bulk fixes (speaker, spaces, typos ...). |
+| `fix/preview` | POST `/api/fix/preview` | read | `items` (list), `file` (str), `kinds` (list) | Preview the bulk fixes (speaker, spaces, typos ...): a Pro feature, the Pro pack plans them. |
 | `fix/undo` | POST `/api/fix/undo` | write | - | Undo the last bulk fix. |
 | `game/characters` | GET `/api/game/characters` | read | - | The characters defined in the game scripts: code, name, colour. |
 | `game/font` | GET `/api/game/font` | read **binary** | `k` (str) | A font of the game by file name (never a path): (bytes, mime). |
@@ -62,8 +62,8 @@ a script or the Rust port calls the operation by name. Errors come back as `{"ok
 | `missed/ignore` | POST `/api/missed/ignore` | write | `texts` (any), `clear` (flag) | Leave texts out of the missed-texts list for good. |
 | `missed/settings` | POST `/api/missed/settings` | write | `functions` (any) | Set the project's own functions that show text. |
 | `mt/apply` | POST `/api/mt/apply` | write | `selections` (any) | Write the chosen machine translations. |
-| `mt/batch` | POST `/api/mt/batch` | external | `items` (any) | Machine translate many lines (uses the network). |
-| `mt/targets` | POST `/api/mt/targets` | read | `file` (str), `lines` (any), `only_todo` (flag, default true) | The lines a batch machine translation would take. |
+| `mt/batch` | POST `/api/mt/batch` | external | `items` (any) | Machine translate many lines (a Pro feature; the pack translates, uses the network). |
+| `mt/targets` | POST `/api/mt/targets` | read | `file` (str), `lines` (any), `only_todo` (flag, default true) | The lines a batch machine translation would take (a Pro feature: the Pro pack cuts the list to its limit). |
 | `open-editor` | POST `/api/open-editor` | external | `file`* (str), `line` (int, default 1) | Open a file at a line in the editor. |
 | `open-url` | POST `/api/open-url` | external | `id` (str) | Open one of the known addresses in the browser (by id). (needs no open project) |
 | `overview` | GET `/api/overview` | read | - | Totals, groups, estimates and the data of the Overview tab. |

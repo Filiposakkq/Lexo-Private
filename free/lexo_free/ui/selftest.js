@@ -144,7 +144,10 @@
       closeDialog();
     }
   });
+  const pack = (await post('features', {})).features;                 // the Pro features exist only in the Pro pack: with it they work, without it they are locked and say so
+  const locked = async (path, body) => { try { await post(path, body); return ''; } catch (e) { return e.message || String(e); } };
   await step('Opravit (bezpečné opravy)', async () => {
+    if (!pack['fixes.safe'].available) { ok('bez balíčku Pro jsou bezpečné opravy zamčené a řeknou to', /Pro/.test(await locked('fix/preview', { kinds: ['speaker'] })), 'chybí hláška o verzi Pro'); return; }
     const pv = await post('fix/preview', { kinds: ['speaker', 'spaces', 'typo'] });
     ok('náhled oprav vrací položky s výchozím zaškrtnutím', Array.isArray(pv.items) && pv.items.every((i) => 'default' in i && 'kind' in i), 'špatný tvar odpovědi');
   });
@@ -199,11 +202,15 @@
     ok('odznak mluvčího má iniciálu a barvu', (() => { const b = speakerBadge('mc'); return b && b.textContent.length === 1 && !!b.style.background; })(), 'chybí odznak');
     ok('čitelná barva textu na odznaku', readableOn('#ffffff') === '#111' && readableOn('#000000') === '#fff' && readableOn('hsl(10 50% 50%)') === '#fff', 'špatný kontrast');
     setPref('entries.layout', 'rows'); await openView('entries', { file: '', status: 'all' }); await sleep(300);
-    const tg = await post('mt/targets', { file: '' });
-    ok('API strojového překladu vrací cíle a počet znaků', Array.isArray(tg.items) && tg.total === tg.items.length && tg.chars >= 0, JSON.stringify(tg).slice(0, 80));
-    mtDialog({ picked: [], anchor: null, file: '' }, null);
-    ok('dialog strojového překladu bez nastavení vysvětlí, co chybí', await waitFor(() => /Strojový překlad není nastavený/.test(document.querySelector('#dlg .dlg-head')?.textContent || ''), 4000), 'dialog se neukázal');
-    closeDialog();
+    if (pack['mt.batch'].available) {
+      const tg = await post('mt/targets', { file: '' });
+      ok('API strojového překladu vrací cíle a počet znaků', Array.isArray(tg.items) && tg.total === tg.items.length && tg.chars >= 0, JSON.stringify(tg).slice(0, 80));
+      mtDialog({ picked: [], anchor: null, file: '' }, null);
+      ok('dialog strojového překladu bez nastavení vysvětlí, co chybí', await waitFor(() => /Strojový překlad není nastavený/.test(document.querySelector('#dlg .dlg-head')?.textContent || ''), 4000), 'dialog se neukázal');
+      closeDialog();
+    } else {
+      ok('bez balíčku Pro je dávkový strojový překlad zamčený a řekne to', /Pro/.test(await locked('mt/targets', { file: '' })), 'chybí hláška o verzi Pro');
+    }
     const cons = await get('consistency');
     ok('API konzistence vrací skupiny', Array.isArray(cons.groups), JSON.stringify(cons).slice(0, 80));
     setPref('validation.consistency', false); setPref('validation.ignored', 'hide');      // do not depend on saved view modes

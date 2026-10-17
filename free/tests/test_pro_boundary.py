@@ -56,11 +56,17 @@ class NoProInThePublicCodeTests(unittest.TestCase):
                         found.append(f"{f.name}:{n}")
         self.assertEqual(found, [], "the Pro pack is found by its name at run time (extensions.py), never imported")
 
-    def test_the_catalog_names_no_code_of_a_pro_feature_that_was_extracted(self):
-        from lexo import features
-        extracted = [f.id for f in features.CATALOG.values() if f.extracted]
-        self.assertIn("publish.web", extracted)
-        self.assertFalse((ROOT / "core" / "lexo" / "publish.py").exists())        # its code is in pro/lexo_pro, not in the public package
+    def test_the_code_of_the_pro_features_is_not_in_the_public_packages(self):
+        self.assertFalse((ROOT / "core" / "lexo" / "publish.py").exists())        # publishing is in pro/lexo_pro, not in the public package
+        gone = ("def fixed_line", "def fix_spaces", "def fix_typos", "def plan_text_fixes", "def chain_fixes",       # safe fixes
+                "def _signals", "SHARED_STEMS",                                                                        # suggesting groups for files
+                "m.expand(replace)", "re.compile(find, flags | re.UNICODE)")                                            # regex replace
+        found = []
+        for folder in (ROOT / "core" / "lexo", ROOT / "free" / "lexo_free"):
+            for f in sorted(folder.glob("*.py")):
+                text = f.read_text(encoding="utf-8")
+                found += [f"{f.name}: {g}" for g in gone if g in text]
+        self.assertEqual(found, [], "the code of a Pro feature was found in the public packages")
 
 
 if __name__ == "__main__":

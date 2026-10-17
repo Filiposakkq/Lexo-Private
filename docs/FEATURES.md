@@ -36,7 +36,7 @@ Status as of the Core / Free split and the interface contract (roadmap steps 1 t
 ## Pro
 Aimed at people with bigger projects, a website or Patreon, or a team. Priced low: a one-off licence or a small yearly one.
 
-**In the Pro pack?** *yes* = the code is in `pro/lexo_pro` (private), the feature is locked in Free whatever flags are changed, and its limits belong to the pack. The cheap *taste* features (batch machine translation, safe fixes, regex replace, categorisation) will ship inside the installer as a demo pack with limits, so the demo needs no extra download; the *premium* ones are downloaded only after a licence (PRO-DESIGN.md). *no* = still in Core behind the old development flag (`Feature.extracted = False` in `features.py`): it works, but someone who edits Core can unlock it, so it is on the list of features to extract. *not built* = does not exist yet; when it is built it is written in the pack from the start.
+**In the Pro pack?** *yes* = the code is in `pro/lexo_pro` (private), the feature is locked in Free whatever flags are changed, and its limits belong to the pack. The cheap *taste* features (batch machine translation, safe fixes, regex replace, categorisation) will ship inside the installer as a demo pack with limits, so the demo needs no extra download; the *premium* ones are downloaded only after a licence (PRO-DESIGN.md). *not built* = does not exist yet; when it is built it is written in the pack from the start.
 
 
 | Feature | Why people pay for it | Module | Coupling | In the Pro pack? |
@@ -45,11 +45,11 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 | **Fuzzy matches in translation memory** (not only identical originals) | Repeated and similar lines across a long game | `memory` | only `app.py` | not built |
 | **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Machine translation often mixes formal and informal address; where the language has such rules (for example Czech tykání/vykání) the check knows them through the language pack | new, builds on `mt` and `lang` | new | not built |
 | **Character profiles** (who addresses whom how, gender, speech style) passed to batch machine translation | Makes the batch output usable | new + `mt` | new | not built |
-| Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` | **no** – still in Core (`mt.batch`, old flag) |
+| Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` | **yes** – `pro/lexo_pro/mt_batch.py` (`mt.batch`; one line of machine translation stays free in Core) |
 | **Release builder**: translation -> installable patch (zip or rpa), version, changelog | "From translation to release" in one tool, together with publishing | new | new | not built |
 | Publishing progress (website / JSON) | Translators with a site or Patreon | `export` (Core: the local progress file), `publish` (pack) | only `app.py` | **yes** – `pro/lexo_pro/publish.py` (`publish.web`) |
-| **Safe bulk fixes** (tag- and variable-aware, with a preview of every change) and **regex batches** | Big clean-ups without breaking tags | `fixes` | only `app.py` | **no** – still in Core (`fixes.safe`, `replace.regex`, old flag) |
-| Bulk categorisation suggestions (assign files to groups) | Large multi-episode projects | `bulk` | only `app.py` | **no** – still in Core (`bulk.categorize`, old flag) |
+| **Safe bulk fixes** (tag- and variable-aware, with a preview of every change) and **regex batches** | Big clean-ups without breaking tags | `fixes` | only `app.py` | **yes** – `pro/lexo_pro/fix_safe.py` (`fixes.safe`) and `regex_replace.py` (`replace.regex`); plain find & replace stays free |
+| Bulk categorisation suggestions (assign files to groups) | Large multi-episode projects | `bulk` | only `app.py` | **yes** – `pro/lexo_pro/categorize.py` (`bulk.categorize`; applying a chosen assignment stays free) |
 | Smarter spelling: extra language packs and better suggestions | Quality for more languages | `spelling`, `lang` | `app.py` | not built |
 | Team work: several translators, assignments, who did what, merging changes (planned) | Teams | new | new | not built |
 | Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new | not built |

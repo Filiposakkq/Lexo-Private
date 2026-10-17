@@ -39,10 +39,10 @@ class AssignPart:
         unknown = [n for n in names if n not in self.project.files]
         if unknown:
             raise AppError(msg("Unknown files: {names}", names=', '.join(unknown[:3])))
-        names, cut = self._cap("bulk.categorize", names)
-        sugg = bulk.suggest(names, self.store.assign, known_assign=self.store.assign)
+        res = self._ext_call("bulk.categorize", "suggest", {"names": names, "current": dict(self.store.assign), "known": dict(self.store.assign),
+                                                              "layout": layout.current().to_json()})
         many = len(layout.SEASONS) > 1
-        return {**cut, "items": sugg, "groups_defined": bool(layout.ACTIVE_EPISODES),
+        return {**{k: v for k, v in res.items() if k != "items"}, "items": res["items"], "groups_defined": bool(layout.ACTIVE_EPISODES),
                 "options": [{"value": "", "label": msg("Unassigned")}, {"value": "gen", "label": msg("General (the whole game)")}]
                 + [{"value": f"ep:{n}", "label": join([assign_label(f"ep:{n}"), msg(" (season {season})", season=layout.season_of(n)) if many else ""])}
                    for n in layout.ACTIVE_EPISODES]}
@@ -84,7 +84,6 @@ class AssignPart:
 
     def assign_apply(self, items):
         self._need_project()
-        items, _cut = self._cap("bulk.categorize", items)
         with self.lock:
             for it in items:
                 if it.get("name") not in self.project.files:

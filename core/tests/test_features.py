@@ -1,8 +1,8 @@
-"""Feature registry and extension host: gated (Pro) features, what the host offers, and that a feature without a provider cannot be used."""
+"""Feature catalog and extension host: gated (Pro) features exist only in the Pro pack, and without it they are locked whatever else is changed."""
 import json
 import unittest
 
-from helpers import TempCase, dialog
+from helpers import TempCase
 
 from lexo import features
 from lexo.app import AppError, FeatureLocked
@@ -30,31 +30,28 @@ class FakeProvider:
         return {"echo": payload, "method": method}
 
 
-class EntitlementTests(unittest.TestCase):
-    def test_pro_unlocks_everything(self):
-        for fid in features.CATALOG:
-            d = features.PRO.decide(fid)
-            self.assertEqual((d.available, d.limit), (True, None))
-
-    def test_free_limits_or_locks(self):
-        self.assertEqual(features.FREE.decide("mt.batch").limit, 20)
-        self.assertFalse(features.FREE.decide("replace.regex").available)
-
+class CatalogTests(unittest.TestCase):
     def test_features_outside_the_catalog_are_free(self):
-        self.assertTrue(features.FREE.decide("editor.basic").available)
+        self.assertTrue(features.decide("editor.basic", ExtensionHost()).available)
 
-    def test_status_lists_every_gated_feature(self):
-        st = features.status_of(features.FREE, ExtensionHost())
+    def test_without_a_pack_every_gated_feature_is_locked(self):
+        st = features.status_of(ExtensionHost())
         self.assertEqual(set(st), set(features.CATALOG))
-        self.assertEqual(st["mt.batch"]["limit"], 20)
-        self.assertEqual((st["publish.web"]["available"], st["publish.web"]["pro"]), (False, False))
-        self.assertEqual((st["publish.web"]["extracted"], st["mt.batch"]["extracted"]), (True, False))      # which features are already apart from Core
+        self.assertEqual({fid: (d["available"], d["pro"]) for fid, d in st.items()}, {fid: (False, False) for fid in features.CATALOG})
+
+    def test_the_pack_decides_what_is_available_and_with_which_limit(self):
+        host = ExtensionHost()
+        host.register(FakeProvider({"mt.batch": {"limit": 20}, "publish.web": {"limit": None}}))
+        st = features.status_of(host)
+        self.assertEqual((st["mt.batch"]["available"], st["mt.batch"]["limit"]), (True, 20))
+        self.assertEqual((st["publish.web"]["available"], st["publish.web"]["limit"]), (True, None))
+        self.assertFalse(st["replace.regex"]["available"])
 
 
 class ExtensionHostTests(unittest.TestCase):
-    def test_without_a_pack_an_extracted_feature_is_not_available_whatever_the_flags_say(self):
+    def test_without_a_pack_a_feature_is_not_available(self):
         host = ExtensionHost()
-        self.assertFalse(features.decide("publish.web", features.PRO, host).available)     # the development flag of Core does not unlock it
+        self.assertFalse(features.decide("publish.web", host).available)
         with self.assertRaises(ExtensionError):
             host.call("publish.web", "plan", {})
 
@@ -99,48 +96,35 @@ class ExtensionHostTests(unittest.TestCase):
 class AppGateTests(TempCase):
     def setUp(self):
         super().setUp()
-        text = "".join(dialog(f"id_{n}", "e", f"Line number {n}", line=10 + n) for n in range(25))
-        self.write("big.rpy", text)
+        from helpers import dialog
+        self.write("big.rpy", "".join(dialog(f"id_{n}", "e", f"Line number {n}", line=10 + n) for n in range(25)) + dialog("t1", "e", "Hello", "Hello Line", 99))
         self.app = self.new_app()
-
-    def test_dev_default_is_unlimited_for_the_features_still_in_core(self):
-        r = self.app.mt_targets()
-        self.assertEqual((len(r["items"]), r["total"]), (25, 25))      # 25 untranslated lines in big.rpy
-        self.assertNotIn("limited", r)
-
-    def test_free_machine_translation_targets_are_cut_and_the_total_is_told(self):
-        self.app.entitlements = features.FREE
-        r = self.app.mt_targets()
-        self.assertEqual(len(r["items"]), 20)
-        self.assertEqual(r["total"], 25)
-        self.assertEqual(r["limited"], {"feature": "mt.batch", "limit": 20, "total": r["total"]})
-
-    def test_publishing_needs_the_pro_pack_even_in_development(self):
         self.app.ext = ExtensionHost()                          # a Free installation: no pack
-        st = self.app.features_status()
-        self.assertFalse(st["features"]["publish.web"]["available"])
-        with self.assertRaises(FeatureLocked) as cm:
-            self.app.publish_plan()
-        self.assertEqual(cm.exception.feature, "publish.web")
-        self.assertIsInstance(cm.exception, AppError)         # the server already turns AppError into a message
 
-    def test_a_pack_that_offers_publishing_makes_it_available(self):
-        self.app.ext = ExtensionHost()
+    def test_every_gated_feature_is_locked_without_the_pack_in_every_place_it_is_used(self):
+        locked = {
+            "publish.web": lambda: self.app.publish_plan(),
+            "replace.regex": lambda: self.app.replace_preview("a.*", "b", mode="regex"),
+            "mt.batch": lambda: self.app.mt_targets("big.rpy"),
+            "fixes.safe": lambda: self.app.fix_preview(kinds=["spaces"]),
+            "bulk.categorize": lambda: self.app.assign_suggest(),
+        }
+        self.assertEqual(set(locked), set(features.CATALOG))
+        for fid, call in locked.items():
+            with self.assertRaises(FeatureLocked, msg=fid) as cm:
+                call()
+            self.assertEqual(cm.exception.feature, fid)
+            self.assertIsInstance(cm.exception, AppError)         # the server already turns AppError into a message
+
+    def test_the_free_halves_of_those_features_work_without_the_pack(self):
+        self.assertTrue(self.app.replace_preview("Line", "Row", mode="plain")["items"])        # plain find & replace is free
+        self.assertTrue(self.app.features_status()["ok"])
+
+    def test_a_pack_that_offers_a_feature_makes_it_available(self):
         self.app.ext.register(FakeProvider())
         st = self.app.features_status()
         self.assertTrue(st["features"]["publish.web"]["available"])
         self.assertEqual((st["tier"], st["pack"]), ("pro", ["9.9"]))
-
-    def test_free_cannot_use_regex_replace(self):
-        self.app.entitlements = features.FREE
-        with self.assertRaises(FeatureLocked):
-            self.app.replace_preview("a.*", "b", mode="regex")
-        self.app.replace_preview("Line", "Řádek", mode="plain")  # plain find & replace stays free
-
-    def test_free_fix_preview_is_capped(self):
-        self.app.entitlements = features.FREE
-        r = self.app.fix_preview(kinds=["spaces"])
-        self.assertLessEqual(len(r["items"]), 20)
 
 
 if __name__ == "__main__":

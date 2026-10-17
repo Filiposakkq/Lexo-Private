@@ -38,13 +38,11 @@ class HistoryTests(TempCase):
         self.assertEqual([x["text"] for x in app2.entry_history("a.rpy", self.line)["versions"]], ["Čau tam.", "Ahoj tam."])
         self.assertTrue((self.local_dir() / texthistory.FILE_NAME).is_file())
 
-    def test_fix_replace_and_unify_are_logged_with_their_origin(self):
-        self.app.entry_save("a.rpy", self.line, "Ahoj  tam.")                       # a double space to fix
-        sel = [{"file": "a.rpy", "line": self.line, "kind": "spaces"}]
-        self.app.fix_apply(selections=sel)
+    def test_replace_is_logged_with_its_origin(self):
+        self.app.entry_save("a.rpy", self.line, "Ahoj  tam.")
         self.app.replace_apply([{"file": "a.rpy", "line": self.line}], "tam", "všem", "word")
         vias = [x["via"] for x in self.versions()]
-        self.assertEqual(vias[:2], ["replace", "fix"])
+        self.assertEqual(vias[:2], ["replace", "edit in the app"])         # (the fixes of the Pro pack log "fix": see pro/tests)
 
     def test_undo_is_logged_too(self):
         self.app.entry_save("a.rpy", self.line, "Čau tam.")
