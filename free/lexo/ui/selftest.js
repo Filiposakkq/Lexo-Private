@@ -176,6 +176,9 @@
     ok('seznam řádků má nabídku rozložení', !!clickText('#view .frow button', 'Rozložení'), 'chybí');
     ok('rozložení „Detail vpravo“ dá detail vedle seznamu', (await pickLayout('Detail vpravo')) && !!document.querySelector('#view .split.ecols'), 'beze změny');
     ok('rozložení „Scéna a filmový pás“ ukáže pás řádků a skryje tabulku', (await pickLayout('Scéna a filmový pás')) && !!document.querySelector('#view .split.film') && !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard'), 4000)), 'chybí pás nebo rozložení');
+    { const box = document.querySelector('#search'); if (box) { box.value = 'a'; box.dispatchEvent(new Event('input')); }                // a search in the film layout opens the first hit (the list is hidden, so nothing could be clicked)
+      ok('po hledání ve filmovém rozložení se otevře první řádek', !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard.cur'), 8000)), 'detail zůstal prázdný');
+      if (box) { box.value = ''; box.dispatchEvent(new Event('input')); await sleep(900); } }
     ok('filmový pás ukazuje aktuální řádek', !!document.querySelector('#entryDetail .filmstrip .fcard.cur'), 'chybí zvýrazněná karta');
     ok('pruh souboru ukazuje zvlášť přeloženo a zkontrolováno', !!(await waitFor(() => /Přeloženo \d+ %/.test(document.querySelector('#entryDetail .filestrip')?.textContent || '') && /Zkontrolováno \d+ %/.test(document.querySelector('#entryDetail .filestrip')?.textContent || ''), 4000)), document.querySelector('#entryDetail .filestrip')?.textContent || 'chybí pruh');
     ok('pruh souboru má skoky na další nepřeložený / nezkontrolovaný / příliš dlouhý', ['Další nepřeložený', 'Další nezkontrolovaný', 'Další, co se nevejde'].every((t) => [...document.querySelectorAll('#entryDetail .filestrip button')].some((b) => b.textContent === t)), 'chybí tlačítka');
