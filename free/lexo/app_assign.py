@@ -51,15 +51,18 @@ class AssignPart:
         """The groups the project has now and the groups its file names suggest (episode, chapter, part, day, update, act). Nothing is changed."""
         self._need_project()
         cur = layout.current()
-        return {"current": {"label": cur.labels.get("group", "Episode"), "groups": list(cur.active_groups), "sections": len(cur.sections), "series": cur.series},
+        return {"current": {"label": cur.labels.get("group", "Episode"), "groups": list(cur.active_groups), "sections": len(cur.sections), "series": cur.series, "folders": list(cur.folders)},
                 "proposal": layout.propose(sorted(self.project.files, key=str.lower)),
                 "words": list(layout.GROUP_WORDS)}
 
-    def groups_apply(self, label, groups, series=""):
+    def groups_apply(self, label, groups, series="", folders=()):
         """Define the groups of the project (one section) and write them to lexo.json. Files keep their assignments; assignments to a group that
         no longer exists stay in the data but are not counted until the group is back."""
         self._need_project()
         label = str(label or "").strip()
+        folders = [str(f).strip("/") for f in (folders or []) if str(f).strip("/")]
+        if folders:                                        # one group per folder: the numbers are 1..N and the label is "Folder"
+            label, groups, series = "Folder", range(1, len(folders) + 1), ""
         if label not in layout.GROUP_WORDS:
             raise AppError(msg("Choose what the groups are called."))
         try:
@@ -72,7 +75,7 @@ class AssignPart:
             raise AppError(msg("This project has several sections (seasons) in lexo.json; edit the file by hand to change them."))
         with self.lock:
             try:
-                lay = layout.save_groups(self.data_dir, label, [{"n": 1, "groups": nums}], str(series or ""))
+                lay = layout.save_groups(self.data_dir, label, [{"n": 1, "groups": nums}], str(series or ""), folders)
             except (layout.LayoutError, OSError) as e:
                 raise AppError(msg("The groups could not be saved: {reason}", reason=e)) from e
             layout.use(lay)

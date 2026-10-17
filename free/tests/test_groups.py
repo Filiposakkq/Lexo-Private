@@ -1,6 +1,7 @@
 """Groups (episodes, chapters ...) of a project that does not come from the BaDIK layout: proposed from file names, saved, used for assignments."""
 import json
 import unittest
+from pathlib import Path
 
 from helpers import EIGHT_EPISODES, TempCase, dialog
 from lexo import layout
@@ -50,6 +51,22 @@ class ProposeTests(unittest.TestCase):
         self.assertEqual([layout.series_number(n, "script") for n in ("script.rpy", "tl/script2.rpy", "scripts/script_03.rpy", "scripts/a.rpy", "scripts2.rpy", "")],
                          [1, 2, 3, None, None, None])
         self.assertIsNone(layout.series_number("script2.rpy", ""))
+
+    def test_folders_are_proposed_when_the_game_is_organised_by_folder(self):
+        names = [f"scripts/{d}/{n}.rpy" for d in ("home", "beach", "work", "school") for n in ("a", "b", "c")] + ["options.rpy", "screens.rpy"]
+        p = layout.propose(names)
+        self.assertEqual(p["folders"], ["scripts/beach", "scripts/home", "scripts/school", "scripts/work"])    # the level below "scripts"
+        self.assertEqual(p["groups"], [])
+
+    def test_no_folder_proposal_for_a_flat_game_or_a_giant_folder(self):
+        self.assertEqual(layout.propose(["a.rpy", "b.rpy", "c.rpy"])["folders"], [])
+        self.assertEqual(layout.propose([f"main/{i}.rpy" for i in range(20)] + ["x/a.rpy", "y/b.rpy", "z/c.rpy"])["folders"], [])    # main holds 87 %
+        self.assertEqual(layout.propose(["a/1.rpy", "b/2.rpy"])["folders"], [])                                                       # two folders only
+
+    def test_folder_number_takes_the_longest_matching_folder(self):
+        folders = ["scripts/home", "scripts/home/kitchen", "bg"]
+        self.assertEqual([layout.folder_number(p, folders) for p in ("scripts/home/a.rpy", "scripts/home/kitchen/b.rpy", "BG/x.rpy", "scripts/other/c.rpy", "bgx/d.rpy")],
+                         [1, 2, 3, None, None])
 
 
 class GroupsInTheAppTests(TempCase):
@@ -104,6 +121,29 @@ class GroupsInTheAppTests(TempCase):
         self.assertEqual(again.groups_suggest()["current"]["series"], "script")
         again.groups_apply("Episode", [1, 2, 3], "")
         self.assertNotIn("series", json.loads((self.app.data_dir / layout.FILE_NAME).read_text(encoding="utf-8")))
+
+    def test_one_group_per_folder_in_the_app(self):
+        for d in ("home", "beach", "work"):
+            (self.root / d).mkdir()
+            for n in ("a", "b"):
+                self.write(f"{d}/{n}.rpy", dialog(f"{d}{n}", "mc", f"Hello from {d} {n}.", None, 5))
+        self.app.refresh(force=True)
+        s = self.app.groups_suggest()
+        self.assertEqual(s["proposal"]["folders"], ["beach", "home", "work"])
+        r = self.app.groups_apply("Episode", [], "", s["proposal"]["folders"])
+        self.assertEqual((r["label"], r["groups"]), ("Folder", [1, 2, 3]))
+        raw = json.loads((self.app.data_dir / layout.FILE_NAME).read_text(encoding="utf-8"))
+        self.assertEqual((raw["labels"]["group"], raw["folders"]), ("Folder", ["beach", "home", "work"]))
+        ov = self.app.overview()
+        self.assertEqual((ov["groups_defined"], ov["group_names"]), (True, {"1": "beach", "2": "home", "3": "work"}))
+        opts = {o["value"]: str(o["label"]) for o in self.app.assign_suggest()["options"]}
+        self.assertEqual((opts["ep:1"], opts["ep:3"]), ("beach", "work"))
+        sug = {i["name"]: i["suggested"] for i in self.app.assign_suggest()["items"]}
+        self.assertEqual((sug[str(Path("home") / "a.rpy")], sug[str(Path("work") / "b.rpy")]), ("ep:2", "ep:3"))
+        again = self.new_app()
+        self.assertEqual(again.groups_suggest()["current"]["folders"], ["beach", "home", "work"])
+        again.groups_apply("Episode", [1, 2], "", [])                                 # back to numbered groups
+        self.assertNotIn("folders", json.loads((self.app.data_dir / layout.FILE_NAME).read_text(encoding="utf-8")))
 
     def test_it_survives_a_restart_and_keeps_other_keys(self):
         path = self.app.data_dir / layout.FILE_NAME

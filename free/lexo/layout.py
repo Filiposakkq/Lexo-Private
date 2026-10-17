@@ -33,8 +33,9 @@ DEFAULT_LABELS = {"section": "Season", "group": "Episode"}
 
 
 class Layout:
-    def __init__(self, sections=(), labels=None, language="", series=""):
+    def __init__(self, sections=(), labels=None, language="", series="", folders=()):
         self.language = language
+        self.folders = tuple(folders)     # one group per folder: group N is the N-th folder (a path prefix such as "scripts/A_home")
         self.series = series              # files called <series>, <series>2, <series>3 ... are groups 1, 2, 3 ... (e.g. "script")
         self.sections = tuple(sections)
         self.labels = dict(DEFAULT_LABELS, **(labels or {}))
@@ -53,7 +54,7 @@ class Layout:
         return ()
 
     def to_json(self):
-        return {"version": 1, **({"language": self.language} if self.language else {}), **({"series": self.series} if self.series else {}), "labels": self.labels,
+        return {"version": 1, **({"language": self.language} if self.language else {}), **({"series": self.series} if self.series else {}), **({"folders": list(self.folders)} if self.folders else {}), "labels": self.labels,
                 "sections": [{"n": s["n"], "status": s["status"], **({"groups": list(s["episodes"])} if s["status"] == "active" else {})}
                              for s in self.sections]}
 
@@ -93,7 +94,10 @@ def parse(raw):
     series = raw.get("series", "")
     if not isinstance(series, str) or (series and not re.fullmatch(r"[A-Za-z_][\w-]*", series)):
         raise LayoutError("\"series\" must be a file name stem such as \"script\"")
-    return Layout(secs, {k: v for k, v in labels.items() if k in DEFAULT_LABELS}, language.strip().lower(), series)
+    folders = raw.get("folders", [])
+    if not isinstance(folders, list) or not all(isinstance(f, str) and f.strip("/") and ".." not in f.split("/") for f in folders) or len(folders) > 200:
+        raise LayoutError("\"folders\" must be a list of folder paths such as \"scripts/A_home\"")
+    return Layout(secs, {k: v for k, v in labels.items() if k in DEFAULT_LABELS}, language.strip().lower(), series, [f.strip("/") for f in folders])
 
 
 def load(data_dir):
@@ -144,7 +148,7 @@ def is_active_episode(episode):
 
 # ---------------------------------------------------------------- groups found from file names
 # The words a project may call its numbered units, with the pattern that recognises them in a file or folder name.
-GROUP_WORDS = {"Episode": r"episode|ep", "Chapter": r"chapter|chap|ch", "Part": r"part", "Day": r"day", "Update": r"update|upd", "Act": r"act"}
+GROUP_WORDS = {"Folder": r"a^", "Episode": r"episode|ep", "Chapter": r"chapter|chap|ch", "Part": r"part", "Day": r"day", "Update": r"update|upd", "Act": r"act"}
 _SEASON_RE = re.compile(r"(?<![a-z0-9])season[ _-]?0*(\d{1,2})(?!\d)")
 
 
@@ -152,6 +156,33 @@ def group_regex(word=None):
     """Pattern that finds the number of a group in a lower-case path; `word` defaults to the label of the open project."""
     word = word or _current.labels.get("group", "Episode")
     return re.compile(rf"(?<![a-z0-9])(?:{GROUP_WORDS.get(word, GROUP_WORDS['Episode'])})[ _-]?0*(\d{{1,3}})(?!\d)")
+
+
+def folder_number(path, folders):
+    """The group number of a file that lies in one of the project's folders (the longest matching folder wins); None otherwise."""
+    p = str(path).replace("\\", "/").lower()
+    best = None
+    for i, f in enumerate(folders, 1):
+        low = f.lower().strip("/")
+        if p.startswith(low + "/") and (best is None or len(low) > len(folders[best - 1].strip("/"))):
+            best = i
+    return best
+
+
+def _best_folders(names):
+    """Folders that split the files into a handful of groups: the shallowest level (1 to 3 folders deep) with 3 to 60 folders, none of
+    them holding more than 60 % of the files. Returns the folder paths (original spelling), sorted; [] when no level fits."""
+    parts = [str(n).replace("\\", "/").split("/") for n in names]
+    for depth in (1, 2, 3):
+        counts = {}
+        for p in parts:
+            if len(p) > depth:
+                key = "/".join(p[:depth])
+                counts[key] = counts.get(key, 0) + 1
+        total = sum(counts.values())
+        if 3 <= len(counts) <= 60 and total and max(counts.values()) / total <= 0.6:
+            return sorted(counts, key=str.lower)
+    return []
 
 
 def series_number(path, series):
@@ -209,9 +240,10 @@ def propose(names):
     word, groups, matched = best
     stem, snums, sfiles = _best_series(paths)
     if len(snums) > len(groups):                        # script, script2, script3 ... beat a weak word match
-        return {"label": "Episode", "groups": snums[:200], "sections": [{"n": 1, "groups": snums[:200]}], "matched": sfiles, "total": len(paths), "series": stem}
+        return {"label": "Episode", "groups": snums[:200], "sections": [{"n": 1, "groups": snums[:200]}], "matched": sfiles, "total": len(paths), "series": stem,
+                "folders": _best_folders(names)}
     if not groups:
-        return {"label": "Episode", "groups": [], "sections": [], "matched": 0, "total": len(paths), "series": ""}
+        return {"label": "Episode", "groups": [], "sections": [], "matched": 0, "total": len(paths), "series": "", "folders": _best_folders(names)}
     rx = group_regex(word)
     season_of_group = {}
     for p in paths:
@@ -228,10 +260,10 @@ def propose(names):
         sections = [{"n": n, "groups": gs} for n, gs in sorted(by_season.items())]
     else:
         sections = [{"n": 1, "groups": groups}]
-    return {"label": word, "groups": groups, "sections": sections, "matched": matched, "total": len(paths), "series": ""}
+    return {"label": word, "groups": groups, "sections": sections, "matched": matched, "total": len(paths), "series": "", "folders": _best_folders(names)}
 
 
-def save_groups(data_dir, label, sections, series=""):
+def save_groups(data_dir, label, sections, series="", folders=()):
     """Write the groups into lexo.json (other keys, such as `language`, stay). `sections`: [{"n": 1, "groups": [1, 2, 3]}].
     Returns the new Layout; raises LayoutError for numbers that cannot be used."""
     path = Path(data_dir) / FILE_NAME
@@ -250,6 +282,10 @@ def save_groups(data_dir, label, sections, series=""):
         raw["series"] = series
     else:
         raw.pop("series", None)
+    if folders:
+        raw["folders"] = list(folders)
+    else:
+        raw.pop("folders", None)
     lay = parse(raw)                                    # validates: raises LayoutError before anything is written
     atomic_write_text(path, json.dumps(raw, ensure_ascii=False, indent=1) + "\n")
     return lay

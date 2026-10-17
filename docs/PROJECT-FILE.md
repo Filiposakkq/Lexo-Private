@@ -36,3 +36,8 @@ Many games name their episodes by the main file: `script.rpy` (1), `script2.rpy`
 (at least three files, and in a project of more than 30 files at least 15 % of them; scene families such as `bedroom1, bedroom4, bedroom5` do not count), and the dialog has a tick box for it.
 `lexo.json` then holds `"series": "script"`, and the suggestion of assignments maps `script` to group 1, `script2` to group 2 and so on (a number in a word like `ep2` is used as before).
 Games that are organised by folder (Milfy City, LoSeSb) get no proposal; their groups would have to come from the folders (not built).
+
+### One group per folder
+Games organised by folder (Milfy City, LoSeSb, Four Elements, Midnight Paradise) have no numbers in the names. Lexo proposes the shallowest folder level (1 to 3 folders deep) that gives 3 to 60 folders with none holding
+more than 60 % of the files (e.g. `scripts/A_home`, `scripts/beach` ...; for LoSeSb `ac`, `bg`, `ch` ...). In the dialog the tick box "One group per folder" is ticked by default when the names suggest nothing else; `lexo.json` then holds
+`"folders": ["scripts/A_home", ...]` and the label `Folder`, group N is the N-th folder, a file belongs to the longest folder that contains it, and the groups are called like their folders everywhere (Overview, Files, assignments, publishing).

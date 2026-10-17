@@ -297,6 +297,7 @@ class ValidationPart:
             "file_counts": counts,
             "seasons": stats["seasons"], "episodes": stats["episodes"], "labels": dict(layout.current().labels),
             "groups_defined": bool(layout.ACTIVE_EPISODES),
+            "group_names": {str(i): f.rsplit("/", 1)[-1] for i, f in enumerate(layout.current().folders, 1)},
             "general": stats["general"], "unassigned": stats["unassigned"],
             "validation": vcounts, "worst_files": self._worst_files(per_file), "goals": self.goals(),
             "estimate": est_now,
