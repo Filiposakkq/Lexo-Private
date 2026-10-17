@@ -1,0 +1,39 @@
+{
+ "_doc": "missed: texts that Ren'Py's translate does not extract (show text, renpy.input / notify, variables that hold a title, dialogue without a block), what is skipped (menus, screens, paths, ids, colours, data), the functions of the game that show text, writing the findings into strings blocks, the settings file.",
+ "files": {
+  "root/game/script.rpy": "define mc = Character(\"Mia\")\ndefault title = \"The Great Adventure\"\ndefault names = [\n    \"Indented data line here\",\n]\ninit python:\n    notify(\"Item added to the inventory\")\n    notify(\"Quest updated for the player\")\n    notify(\"You found a hidden room\")\n    popup(\"Another message appears\")\n    obj.append(\"Not a function of the game\")\n\nlabel start:\n    scene bg\n    show text \"Welcome to the game\" at truecenter\n    mc \"Hello, how are you?\"\n    mc \"This line has a translation block.\"\n    mc \"A line that has no block at all, honestly.\"\n    \"Narration without a block.\"\n    $ renpy.notify(\"Saved the game\")\n    $ name = renpy.input(\"What is your name?\")\n    $ message = \"You have new mail\"\n    menu:\n        \"Go left\":\n            jump left\n        \"Go right\" if flag:\n            jump right\n    $ x = \"snake_case_id\"\n    $ path = \"images/bg.png\"\n    $ col = \"#ff00ff\"\n    $ tag = \"{i}Styled{/i} text here\"\n    $ lone = \"Hello\"\n    $ lower = \"nothing\"\n    $ dup = \"You have new mail\"\n    $ t2 = 'Single quoted sentence here'\n\nscreen hud():\n    text \"Screen text is skipped\"\n    $ renpy.notify(\"Python in a screen\")\n\nimage bg = \"bg.png\"\ntranslate czech strings:\n    old \"never read here\"\n    new \"x\"\n",
+  "root/game/other.rpy": "label other:\n    mc \"Another dialogue line without a block.\"\n    $ renpy.notify(\"Hello, how are you?\")\n    \"Short\"\n",
+  "root/game/tl/czech/script.rpy": "# game/script.rpy:16\r\ntranslate czech start_aaaa:\r\n\r\n    # mc \"Hello, how are you?\"\r\n    mc \"Ahoj, jak se mas?\"\r\n\r\n# game/script.rpy:17\r\ntranslate czech start_bbbb:\r\n\r\n    # mc \"This line has a translation block.\"\r\n    mc \"Tento radek ma blok.\"\r\n\r\ntranslate czech strings:\r\n\r\n    # game/script.rpy:15\r\n    old \"Welcome to the game\"\r\n    new \"Vitej ve hre\"\r\n\r\n    old \"Saved the game\"\r\n    new \"Hra ulozena\"\r\n",
+  "root/game/tl/czech/.lexo/ignored.rpy": "old \"skipped folder\"\n",
+  "root/data/missed.json": "{\"version\": 1, \"functions\": [\"zeta\", \"alpha\", \"bad name\", \"alpha\", 3], \"ignored\": [\"b\", \"a\", \"\", \"a\", 5]}"
+ },
+ "steps": [
+  {"op": "missed.looks", "dir": "root/game", "texts": ["", "ab", "Hello", "hello", "hello world", "snake_case_id", "Snake_case", "#ff00ff", "images/bg.png", "{i}Styled{/i} text", "{i}{/i}", "[name]", "[name] is here", "A.B", "Dotted.name", "Ok!", "ABC", "path\\to", "line\\nbreak", "něco česky"]},
+  {"op": "missed.known", "tl": "root/game/tl/czech"},
+  {"op": "missed.find", "game": "root/game", "tl": "root/game/tl/czech"},
+  {"op": "missed.find", "game": "root/game", "tl": "root/game/tl/czech", "mode": "dialogue"},
+  {"op": "missed.find", "game": "root/game", "tl": "root/game/tl/czech", "mode": "none"},
+  {"op": "missed.find", "game": "root/game", "tl": "root/game/tl/czech", "functions": ["popup", "notify", "bad name"], "ignored": ["Hello", "You have new mail"], "limit": 3},
+  {"op": "missed.find", "game": "root/game"},
+  {"op": "missed.suggest", "game": "root/game", "tl": "root/game/tl/czech"},
+  {"op": "missed.suggest", "game": "root/game", "functions": ["notify"], "ignored": ["Quest updated for the player"], "min_calls": 1},
+  {"op": "missed.settings_load", "data": "root/data"},
+  {"op": "missed.settings_load", "data": "root/nothing"},
+  {"op": "missed.settings_save", "data": "root/data", "functions": ["zeta", " alpha ", "bad name", "alpha"], "ignored": ["b", "a", "", "a"]},
+  {"op": "missed.settings_load", "data": "root/data"},
+  {"op": "missed.write", "tl": "root/game/tl/czech", "language": "czech", "backup_dir": "root/bak", "items": [
+    {"text": "Welcome to the game", "file": "script.rpy", "line": 15},
+    {"text": "New text here", "file": "script.rpy", "line": 30},
+    {"text": "New text here", "file": "script.rpy", "line": 31},
+    {"text": "Other words follow", "file": "other.rpy", "line": 2},
+    {"text": "", "file": "x.rpy", "line": 1},
+    {"text": "No place", "file": "", "line": 0}]},
+  {"op": "missed.write", "tl": "root/game/tl/czech", "language": "czech", "backup_dir": "root/bak", "into_files": true, "items": [
+    {"text": "New text here", "file": "script.rpy", "line": 30},
+    {"text": "Into the mirror file", "file": "script.rpy", "line": 33},
+    {"text": "Into the extra file", "file": "other.rpy", "line": 3},
+    {"text": "Outside", "file": "../script.rpy", "line": 1}]},
+  {"op": "missed.find", "game": "root/game", "tl": "root/game/tl/czech"},
+  {"op": "list_dir", "path": "root/bak"}
+ ]
+}

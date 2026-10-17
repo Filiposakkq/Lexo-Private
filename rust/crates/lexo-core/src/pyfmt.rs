@@ -9,6 +9,15 @@ pub fn json_dumps(value: &Value, ensure_ascii: bool) -> String {
     out
 }
 
+/// `json.dumps(value, ensure_ascii=False, indent=1)`: one space per level.
+pub fn json_dumps_indent1(value: &Value) -> String {
+    use serde::Serialize;
+    let mut buf = Vec::new();
+    let mut ser = serde_json::Serializer::with_formatter(&mut buf, serde_json::ser::PrettyFormatter::with_indent(b" "));
+    let _ = value.serialize(&mut ser);
+    String::from_utf8_lossy(&buf).into_owned()
+}
+
 fn write_string(s: &str, ensure_ascii: bool, out: &mut String) {
     out.push('"');
     for c in s.chars() {

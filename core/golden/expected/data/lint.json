@@ -1,0 +1,366 @@
+{
+ "files_after": {
+  "root/built/Game.exe": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/built/Game.py": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/built/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/built/other.py": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/emptysdk/readme.txt": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/nolauncher/lib/py3-linux-x86_64/python": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/nolauncher/tool.py": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdk7/lib/windows-x86_64/python.exe": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdk7/renpy.py": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdk8/lib/py2-windows-i686/python.exe": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdk8/lib/py3-linux-x86_64/python": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdk8/lib/py3-mac-arm64/python": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdk8/lib/py3-windows-x86_64/python.exe": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdk8/renpy.py": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/sdksh/renpy.sh": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  }
+ },
+ "steps": [
+  {
+   "answer": "<TMP>/root/sdk7/lib/windows-x86_64/python.exe",
+   "op": "lint.find_python",
+   "params": {
+    "platform": "windows",
+    "sdk": "root/sdk7"
+   }
+  },
+  {
+   "answer": null,
+   "op": "lint.find_python",
+   "params": {
+    "platform": "linux",
+    "sdk": "root/sdk7"
+   }
+  },
+  {
+   "answer": "<TMP>/root/sdk8/lib/py3-windows-x86_64/python.exe",
+   "op": "lint.find_python",
+   "params": {
+    "platform": "windows",
+    "sdk": "root/sdk8"
+   }
+  },
+  {
+   "answer": "<TMP>/root/sdk8/lib/py3-linux-x86_64/python",
+   "op": "lint.find_python",
+   "params": {
+    "platform": "linux",
+    "sdk": "root/sdk8"
+   }
+  },
+  {
+   "answer": "<TMP>/root/sdk8/lib/py3-mac-arm64/python",
+   "op": "lint.find_python",
+   "params": {
+    "platform": "mac",
+    "sdk": "root/sdk8"
+   }
+  },
+  {
+   "answer": null,
+   "op": "lint.find_python",
+   "params": {
+    "platform": "windows",
+    "sdk": "root/emptysdk"
+   }
+  },
+  {
+   "answer": null,
+   "op": "lint.find_python",
+   "params": {
+    "platform": "windows",
+    "sdk": "root/missing"
+   }
+  },
+  {
+   "answer": "<TMP>/root/built/Game.py",
+   "op": "lint.find_launcher",
+   "params": {
+    "folder": "root/built"
+   }
+  },
+  {
+   "answer": null,
+   "op": "lint.find_launcher",
+   "params": {
+    "folder": "root/nolauncher"
+   }
+  },
+  {
+   "answer": null,
+   "op": "lint.find_launcher",
+   "params": {
+    "folder": "root/missing"
+   }
+  },
+  {
+   "answer": {
+    "argv": [
+     "<TMP>/root/sdk8/lib/py3-windows-x86_64/python.exe",
+     "-EO",
+     "<TMP>/root/sdk8/renpy.py",
+     "<TMP>/root/game",
+     "lint"
+    ],
+    "cwd": "<TMP>/root/sdk8"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "platform": "windows",
+    "sdk": "root/sdk8"
+   }
+  },
+  {
+   "answer": {
+    "argv": [
+     "<TMP>/root/sdk8/lib/py3-linux-x86_64/python",
+     "-EO",
+     "<TMP>/root/sdk8/renpy.py",
+     "<TMP>/root/game",
+     "translate",
+     "czech"
+    ],
+    "cwd": "<TMP>/root/sdk8"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "command": [
+     "translate",
+     "czech"
+    ],
+    "platform": "linux",
+    "sdk": "root/sdk8"
+   }
+  },
+  {
+   "answer": {
+    "argv": [
+     "<TMP>/root/built/lib/py3-windows-x86_64/python.exe",
+     "-EO",
+     "<TMP>/root/built/Game.py",
+     "<TMP>/root/game",
+     "lint"
+    ],
+    "cwd": "<TMP>/root/built"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "platform": "windows",
+    "sdk": "root/built"
+   }
+  },
+  {
+   "answer": {
+    "argv": [
+     "<TMP>/root/sdksh/renpy.sh",
+     "<TMP>/root/game",
+     "lint"
+    ],
+    "cwd": "<TMP>/root/sdksh"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "platform": "linux",
+    "sdk": "root/sdksh"
+   }
+  },
+  {
+   "answer": {
+    "error": "I did not find renpy.py and the built-in Python (lib/py3-…, lib/windows-x86_64 …) nor renpy.sh in the SDK. Is it the folder of an unpacked Ren'Py SDK?"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "platform": "windows",
+    "sdk": "root/sdksh"
+   }
+  },
+  {
+   "answer": {
+    "error": "I did not find renpy.py and the built-in Python (lib/py3-…, lib/windows-x86_64 …) nor renpy.sh in the SDK. Is it the folder of an unpacked Ren'Py SDK?"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "platform": "linux",
+    "sdk": "root/nolauncher"
+   }
+  },
+  {
+   "answer": {
+    "error": "I did not find renpy.py and the built-in Python (lib/py3-…, lib/windows-x86_64 …) nor renpy.sh in the SDK. Is it the folder of an unpacked Ren'Py SDK?"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "platform": "linux",
+    "sdk": "root/emptysdk"
+   }
+  },
+  {
+   "answer": {
+    "error": "The Ren'Py SDK folder does not exist: <TMP>/root/missing"
+   },
+   "op": "lint.build",
+   "params": {
+    "base": "root/game",
+    "platform": "linux",
+    "sdk": "root/missing"
+   }
+  },
+  {
+   "answer": [
+    {
+     "file": "game/script.rpy",
+     "line": 12,
+     "message": "The image 'bg x' was not found."
+    },
+    {
+     "file": "game/sub dir/other.rpym",
+     "line": 3,
+     "message": "Something with spaces"
+    },
+    {
+     "file": "game/c.rpy",
+     "line": 7,
+     "message": "padded"
+    }
+   ],
+   "op": "lint.parse",
+   "params": {
+    "text": "game/script.rpy:12 The image 'bg x' was not found.\n  game\\sub dir\\other.rpym:3 Something with spaces\nnot an issue line\ngame/a.rpy:x no\r\nname: game/b.rpy:5 not at the start\n\ngame/c.rpy:7    padded   \nC:/x/d.rpy:9 absolute path text\n"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/root/sdk8/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/root/sdk8/renpy.py",
+       "<TMP>/root/game",
+       "lint"
+      ],
+      "<TMP>/root/sdk8"
+     ]
+    ],
+    "result": {
+     "exit_code": 0,
+     "issues": [
+      {
+       "file": "game/script.rpy",
+       "line": 3,
+       "message": "A problem"
+      }
+     ],
+     "ok": true,
+     "raw": "Ren'Py 8 lint report\ngame/script.rpy:3 A problem\nStatistics: 1\n",
+     "seconds": "<volatile>"
+    }
+   },
+   "op": "lint.run",
+   "params": {
+    "base": "root/game",
+    "code": 0,
+    "platform": "windows",
+    "sdk": "root/sdk8",
+    "text": "Ren'Py 8 lint report\ngame/script.rpy:3 A problem\nStatistics: 1\n"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      [
+       "<TMP>/root/sdk8/lib/py3-windows-x86_64/python.exe",
+       "-EO",
+       "<TMP>/root/sdk8/renpy.py",
+       "<TMP>/root/game",
+       "lint"
+      ],
+      "<TMP>/root/sdk8"
+     ]
+    ],
+    "result": {
+     "exit_code": 1,
+     "issues": [],
+     "ok": false,
+     "raw": "",
+     "seconds": "<volatile>"
+    }
+   },
+   "op": "lint.run",
+   "params": {
+    "base": "root/game",
+    "code": 1,
+    "platform": "windows",
+    "sdk": "root/sdk8",
+    "text": ""
+   }
+  },
+  {
+   "answer": {
+    "error": "The Ren'Py SDK folder does not exist: <TMP>/root/missing"
+   },
+   "op": "lint.run",
+   "params": {
+    "base": "root/game",
+    "code": 0,
+    "platform": "windows",
+    "sdk": "root/missing",
+    "text": "never run"
+   }
+  }
+ ]
+}

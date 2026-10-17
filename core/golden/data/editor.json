@@ -1,0 +1,39 @@
+{
+ "_doc": "editor: opening a .rpy file at a line in VS Code or Notepad++ (the command is an argument list, the file must be a .rpy inside the project), the order in which editors are tried, the custom command template, the fall back to the program of the system. The programs that find and start editors are fakes; `<TMP>` stands for the temporary folder.",
+ "files": {
+  "root/proj/a.rpy": "x",
+  "root/proj/notes.txt": "x",
+  "root/proj/odd&name.rpy": "x",
+  "root/outside/b.rpy": "x",
+  "root/tools/ed.exe": "x"
+ },
+ "steps": [
+  {"op": "editor.shlex", "posix": true, "texts": ["a b c", "\"a b\" c", "'a b' \"c d\"", "a\\ b", "x\"y z\"w", "\"unclosed", "", "  spaced   out  ", "esc \"q\\\"uote\" end", "''"]},
+  {"op": "editor.shlex", "posix": false, "texts": ["a b c", "\"a b\" c", "'a b' \"c d\"", "a\\ b", "x\"y z\"w", "\"unclosed", "", "\"C:\\Program Files\\ed.exe\" --line {line} {file}", "\"a b\"c"]},
+  {"op": "editor.custom", "platform": "windows", "template": "\"<TMP>/root/tools/ed.exe\" --line {line} {file}", "path": "<TMP>/root/proj/a.rpy", "line": 7},
+  {"op": "editor.custom", "platform": "linux", "template": "ed --goto {file}:{line}", "path": "<TMP>/root/proj/a.rpy", "line": 3},
+  {"op": "editor.custom", "platform": "linux", "template": "ed", "path": "<TMP>/root/proj/a.rpy", "line": 3},
+  {"op": "editor.custom", "platform": "linux", "template": "   ", "path": "<TMP>/root/proj/a.rpy", "line": 3},
+  {"op": "editor.custom", "platform": "windows", "template": "\"unclosed {file}", "path": "<TMP>/root/proj/a.rpy", "line": 3},
+  {"op": "editor.find", "platform": "windows", "which": {"code": "/opt/vscode/code", "notepad++": "/opt/npp/notepad++"}},
+  {"op": "editor.find", "platform": "windows", "which": {}, "env": {"LOCALAPPDATA": "<TMP>/nowhere"}},
+  {"op": "editor.find", "platform": "linux", "which": {"codium": "/usr/bin/codium"}},
+  {"op": "editor.find", "platform": "linux", "which": {}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 12, "root": "root/proj", "finder": {"vscode": "/opt/code/Code.exe", "notepadpp": "/opt/npp/notepad++.exe"}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 0, "root": "root/proj", "cfg": {"preferred": "notepadpp"}, "finder": {"vscode": "/opt/code/Code.exe", "notepadpp": "/opt/npp/notepad++.exe"}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 5, "root": "root/proj", "cfg": {"preferred": "vscode"}, "finder": {"notepadpp": "/opt/npp/notepad++.exe"}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 5, "root": "root/proj", "finder": {"vscode": "/opt/code/Code.exe", "notepadpp": "/opt/npp/notepad++.exe"}, "fail": ["/opt/code/Code.exe"]},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 5, "root": "root/proj", "finder": {"vscode": "/opt/code/Code.exe"}, "fail": ["/opt/code/Code.exe"]},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 5, "root": "root/proj", "finder": {}, "opener_fail": true},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 5, "root": "root/proj", "cfg": {"preferred": "system"}, "finder": {"vscode": "/opt/code/Code.exe"}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 9, "root": "root/proj", "cfg": {"preferred": "custom", "custom": "\"<TMP>/root/tools/ed.exe\" --at {line} {file}"}, "finder": {}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 9, "root": "root/proj", "cfg": {"preferred": "custom", "custom": "no-such-editor-anywhere {file}"}, "finder": {"vscode": "/opt/code/Code.exe"}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 9, "root": "root/proj", "cfg": {"preferred": "custom", "custom": ""}, "finder": {"vscode": "/opt/code/Code.exe"}},
+  {"op": "editor.open", "path": "root/proj/a.rpy", "line": 9, "root": "root/proj", "finder": {"vscode": "/opt/code/code.cmd"}},
+  {"op": "editor.open", "path": "root/proj/odd&name.rpy", "line": 9, "root": "root/proj", "finder": {"vscode": "/opt/code/code.cmd", "notepadpp": "/opt/npp/notepad++.exe"}},
+  {"op": "editor.open", "path": "root/proj/notes.txt", "line": 1, "root": "root/proj", "finder": {"vscode": "/opt/code/Code.exe"}},
+  {"op": "editor.open", "path": "root/proj/missing.rpy", "line": 1, "root": "root/proj", "finder": {"vscode": "/opt/code/Code.exe"}},
+  {"op": "editor.open", "path": "root/outside/b.rpy", "line": 1, "root": "root/proj", "finder": {"vscode": "/opt/code/Code.exe"}},
+  {"op": "editor.open", "path": "root/outside/b.rpy", "line": 1, "finder": {"vscode": "/opt/code/Code.exe"}}
+ ]
+}

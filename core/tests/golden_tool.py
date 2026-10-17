@@ -326,7 +326,10 @@ def run_data_scenario(path):
         for rel, content in spec.get("files", {}).items():
             p = root / rel
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_bytes(base64.b64decode(content["base64"]) if isinstance(content, dict) else content.encode("utf-8"))
+            if isinstance(content, dict) and "from" in content:                    # a file of the golden data itself (an archive, a font)
+                p.write_bytes((GOLDEN / content["from"]).read_bytes())
+            else:
+                p.write_bytes(base64.b64decode(content["base64"]) if isinstance(content, dict) else content.encode("utf-8"))
         clock = _Clock(spec.get("clock", {}))
         layout.use(layout.Layout())                         # the layout is process-wide state of the Python module: every scenario starts without one
         runner = DataRunner(root, tmp / "cfg", clock)
@@ -897,6 +900,172 @@ class DataRunner:
         from lexo import bulk
         rels = [self._nat(r) for r in a["rels"]] if a.get("rels") else None
         return bulk.rule_candidates(self.project, self.store.glossary, a["rules"], rels)
+
+    # -- the pictures of the game, the texts the generator misses, lint, the editors
+    def _sub(self, s):
+        return s.replace("<TMP>", str(self.root).replace("\\", "/")) if isinstance(s, str) else s
+
+    @staticmethod
+    def _platform(a):
+        return {"windows": "win32", "mac": "darwin", "linux": "linux"}[a.get("platform", "windows")]
+
+    def op_gameimages_build(self, a):
+        from lexo.gameimages import GameImages
+        self.gi = GameImages(self.p(a["dir"])).build()
+        gi = self.gi
+        return {"stems": sorted(gi.stems), "paths": sorted(gi.paths), "fonts": sorted(gi.fonts), "layered": sorted(gi.layered), "composed": sorted(gi.composed),
+                "defs": gi.defs, "characters": gi.characters, "errors": gi.errors}
+
+    def op_gameimages_resolve(self, a):
+        out = []
+        for n in a["names"]:
+            hit = self.gi.resolve(n)
+            out.append(None if hit is None else [hit[0], hit[1][0], hit[1][3]])
+        return out
+
+    def op_gameimages_scene_for(self, a):
+        return self.gi.scene_for(self.p(a["script"]), a["line"])
+
+    def op_gameimages_scene_starts(self, a):
+        return [list(s) for s in self.gi.scene_starts(self.p(a["script"]))]
+
+    def op_gameimages_image(self, a):
+        from lexo import rpa
+        try:
+            data, mime = self.gi.image_bytes(a["key"])
+        except rpa.RpaError as e:
+            return {"error": text_of(e)}
+        return {"mime": mime, "size": len(data), "sha1": hashlib.sha1(data).hexdigest()}
+
+    def op_gameimages_font(self, a):
+        from lexo import rpa
+        try:
+            data, mime = self.gi.font_bytes(a["name"])
+        except rpa.RpaError as e:
+            return {"error": text_of(e)}
+        return {"mime": mime, "size": len(data), "sha1": hashlib.sha1(data).hexdigest()}
+
+    def op_missed_known(self, a):
+        from lexo import missed
+        strings, dialogue, places = missed.known_texts(self.p(a["tl"]))
+        return {"strings": sorted(strings), "dialogue": sorted(dialogue), "places": sorted([list(x) for x in places])}
+
+    def op_missed_find(self, a):
+        from lexo import missed
+        strings, dialogue, places = missed.known_texts(self.p(a["tl"])) if a.get("tl") else (set(), set(), set())
+        mode = a.get("mode", "places")
+        res = missed.find_missed(self.p(a["game"]), strings, dialogue if mode == "dialogue" else None, places if mode == "places" else None,
+                                 a.get("limit", 5000), a.get("functions", ()), a.get("ignored", ()))
+        return res
+
+    def op_missed_suggest(self, a):
+        from lexo import missed
+        strings = missed.known_strings(self.p(a["tl"])) if a.get("tl") else set()
+        return missed.suggest_functions(self.p(a["game"]), strings, a.get("functions", ()), a.get("ignored", ()), a.get("min_calls", 3))
+
+    def op_missed_write(self, a):
+        from lexo import missed
+        return missed.write_strings(self.p(a["tl"]), a["language"], a["items"], self.p(a["backup_dir"]) if a.get("backup_dir") else None, a.get("into_files", False))
+
+    def op_missed_settings_load(self, a):
+        from lexo import missed
+        return missed.load_settings(self.p(a["data"]))
+
+    def op_missed_settings_save(self, a):
+        from lexo import missed
+        return missed.save_settings(self.p(a["data"]), a["functions"], a["ignored"])
+
+    def op_missed_looks(self, a):
+        from lexo import missed
+        return {"looks": [missed.looks_like_text(t) for t in a["texts"]], "scripts": missed.has_scripts(self.p(a["dir"]))}
+
+    def op_lint_find_python(self, a):
+        from unittest import mock
+        from lexo import lint
+        with mock.patch.object(sys, "platform", self._platform(a)):
+            found = lint.find_python(self.p(a["sdk"]))
+        return str(found) if found else None
+
+    def op_lint_find_launcher(self, a):
+        from lexo import lint
+        found = lint.find_launcher(self.p(a["folder"]))
+        return str(found) if found else None
+
+    def op_lint_build(self, a):
+        from unittest import mock
+        from lexo import lint
+        with mock.patch.object(sys, "platform", self._platform(a)):
+            try:
+                argv, cwd = lint.build_command(self.p(a["sdk"]), self.p(a["base"]), tuple(a.get("command", ("lint",))))
+            except lint.LintError as e:
+                return {"error": text_of(e)}
+        return {"argv": argv, "cwd": str(cwd)}
+
+    def op_lint_parse(self, a):
+        from lexo import lint
+        return lint.parse(a["text"])
+
+    def op_lint_run(self, a):
+        from unittest import mock
+        from lexo import lint
+        calls = []
+
+        def runner(argv, cwd):
+            calls.append([list(argv), str(cwd)])
+            return a["code"], a["text"]
+        with mock.patch.object(sys, "platform", self._platform(a)):
+            try:
+                res = lint.run(self.p(a["sdk"]), self.p(a["base"]), runner)
+            except lint.LintError as e:
+                return {"error": text_of(e)}
+        return {"result": res, "calls": calls}
+
+    def op_editor_shlex(self, a):
+        import shlex
+        out = []
+        for t in a["texts"]:
+            try:
+                out.append(shlex.split(t, posix=a["posix"]))
+            except ValueError as e:
+                out.append({"error": str(e)})
+        return out
+
+    def op_editor_custom(self, a):
+        from unittest import mock
+        from lexo import editor
+        with mock.patch.object(sys, "platform", self._platform(a)):
+            try:
+                return editor.custom_command(self._sub(a["template"]), Path(self._sub(a["path"])), a["line"])
+            except ValueError as e:
+                return {"error": text_of(e)}
+
+    def op_editor_find(self, a):
+        from unittest import mock
+        from lexo import editor
+        which = a.get("which", {})
+        with mock.patch.object(sys, "platform", self._platform(a)):
+            return {"vscode": editor.find_vscode(lambda n: which.get(n), a.get("env", {})), "notepadpp": editor.find_notepadpp(lambda n: which.get(n), a.get("env", {}))}
+
+    def op_editor_open(self, a):
+        from unittest import mock
+        from lexo import editor
+        calls, opened = [], []
+        fail = set(a.get("fail", []))
+        found = a.get("finder", {})
+
+        def runner(argv):
+            calls.append(list(argv))
+            if argv[0] in fail or any(x in fail for x in argv):
+                raise OSError("cannot start")
+
+        def opener(path):
+            opened.append(str(path))
+            if a.get("opener_fail"):
+                raise OSError("no default program")
+        cfg = {k: self._sub(v) for k, v in a.get("cfg", {}).items()}
+        with mock.patch.object(sys, "platform", self._platform(a)), mock.patch("lexo.editor.shutil.which", lambda n: None):
+            res = editor.open_in_editor(self.p(a["path"]), a.get("line", 1), cfg, self.p(a["root"]) if a.get("root") else None, runner, lambda kind: found.get(kind), opener)
+        return {"result": res, "calls": calls, "opened": opened}
 
 
 # =========================================================================================================================== everything
