@@ -297,5 +297,72 @@ class SceneInfoTests(TempCase):
             app.scene_info("tl.rpy", 9999)
 
 
+LAYERED_DEFS = (
+    'image girl happy = Composite((10, 10), (0, 0), "girl_body", (0, 0), "girl_face")\n'
+    'image bgcomp = ConditionSwitch("day", "room", "True", "room")\n'
+    'layeredimage anna:\n    always "anna_base"\n    group face:\n        attribute smile default "anna_smile"\n'
+    'image blinker:\n    "blink_a"\n    contains:\n        "blink_b"\n'
+    'init:\n    layeredimage bg alley:\n        always "alley_base"\n'
+)
+LAYERED_SCRIPT = (
+    'label a:\n    scene room\n    show girl happy\n    mc "Hi there, friend."\n    scene bgcomp\n    mc "Hello again."\n'
+    '    scene room\n    show anna smile\n    mc "Still here."\n    show blinker\n    mc "Last."\n'
+)
+
+
+class LayeredImagesTests(TempCase):
+    """Layered and composed images are not drawn yet: they are recognised, never taken for a picture of their own, and the preview says so."""
+
+    def setUp(self):
+        super().setUp()
+        self.game = self.tmp / "game"
+        (self.game / "images").mkdir(parents=True)
+        for name in ("room", "girl_happy", "anna_smile", "blink_a"):
+            (self.game / "images" / (name + ".jpg")).write_bytes(JPEG + name.encode())
+        (self.game / "defs.rpy").write_text(LAYERED_DEFS, encoding="utf-8")
+        (self.game / "script.rpy").write_text(LAYERED_SCRIPT, encoding="utf-8")
+        self.gi = gameimages.GameImages(self.game).build()
+
+    def test_layered_and_composed_names_are_recognised(self):
+        self.assertEqual((self.gi.layered, self.gi.composed), ({"anna", "bg alley"}, {"girl happy", "bgcomp", "blinker"}))
+
+    def test_a_composed_image_is_never_resolved_to_one_of_its_files(self):
+        self.assertIsNone(self.gi.resolve("girl happy") and self.gi.defs.get("girl happy"))
+        self.assertNotIn("girl happy", self.gi.defs)
+
+    def test_a_layered_character_on_a_background_shows_the_background_with_a_note(self):
+        sc = self.gi.scene_for(self.game / "script.rpy", 4)                 # scene room, show girl happy (composed)
+        self.assertEqual((sc["found"], sc["image"], sc["layered"]), (True, "room", True))
+        sc = self.gi.scene_for(self.game / "script.rpy", 9)                 # show anna smile (layeredimage)
+        self.assertEqual((sc["found"], sc["image"], sc["layered"]), (True, "room", True))
+
+    def test_a_layered_name_with_several_words_and_extra_attributes(self):
+        self.assertTrue(self.gi.is_layered("bg alley", ["bg", "alley"]))
+        self.assertTrue(self.gi.is_layered("bg alley night", ["bg", "alley", "night"]))     # the rest are attributes
+        self.assertTrue(self.gi.is_layered("anna smile happy", ["anna", "smile", "happy"]))
+        self.assertFalse(self.gi.is_layered("room", ["room"]))
+        self.assertFalse(self.gi.is_layered("bg", ["bg"]))                                  # only the first word of a longer name
+
+    def test_a_layered_scene_gives_no_picture_instead_of_a_wrong_older_one(self):
+        sc = self.gi.scene_for(self.game / "script.rpy", 6)                 # scene bgcomp: the scene itself is composed
+        self.assertEqual((sc["found"], sc["layered"]), (False, True))
+
+    def test_the_note_reaches_the_app(self):
+        tl = self.game / "tl" / "czech"
+        tl.mkdir(parents=True)
+        (tl / "script.rpy").write_text(
+            "# game/script.rpy:6\ntranslate czech a_1:\n\n    # mc \"Hello again.\"\n    mc \"Hello again.\"\n\n"
+            "# game/script.rpy:4\ntranslate czech a_2:\n\n    # mc \"Hi there, friend.\"\n    mc \"Hi there, friend.\"\n", encoding="utf-8")
+        app = self.new_app(open_root=False)
+        app.open_project(tl)
+        rows = {e.ref: e for e in app.project.entries("script.rpy")}
+        layered_scene = app.scene_info("script.rpy", rows["game/script.rpy:6"].line)
+        self.assertEqual((layered_scene["found"], layered_scene["layered"]), (False, True))
+        self.assertIn("layered", str(layered_scene["reason"]))
+        with_bg = app.scene_info("script.rpy", rows["game/script.rpy:4"].line)
+        self.assertEqual((with_bg["found"], with_bg["layered"], with_bg["image"]), (True, True, "room"))
+        self.assertIn("url", with_bg)
+
+
 if __name__ == "__main__":
     unittest.main()

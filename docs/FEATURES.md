@@ -16,7 +16,7 @@ Module = where the code lives today in `free/lexo/`. "Coupling" = how hard it is
 | Validation: tags, variables, brackets, length, dialogue-box fit; language packs | `validator`, `fontmetrics`, `lang` | core |
 | **Find & replace across the project** (plain text) | `textedit` | only `app.py` |
 | **Spelling hints** from the project's own vocabulary (basic) | `spelling` | `app.py` |
-| Scene preview with game images and fonts | `gameimages`, `rpa`, `fontmetrics` | only `app.py` |
+| Scene preview with game images and fonts (layered images are not drawn yet, planned; the preview says so) | `gameimages`, `rpa`, `fontmetrics` | only `app.py` |
 | Glossary, import of character names, term check | `app`, `validator` | core |
 | Ren'Py lint with the SDK, open in editor | `lint`, `editor` | only `app.py` |
 | Weekly goals, completion estimate, per-group progress | `goals`, `export` | `export` |

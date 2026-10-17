@@ -56,3 +56,17 @@ The dialog has "Select all / Select none" and an option **"Put each text into th
 (`script2.rpy` -> `tl/czech/script2.rpy`) as one more strings block, so the file and group statistics follow it; a text whose script has no translation file still goes to `extra_strings.rpy`.
 Experimental means: it mostly works and saves work, but it edits your translation files and may not do the right thing in every game; a snapshot is made first. Line endings are kept, and a path that would lead outside
 the translation folder is never followed. The feature is part of the Free version.
+
+## Scene preview and layered images (not supported yet, planned)
+The preview follows the game script upwards to the last `scene` / `show` whose image it can find as a file. That is exactly right for games made of full-screen renders and wrong for games that build a
+picture from several parts. **Layered images are not supported yet; support is planned.** What the preview does instead of a wrong picture:
+- **Recognised as layered or composed:** `layeredimage name:`, `image x = Composite(...)` / `LiveComposite` / `im.Composite` / `ConditionSwitch` / `DynamicImage` / `Fixed`, and ATL blocks with `contains`.
+  Their parts are never taken for the whole picture.
+- **A layered character on a background:** the background is shown, and a note says that characters made of layers are not drawn.
+- **A scene that is itself layered:** no picture is shown (not an older, wrong one), and the preview says why.
+Measured on eight games: the three that preview badly use them heavily (LoSeSb: 998 `layeredimage` names, even for backgrounds such as `bg alley`; Our Red String about 500 and Four Elements about 6 600 composed images); the others have almost none. In a sample of 250 lines per game the preview shows: LoSeSb a layered scene without picture in 170, a background with the note in 58; Our Red String 154 with the note and 15 without picture; Four Elements 130 and 14; Eternum, Being a DIK, Milfy City, A Wife and Mother and Midnight Paradise at most 3 lines without a picture and no note.
+Drawing them would need the definitions evaluated: reading the attribute groups and `if` conditions of `layeredimage`, and the code of composites and switches. That is closest to running the game's engine for the picture, so it belongs after the Rust port or with an engine-backed renderer.
+
+### How exact the preview is
+The preview is an estimate from the game script, not a screenshot. For games without layered images it is usually close. The font of the text is taken from the game when it can be found (otherwise a substitute is used);
+the frames of the text box and the name box (their pictures, colours and shapes) are not modelled and can look different in the game. The app says this under the preview.
