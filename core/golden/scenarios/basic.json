@@ -1,0 +1,346 @@
+{
+ "project": "basic",
+ "doc": "reads of every kind on a small project with dialogue, choices, characters and a menu; then writes and their undo",
+ "steps": [
+  {
+   "op": "state",
+   "params": {}
+  },
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "files",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all"
+   }
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "todo"
+   }
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "unit": "string"
+   }
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "q": "coffee"
+   }
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "q": "you",
+    "word": true
+   }
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "file": "script.rpy",
+    "sort": "status",
+    "limit": 3,
+    "offset": 2
+   }
+  },
+  {
+   "op": "entry",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "op": "entry",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "op": "entry",
+   "params": {
+    "file": "screens.rpy",
+    "line": 9
+   }
+  },
+  {
+   "op": "validation",
+   "params": {
+    "group": "line"
+   }
+  },
+  {
+   "op": "validation",
+   "params": {
+    "severity": "error"
+   }
+  },
+  {
+   "op": "validation",
+   "params": {
+    "q": "coffee",
+    "group": "line"
+   }
+  },
+  {
+   "op": "glossary",
+   "params": {}
+  },
+  {
+   "op": "game/characters",
+   "params": {}
+  },
+  {
+   "op": "entry/context",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "op": "entry/scene",
+   "params": {
+    "file": "script.rpy",
+    "line": 17,
+    "radius": 2
+   }
+  },
+  {
+   "op": "scenes",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "op": "game/scene",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "op": "entry/menu",
+   "params": {
+    "file": "script.rpy",
+    "line": 47
+   }
+  },
+  {
+   "op": "entry/menu",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "op": "entry/menu",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "op": "entry/history",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "op": "entry/memory",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "op": "consistency",
+   "params": {}
+  },
+  {
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "op": "export/preview",
+   "params": {}
+  },
+  {
+   "op": "snapshots",
+   "params": {}
+  },
+  {
+   "op": "lint/status",
+   "params": {}
+  },
+  {
+   "op": "ignore/list",
+   "params": {}
+  },
+  {
+   "op": "settings",
+   "params": {}
+  },
+  {
+   "op": "features",
+   "params": {}
+  },
+  {
+   "op": "ui-langs",
+   "params": {}
+  },
+  {
+   "op": "entry/next",
+   "params": {
+    "file": "script.rpy",
+    "line": 5,
+    "kind": "todo"
+   }
+  },
+  {
+   "op": "proof/next",
+   "params": {
+    "file": "script.rpy",
+    "after": 0
+   }
+  },
+  {
+   "op": "approve/preview",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "op": "entry/check",
+   "params": {
+    "file": "script.rpy",
+    "line": 17,
+    "text": "Chceš kávu?"
+   }
+  },
+  {
+   "op": "entry/save",
+   "params": {
+    "file": "script.rpy",
+    "line": 17,
+    "text": "Chceš kávu?"
+   }
+  },
+  {
+   "op": "entry",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "op": "entry/history",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "op": "proof/set",
+   "params": {
+    "items": [
+     {
+      "file": "script.rpy",
+      "line": 5
+     }
+    ],
+    "state": "ok",
+    "note": "checked"
+   }
+  },
+  {
+   "op": "assign",
+   "params": {
+    "name": "script.rpy",
+    "v": "gen"
+   }
+  },
+  {
+   "op": "glossary/set",
+   "params": {
+    "items": [
+     {
+      "code": "mc",
+      "name": "Mike",
+      "type": "speaker"
+     },
+     {
+      "code": "friend",
+      "name": "přítel",
+      "type": "term"
+     }
+    ]
+   }
+  },
+  {
+   "op": "glossary/occurrences",
+   "params": {
+    "code": "friend"
+   }
+  },
+  {
+   "op": "settings/update",
+   "params": {
+    "validation": {
+     "show_info": true
+    }
+   }
+  },
+  {
+   "op": "snapshots/create",
+   "params": {}
+  },
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "file": "script.rpy"
+   }
+  },
+  {
+   "op": "undo",
+   "params": {}
+  },
+  {
+   "op": "fix/undo",
+   "params": {}
+  },
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "todo"
+   }
+  }
+ ]
+}

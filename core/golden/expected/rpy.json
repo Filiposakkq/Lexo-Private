@@ -1,0 +1,1256 @@
+{
+ "bad_encoding": {
+  "block_ids": [
+   [
+    "czech",
+    "be_00000001",
+    1
+   ]
+  ],
+  "counts": [
+   1,
+   0,
+   0
+  ],
+  "digest": "0e545478f0f1acbc09305289391f56486502016f",
+  "entries": [
+   {
+    "block": "translate czech be_00000001",
+    "category": "",
+    "cur_raw": "mc \"Kav�rna\"",
+    "key": [
+     "translate czech be_00000001",
+     "Cafe"
+    ],
+    "line": 4,
+    "pending": false,
+    "ref": "",
+    "source": "Cafe",
+    "src_line": 3,
+    "src_raw": "mc \"Cafe\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Kav�rna",
+    "unit": "dialogue",
+    "who": "mc"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": [
+   [
+    1,
+    "bad-encoding",
+    "The file is not valid UTF-8 (some characters could not be read). Ren'Py reads scripts as UTF-8 – save it in the editor as “UTF-8”."
+   ]
+  ]
+ },
+ "comments_only": {
+  "block_ids": [],
+  "counts": [
+   0,
+   0,
+   0
+  ],
+  "digest": "20f7f8e4c86c3fe5c213642940337067abc41eb6",
+  "entries": [],
+  "languages": [],
+  "structure": []
+ },
+ "crlf_bom": {
+  "block_ids": [
+   [
+    "czech",
+    "cb_00000001",
+    1
+   ]
+  ],
+  "counts": [
+   1,
+   0,
+   0
+  ],
+  "digest": "64c87bb90749427deb7b98d9fe3e6b935dba17b0",
+  "entries": [
+   {
+    "block": "translate czech cb_00000001",
+    "category": "",
+    "cur_raw": "mc \"Konce řádků ve Windows\"",
+    "key": [
+     "translate czech cb_00000001",
+     "Windows line ends"
+    ],
+    "line": 4,
+    "pending": false,
+    "ref": "",
+    "source": "Windows line ends",
+    "src_line": 3,
+    "src_raw": "mc \"Windows line ends\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Konce řádků ve Windows",
+    "unit": "dialogue",
+    "who": "mc"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "dialogue_attributes": {
+  "block_ids": [
+   [
+    "czech",
+    "scene2_11111111",
+    2
+   ],
+   [
+    "czech",
+    "scene2_22222222",
+    8
+   ],
+   [
+    "czech",
+    "scene2_33333333",
+    14
+   ],
+   [
+    "czech",
+    "scene2_44444444",
+    20
+   ],
+   [
+    "czech",
+    "scene2_55555555",
+    26
+   ]
+  ],
+  "counts": [
+   5,
+   0,
+   0
+  ],
+  "digest": "2c658feab989b2501ff0464305ed42194288d612",
+  "entries": [
+   {
+    "block": "translate czech scene2_11111111",
+    "category": "",
+    "cur_raw": "mc sad \"Skvělé zprávy!\" with vpunch",
+    "key": [
+     "translate czech scene2_11111111",
+     "Great news!"
+    ],
+    "line": 5,
+    "pending": false,
+    "ref": "game/script.rpy:20",
+    "source": "Great news!",
+    "src_line": 4,
+    "src_raw": "mc happy \"Great news!\" with vpunch",
+    "src_suffix": "with vpunch",
+    "src_who": "mc happy",
+    "suffix": "with vpunch",
+    "target": "Skvělé zprávy!",
+    "unit": "dialogue",
+    "who": "mc sad"
+   },
+   {
+    "block": "translate czech scene2_22222222",
+    "category": "",
+    "cur_raw": "de \"Dobře.\"",
+    "key": [
+     "translate czech scene2_22222222",
+     "Fine."
+    ],
+    "line": 11,
+    "pending": false,
+    "ref": "game/script.rpy:22",
+    "source": "Fine.",
+    "src_line": 10,
+    "src_raw": "de \"Fine.\"",
+    "src_suffix": "",
+    "src_who": "de",
+    "suffix": "",
+    "target": "Dobře.",
+    "unit": "dialogue",
+    "who": "de"
+   },
+   {
+    "block": "translate czech scene2_33333333",
+    "category": "",
+    "cur_raw": "mc \"Bum!\"",
+    "key": [
+     "translate czech scene2_33333333",
+     "Bang!"
+    ],
+    "line": 17,
+    "pending": false,
+    "ref": "game/script.rpy:24",
+    "source": "Bang!",
+    "src_line": 16,
+    "src_raw": "mc \"Bang!\" with vpunch",
+    "src_suffix": "with vpunch",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Bum!",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech scene2_44444444",
+    "category": "",
+    "cur_raw": "\"Jen vypravěč.\"",
+    "key": [
+     "translate czech scene2_44444444",
+     "Narration only."
+    ],
+    "line": 23,
+    "pending": false,
+    "ref": "game/script.rpy:26",
+    "source": "Narration only.",
+    "src_line": 22,
+    "src_raw": "\"Narration only.\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Jen vypravěč.",
+    "unit": "dialogue",
+    "who": ""
+   },
+   {
+    "block": "translate czech scene2_55555555",
+    "category": "",
+    "cur_raw": "de \"Same words\"",
+    "key": [
+     "translate czech scene2_55555555",
+     "Same words"
+    ],
+    "line": 29,
+    "pending": false,
+    "ref": "game/script.rpy:28",
+    "source": "Same words",
+    "src_line": 28,
+    "src_raw": "mc \"Same words\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Same words",
+    "unit": "dialogue",
+    "who": "de"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "dialogue_basic": {
+  "block_ids": [
+   [
+    "czech",
+    "start_a1b2c3d4",
+    2
+   ],
+   [
+    "czech",
+    "start_e5f6a7b8",
+    8
+   ],
+   [
+    "czech",
+    "start_c9d0e1f2",
+    14
+   ]
+  ],
+  "counts": [
+   1,
+   2,
+   0
+  ],
+  "digest": "ad83900c6bf170def6a33609cf7cc0ef3ff93d57",
+  "entries": [
+   {
+    "block": "translate czech start_a1b2c3d4",
+    "category": "",
+    "cur_raw": "mc \"Ahoj, [name]. Mám {i}dvě{/i} věci k řeknutí.\"",
+    "key": [
+     "translate czech start_a1b2c3d4",
+     "Hello there, [name]. I have {i}two{/i} things to say."
+    ],
+    "line": 5,
+    "pending": false,
+    "ref": "game/script.rpy:10",
+    "source": "Hello there, [name]. I have {i}two{/i} things to say.",
+    "src_line": 4,
+    "src_raw": "mc \"Hello there, [name]. I have {i}two{/i} things to say.\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Ahoj, [name]. Mám {i}dvě{/i} věci k řeknutí.",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech start_e5f6a7b8",
+    "category": "english",
+    "cur_raw": "mc \"Where are you going to be today?\"",
+    "key": [
+     "translate czech start_e5f6a7b8",
+     "Where are you going to be today?"
+    ],
+    "line": 11,
+    "pending": true,
+    "ref": "game/script.rpy:12",
+    "source": "Where are you going to be today?",
+    "src_line": 10,
+    "src_raw": "mc \"Where are you going to be today?\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Where are you going to be today?",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech start_c9d0e1f2",
+    "category": "same",
+    "cur_raw": "de \"Hmm...\"",
+    "key": [
+     "translate czech start_c9d0e1f2",
+     "Hmm..."
+    ],
+    "line": 17,
+    "pending": true,
+    "ref": "game/script.rpy:14",
+    "source": "Hmm...",
+    "src_line": 16,
+    "src_raw": "de \"Hmm...\"",
+    "src_suffix": "",
+    "src_who": "de",
+    "suffix": "",
+    "target": "Hmm...",
+    "unit": "dialogue",
+    "who": "de"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "empty": {
+  "block_ids": [],
+  "counts": [
+   0,
+   0,
+   0
+  ],
+  "digest": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+  "entries": [],
+  "languages": [],
+  "structure": []
+ },
+ "escapes": {
+  "block_ids": [
+   [
+    "czech",
+    "esc_00000001",
+    1
+   ],
+   [
+    "czech",
+    "esc_00000002",
+    6
+   ],
+   [
+    "czech",
+    "esc_00000003",
+    11
+   ]
+  ],
+  "counts": [
+   2,
+   0,
+   0
+  ],
+  "digest": "3eca54c56c04eeabc80801525aab6ea7f2644cd9",
+  "entries": [
+   {
+    "block": "translate czech esc_00000001",
+    "category": "",
+    "cur_raw": "mc \"Řekla \\\"ahoj\\\" a odešla.\\nPak ticho.\"",
+    "key": [
+     "translate czech esc_00000001",
+     "She said \\\"hi\\\" and left.\\nThen silence."
+    ],
+    "line": 4,
+    "pending": false,
+    "ref": "",
+    "source": "She said \\\"hi\\\" and left.\\nThen silence.",
+    "src_line": 3,
+    "src_raw": "mc \"She said \\\"hi\\\" and left.\\nThen silence.\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Řekla \\\"ahoj\\\" a odešla.\\nPak ticho.",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech esc_00000002",
+    "category": "",
+    "cur_raw": "mc \"100%% jistě {{není tag}} [[není proměnná]]\"",
+    "key": [
+     "translate czech esc_00000002",
+     "100%% sure {{not a tag}} [[not a var]]"
+    ],
+    "line": 9,
+    "pending": false,
+    "ref": "",
+    "source": "100%% sure {{not a tag}} [[not a var]]",
+    "src_line": 8,
+    "src_raw": "mc \"100%% sure {{not a tag}} [[not a var]]\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "100%% jistě {{není tag}} [[není proměnná]]",
+    "unit": "dialogue",
+    "who": "mc"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "kinds": {
+  "block_ids": [
+   [
+    "czech",
+    "k_00000001",
+    2
+   ],
+   [
+    "czech",
+    "k_00000002",
+    8
+   ],
+   [
+    "czech",
+    "k_00000003",
+    14
+   ],
+   [
+    "czech",
+    "k_00000004",
+    20
+   ],
+   [
+    "czech",
+    "k_00000005",
+    26
+   ],
+   [
+    "czech",
+    "k_00000006",
+    32
+   ]
+  ],
+  "counts": [
+   1,
+   5,
+   0
+  ],
+  "digest": "f4a8ca22a7af30eca491ca3a7ba7a52b7af699ba",
+  "entries": [
+   {
+    "block": "translate czech k_00000001",
+    "category": "english",
+    "cur_raw": "mc \"I am going to the park today\"",
+    "key": [
+     "translate czech k_00000001",
+     "I am going to the park today"
+    ],
+    "line": 5,
+    "pending": true,
+    "ref": "game/script.rpy:1",
+    "source": "I am going to the park today",
+    "src_line": 4,
+    "src_raw": "mc \"I am going to the park today\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "I am going to the park today",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000002",
+    "category": "symbols",
+    "cur_raw": "mc \"...\"",
+    "key": [
+     "translate czech k_00000002",
+     "..."
+    ],
+    "line": 11,
+    "pending": true,
+    "ref": "game/script.rpy:2",
+    "source": "...",
+    "src_line": 10,
+    "src_raw": "mc \"...\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "...",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000003",
+    "category": "",
+    "cur_raw": "mc \"\"",
+    "key": [
+     "translate czech k_00000003",
+     "Something"
+    ],
+    "line": 17,
+    "pending": false,
+    "ref": "game/script.rpy:3",
+    "source": "Something",
+    "src_line": 16,
+    "src_raw": "mc \"Something\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000004",
+    "category": "english",
+    "cur_raw": "mc \"Okay\"",
+    "key": [
+     "translate czech k_00000004",
+     "Okay"
+    ],
+    "line": 23,
+    "pending": true,
+    "ref": "game/script.rpy:4",
+    "source": "Okay",
+    "src_line": 22,
+    "src_raw": "mc \"Okay\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Okay",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000005",
+    "category": "same",
+    "cur_raw": "mc \"Příliš žluťoučký kůň\"",
+    "key": [
+     "translate czech k_00000005",
+     "Příliš žluťoučký kůň"
+    ],
+    "line": 29,
+    "pending": true,
+    "ref": "game/script.rpy:5",
+    "source": "Příliš žluťoučký kůň",
+    "src_line": 28,
+    "src_raw": "mc \"Příliš žluťoučký kůň\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Příliš žluťoučký kůň",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000006",
+    "category": "symbols",
+    "cur_raw": "mc \"?!\"",
+    "key": [
+     "translate czech k_00000006",
+     "?!"
+    ],
+    "line": 35,
+    "pending": true,
+    "ref": "game/script.rpy:6",
+    "source": "?!",
+    "src_line": 34,
+    "src_raw": "mc \"?!\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "?!",
+    "unit": "dialogue",
+    "who": "mc"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "kinds_neutral": {
+  "block_ids": [
+   [
+    "czech",
+    "k_00000001",
+    2
+   ],
+   [
+    "czech",
+    "k_00000002",
+    8
+   ],
+   [
+    "czech",
+    "k_00000003",
+    14
+   ],
+   [
+    "czech",
+    "k_00000004",
+    20
+   ],
+   [
+    "czech",
+    "k_00000005",
+    26
+   ],
+   [
+    "czech",
+    "k_00000006",
+    32
+   ]
+  ],
+  "counts": [
+   1,
+   5,
+   0
+  ],
+  "digest": "f4a8ca22a7af30eca491ca3a7ba7a52b7af699ba",
+  "entries": [
+   {
+    "block": "translate czech k_00000001",
+    "category": "english",
+    "cur_raw": "mc \"I am going to the park today\"",
+    "key": [
+     "translate czech k_00000001",
+     "I am going to the park today"
+    ],
+    "line": 5,
+    "pending": true,
+    "ref": "game/script.rpy:1",
+    "source": "I am going to the park today",
+    "src_line": 4,
+    "src_raw": "mc \"I am going to the park today\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "I am going to the park today",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000002",
+    "category": "symbols",
+    "cur_raw": "mc \"...\"",
+    "key": [
+     "translate czech k_00000002",
+     "..."
+    ],
+    "line": 11,
+    "pending": true,
+    "ref": "game/script.rpy:2",
+    "source": "...",
+    "src_line": 10,
+    "src_raw": "mc \"...\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "...",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000003",
+    "category": "",
+    "cur_raw": "mc \"\"",
+    "key": [
+     "translate czech k_00000003",
+     "Something"
+    ],
+    "line": 17,
+    "pending": false,
+    "ref": "game/script.rpy:3",
+    "source": "Something",
+    "src_line": 16,
+    "src_raw": "mc \"Something\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000004",
+    "category": "english",
+    "cur_raw": "mc \"Okay\"",
+    "key": [
+     "translate czech k_00000004",
+     "Okay"
+    ],
+    "line": 23,
+    "pending": true,
+    "ref": "game/script.rpy:4",
+    "source": "Okay",
+    "src_line": 22,
+    "src_raw": "mc \"Okay\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Okay",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000005",
+    "category": "same",
+    "cur_raw": "mc \"Příliš žluťoučký kůň\"",
+    "key": [
+     "translate czech k_00000005",
+     "Příliš žluťoučký kůň"
+    ],
+    "line": 29,
+    "pending": true,
+    "ref": "game/script.rpy:5",
+    "source": "Příliš žluťoučký kůň",
+    "src_line": 28,
+    "src_raw": "mc \"Příliš žluťoučký kůň\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Příliš žluťoučký kůň",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech k_00000006",
+    "category": "symbols",
+    "cur_raw": "mc \"?!\"",
+    "key": [
+     "translate czech k_00000006",
+     "?!"
+    ],
+    "line": 35,
+    "pending": true,
+    "ref": "game/script.rpy:6",
+    "source": "?!",
+    "src_line": 34,
+    "src_raw": "mc \"?!\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "?!",
+    "unit": "dialogue",
+    "who": "mc"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "old_new_speaker": {
+  "block_ids": [
+   [
+    "czech",
+    "block_1",
+    1
+   ]
+  ],
+  "counts": [
+   1,
+   1,
+   0
+  ],
+  "digest": "ab6dbcca7902af1f137ccfa08d48f2aa537857fe",
+  "entries": [
+   {
+    "block": "translate czech block_1",
+    "category": "english",
+    "cur_raw": "old \"Who are you?!\" with hpunch",
+    "key": [
+     "translate czech block_1",
+     "Who are you?!"
+    ],
+    "line": 4,
+    "pending": true,
+    "ref": "",
+    "source": "Who are you?!",
+    "src_line": 3,
+    "src_raw": "old \"Who are you?!\" with hpunch",
+    "src_suffix": "with hpunch",
+    "src_who": "old",
+    "suffix": "with hpunch",
+    "target": "Who are you?!",
+    "unit": "dialogue",
+    "who": "old"
+   },
+   {
+    "block": "strings",
+    "category": "",
+    "cur_raw": "new \"Ahoj\"",
+    "key": [
+     "strings",
+     "Hello"
+    ],
+    "line": 9,
+    "pending": false,
+    "ref": "",
+    "source": "Hello",
+    "src_line": 8,
+    "src_raw": "old \"Hello\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Ahoj",
+    "unit": "string",
+    "who": ""
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "refs": {
+  "block_ids": [
+   [
+    "czech",
+    "r_00000001",
+    2
+   ]
+  ],
+  "counts": [
+   4,
+   0,
+   0
+  ],
+  "digest": "25076e2a9ef9541d8b11259de1b858546dd64444",
+  "entries": [
+   {
+    "block": "translate czech r_00000001",
+    "category": "",
+    "cur_raw": "mc \"S místem\"",
+    "key": [
+     "translate czech r_00000001",
+     "With a place"
+    ],
+    "line": 5,
+    "pending": false,
+    "ref": "game/script.rpy:2155",
+    "source": "With a place",
+    "src_line": 4,
+    "src_raw": "mc \"With a place\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "S místem",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "strings",
+    "category": "",
+    "cur_raw": "new \"Název souboru s mezerami\"",
+    "key": [
+     "strings",
+     "A file name with spaces"
+    ],
+    "line": 12,
+    "pending": false,
+    "ref": "",
+    "source": "A file name with spaces",
+    "src_line": 11,
+    "src_raw": "old \"A file name with spaces\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Název souboru s mezerami",
+    "unit": "string",
+    "who": ""
+   },
+   {
+    "block": "strings",
+    "category": "",
+    "cur_raw": "new \"Stejné místo\"",
+    "key": [
+     "strings",
+     "Same place"
+    ],
+    "line": 16,
+    "pending": false,
+    "ref": "game/script.rpy:5",
+    "source": "Same place",
+    "src_line": 15,
+    "src_raw": "old \"Same place\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Stejné místo",
+    "unit": "string",
+    "who": ""
+   },
+   {
+    "block": "strings",
+    "category": "",
+    "cur_raw": "new \"Stejné místo znovu\"",
+    "key": [
+     "strings",
+     "Same place again"
+    ],
+    "line": 20,
+    "pending": false,
+    "ref": "game/script.rpy:5",
+    "source": "Same place again",
+    "src_line": 19,
+    "src_raw": "old \"Same place again\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Stejné místo znovu",
+    "unit": "string",
+    "who": ""
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "strings": {
+  "block_ids": [],
+  "counts": [
+   3,
+   3,
+   0
+  ],
+  "digest": "1dd27f31de7d16857c43a7d022c0f5fda2b98ac0",
+  "entries": [
+   {
+    "block": "strings",
+    "category": "",
+    "cur_raw": "new \"Začít\"",
+    "key": [
+     "strings",
+     "Start"
+    ],
+    "line": 5,
+    "pending": false,
+    "ref": "game/screens.rpy:101",
+    "source": "Start",
+    "src_line": 4,
+    "src_raw": "old \"Start\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Začít",
+    "unit": "string",
+    "who": ""
+   },
+   {
+    "block": "strings",
+    "category": "same",
+    "cur_raw": "new \"Quit\"",
+    "key": [
+     "strings",
+     "Quit"
+    ],
+    "line": 9,
+    "pending": true,
+    "ref": "game/screens.rpy:102",
+    "source": "Quit",
+    "src_line": 8,
+    "src_raw": "old \"Quit\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Quit",
+    "unit": "string",
+    "who": ""
+   },
+   {
+    "block": "strings",
+    "category": "symbols",
+    "cur_raw": "new \"...\"",
+    "key": [
+     "strings",
+     "..."
+    ],
+    "line": 13,
+    "pending": true,
+    "ref": "game/screens.rpy:103",
+    "source": "...",
+    "src_line": 12,
+    "src_raw": "old \"...\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "...",
+    "unit": "string",
+    "who": ""
+   },
+   {
+    "block": "strings",
+    "category": "empty",
+    "cur_raw": "new \"\"",
+    "key": [
+     "strings",
+     "Load"
+    ],
+    "line": 17,
+    "pending": true,
+    "ref": "game/screens.rpy:104",
+    "source": "Load",
+    "src_line": 16,
+    "src_raw": "old \"Load\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "",
+    "unit": "string",
+    "who": ""
+   },
+   {
+    "block": "strings",
+    "category": "",
+    "cur_raw": "new \"Prohlédnout si ji\"",
+    "key": [
+     "strings",
+     "Check her out"
+    ],
+    "line": 21,
+    "pending": false,
+    "ref": "game/script.rpy:5",
+    "source": "Check her out",
+    "src_line": 20,
+    "src_raw": "old \"Check her out\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Prohlédnout si ji",
+    "unit": "string",
+    "who": ""
+   },
+   {
+    "block": "strings",
+    "category": "",
+    "cur_raw": "new \"Říct {i}vtip{/i} [name]\"",
+    "key": [
+     "strings",
+     "Tell {i}a{/i} joke [name]"
+    ],
+    "line": 24,
+    "pending": false,
+    "ref": "",
+    "source": "Tell {i}a{/i} joke [name]",
+    "src_line": 23,
+    "src_raw": "old \"Tell {i}a{/i} joke [name]\"",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "Říct {i}vtip{/i} [name]",
+    "unit": "string",
+    "who": ""
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": []
+ },
+ "structure_problems": {
+  "block_ids": [
+   [
+    "czech",
+    "dup_aaaaaaaa",
+    1
+   ],
+   [
+    "czech",
+    "dup_aaaaaaaa",
+    6
+   ],
+   [
+    "czech",
+    "nocomment_bbbbbbbb",
+    11
+   ],
+   [
+    "czech",
+    "noend_cccccccc",
+    19
+   ]
+  ],
+  "counts": [
+   3,
+   0,
+   0
+  ],
+  "digest": "47095966997c5f9d35b4a515c6401546918a2c4a",
+  "entries": [
+   {
+    "block": "translate czech dup_aaaaaaaa",
+    "category": "",
+    "cur_raw": "mc \"Prvni\"",
+    "key": [
+     "translate czech dup_aaaaaaaa",
+     "First"
+    ],
+    "line": 4,
+    "pending": false,
+    "ref": "",
+    "source": "First",
+    "src_line": 3,
+    "src_raw": "mc \"First\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Prvni",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech dup_aaaaaaaa",
+    "category": "",
+    "cur_raw": "mc \"Druhy\"",
+    "key": [
+     "translate czech dup_aaaaaaaa",
+     "Second"
+    ],
+    "line": 9,
+    "pending": false,
+    "ref": "",
+    "source": "Second",
+    "src_line": 8,
+    "src_raw": "mc \"Second\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Druhy",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate czech nocomment_bbbbbbbb",
+    "category": "",
+    "cur_raw": "mc \"No comment above\"",
+    "key": [
+     "translate czech nocomment_bbbbbbbb",
+     "No comment above"
+    ],
+    "line": 13,
+    "pending": false,
+    "ref": "",
+    "source": null,
+    "src_line": 0,
+    "src_raw": "",
+    "src_suffix": "",
+    "src_who": "",
+    "suffix": "",
+    "target": "No comment above",
+    "unit": "dialogue",
+    "who": "mc"
+   }
+  ],
+  "languages": [
+   "czech"
+  ],
+  "structure": [
+   [
+    17,
+    "old-without-new",
+    "After the \"old\" line the matching \"new\" line is missing."
+   ]
+  ]
+ },
+ "two_languages": {
+  "block_ids": [
+   [
+    "czech",
+    "both_00000001",
+    1
+   ],
+   [
+    "german",
+    "both_00000001",
+    6
+   ]
+  ],
+  "counts": [
+   2,
+   0,
+   0
+  ],
+  "digest": "3d4da8425bbea4ea044455bee894a15eb69ab261",
+  "entries": [
+   {
+    "block": "translate czech both_00000001",
+    "category": "",
+    "cur_raw": "mc \"Česky\"",
+    "key": [
+     "translate czech both_00000001",
+     "Czech"
+    ],
+    "line": 4,
+    "pending": false,
+    "ref": "",
+    "source": "Czech",
+    "src_line": 3,
+    "src_raw": "mc \"Czech\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Česky",
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   {
+    "block": "translate german both_00000001",
+    "category": "",
+    "cur_raw": "mc \"Auf Deutsch\"",
+    "key": [
+     "translate german both_00000001",
+     "German"
+    ],
+    "line": 9,
+    "pending": false,
+    "ref": "",
+    "source": "German",
+    "src_line": 8,
+    "src_raw": "mc \"German\"",
+    "src_suffix": "",
+    "src_who": "mc",
+    "suffix": "",
+    "target": "Auf Deutsch",
+    "unit": "dialogue",
+    "who": "mc"
+   }
+  ],
+  "languages": [
+   "czech",
+   "german"
+  ],
+  "structure": []
+ }
+}

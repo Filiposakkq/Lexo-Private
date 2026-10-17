@@ -1,4 +1,4 @@
-# Architecture (draft)
+# Architecture
 
 ```
 Pro modules (private)  ──┐
@@ -42,7 +42,7 @@ api.call(app, "entries", {"status": "todo", "limit": 10})        # the same call
 - **Tests keep it honest** (`core/tests/test_contract.py`, `free/tests/test_contract_ui.py`): the generated files match the code; every operation answers with the recorded shape (a lost key or
   a changed type fails); every operation is run by the test or named with a reason; the UI only calls operations that exist; the server serves each read operation like a direct call.
   The interface changes on purpose, in one visible place.
-- **For the Rust port**: the same table and the same shapes are what it is checked against, plus the fixture project (`contract_tool.build_fixture`); roadmap step 6 turns that into fixed test data.
+- **For the Rust port**: the same table and the same shapes are what it is checked against, plus the golden data (`core/golden`, docs/GOLDEN.md): fixed inputs and the recorded answers, down to the bytes of the files written.
 
 To add an operation: write it in `api.py` (with an `example` the contract test can run, or a reason in `NOT_EXERCISED`), run `py core/tests/contract_tool.py`, commit the three generated files with it.
 
@@ -52,10 +52,11 @@ Pro pack (`pro/lexo_pro`); without the pack the feature is locked and no flag in
 Planned names for further features: `translate_provider` (machine translation batches), `memory_provider` (fuzzy translation memory), `exporter`, `team_sync`.
 The UI shows a feature when the pack offers it, otherwise a locked hint.
 
-## Free / Pro split (proposal)
-- **Free**: the whole translating workflow (see docs/FEATURES.md): editor, proofreading, validation, find & replace, spelling, history with diff, scene preview, statistics, translation generator.
-- **Pro**: carrying translations over to a new game version, fuzzy translation memory, LLM style check, character profiles, batch machine translation, release builder, safe bulk fixes and regex batches, publishing, teamwork.
+## Free / Pro split
+- **Free**: the whole translating workflow (see FEATURES.md): editor, proofreading, validation, find & replace, spelling, history with diff, scene preview, choices and their menu, statistics, translation generator.
+- **Pro** (in the pack): batch machine translation, safe bulk fixes, regex replace, group suggestions, publishing today; carrying translations over to a new game version, fuzzy translation memory, LLM style check, character profiles, release builder, teamwork planned. Status per feature in FEATURES.md.
 
 ## Licensing and basic protection
-Signed licence key (public key in the app, private key only with the author), checked offline, optional online refresh later.
-Pro code is never in the public repository. Beyond that nothing heavy: it cannot be made unbreakable, so keep it simple and fair.
+Decided and designed in PRO-DESIGN.md: the licence is a signed file (public key in the app and the pack, private key only on the server), checked offline inside the pack, refreshed online every 30 days with a grace period,
+2 devices, one-off payment per major version. The premium pack is downloaded after a licence, encrypted per licence and watermarked; Pro code is never in the public packages. It cannot be made unbreakable; the aim is that
+sharing is inconvenient and traceable and that buying is simpler than working around it. Not built yet (the pack has a development stub): the licence file, the server, the sidecar transport, the signatures.

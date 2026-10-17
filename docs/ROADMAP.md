@@ -3,6 +3,9 @@
 Rule for every step: the old test suite (or its port) must stay green, nothing is pushed or merged without the owner's approval,
 and the game folders on disk are read-only (work on copies).
 
+> **Where to look.** The table "Where we are" further down is the current state and the plan; the log under it is the history. The "Step 0 ... Step 6" sections here are the **original plan** (kept for the reasons
+> in them; their numbering is not the table's).
+
 ## Step 0 – Foundation (this repo)
 Done when: `README.md`, `docs/`, empty `core/ free/ pro/`, the audit exists. *(started)*
 
@@ -64,8 +67,19 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 | 3 | Rest of the generalisation: group/season wording from `labels`, BaDIK names and links, `ep1` name hints, tests on 3-4 other games (needs their `game` folders) | **done** (project file, language packs, `labels` wording incl. sections, language-neutral word lists and input words, tests on 8 games; what is left on purpose is in HARDCODED-AUDIT.md) |
 | 4 | Split Core and UI; Core interface; feature registry loaded through the Pro loader | **split done** (`core/lexo` + `core/tests`, `free/lexo_free` + `free/tests`, `run_tests.py`); registry done; **Pro seam built, all 5 gated features are in the Pro pack** (`pro/lexo_pro`); the sidecar transport, signatures and the licence are open: docs/PRO-DESIGN.md |
 | 5 | Interface contract between UI and Core (JSON calls with tests, also the check for the Rust port) | **done** (`core/lexo/api.py`: 80 operations; `core/contract/*.json`, `docs/API.md`; tests in core and free) |
-| 6 | Cleanup and test data for the Python/Rust comparison | planned |
+| 6 | Cleanup and test data for the Python/Rust comparison | **done** (`core/golden/`: parser, archive, layout, menu and validator cases, 4 projects and 4 scenarios with recorded answers; docs/GOLDEN.md; unused imports and dead code removed) |
 Done on the way: project file, language packs (format + loader), feature registry, game tools (.rpa, unrpyc as a helper, translation files through the SDK, no UI yet), `app.js` split into ES modules, UI text conversion.
+| 7 | **Port Core to Rust** (Tauri: Rust core, web UI), module by module against `core/golden` (docs/GOLDEN.md): `rpy`, `rpa` first; the Python Core stays the reference until everything matches | **next** |
+| 8 | Menu with game selection, onboarding, the "prepare a game" window (the code exists and is tested on 8 games), the new UI | after the port |
+| 9 | Licence server, signed packs, the sidecar transport, updates, the installer, the user guide, the Free / Pro release | after the port |
+
+Done on the way and not forgotten: layered images are not drawn in the scene preview (planned); the licence check of the pack is a development stub (`pro/lexo_pro/licence.py`).
+
+### Open decisions (the owner's)
+- **Licence and openness of Core and Free** before the first release: an open-source licence (GPL-3.0 suits "no closed forks", Apache-2.0 suits adoption) or closed freeware with an EULA (more control, less trust); the Pro pack is closed either way. The reasoning is in the chat of the session of 17 October 2026; nothing in the code depends on it.
+- **The name "Lexo"** is a working name: check that it is free (name, domain, trademark) before the release.
+- **Price** (a one-off licence per major version is decided).
+- **The old BaDIK tool**: it received the same features by copying; decide when Lexo replaces it for the real translation work (it is a dogfooding step: translating in Lexo shows what the tests do not).
 Not before the port: the menu with game selection and the new UI, the licence server, Free/Pro release.
 - Step 1 finished: Python-side messages are English templates (`msg`, `msgn`, `join`) translated in the browser; ~1 400 texts in the Czech pack; `test_python_messages.py` keeps Czech sentences out of the Python code. 470 tests, UI self-test 137/137 (Czech). Next: data layout (step 2).
 - Step 2a done: data files have English names, headers and values; `migrate.py` copies the old Czech-named files once (old ones untouched); text-history sources are translatable messages; project status labels removed (only keys remained in use). 475 tests, UI self-test 137/137. Still Czech as data: `rpy.py` line kinds. Next: 2b.
@@ -99,4 +113,5 @@ Not before the port: the menu with game selection and the new UI, the licence se
 - The Pro seam (docs/PRO-DESIGN.md): `core/lexo/extensions.py` (host, interface version 1, plain-JSON calls, `trust` hook, texts of the pack), `pro/lexo_pro` (first pack, offers `publish.web`; its code moved out of Core with `git mv`, its Czech texts out of Core's language pack), `py run_tests.py pro`, `LEXO_NO_PRO=1`. Without the pack `publish.web` is locked whatever the flags say, and tests prove that Core and Free never import the pack. Core 360, Free 228, Pro 11 tests; UI self-test 140/140. Open: the other four gated features, sidecar, signatures, licence.
 - Step 5 (the interface contract) done: `core/lexo/api.py` is the table of the 80 operations of Core (name, method, effect, typed parameters, description, example); Free's server dispatches through it and keeps only the window / focus / folder-dialog routes. Generated and tested: `core/contract/api.json`, `core/contract/shapes.json` (62 answers recorded on a fixture project), `docs/API.md` (`py core/tests/contract_tool.py`); tests: files up to date, every answer keeps its shape, every operation is run or has a reason, the UI calls only existing operations, the server serves reads like direct calls. Core 371, Free 231, Pro 11 tests; UI self-test 140/140.
 - The four remaining gated features moved into the Pro pack: `bulk.categorize` (suggesting groups on plain data, the layout travels in the request), `replace.regex` (the substitution on plain texts), `mt.batch` (targets cut to the limit, translating on plain requests), `fixes.safe` (the planners of the speaker, spaces and typo fixes, and chaining). Core keeps the free halves and the single writer; the demo limits live in `lexo_pro/licence.py`; `Entitlements`, `LEXO_TIER` and the limits in Core are gone. Tests moved with the code (Core 341, Free 222, Pro 67); UI self-test 140/140 with the pack and 139/139 without.
+- Step 6 (golden data and cleanup) done: `core/golden/` holds fixed inputs (13 parser cases, 6 archives, layout / menu / validator cases, projects `basic`, `episodes`, `folders`, `messy`) and the recorded answers (`expected/`, normalised, identical in two runs); the 4 scenarios run 93 operation calls and compare the answer to each and every `.rpy` after the writes (sha1 and text). `core/tests/golden_tool.py` regenerates, `test_golden.py` checks; `.gitattributes` keeps line ends. Cleanup: unused imports and `bulk.episode_hint` removed. Core 352, Free 222, Pro 67 tests. Next: the port to Rust, module by module against these files.
 

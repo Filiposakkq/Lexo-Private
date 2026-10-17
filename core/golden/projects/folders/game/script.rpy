@@ -1,0 +1,2 @@
+label start:
+    mc "Hello."

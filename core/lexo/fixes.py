@@ -13,8 +13,8 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-from . import rpy, validator
-from .util import WriteFailed, atomic_write_bytes, make_backup, norm_ws
+from . import rpy
+from .util import WriteFailed, atomic_write_bytes, make_backup
 from .messages import msg
 
 SPLIT_RE = re.compile(r"(\r\n|\r|\n)")

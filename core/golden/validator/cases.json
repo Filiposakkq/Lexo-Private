@@ -1,0 +1,98 @@
+{
+ "cases": [
+  {
+   "name": "fine",
+   "who": "mc",
+   "source": "Hello there, friend.",
+   "target": "Ahoj tam, příteli."
+  },
+  {
+   "name": "variable missing",
+   "who": "mc",
+   "source": "Hello [name].",
+   "target": "Ahoj."
+  },
+  {
+   "name": "variable unknown",
+   "who": "mc",
+   "source": "Hello [name].",
+   "target": "Ahoj [jmeno]."
+  },
+  {
+   "name": "tag missing",
+   "who": "mc",
+   "source": "{i}Hello{/i} there.",
+   "target": "Ahoj tam."
+  },
+  {
+   "name": "tags out of order",
+   "who": "mc",
+   "source": "{b}A{/b} {i}B{/i}",
+   "target": "{i}B{/i} {b}A{/b}"
+  },
+  {
+   "name": "number changed",
+   "who": "mc",
+   "source": "I need 14 people.",
+   "target": "Potřebuju 15 lidí."
+  },
+  {
+   "name": "double space",
+   "who": "mc",
+   "source": "Hello there.",
+   "target": "Ahoj  tam."
+  },
+  {
+   "name": "speaker changed",
+   "who": "de",
+   "src_who": "mc",
+   "source": "Hello.",
+   "target": "Ahoj."
+  },
+  {
+   "name": "suffix changed",
+   "who": "mc",
+   "src_who": "mc",
+   "src_suffix": "with vpunch",
+   "suffix": "",
+   "source": "Bang!",
+   "target": "Bum!"
+  },
+  {
+   "name": "untranslated english",
+   "who": "mc",
+   "source": "Where are you going to be today",
+   "target": "Where are you going to be today"
+  },
+  {
+   "name": "empty",
+   "who": "mc",
+   "source": "Something",
+   "target": ""
+  },
+  {
+   "name": "brackets",
+   "who": "mc",
+   "source": "He said (hello).",
+   "target": "Řekl ahoj)."
+  },
+  {
+   "name": "quotes",
+   "who": "mc",
+   "source": "She said hi.",
+   "target": "Řekla \\\"ahoj."
+  },
+  {
+   "name": "repeated word",
+   "who": "mc",
+   "source": "Well well.",
+   "target": "No no tak."
+  },
+  {
+   "name": "english left",
+   "who": "mc",
+   "source": "Take the Dik Coins.",
+   "target": "Vezmi si the coins."
+  }
+ ]
+}

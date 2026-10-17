@@ -1,0 +1,409 @@
+[
+ {
+  "around": false,
+  "choice": null,
+  "line": 6,
+  "result": {
+   "before": [
+    3,
+    4
+   ],
+   "current": 0,
+   "menu_line": 5,
+   "options": [
+    {
+     "after": [
+      7,
+      8
+     ],
+     "body": [
+      "            mc \"Want a coffee?\"",
+      "            js \"Sure.\"",
+      "            jump cafe"
+     ],
+     "cond": "met_her",
+     "n": 6,
+     "text": "Invite her"
+    },
+    {
+     "after": [
+      11
+     ],
+     "body": [
+      "            \"You walk away.\"",
+      "            menu:",
+      "                \"Look back\":",
+      "                    mc \"Bye.\""
+     ],
+     "cond": "",
+     "n": 10,
+     "text": "Leave"
+    }
+   ],
+   "question": []
+  },
+  "script": "plain.rpy"
+ },
+ {
+  "around": false,
+  "choice": "Leave",
+  "line": 5,
+  "result": {
+   "before": [
+    3,
+    4
+   ],
+   "current": 1,
+   "menu_line": 5,
+   "options": [
+    {
+     "after": [
+      7,
+      8
+     ],
+     "body": [
+      "            mc \"Want a coffee?\"",
+      "            js \"Sure.\"",
+      "            jump cafe"
+     ],
+     "cond": "met_her",
+     "n": 6,
+     "text": "Invite her"
+    },
+    {
+     "after": [
+      11
+     ],
+     "body": [
+      "            \"You walk away.\"",
+      "            menu:",
+      "                \"Look back\":",
+      "                    mc \"Bye.\""
+     ],
+     "cond": "",
+     "n": 10,
+     "text": "Leave"
+    }
+   ],
+   "question": []
+  },
+  "script": "plain.rpy"
+ },
+ {
+  "around": false,
+  "choice": null,
+  "line": 5,
+  "result": {
+   "before": [
+    3,
+    4
+   ],
+   "current": -1,
+   "menu_line": 5,
+   "options": [
+    {
+     "after": [
+      7,
+      8
+     ],
+     "body": [
+      "            mc \"Want a coffee?\"",
+      "            js \"Sure.\"",
+      "            jump cafe"
+     ],
+     "cond": "met_her",
+     "n": 6,
+     "text": "Invite her"
+    },
+    {
+     "after": [
+      11
+     ],
+     "body": [
+      "            \"You walk away.\"",
+      "            menu:",
+      "                \"Look back\":",
+      "                    mc \"Bye.\""
+     ],
+     "cond": "",
+     "n": 10,
+     "text": "Leave"
+    }
+   ],
+   "question": []
+  },
+  "script": "plain.rpy"
+ },
+ {
+  "around": false,
+  "choice": null,
+  "line": 14,
+  "result": null,
+  "script": "plain.rpy"
+ },
+ {
+  "around": false,
+  "choice": null,
+  "line": 19,
+  "result": null,
+  "script": "plain.rpy"
+ },
+ {
+  "around": true,
+  "choice": null,
+  "line": 3,
+  "result": {
+   "before": [
+    3,
+    4
+   ],
+   "current": -1,
+   "menu_line": 5,
+   "options": [
+    {
+     "after": [
+      7,
+      8
+     ],
+     "body": [
+      "            mc \"Want a coffee?\"",
+      "            js \"Sure.\"",
+      "            jump cafe"
+     ],
+     "cond": "met_her",
+     "n": 6,
+     "text": "Invite her"
+    },
+    {
+     "after": [
+      11
+     ],
+     "body": [
+      "            \"You walk away.\"",
+      "            menu:",
+      "                \"Look back\":",
+      "                    mc \"Bye.\""
+     ],
+     "cond": "",
+     "n": 10,
+     "text": "Leave"
+    }
+   ],
+   "question": []
+  },
+  "script": "plain.rpy"
+ },
+ {
+  "around": true,
+  "choice": null,
+  "line": 7,
+  "result": {
+   "before": [
+    3,
+    4
+   ],
+   "current": -1,
+   "menu_line": 5,
+   "options": [
+    {
+     "after": [
+      7,
+      8
+     ],
+     "body": [
+      "            mc \"Want a coffee?\"",
+      "            js \"Sure.\"",
+      "            jump cafe"
+     ],
+     "cond": "met_her",
+     "n": 6,
+     "text": "Invite her"
+    },
+    {
+     "after": [
+      11
+     ],
+     "body": [
+      "            \"You walk away.\"",
+      "            menu:",
+      "                \"Look back\":",
+      "                    mc \"Bye.\""
+     ],
+     "cond": "",
+     "n": 10,
+     "text": "Leave"
+    }
+   ],
+   "question": []
+  },
+  "script": "plain.rpy"
+ },
+ {
+  "around": false,
+  "choice": null,
+  "line": 1,
+  "result": null,
+  "script": "plain.rpy"
+ },
+ {
+  "around": false,
+  "choice": null,
+  "line": 99,
+  "result": null,
+  "script": "plain.rpy"
+ },
+ {
+  "around": false,
+  "choice": "Warm it up",
+  "line": 6,
+  "result": {
+   "before": [
+    2
+   ],
+   "current": 0,
+   "menu_line": 6,
+   "options": [
+    {
+     "after": [
+      8
+     ],
+     "body": [
+      "                na \"You warm it.\""
+     ],
+     "cond": "",
+     "n": 7,
+     "text": "Warm it up"
+    },
+    {
+     "after": [],
+     "body": [
+      "                $ y = 1"
+     ],
+     "cond": "",
+     "n": 9,
+     "text": "Leave it"
+    }
+   ],
+   "question": []
+  },
+  "script": "nested.rpy"
+ },
+ {
+  "around": false,
+  "choice": "A",
+  "line": 12,
+  "result": {
+   "before": [
+    2,
+    11
+   ],
+   "current": 0,
+   "menu_line": 12,
+   "options": [
+    {
+     "after": [
+      14,
+      16
+     ],
+     "body": [
+      "            mc \"Said A.\"",
+      "            if y:",
+      "                mc \"Deep in A.\""
+     ],
+     "cond": "",
+     "n": 13,
+     "text": "A"
+    },
+    {
+     "after": [],
+     "body": [
+      "            pass"
+     ],
+     "cond": "",
+     "n": 17,
+     "text": "B"
+    }
+   ],
+   "question": []
+  },
+  "script": "nested.rpy"
+ },
+ {
+  "around": true,
+  "choice": null,
+  "line": 2,
+  "result": {
+   "before": [
+    2
+   ],
+   "current": -1,
+   "menu_line": 6,
+   "options": [
+    {
+     "after": [
+      8
+     ],
+     "body": [
+      "                na \"You warm it.\""
+     ],
+     "cond": "",
+     "n": 7,
+     "text": "Warm it up"
+    },
+    {
+     "after": [],
+     "body": [
+      "                $ y = 1"
+     ],
+     "cond": "",
+     "n": 9,
+     "text": "Leave it"
+    }
+   ],
+   "question": []
+  },
+  "script": "nested.rpy"
+ },
+ {
+  "around": false,
+  "choice": "No",
+  "line": 1,
+  "result": {
+   "before": [],
+   "current": 0,
+   "menu_line": 1,
+   "options": [
+    {
+     "after": [],
+     "body": [
+      "                    jump game_start"
+     ],
+     "cond": "",
+     "n": 2,
+     "text": "No"
+    },
+    {
+     "after": [],
+     "body": [
+      "                    show skip_intro 2",
+      "                    menu Skip_Intro_Question_1:",
+      "                        \"Yes (+1)\":",
+      "                                        $ dylan_lap = True"
+     ],
+     "cond": "",
+     "n": 4,
+     "text": "Yes"
+    }
+   ],
+   "question": []
+  },
+  "script": "effects.rpy"
+ },
+ {
+  "around": false,
+  "choice": "Yes (+1)",
+  "line": 5,
+  "result": null,
+  "script": "effects.rpy"
+ }
+]

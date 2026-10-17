@@ -1,0 +1,55 @@
+{
+ "project": "folders",
+ "doc": "one group per folder: the proposal, applying it, the group names in the overview",
+ "steps": [
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "op": "groups/apply",
+   "params": {
+    "label": "Episode",
+    "groups": [],
+    "folders": [
+     "beach",
+     "home",
+     "work"
+    ]
+   }
+  },
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "op": "files",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all"
+   }
+  },
+  {
+   "op": "assign",
+   "params": {
+    "name": "home/a.rpy",
+    "v": "ep:2"
+   }
+  },
+  {
+   "op": "overview",
+   "params": {}
+  }
+ ]
+}

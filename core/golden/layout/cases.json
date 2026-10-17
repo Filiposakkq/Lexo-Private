@@ -1,0 +1,168 @@
+{
+ "propose": [
+  {
+   "name": "episodes",
+   "files": [
+    "ep1_cafe.rpy",
+    "scripts/ep2/a.rpy",
+    "ep10x.rpy",
+    "update3.rpy",
+    "options.rpy"
+   ]
+  },
+  {
+   "name": "chapters",
+   "files": [
+    "chapter_1.rpy",
+    "chapter_2.rpy",
+    "chapter_3.rpy"
+   ]
+  },
+  {
+   "name": "days",
+   "files": [
+    "day-1.rpy",
+    "day-2.rpy",
+    "day-3.rpy",
+    "options.rpy"
+   ]
+  },
+  {
+   "name": "two seasons",
+   "files": [
+    "season1/ep1.rpy",
+    "season1/ep2.rpy",
+    "season2/ep3.rpy",
+    "season2/ep4.rpy"
+   ]
+  },
+  {
+   "name": "one season folder",
+   "files": [
+    "season2/ep1.rpy",
+    "season2/ep2.rpy"
+   ]
+  },
+  {
+   "name": "script series",
+   "files": [
+    "script.rpy",
+    "script2.rpy",
+    "script3.rpy",
+    "options.rpy",
+    "screens.rpy"
+   ]
+  },
+  {
+   "name": "scene families are not a series",
+   "files": [
+    "bedroom1.rpy",
+    "bedroom4.rpy",
+    "bedroom5.rpy",
+    "x0.rpy",
+    "x1.rpy",
+    "x2.rpy",
+    "x3.rpy",
+    "x4.rpy",
+    "x5.rpy",
+    "x6.rpy",
+    "x7.rpy",
+    "x8.rpy",
+    "x9.rpy",
+    "x10.rpy",
+    "x11.rpy",
+    "x12.rpy",
+    "x13.rpy",
+    "x14.rpy",
+    "x15.rpy",
+    "x16.rpy",
+    "x17.rpy",
+    "x18.rpy",
+    "x19.rpy",
+    "x20.rpy",
+    "x21.rpy",
+    "x22.rpy",
+    "x23.rpy",
+    "x24.rpy",
+    "x25.rpy",
+    "x26.rpy",
+    "x27.rpy",
+    "x28.rpy",
+    "x29.rpy"
+   ]
+  },
+  {
+   "name": "one group per folder",
+   "files": [
+    "home/a.rpy",
+    "home/b.rpy",
+    "beach/a.rpy",
+    "beach/b.rpy",
+    "work/a.rpy",
+    "work/b.rpy"
+   ]
+  },
+  {
+   "name": "a giant folder",
+   "files": [
+    "main/0.rpy",
+    "main/1.rpy",
+    "main/2.rpy",
+    "main/3.rpy",
+    "main/4.rpy",
+    "main/5.rpy",
+    "main/6.rpy",
+    "main/7.rpy",
+    "main/8.rpy",
+    "main/9.rpy",
+    "main/10.rpy",
+    "main/11.rpy",
+    "main/12.rpy",
+    "main/13.rpy",
+    "main/14.rpy",
+    "main/15.rpy",
+    "main/16.rpy",
+    "main/17.rpy",
+    "main/18.rpy",
+    "main/19.rpy",
+    "x/a.rpy",
+    "y/b.rpy",
+    "z/c.rpy"
+   ]
+  },
+  {
+   "name": "nothing recognisable",
+   "files": [
+    "script.rpy",
+    "options.rpy",
+    "ep1.rpy"
+   ]
+  }
+ ],
+ "folder_number": {
+  "folders": [
+   "scripts/home",
+   "scripts/home/kitchen",
+   "bg"
+  ],
+  "paths": [
+   "scripts/home/a.rpy",
+   "scripts/home/kitchen/b.rpy",
+   "BG/x.rpy",
+   "scripts/other/c.rpy",
+   "bgx/d.rpy"
+  ]
+ },
+ "series_number": {
+  "series": "script",
+  "paths": [
+   "script.rpy",
+   "script2.rpy",
+   "script_3.rpy",
+   "script03.rpy",
+   "scripts.rpy",
+   "other/script2.rpy",
+   "scripty.rpy"
+  ]
+ }
+}

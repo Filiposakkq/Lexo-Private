@@ -1,0 +1,19 @@
+{
+ "version": 1,
+ "language": "cs",
+ "labels": {
+  "group": "Episode",
+  "section": "Season"
+ },
+ "sections": [
+  {
+   "n": 1,
+   "status": "active",
+   "groups": [
+    1,
+    2,
+    3
+   ]
+  }
+ ]
+}

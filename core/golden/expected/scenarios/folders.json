@@ -1,0 +1,1026 @@
+{
+ "files_after": {
+  "beach/a.rpy": {
+   "sha1": "05729e3710fd5a0fd28a330dddff20b84e546b57",
+   "text": "# game/beach/a.rpy:1\ntranslate czech beacha_00000001:\n\n    # mc \"Hello from beach a.\"\n    mc \"Ahoj z beach a.\"\n"
+  },
+  "beach/b.rpy": {
+   "sha1": "095a342242fea98ac8e39ef940e82a0ea456ac99",
+   "text": "# game/beach/b.rpy:1\ntranslate czech beachb_00000001:\n\n    # mc \"Hello from beach b.\"\n    mc \"Ahoj z beach b.\"\n"
+  },
+  "home/a.rpy": {
+   "sha1": "1fb73855038a73eeb3c6e01c3205e437536a5ef5",
+   "text": "# game/home/a.rpy:1\ntranslate czech homea_00000001:\n\n    # mc \"Hello from home a.\"\n    mc \"Ahoj z home a.\"\n"
+  },
+  "home/b.rpy": {
+   "sha1": "7bf133f952fecf66f0446526af5fe6f2d96f64e0",
+   "text": "# game/home/b.rpy:1\ntranslate czech homeb_00000001:\n\n    # mc \"Hello from home b.\"\n    mc \"Ahoj z home b.\"\n"
+  },
+  "work/a.rpy": {
+   "sha1": "b5d360f6e94ea456543af54b7dfbbcc3a092be00",
+   "text": "# game/work/a.rpy:1\ntranslate czech worka_00000001:\n\n    # mc \"Hello from work a.\"\n    mc \"Ahoj z work a.\"\n"
+  },
+  "work/b.rpy": {
+   "sha1": "623c61e7f89649f617a110821cecde79a24afb56",
+   "text": "# game/work/b.rpy:1\ntranslate czech workb_00000001:\n\n    # mc \"Hello from work b.\"\n    mc \"Ahoj z work b.\"\n"
+  }
+ },
+ "project": "folders",
+ "steps": [
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 0,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Everything is translated.",
+     "remaining": 0,
+     "status": "complete"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 6,
+     "wip": 0
+    },
+    "general": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": false,
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "beach/a.rpy",
+      "beach/b.rpy",
+      "home/a.rpy",
+      "home/b.rpy",
+      "work/a.rpy",
+      "work/b.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 6.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 6,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 100.0,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 0,
+     "total": 6
+    },
+    "unassigned": {
+     "files": 6,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 6
+     },
+     "translation": {
+      "done": 6,
+      "percent": 100.0,
+      "total": 6
+     }
+    },
+    "undo": [],
+    "unsaved": [],
+    "validation": {
+     "error": 0,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": []
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "current": {
+     "folders": [],
+     "groups": [],
+     "label": "Episode",
+     "sections": 0,
+     "series": ""
+    },
+    "ok": true,
+    "proposal": {
+     "folders": [
+      "beach",
+      "home",
+      "work"
+     ],
+     "groups": [],
+     "label": "Episode",
+     "matched": 0,
+     "sections": [],
+     "series": "",
+     "total": 6
+    },
+    "words": [
+     "Folder",
+     "Episode",
+     "Chapter",
+     "Part",
+     "Day",
+     "Update",
+     "Act"
+    ]
+   },
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "answer": {
+    "groups": [
+     1,
+     2,
+     3
+    ],
+    "label": "Folder",
+    "ok": true,
+    "series": ""
+   },
+   "op": "groups/apply",
+   "params": {
+    "folders": [
+     "beach",
+     "home",
+     "work"
+    ],
+    "groups": [],
+    "label": "Episode"
+   }
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 3,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 0,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Everything is translated.",
+     "remaining": 0,
+     "status": "complete"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 6,
+     "wip": 0
+    },
+    "general": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {
+     "1": "beach",
+     "2": "home",
+     "3": "work"
+    },
+    "groups_defined": true,
+    "labels": {
+     "group": "Folder",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "beach/a.rpy",
+      "beach/b.rpy",
+      "home/a.rpy",
+      "home/b.rpy",
+      "work/a.rpy",
+      "work/b.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 6.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 6,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2,
+       3
+      ],
+      "episodes_done": 0,
+      "episodes_total": 3,
+      "files": 0,
+      "files_done": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "status": "active",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     }
+    ],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 100.0,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 0,
+     "total": 6
+    },
+    "unassigned": {
+     "files": 6,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 6
+     },
+     "translation": {
+      "done": 6,
+      "percent": 100.0,
+      "total": 6
+     }
+    },
+    "undo": [],
+    "unsaved": [],
+    "validation": {
+     "error": 0,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": []
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "current": {
+     "folders": [
+      "beach",
+      "home",
+      "work"
+     ],
+     "groups": [
+      1,
+      2,
+      3
+     ],
+     "label": "Folder",
+     "sections": 1,
+     "series": ""
+    },
+    "ok": true,
+    "proposal": {
+     "folders": [
+      "beach",
+      "home",
+      "work"
+     ],
+     "groups": [],
+     "label": "Episode",
+     "matched": 0,
+     "sections": [],
+     "series": "",
+     "total": 6
+    },
+    "words": [
+     "Folder",
+     "Episode",
+     "Chapter",
+     "Part",
+     "Day",
+     "Update",
+     "Act"
+    ]
+   },
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "beach/a.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "beach/b.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "home/a.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "home/b.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "work/a.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "work/b.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     }
+    ],
+    "ok": true
+   },
+   "op": "files",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 6,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 6,
+     "stale": 0,
+     "todo": 0,
+     "translated": 6
+    },
+    "items": [
+     {
+      "block": "translate czech beacha_00000001",
+      "file": "beach/a.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/beach/a.rpy:1",
+      "source": "Hello from beach a.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj z beach a.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech beachb_00000001",
+      "file": "beach/b.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/beach/b.rpy:1",
+      "source": "Hello from beach b.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj z beach b.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech homea_00000001",
+      "file": "home/a.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/home/a.rpy:1",
+      "source": "Hello from home a.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj z home a.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech homeb_00000001",
+      "file": "home/b.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/home/b.rpy:1",
+      "source": "Hello from home b.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj z home b.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech worka_00000001",
+      "file": "work/a.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/work/a.rpy:1",
+      "source": "Hello from work a.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj z work a.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech workb_00000001",
+      "file": "work/b.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/work/b.rpy:1",
+      "source": "Hello from work b.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj z work b.",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 6
+   },
+   "op": "entries",
+   "params": {
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "label": "assign",
+    "ok": true,
+    "problems": []
+   },
+   "op": "assign",
+   "params": {
+    "name": "home/a.rpy",
+    "v": "ep:2"
+   }
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 1
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 1,
+       "percent": 100.0,
+       "total": 1
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 3,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 0,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Everything is translated.",
+     "remaining": 0,
+     "status": "complete"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 6,
+     "wip": 0
+    },
+    "general": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {
+     "1": "beach",
+     "2": "home",
+     "3": "work"
+    },
+    "groups_defined": true,
+    "labels": {
+     "group": "Folder",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "beach/a.rpy",
+      "beach/b.rpy",
+      "home/a.rpy",
+      "home/b.rpy",
+      "work/a.rpy",
+      "work/b.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 6.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 6,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2,
+       3
+      ],
+      "episodes_done": 0,
+      "episodes_total": 3,
+      "files": 1,
+      "files_done": 1,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 1
+      },
+      "status": "active",
+      "translation": {
+       "done": 1,
+       "percent": 100.0,
+       "total": 1
+      }
+     }
+    ],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 100.0,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 0,
+     "total": 6
+    },
+    "unassigned": {
+     "files": 5,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 5
+     },
+     "translation": {
+      "done": 5,
+      "percent": 100.0,
+      "total": 5
+     }
+    },
+    "undo": [
+     "Assignment of a.rpy"
+    ],
+    "unsaved": [],
+    "validation": {
+     "error": 0,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": []
+   },
+   "op": "overview",
+   "params": {}
+  }
+ ]
+}

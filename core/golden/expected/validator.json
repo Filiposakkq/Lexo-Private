@@ -1,0 +1,139 @@
+[
+ {
+  "category": "",
+  "issues": [],
+  "name": "fine",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [
+   {
+    "category": "syntax",
+    "code": "variable-missing",
+    "severity": "warning"
+   }
+  ],
+  "name": "variable missing",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [
+   {
+    "category": "syntax",
+    "code": "variable-unknown",
+    "severity": "error"
+   },
+   {
+    "category": "syntax",
+    "code": "variable-missing",
+    "severity": "warning"
+   }
+  ],
+  "name": "variable unknown",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [
+   {
+    "category": "syntax",
+    "code": "tag-missing",
+    "severity": "warning"
+   }
+  ],
+  "name": "tag missing",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [],
+  "name": "tags out of order",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [
+   {
+    "category": "text",
+    "code": "numbers-differ",
+    "severity": "warning"
+   }
+  ],
+  "name": "number changed",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [
+   {
+    "category": "text",
+    "code": "double-space",
+    "severity": "warning"
+   }
+  ],
+  "name": "double space",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [
+   {
+    "category": "structure",
+    "code": "speaker-changed",
+    "severity": "error"
+   }
+  ],
+  "name": "speaker changed",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [
+   {
+    "category": "structure",
+    "code": "suffix-changed",
+    "severity": "error"
+   }
+  ],
+  "name": "suffix changed",
+  "pending": false
+ },
+ {
+  "category": "english",
+  "issues": [],
+  "name": "untranslated english",
+  "pending": true
+ },
+ {
+  "category": "empty",
+  "issues": [],
+  "name": "empty",
+  "pending": true
+ },
+ {
+  "category": "",
+  "issues": [],
+  "name": "brackets",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [],
+  "name": "quotes",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [],
+  "name": "repeated word",
+  "pending": false
+ },
+ {
+  "category": "",
+  "issues": [],
+  "name": "english left",
+  "pending": false
+ }
+]
