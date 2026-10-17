@@ -39,15 +39,28 @@ class GamePart:
             text = (base / "game" / "gui.rpy").read_text(encoding="utf-8", errors="replace")
         except OSError:
             return out
-        found = {}
-        for m in re.finditer(r"^\s*define\s+gui\.(\w+)\s*=\s*(\d+)\b", text, re.MULTILINE):
-            found.setdefault(m.group(1), int(m.group(2)))
+        found, fractions = {}, {}
+        # numbers may be negative (name_ypos = -66) and a number with a decimal point is a FRACTION of the container in Ren'Py (dialogue_ypos = 0.33)
+        for m in re.finditer(r"^\s*define\s+gui\.(\w+)\s*=\s*(-?\d+(?:\.\d+)?)\b", text, re.MULTILINE):
+            if m.group(1) in found:
+                continue
+            if "." in m.group(2):
+                fractions[m.group(1)] = float(m.group(2))
+                found[m.group(1)] = 0
+            else:
+                found[m.group(1)] = int(m.group(2))
         m = re.search(r"gui\.init\(\s*(\d+)\s*,\s*(\d+)", text)
         if m:
             found["screen_width"], found["screen_height"] = int(m.group(1)), int(m.group(2))
         for k in self.GUI_DEFAULTS:
             if k in found:
                 out[k] = found[k]
+        width, height = out["screen_width"], out["screen_height"]
+        tb_height = out["textbox_height"] if "textbox_height" not in fractions else round(fractions["textbox_height"] * height)
+        out["textbox_height"] = tb_height
+        for k, whole in (("name_ypos", tb_height), ("dialogue_ypos", tb_height), ("name_xpos", width), ("dialogue_xpos", width), ("dialogue_width", width)):
+            if k in fractions:
+                out[k] = round(fractions[k] * whole)
         out["source"] = msg("gui.rpy of the game") if any(k in found for k in self.GUI_DEFAULTS) else msg("default values")
         return out
 
