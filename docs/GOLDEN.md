@@ -15,6 +15,11 @@ core/golden/
   expected/...                        the recorded answers (generated; JSON, normalised)
 ```
 
+## Scope: Free Core only, not the Pro pack
+The golden data covers what Core does **without the Pro pack**: the 73 operations that need no Pro feature (of the 80 operations, seven belong to the five gated features: `publish/plan`, `publish/confirm`, `mt/targets`, `mt/batch`, `fix/preview`, `fix/apply`, `assign/suggest`, and the regex mode of `replace/*`; without the pack they answer "locked" and the scenarios do not call them).
+The Pro pack has its own tests (`pro/tests`, Python) and is **not part of the Rust port of Core**. How the pack is ported or kept is decided together with the sidecar transport (docs/PRO-DESIGN.md): because it is called through plain JSON
+(feature, method, payload), it can stay a separate program written in any language, and golden data for it (the requests and answers of each Pro method) can be added the same way when that decision is made.
+
 ## What a scenario is
 Open `game/tl/czech` of the project (a copy in a temporary folder), then run every step with `api.call(app, op, params)` (docs/API.md) and record the answer (or the error message).
 At the end record every `.rpy` of the translation folder: its SHA-1 and its text (or base64 when it is not UTF-8). So reads, writes (`entry/save`, `assign`, `groups/apply` ...) and
@@ -35,4 +40,4 @@ Where Python's own wording leaks into an answer (pickle or zlib messages) the go
 - `py core/tests/golden_tool.py` regenerates `expected/` from the inputs. Look at the diff before committing it: a changed answer is a changed behaviour.
 - `core/tests/test_golden.py` checks that Core still gives the recorded answers, that every input has an answer and no answer is stale, and that nothing belonging to one machine is recorded.
 - `.gitattributes` marks `core/golden/**` as not text, so a checkout never changes a line end (the digests are those of the bytes).
-- New cases: add the input file, run the tool, commit both. The Pro features are not part of the golden data (a Free Core is what is ported first); their answers are checked in `pro/tests`.
+- New cases: add the input file, run the tool, commit both. The Pro features are not part of the golden data (see "Scope" above).
