@@ -119,6 +119,9 @@ Not done (each is its own piece of work, listed so nothing is forgotten):
 - A demo limit is "items per action"; nothing ties the actions together, so a client that repeats the call gets more (accepted for the cheap taste features).
 - Decisions that belong to the owner and are still open: the licence of the public part (see FEATURES.md, open questions) and the price.
 
+## The UI of the Pro features
+For now the screens of the five features are part of the Free UI, but each one is entered through `38-pro.js`, which asks Core whether the feature is available and says "Pro feature" when it is not (variant A, possibly temporary). Variant B, where the pack carries its own screens, is open until after the port (docs/RUST-PORT.md, section 8).
+
 ## After the port to Rust
 How the pack connects to the Rust Core, the options for running it without Python (a closed Rust crate that depends on Core is recommended) and what has to be recorded in golden data first: docs/RUST-PORT.md, section 9.
 

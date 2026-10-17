@@ -6,6 +6,7 @@ import { dialog, fail, toast } from './13-feedback.js';
 import { chip, fname } from './14-renderers.js';
 import { go } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
+import { requireFeature } from './38-pro.js';
 /* Fix speaker / attributes / trailing code from the original (the only operation that edits the .rpy files). */
 /* Shows what changed between two texts: common start / end stay plain, the middle is marked. */
 export function diffSpans(before, after) {
@@ -27,6 +28,7 @@ const FIX_KIND_HELP = labels({
   typo: 'Suggestions from the dictionary of your own translation. Short and uncertain words are unticked because they may be a false alarm (byt / být). Tick only what you really want.',
 });
 export async function fixDialog({ items = [], file = '', kinds = ['speaker', 'spaces', 'typo'] }, done) {
+  if (!await requireFeature('fixes.safe')) return;
   let data;
   try { data = await post('fix/preview', { items, file, kinds }); } catch (e) { return fail(e); }
   if (!data.total) return toast(T('Nothing to fix.'), 'ok');

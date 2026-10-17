@@ -22,7 +22,8 @@ rust/                       Cargo workspace (private monorepo, next to core/ fre
 ```
 Rust names follow the Python modules (`rpy.rs` for `rpy.py`) so that a reviewer can put the two side by side. Public API of a module = what the Python module exports and the operations use.
 
-## 3. Prerequisites (nothing is installed yet)
+## 3. Prerequisites
+**Installed so far (with the owner's permission): the Rust toolchain 1.99.1 on drive E:**, because C: has only about 9.7 GB free and the owner did not want it on C: or D:. It is the GNU host (`x86_64-pc-windows-gnu`), profile minimal, in `E:\rust` (`rustup`, `cargo`, `target`); nothing is added to PATH or changed in the system, so each command sets `RUSTUP_HOME=E:\rust\rustup`, `CARGO_HOME=E:\rust\cargo` and puts `E:\rust\cargo\bin` first in `PATH`. `rustup-init.exe` was checked against the published SHA256 before it ran. A hello world builds. This is enough for `lexo-core` and the golden runner (M0 to M7); **MSVC Build Tools are not installed**, and whether Tauri (M8) is built with MSVC or with the GNU host is decided at M8 (CI has MSVC anyway). The list below is what the port still needs:
 - Rust toolchain (stable, via rustup) and the **MSVC Build Tools** on Windows; for Tauri also WebView2 (present with Edge). **Installing them is a download: ask the owner first.** CI installs them itself (`windows-latest` has MSVC and a Rust toolchain).
 - Crates (checked for licence before use: MIT / Apache-2.0 only, no GPL): `serde`, `serde_json`, `fancy-regex` (Python's patterns use look-around, which the plain `regex` crate does not have: 8 lines in 5 modules), `flate2` (zlib), `zip` (snapshots), `sha1`, `csv`, `unicode-segmentation` / `unicode-normalization` if a golden case shows a difference, `ureq` (machine translation over HTTPS), `tauri` 2.x, `tiny_http` or `axum` (the dev server), `tempfile` (tests). A small **restricted pickle reader** for `.rpa` indexes is written by hand (only dict, list, tuple, int, str, bytes; any global is refused, as `rpa.py` does) rather than pulled in as a dependency.
 - A CI job `rust` (`.github/workflows/rust.yml`): `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` on `windows-latest` (and `ubuntu-latest` as soon as the golden runner is green, to find path and encoding assumptions early).
@@ -92,6 +93,8 @@ Each milestone ends with: its golden cases pass (`cargo test`), the CI job is gr
 | JSON | key order, number formatting (`1.0` vs `1`), non-ASCII escapes | the runner compares parsed JSON, not text; the answers the UI reads are compared by value |
 
 ## 8. How the UI reaches the Rust Core
+**Pro features in the UI today (variant A, possibly temporary).** The UI of the five Pro features still lives in the Free UI. It asks Core which features are available (`features`, `ui/js/38-pro.js`) and, when one is not, shows a short "Pro feature" window instead of a failing call; the decision stays in Core and the pack. After the port the alternative is variant B: the pack ships its own UI pieces and Free only has a place for them (`ui_strings(code)` of the pack already carries their texts). It is decided with the sidecar question in section 9.
+
 The interface is already one function: `call(op, params)` (`core/lexo/api.py`). In the browser build, `ui/js/10-api.js` turns it into `fetch('/api/<path>')`. In the Tauri build it will call `invoke('call', { op, params })` (and a second command for binary answers: fonts and pictures). Nothing else in the UI changes; the session routes (windows, focus, folder dialog, pings, fullscreen) become Tauri commands and events. The dev server of M7 keeps the HTTP form alive, which is what lets the existing UI self-test and CI run unchanged.
 
 ## 9. How the Pro pack connects after the port

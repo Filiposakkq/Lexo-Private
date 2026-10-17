@@ -7,6 +7,7 @@ import { empty, fname, loading } from './14-renderers.js';
 import { go } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
 import { diffSpans } from './23-fixes.js';
+import { requireFeature } from './38-pro.js';
 /* Find and replace in the translated texts of all or chosen files, with a preview you tick line by line. */
 export async function replaceDialog(done, preselected = []) {
   const allFiles = (S.files || []).map((x) => x.name);
@@ -23,7 +24,7 @@ export async function replaceDialog(done, preselected = []) {
   const MODE_HELP = { plain: T('Finds text anywhere (also inside words).'), word: T('Finds whole words only.'), stem: T('Also finds other forms of the word by its stem (dikmince → dikminci) and keeps their ending. Works well only for words with the same declension – always check the preview.'), regex: T('A Python regular expression; in the replacement you can use \\1, \\2…') };
   const hint = h('div', { class: 'muted' });
   function paintMode() {
-    modeSeg.replaceChildren(...MODES.map(([k, l]) => h('button', { class: st.mode === k ? 'on' : '', onclick: () => { st.mode = k; paintMode(); schedule(); } }, l)));
+    modeSeg.replaceChildren(...MODES.map(([k, l]) => h('button', { class: st.mode === k ? 'on' : '', onclick: async () => { if (k === 'regex' && !await requireFeature('replace.regex')) return; st.mode = k; paintMode(); schedule(); } }, l)));
     hint.textContent = MODE_HELP[st.mode];
   }
   function paintScope() {
