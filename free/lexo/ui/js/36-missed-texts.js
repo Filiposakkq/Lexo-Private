@@ -54,7 +54,7 @@ export async function missedTextsDialog(done) {
     const forget = data.settings.ignored.length
       ? h('button', { class: 'btn small ghost', onclick: async () => { try { await post('missed/ignore', { clear: true }); await load(); } catch (e) { fail(e); } } }, T('Forget the {n} ignored texts', { n: data.settings.ignored.length })) : null;
     results.replaceChildren(
-      h('p', { class: 'muted' }, T('Ren\'Py\'s generator takes only dialogue, menu choices, screens and strings marked _("…"). Texts shown in other ways, such as show text, an input prompt or a title kept in a variable, are not in the translation files. This list is a guess from the game\'s scripts – tick what is really shown to the player. The chosen texts are added to extra_strings.rpy and appear as untranslated lines.')),
+      h('p', { class: 'muted' }, T('Ren\'Py\'s generator takes only dialogue, menu choices, screens and strings marked _("…"). Texts shown in other ways, such as show text, an input prompt or a title kept in a variable, are not in the translation files. This list is a guess from the game\'s scripts – tick what is really shown to the player. The chosen texts are added to the translation file of their script (or to extra_strings.rpy) and appear as untranslated lines.')),
       h('div', { class: 'toolbar' }, more, forget),
       h('div', { class: 'toolbar' }, h('b', null, T('Functions of this game that show text:')), fnInput, h('button', { class: 'btn small', onclick: saveFunctions }, T('Save')),
         h('button', { class: 'btn small', onclick: findFunctions }, T('Find functions…'))),

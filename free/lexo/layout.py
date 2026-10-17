@@ -40,8 +40,9 @@ DEFAULT_LABELS = {"section": "Season", "group": "Episode"}
 
 
 class Layout:
-    def __init__(self, sections=(), labels=None, language=""):
+    def __init__(self, sections=(), labels=None, language="", series=""):
         self.language = language
+        self.series = series              # files called <series>, <series>2, <series>3 ... are groups 1, 2, 3 ... (e.g. "script")
         self.sections = tuple(sections)
         self.labels = dict(DEFAULT_LABELS, **(labels or {}))
         self.active_groups = tuple(g for s in self.sections if s["status"] == "active" for g in s["episodes"])
@@ -59,7 +60,7 @@ class Layout:
         return ()
 
     def to_json(self):
-        return {"version": 1, **({"language": self.language} if self.language else {}), "labels": self.labels,
+        return {"version": 1, **({"language": self.language} if self.language else {}), **({"series": self.series} if self.series else {}), "labels": self.labels,
                 "sections": [{"n": s["n"], "status": s["status"], **({"groups": list(s["episodes"])} if s["status"] == "active" else {})}
                              for s in self.sections]}
 
@@ -96,7 +97,10 @@ def parse(raw):
     language = raw.get("language", "")
     if not isinstance(language, str):
         raise LayoutError("\"language\" must be a language code such as \"cs\"")
-    return Layout(secs, {k: v for k, v in labels.items() if k in DEFAULT_LABELS}, language.strip().lower())
+    series = raw.get("series", "")
+    if not isinstance(series, str) or (series and not re.fullmatch(r"[A-Za-z_][\w-]*", series)):
+        raise LayoutError("\"series\" must be a file name stem such as \"script\"")
+    return Layout(secs, {k: v for k, v in labels.items() if k in DEFAULT_LABELS}, language.strip().lower(), series)
 
 
 def load(data_dir):
@@ -159,6 +163,42 @@ def group_regex(word=None):
     return re.compile(rf"(?<![a-z0-9])(?:{GROUP_WORDS.get(word, GROUP_WORDS['Episode'])})[ _-]?0*(\d{{1,3}})(?!\d)")
 
 
+def series_number(path, series):
+    """The group number of a file named <series>, <series>2, <series>3 ... (the bare name is 1); None for any other file."""
+    if not series:
+        return None
+    stem = str(path).replace("\\", "/").rsplit("/", 1)[-1].rsplit(".", 1)[0].lower()
+    s = series.lower()
+    if stem == s:
+        return 1
+    m = re.fullmatch(rf"{re.escape(s)}[ _-]?0*(\d{{1,3}})", stem)
+    return int(m.group(1)) if m else None
+
+
+_STEM_RE = re.compile(r"^([a-z][a-z_]*?)[ _-]?0*(\d{1,3})?$")
+
+
+def _best_series(paths):
+    """The file name stem whose files form a numbered series (script, script2, script3 ...): (stem, numbers, files).
+    A series needs the numbers 1, 2, 3 ... without a gap (at least three), and in a big project (more than 30 files) at least 15 % of
+    all files: scene families such as `bedroom1`, `bedroom4`, `bedroom5` are not episodes."""
+    fam = {}
+    for p in paths:
+        m = _STEM_RE.match(p.rsplit("/", 1)[-1].rsplit(".", 1)[0])
+        if m:
+            fam.setdefault(m.group(1), {})[int(m.group(2)) if m.group(2) else 1] = p
+    best = ("", [], 0)
+    for stem, nums in fam.items():
+        ordered = sorted(nums)
+        if len(ordered) < 3 or ordered != list(range(1, len(ordered) + 1)):
+            continue
+        if len(paths) > 30 and len(ordered) / len(paths) < 0.15:
+            continue
+        if (len(ordered), stem) > (len(best[1]), best[0]):
+            best = (stem, ordered, len(ordered))
+    return best
+
+
 def propose(names):
     """Guess the groups of a project from its file names: {label, groups, sections, matched, total}.
     The word (episode, chapter, part, day, update, act) that names the most different numbers wins; `season N` in a name makes sections.
@@ -176,8 +216,11 @@ def propose(names):
         if len(nums) >= 2 and (len(nums), files) > (len(best[1]), best[2]):
             best = (word, sorted(nums)[:200], files)
     word, groups, matched = best
+    stem, snums, sfiles = _best_series(paths)
+    if len(snums) > len(groups):                        # script, script2, script3 ... beat a weak word match
+        return {"label": "Episode", "groups": snums[:200], "sections": [{"n": 1, "groups": snums[:200]}], "matched": sfiles, "total": len(paths), "series": stem}
     if not groups:
-        return {"label": "Episode", "groups": [], "sections": [], "matched": 0, "total": len(paths)}
+        return {"label": "Episode", "groups": [], "sections": [], "matched": 0, "total": len(paths), "series": ""}
     rx = group_regex(word)
     season_of_group = {}
     for p in paths:
@@ -194,10 +237,10 @@ def propose(names):
         sections = [{"n": n, "groups": gs} for n, gs in sorted(by_season.items())]
     else:
         sections = [{"n": 1, "groups": groups}]
-    return {"label": word, "groups": groups, "sections": sections, "matched": matched, "total": len(paths)}
+    return {"label": word, "groups": groups, "sections": sections, "matched": matched, "total": len(paths), "series": ""}
 
 
-def save_groups(data_dir, label, sections):
+def save_groups(data_dir, label, sections, series=""):
     """Write the groups into lexo.json (other keys, such as `language`, stay). `sections`: [{"n": 1, "groups": [1, 2, 3]}].
     Returns the new Layout; raises LayoutError for numbers that cannot be used."""
     path = Path(data_dir) / FILE_NAME
@@ -212,6 +255,10 @@ def save_groups(data_dir, label, sections):
     labels = dict(raw.get("labels", {}) if isinstance(raw.get("labels"), dict) else {})
     labels["group"] = label
     raw.update(version=1, labels=labels, sections=[{"n": s["n"], "status": "active", "groups": list(s["groups"])} for s in sections])
+    if series:
+        raw["series"] = series
+    else:
+        raw.pop("series", None)
     lay = parse(raw)                                    # validates: raises LayoutError before anything is written
     atomic_write_text(path, json.dumps(raw, ensure_ascii=False, indent=1) + "\n")
     return lay

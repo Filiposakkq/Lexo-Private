@@ -337,6 +337,7 @@
   "File: {name}": "Soubor: {name}",
   "Files": "Soubory",
   "Files by status": "Soubory podle stavu",
+  "Files called {a}, {b}2, {b}3… are groups 1, 2, 3…": "Soubory pojmenované {a}, {b}2, {b}3… jsou skupiny 1, 2, 3…",
   "Fill in the code or the term.": "Vyplň kód nebo termín.",
   "Filter by assignment": "Filtr podle zařazení",
   "Filter by check": "Filtr podle kontroly",
@@ -839,7 +840,7 @@
   "Ren'Py lint checks the whole game (missing images, unknown labels, broken translations) and finds things our checks cannot see. It needs the Ren'Py SDK folder and the source files of the game (game/…) above the translation folder. It can take a minute or longer; you can keep using the app meanwhile.": "Ren'Py lint zkontroluje celou hru (chybějící obrázky, neznámá návěští, rozbité překlady) a najde věci, které naše kontroly nevidí. Potřebuje složku Ren'Py SDK a zdrojové soubory hry (game/…) nad složkou překladu. Může trvat minutu i déle; aplikace se mezitím dá používat dál.",
   "Ren'Py SDK folder": "Složka Ren'Py SDK",
   "Ren'Py SDK folder, e.g. C:\\renpy-8.1.1-sdk": "Složka Ren'Py SDK, např. C:\\renpy-8.1.1-sdk",
-  "Ren'Py's generator takes only dialogue, menu choices, screens and strings marked _(\"…\"). Texts shown in other ways, such as show text, an input prompt or a title kept in a variable, are not in the translation files. This list is a guess from the game's scripts – tick what is really shown to the player. The chosen texts are added to extra_strings.rpy and appear as untranslated lines.": "Generátor Ren'Py bere jen dialogy, volby v nabídkách, obrazovky a řetězce označené _(\"…\"). Texty zobrazené jinak, například přes show text, výzvu k zadání nebo název uložený v proměnné, v překladových souborech nejsou. Tento seznam je odhad ze skriptů hry – zaškrtni to, co hráč opravdu vidí. Vybrané texty se přidají do extra_strings.rpy a objeví se jako nepřeložené řádky.",
+  "Ren'Py's generator takes only dialogue, menu choices, screens and strings marked _(\"…\"). Texts shown in other ways, such as show text, an input prompt or a title kept in a variable, are not in the translation files. This list is a guess from the game's scripts – tick what is really shown to the player. The chosen texts are added to the translation file of their script (or to extra_strings.rpy) and appear as untranslated lines.": "Generátor Ren'Py bere jen dialogy, volby v nabídkách, obrazovky a řetězce označené _(\"…\"). Texty zobrazené jinak, například přes show text, výzvu k zadání nebo název uložený v proměnné, v překladových souborech nejsou. Tento seznam je odhad ze skriptů hry – zaškrtni to, co hráč opravdu vidí. Vybrané texty se přidají do překladového souboru svého skriptu (nebo do extra_strings.rpy) a objeví se jako nepřeložené řádky.",
   "Renamed files": "Přejmenované soubory",
   "renamed {n}": "přejmenováno {n}",
   "Replace": "Nahradit",
@@ -1552,10 +1553,10 @@
    "{n} míst"
   ],
   "{n} proofread": "{n} korektura",
-  "{n} text was added to extra_strings.rpy.|{n} texts were added to extra_strings.rpy.": [
-   "Do extra_strings.rpy byl přidán {n} text.",
-   "Do extra_strings.rpy byly přidány {n} texty.",
-   "Do extra_strings.rpy bylo přidáno {n} textů."
+  "{n} text was added to the translation files.|{n} texts were added to the translation files.": [
+   "Do překladových souborů byl přidán {n} text.",
+   "Do překladových souborů byly přidány {n} texty.",
+   "Do překladových souborů bylo přidáno {n} textů."
   ],
   "{n} translated": "{n} přeloženo",
   "{n} warn · {score} / 100 lines": "{n} var · {score} / 100 řádků",

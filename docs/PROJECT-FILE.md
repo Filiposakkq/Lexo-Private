@@ -34,3 +34,9 @@ A project that has no groups (a game other than Being a DIK) gets them from the 
 The dialog shows the proposal ("Episode 1-8, 44 of 72 files"), lets you change the word and the numbers, and writes `labels.group` and one section into `lexo.json` (other keys, such as `language`, stay).
 The word is used everywhere ("Chapter 3" instead of "Episode 3"); the suggestion of assignments reads the numbers with the same word. A project with several sections (the BaDIK layout) is edited in the file by hand.
 Until groups exist, files can only be "General" or unassigned, and the Overview offers "Set up groups…".
+
+### Numbered series: `script`, `script2`, `script3`
+Many games name their episodes by the main file: `script.rpy` (1), `script2.rpy`, `script3.rpy` … (A Wife and Mother: 4 files, Eternum: 9). Lexo proposes this when the numbers 1, 2, 3 … run without a gap
+(at least three files, and in a project of more than 30 files at least 15 % of them; scene families such as `bedroom1, bedroom4, bedroom5` do not count), and the dialog has a tick box for it.
+`lexo.json` then holds `"series": "script"`, and the suggestion of assignments maps `script` to group 1, `script2` to group 2 and so on (a number in a word like `ep2` is used as before).
+Games that are organised by folder (Milfy City, LoSeSb) get no proposal; their groups would have to come from the folders (not built).

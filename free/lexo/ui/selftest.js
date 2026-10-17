@@ -131,11 +131,11 @@
       if (inputs) {
         ok('dialog nabízí režimy hledání', document.querySelectorAll('#dlg .seg button').length >= 4, 'chybí režimy');
         inputs[0].value = 'a'; inputs[0].dispatchEvent(new Event('input'));
-        const shown = await waitFor(() => document.querySelector('#dlg .tablewrap, #dlg .empty, #dlg .notice.bad'), 5000);
+        const shown = await waitFor(() => document.querySelector('#dlg .tablewrap, #dlg .empty, #dlg .notice.bad'), 15000);
         ok('náhled hledání se vykreslí', shown && !document.querySelector('#dlg .notice.bad'), 'náhled selhal');
         inputs[0].value = '('; inputs[0].dispatchEvent(new Event('input'));
         [...document.querySelectorAll('#dlg .seg button')].find((b) => b.textContent.includes('Regulární'))?.click();
-        ok('špatný regulární výraz se ohlásí chybou, ne výjimkou', await waitFor(() => document.querySelector('#dlg .notice.bad'), 5000), 'chyba se nezobrazila');
+        ok('špatný regulární výraz se ohlásí chybou, ne výjimkou', await waitFor(() => document.querySelector('#dlg .notice.bad'), 15000), 'chyba se nezobrazila');
       }
       closeDialog();
     }

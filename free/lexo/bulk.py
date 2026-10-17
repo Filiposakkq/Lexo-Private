@@ -36,7 +36,11 @@ def episode_hint(n, rows):
 
 def _signals(rel):
     p = _posix(rel)
-    eps = sorted({int(m) for m in layout.group_regex().findall(p)})
+    found = {int(m) for m in layout.group_regex().findall(p)}
+    n = layout.series_number(p, layout.current().series)         # script, script2, script3 ... (a project setting)
+    if n:
+        found.add(n)
+    eps = sorted(found)
     updates = sorted({int(m) for m in UPDATE_RE.findall(p)})
     seasons = sorted({int(m) for m in SEASON_RE.findall(p)})
     return eps, updates, seasons
