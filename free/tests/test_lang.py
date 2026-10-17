@@ -2,7 +2,7 @@
 import json
 import unittest
 
-from helpers import TempCase, dialog
+from helpers import EIGHT_EPISODES, TempCase, dialog
 
 from lexo import lang, layout, validator
 
@@ -84,7 +84,7 @@ class ProjectLanguageTests(TempCase):
     def test_language_comes_from_the_project_file(self):
         self.use_layout(None, language="")
         self.assertIs(lang.current(), lang.NEUTRAL)
-        self.use_layout(layout.BADIK_SECTIONS, language="cs")
+        self.use_layout(EIGHT_EPISODES, language="cs")
         self.assertEqual(lang.current().code, "cs")
 
     def test_open_project_applies_the_language_and_reports_an_unknown_one(self):
@@ -96,14 +96,6 @@ class ProjectLanguageTests(TempCase):
         app = self.new_app()
         self.assertIs(lang.current(), lang.NEUTRAL)
         self.assertTrue(any("no language pack" in n for n in app.notices))
-
-    def test_legacy_data_keeps_czech(self):
-        self.use_layout(None, language="")
-        d = self.root / ".lexo"
-        d.mkdir(exist_ok=True)
-        (d / "epizody.csv").write_text("epizoda;stav\n", encoding="utf-8")
-        lay, _ = layout.load(d)
-        self.assertEqual(lay.language, "cs")
 
 
 if __name__ == "__main__":

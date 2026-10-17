@@ -1,13 +1,20 @@
 """Machine translation of lines."""
 from dataclasses import replace
 
-from . import fixes, mt, validator
+from . import layout, fixes, mt, validator
 from .messages import msg
 from .messages import text_of
 from .app_base import AppError
 
 
 class MtPart:
+    def _mt_config(self):
+        """The machine translation settings; an empty target language means "the language of the project" (its pack, or the name of its tl folder)."""
+        cfg = dict(self.config.get("mt", {}))
+        if not cfg.get("target_lang"):
+            cfg["target_lang"] = mt.target_language(layout.current().language, self.project.root.name if self.project else "")
+        return cfg
+
     def _mt_one(self, rel, ents, idx, cfg, terms):
         """Machine translation suggestion for ents[idx] (with the two lines before it as context) + what the validator says."""
         ent = ents[idx]
@@ -29,7 +36,7 @@ class MtPart:
         idx = next((i for i, e in enumerate(ents) if e.line == line and e.source is not None), None)
         if idx is None:
             raise AppError(msg("The line is no longer in the file – refresh the files."))
-        return self._mt_one(rel, ents, idx, dict(self.config.get("mt", {})), self._terms())
+        return self._mt_one(rel, ents, idx, self._mt_config(), self._terms())
 
     MT_BATCH = 10            # lines per request: the UI loops, so it can show progress and stop
 
@@ -75,7 +82,7 @@ class MtPart:
         self._need_project()
         self._gate("mt.batch")
         items = list(items or [])[: self.MT_BATCH]
-        cfg, terms, results = dict(self.config.get("mt", {})), self._terms(), []
+        cfg, terms, results = self._mt_config(), self._terms(), []
         for it in items:
             rel, line = str(it["file"]), int(it["line"])
             ents = self.project.entries(rel) if rel in self.project.files else []

@@ -5,7 +5,7 @@
   override the folder with the LEXO_CONFIG_DIR environment variable (used by the tests).
 
 Holds: the remembered project folder, the editor, validation thresholds, UI preferences and the
-website settings that used to live in a hand-edited web.json (see migrate_web_json).
+website settings.
 The file never contains secrets: git authenticates through the user's own git credentials.
 """
 import copy
@@ -33,9 +33,9 @@ DEFAULTS = {
     },
     "goals": {"translate_per_week": 0, "proofread_per_week": 0},      # 0 = automatic, from the recent pace
     "snapshots": {"enabled": True, "interval_hours": 12, "keep": 20},  # zip backups of the translation folder
-    "mt": {"provider": "", "api_key": "", "base_url": "", "model": "", "source_lang": "EN", "target_lang": "CS", "consent": False},  # optional machine translation
+    "mt": {"provider": "", "api_key": "", "base_url": "", "model": "", "source_lang": "EN", "target_lang": "", "consent": False},  # optional machine translation
     "lint": {"sdk": ""},                                               # Ren'Py SDK folder for the game check
-    "web": {"repo": "", "path": "web/progress.json", "title": "", "migrated_from": ""},
+    "web": {"repo": "", "path": "web/progress.json", "title": ""},
     "ui": {},
     "author": "",                                                      # id of this person in the event log (set on first use)
 }
@@ -119,31 +119,3 @@ class Config:
             mt["has_key"] = bool(mt.get("api_key"))
             mt["api_key"] = ""
         return d
-
-
-def migrate_web_json(cfg, data_dir):
-    """Import the legacy web.json into the application config.
-
-    Only fills settings that are still empty, never overwrites, never deletes web.json
-    (the translator may want to keep it as a backup). The legacy keys `push` and
-    `allow_main` are intentionally not migrated: publishing is now always confirmed by hand.
-    Returns a short message when something was migrated, else ''.
-    """
-    legacy = Path(data_dir) / "web.json"
-    if cfg.get("web.repo") or not legacy.is_file():
-        return ""
-    try:
-        old = json.loads(legacy.read_text(encoding="utf-8-sig"))
-        repo = str(old["repo"]).strip()
-    except (OSError, ValueError, KeyError, TypeError):
-        return ""
-    if not repo:
-        return ""
-    cfg.set("web.repo", repo)
-    if old.get("path"):
-        cfg.set("web.path", str(old["path"]))
-    if old.get("title"):
-        cfg.set("web.title", str(old["title"]))
-    cfg.set("web.migrated_from", str(legacy))
-    cfg.save()
-    return msg("The website settings were taken over from {name} into the application. You can keep the file as a backup or delete it – the application no longer needs it. Publishing is now always confirmed by hand.", name=legacy.name)

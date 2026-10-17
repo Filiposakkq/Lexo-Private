@@ -3,7 +3,7 @@ import json
 import unittest
 from datetime import date, datetime, timedelta
 
-from helpers import TempCase, dialog, rel
+from helpers import EIGHT_EPISODES, TempCase, dialog, rel
 
 from lexo import bulk, export, history as hist, rpy, validator
 from lexo import layout
@@ -17,7 +17,7 @@ def issues(src, tgt):
 
 class SeasonModelTests(unittest.TestCase):
     def setUp(self):
-        layout.use(layout.Layout(layout.BADIK_SECTIONS, language="cs"))
+        layout.use(layout.Layout(EIGHT_EPISODES, language="cs"))
         self.addCleanup(layout.use, layout.Layout(language="cs"))
 
     def test_mapping_matches_the_project_definition(self):
@@ -33,7 +33,7 @@ class SeasonModelTests(unittest.TestCase):
 
 class SuggestTests(unittest.TestCase):
     def setUp(self):
-        layout.use(layout.Layout(layout.BADIK_SECTIONS, language="cs"))
+        layout.use(layout.Layout(EIGHT_EPISODES, language="cs"))
         self.addCleanup(layout.use, layout.Layout(language="cs"))
 
     def one(self, name, current=None, known=None):

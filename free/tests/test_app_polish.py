@@ -3,7 +3,7 @@ import http.client
 import json
 from unittest import mock
 
-from helpers import TempCase, dialog
+from helpers import TempCase
 
 from lexo import __version__, export, rpy, server
 from lexo.app import LINKS, AppError
@@ -75,14 +75,6 @@ class EpisodeProofStatusTests(TempCase):
         again = self.new_app()                                       # persisted in episode_states.csv
         self.assertEqual(again.store.episodes[1], "proof")
         self.assertIn("proof", (again.data_dir / "episode_states.csv").read_text(encoding="utf-8-sig"))
-
-    def test_old_files_with_four_states_still_load(self):
-        self.basic_project()
-        data = self.root / ".lexo"
-        data.mkdir(exist_ok=True)
-        (data / "epizody.csv").write_text("epizoda;stav\n1;Přeloženo\n2;Hotovo\n", encoding="utf-8")
-        app = self.new_app()
-        self.assertEqual((app.store.episodes[1], app.store.episodes[2]), ("tr", "done"))
 
 
 class LinkTests(TempCase):

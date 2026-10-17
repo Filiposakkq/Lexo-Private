@@ -13,7 +13,7 @@ from helpers import ROOT, TempCase, dialog, rel
 from lexo import cli, editor, publish as pub, server
 from lexo.app import AppError
 from lexo.messages import render
-from lexo.config import Config, migrate_web_json
+from lexo.config import Config
 
 
 class ConfigTests(TempCase):
@@ -79,43 +79,9 @@ class ConfigTests(TempCase):
         self.assertFalse(app.ready)
 
 
-class WebJsonMigrationTests(TempCase):
-    def legacy(self, **kw):
-        d = self.tmp / "data"
-        d.mkdir(exist_ok=True)
-        body = {"repo": "https://github.com/Filiposakkq/Being-A-DIK-CZ.git", "path": "web/progress.json",
-                "title": "Being A DIK", "push": True, "allow_main": True}
-        body.update(kw)
-        (d / "web.json").write_text(json.dumps(body), encoding="utf-8")
-        return d
+class WebSettingsTests(TempCase):
 
-    def test_imports_values_keeps_file_and_drops_auto_push(self):
-        d = self.legacy()
-        c = Config().load()
-        msg = migrate_web_json(c, d)
-        self.assertIn("web.json", msg)
-        self.assertEqual(c.get("web.repo"), "https://github.com/Filiposakkq/Being-A-DIK-CZ.git")
-        self.assertEqual((c.get("web.path"), c.get("web.title")), ("web/progress.json", "Being A DIK"))
-        self.assertNotIn("push", c.data["web"])
-        self.assertNotIn("allow_main", c.data["web"])
-        self.assertTrue((d / "web.json").exists())                     # never deleted
-        self.assertEqual(Config().load().get("web.repo"), c.get("web.repo"))   # persisted
-
-    def test_does_not_overwrite_existing_settings(self):
-        d = self.legacy()
-        c = Config().load()
-        c.set("web.repo", "mine/mine")
-        self.assertEqual(migrate_web_json(c, d), "")
-        self.assertEqual(c.get("web.repo"), "mine/mine")
-
-    def test_broken_or_missing_legacy_file_is_harmless(self):
-        d = self.tmp / "data"
-        d.mkdir()
-        self.assertEqual(migrate_web_json(Config().load(), d), "")
-        (d / "web.json").write_text("{oops", encoding="utf-8")
-        self.assertEqual(migrate_web_json(Config().load(), d), "")
-
-    def test_app_works_without_web_json_and_without_web_settings(self):
+    def test_app_works_without_web_settings(self):
         self.basic_project()
         app = self.new_app()
         self.assertEqual(app.config.get("web.repo"), "")
@@ -123,22 +89,6 @@ class WebJsonMigrationTests(TempCase):
         with self.assertRaises(AppError) as cm:
             app.publish_plan()
         self.assertIn("not set up", str(cm.exception))
-
-    def test_open_project_imports_legacy_file_from_data_dir(self):
-        self.basic_project()
-        data = self.root / ".lexo"
-        data.mkdir(exist_ok=True)
-        (data / "web.json").write_text(json.dumps({"repo": "a/b", "path": "web/progress.json", "push": True}), encoding="utf-8")
-        app = self.new_app()
-        self.assertEqual(app.config.get("web.repo"), "a/b")
-        self.assertTrue(any("web.json" in n for n in app.notices))
-
-    def test_legacy_files_next_to_exe_are_moved_into_data_dir(self):
-        self.basic_project()
-        (self.root / "korekce.csv").write_text("soubor;zkontrolovano;prelozeno_rucne\nscript.rpy;2;\n", encoding="utf-8")
-        app = self.new_app()
-        self.assertFalse((self.root / "korekce.csv").exists())
-        self.assertEqual(app.store.corr["script.rpy"]["c"], "2")
 
 
 class EditorTests(TempCase):

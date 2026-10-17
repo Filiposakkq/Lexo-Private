@@ -9,7 +9,6 @@
   glossary.csv        code;name;type;note                         speaker code -> full name (type "term" for later entries)
   history.csv         see history.py
 
-Data written by the BaDIK tool (Czech file names) is copied to these names once by migrate.py.
 Every write is atomic and backed up (<local data dir>/backups). Mutations go through `change()`,
 which keeps an undo stack of the most recent changes.
 """
@@ -79,7 +78,7 @@ def assign_to_text(v):
 
 def assign_from_text(t):
     f = fold(t)
-    if f in ("general", "gen", "obecne"):
+    if f in ("general", "gen"):
         return "gen"
     digits = "".join(ch for ch in f if ch.isdigit())
     return f"ep:{int(digits)}" if digits else ""
@@ -87,7 +86,10 @@ def assign_from_text(t):
 
 def group_label(n):
     """"Episode 3", "Chapter 3" ...: the word is the `group` label of the open project (layout.py); a word without a translation is used as it is."""
-    word = layout.current().labels.get("group", "Episode")
+    lay = layout.current()
+    if lay.folders and 1 <= int(n) <= len(lay.folders):
+        return lay.folders[int(n) - 1].rsplit("/", 1)[-1]          # one group per folder: the group is called like the folder
+    word = lay.labels.get("group", "Episode")
     return {"Episode": lambda: msg("Episode {n}", n=n), "Chapter": lambda: msg("Chapter {n}", n=n), "Part": lambda: msg("Part {n}", n=n),
             "Day": lambda: msg("Day {n}", n=n), "Update": lambda: msg("Update {n}", n=n), "Act": lambda: msg("Act {n}", n=n)}.get(word, lambda: f"{word} {n}")()
 

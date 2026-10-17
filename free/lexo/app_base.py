@@ -4,9 +4,6 @@ import re
 from . import features
 from .messages import msg
 
-# Files the legacy tool left next to the script; moved into _progress_data on first open.
-LEGACY_FILES = ("web.json", "progress.csv", "historie.csv", "korekce.csv", "epizody.csv",
-                "prirazeni.csv", "schvaleno.csv", "progress.json")
 # The only addresses the app will open in the browser (the UI sends just the id). Empty until the product has a website to point to;
 # nothing here may belong to one person or one game.
 LINKS = {}

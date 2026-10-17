@@ -103,8 +103,24 @@ def _call(url, headers, data, http):
         raise MTError(msg("The service returned an answer I do not understand.")) from e
 
 
+# Ren'Py language folder names (game/tl/<name>) and ISO codes -> the code the services want
+LANGUAGE_CODES = {"czech": "CS", "german": "DE", "french": "FR", "spanish": "ES", "italian": "IT", "portuguese": "PT", "russian": "RU", "polish": "PL",
+                  "slovak": "SK", "english": "EN", "dutch": "NL", "swedish": "SV", "danish": "DA", "finnish": "FI", "norwegian": "NB", "hungarian": "HU",
+                  "romanian": "RO", "bulgarian": "BG", "ukrainian": "UK", "turkish": "TR", "greek": "EL", "japanese": "JA", "chinese": "ZH", "korean": "KO",
+                  "indonesian": "ID", "arabic": "AR", "latvian": "LV", "lithuanian": "LT", "estonian": "ET", "slovenian": "SL", "croatian": "HR"}
+
+
+def target_language(project_language="", folder_name=""):
+    """The target language code for the open project: the language of its pack (`cs`) or, failing that, the name of its tl folder (`czech`).
+    "" when neither says."""
+    code = (project_language or "").strip()
+    if 2 <= len(code) <= 3 and code.isalpha():
+        return code.upper()
+    return LANGUAGE_CODES.get((folder_name or "").strip().lower(), "")
+
+
 def translate(cfg, text, glossary=None, context=None, http=None):
-    """Suggest a Czech (target language) translation of `text`. Returns {text, warnings, provider}.
+    """Suggest a translation of `text` into the target language. Returns {text, warnings, provider}.
 
     cfg = {provider, api_key, base_url, model, source_lang, target_lang, consent}.
     glossary = {english term: czech}; context = previous lines [str] (only used by the openai provider).
@@ -120,7 +136,9 @@ def translate(cfg, text, glossary=None, context=None, http=None):
         raise MTError(msg("The API key is missing."))
     if not text.strip():
         raise MTError(NO_TEXT)
-    src, dst = cfg.get("source_lang", "EN") or "EN", cfg.get("target_lang", "CS") or "CS"
+    src, dst = cfg.get("source_lang", "EN") or "EN", cfg.get("target_lang", "")
+    if not dst:
+        raise MTError(msg("The target language is not known. Set it in Settings → Machine translation."))
     markup = provider in ("deepl", "libretranslate")          # these two parse the text as XML / HTML
     protected, tokens = protect(text, escape=markup)
     if provider == "deepl":

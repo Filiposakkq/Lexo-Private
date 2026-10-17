@@ -1,24 +1,23 @@
 # Data layout (target design; parts 2a, 2b and 2c built)
 
-**Built (step 2a):** the files in `_progress_data` have English names, English column headers and English values, and the Czech names are read only by
-`free/lexo/migrate.py`, which copies them once when a project is opened (old files stay untouched, nothing is overwritten):
+**Built (step 2a):** the data files have English names, English column headers and English values:
 
-| Old (BaDIK tool) | New | Columns |
-|---|---|---|
-| korekce.csv | proofread.csv | file;proofread;translated_manual |
-| prirazeni.csv | assignments.csv | file;group (`general`, `episode N`) |
-| schvaleno.csv | approved.csv | file;block;original |
-| epizody.csv | episode_states.csv | episode;state (`none wip tr proof done`) |
-| korektura_radky.csv | line_marks.csv | file;block;original;state;hash;note;date |
-| ignorovano.csv | ignored.csv | file;block;original;code;hash;note;date |
-| slovnik.csv | glossary.csv | code;name;type;note |
-| historie.csv | history.csv | date;translated;total;percent;proofread;proofread_percent |
-| historie_textu.jsonl | text_history.jsonl | (JSON lines, unchanged) |
+| File | Columns |
+|---|---|
+| proofread.csv | file;proofread;translated_manual |
+| assignments.csv | file;group (`general`, `episode N`) |
+| approved.csv | file;block;original |
+| episode_states.csv | episode;state (`none wip tr proof done`) |
+| line_marks.csv | file;block;original;state;hash;note;date |
+| ignored.csv | file;block;original;code;hash;note;date |
+| glossary.csv | code;name;type;note |
+| history.csv | date;translated;total;percent;proofread;proofread_percent |
+| text_history.jsonl | (JSON lines) |
 
-The BaDIK layout is still detected from the old marker files (`prirazeni.csv`, `epizody.csv`), so a migrated legacy project keeps its groups.
+There is no migration from the Czech-named files of the older BaDIK tool any more: it had one user, and that user keeps working with that tool.
 **Built (step 2b):** the shared folder is `<translation folder>/.lexo/` (constant `DATA_DIR_NAME` in `project.py`, the only place to change if the product gets another name) with the CSV files above, `lexo.json` (was `project.json`) and `project-id`.
 Local data lives in `<config folder>/projects/<project id>/` (on Windows `%APPDATA%/Lexo/projects/<id>`): `backups/`, `snapshots/`, `lock.json`, `text_history.jsonl`, `last_fix.json`, and the derived `progress.csv` / `progress.json`.
-`free/lexo/datadir.py` creates the id, finds the local folder and, the first time a project is opened, **copies** (never moves or deletes) the old `_progress_data`: shared files to `.lexo/` (then `migrate.py` renames them), backups, snapshots and the text history to the local folder. Existing destination files are never overwritten.
+`free/lexo/datadir.py` creates the id and finds the local folder.
 **Built (step 2c):** the event log (`free/lexo/events.py`, `Store.sync_events`):
 - `.lexo/events/<author>.jsonl`, one file per author, one JSON object per line: `{"v":1,"t":<UTC time>,"a":<author>,"kind":<kind>,"key":[...],"value":<json or null>}`. Kinds: `corr`, `assign`, `approved`, `episodes`, `proof`, `ignored` (the glossary stays a small file). `value: null` means removed; undo is a new event.
 - The author id (`<user name>-<4 hex>`) is made on first use and kept in the settings (`author`).
@@ -27,8 +26,7 @@ Local data lives in `<config folder>/projects/<project id>/` (on Windows `%APPDA
 - Clocks decide conflicts, so two people changing the same key within seconds of clock difference may overwrite each other (the later one stays). Compaction of old events and showing conflicts are not built.
 The rest of this document is the target design.
 
-Where Lexo writes, and why. Today (imported BaDIK tool) the data is in `<translation folder>/_progress_data/` as seven Czech-named CSV files.
-This is the target; the move is a separate step with a migration (see the end).
+Where Lexo writes, and why.
 
 ## Rules
 1. Lexo writes only inside the translation folder (`game/tl/<language>/`, which is itself inside `game/`) and never anywhere else in the game: the `.rpy` files of the translation in place (after a backup, atomic write) and its own folder `.lexo/`.
@@ -59,7 +57,6 @@ patterns exclude only entries starting with a dot at the root (`.*`), then class
 `game/tl/czech/.lexo/` can end up in a built game. Consequences:
 - everything bulky or private stays out of the game folder: `local/` (cache, backups, snapshots, text history) is moved to `%APPDATA%\Lexo\projects\<project id>\` and `.lexo/` keeps only the small shared files;
 - the shared part may still reach a build, so it contains no secrets and no personal data beyond the author name the user chose; the app shows the one-line rule to add to `options.rpy` (`build.classify("**/.lexo/**", None)`) and does not write it itself;
-- the same holds for the old `_progress_data`.
 
 ## Events (built, see above)
 One JSON object per line: `{"v":1, "t":"2026-10-17T09:12:00Z", "a":"<author id>", "k":"proofread", "line":"<block id>", "h":"<text hash>", ...}`.
@@ -76,10 +73,6 @@ Kinds: translated (manual override), proofread / flagged / unflagged, approved, 
 ## Other places
 - `%APPDATA%\Lexo\config.json`: settings of the app and the list of known projects (no secrets). Error log next to it.
 - `%APPDATA%\Lexo\packs\`: downloaded language packs. `%APPDATA%\Lexo\memory\`: translation memory shared by several games (Pro).
-
-## Migration from the old layout
-On first opening a project that has `_progress_data` and no `.lexo`: read the old CSV files, write the new files, leave the old folder untouched, and tell the user.
-The old Czech file names are read only by the migration code.
 
 ## Open questions
 - Exact event fields and compaction of very old events (a local compaction only, never rewriting shared files).

@@ -1,8 +1,7 @@
 """Project layout file (lexo.json): groups and sections are defined per project, not in the code."""
-import json
 import unittest
 
-from helpers import TempCase, dialog
+from helpers import EIGHT_EPISODES, TempCase, dialog
 
 from lexo import layout
 
@@ -17,7 +16,7 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(lay.labels, {"section": "Season", "group": "Chapter"})
 
     def test_round_trip(self):
-        lay = layout.Layout(layout.BADIK_SECTIONS)
+        lay = layout.Layout(EIGHT_EPISODES)
         again = layout.parse(lay.to_json())
         self.assertEqual(again.sections, lay.sections)
 
@@ -42,12 +41,6 @@ class LoadTests(TempCase):
         self.use_layout(None)
         lay, note = layout.load(self.data_dir())
         self.assertEqual((lay.active_groups, note), ((), ""))
-
-    def test_legacy_data_without_a_file_keeps_the_first_games_layout(self):
-        self.use_layout(None)
-        (self.data_dir() / "prirazeni.csv").write_text("soubor;zarazeni\n", encoding="utf-8")
-        lay, _ = layout.load(self.data_dir())
-        self.assertEqual(lay.active_groups, tuple(range(1, 9)))
 
     def test_broken_file_is_reported_and_ignored(self):
         (self.data_dir() / layout.FILE_NAME).write_text("{not json", encoding="utf-8")

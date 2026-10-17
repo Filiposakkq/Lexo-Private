@@ -2,15 +2,13 @@
 import getpass
 import json
 import secrets
-import shutil
 import threading
 import webbrowser
 from datetime import datetime
 from pathlib import Path
 
-from . import datadir, editor, events, export, features, history as hist, layout, lint, migrate, mt, publish as pub, texthistory
+from . import datadir, editor, events, export, features, history as hist, layout, lint, mt, publish as pub, texthistory
 from .config import Config
-from .config import migrate_web_json
 from .lock import ProjectLock
 from .lock import ProjectLocked
 from .messages import msg
@@ -25,7 +23,7 @@ from .project import totals_of
 from .store import Store
 from .util import WriteFailed
 from .util import write_csv
-from .app_base import AppError, FeatureLocked, LEGACY_FILES, LINKS, ProjectBusy, UI_PREF_MAX
+from .app_base import AppError, FeatureLocked, LINKS, ProjectBusy, UI_PREF_MAX
 
 
 class CorePart:
@@ -73,16 +71,6 @@ class CorePart:
         except OSError as e:
             raise AppError(msg("Cannot create {folder} in the project folder ({reason}).", folder=DATA_DIR_NAME, reason=e.strerror or e)) from e
         local_dir = datadir.local_dir(data_dir, root)
-        for name in LEGACY_FILES:                       # data of the oldest versions lying next to the .rpy files
-            src = root / name
-            dst = (local_dir if name.startswith("progress.") else data_dir) / name       # progress.* is derived data
-            if src.is_file() and not dst.exists():
-                try:
-                    shutil.move(str(src), str(dst))
-                    self.notices.append(msg("The file {name} was moved to {folder}.", name=name, folder=dst.parent.name))
-                except OSError:
-                    pass
-        data_notes = datadir.migrate_folder(root, data_dir, local_dir)
         with self.lock:
             new_lock = ProjectLock(local_dir)
             try:
@@ -93,17 +81,12 @@ class CorePart:
                 self.plock.release()
             self.plock = new_lock
             self.notices = [n for n in self.notices if n]
-            note = migrate_web_json(self.config, data_dir)
-            if note:
-                self.notices.append(note)
             self.data_dir = data_dir
             self.local_dir = local_dir
-            self.notices += data_notes
             lay, lay_note = layout.load(data_dir)
             layout.use(lay)
             if lay_note:
                 self.notices.append(lay_note)
-            self.notices += migrate.run(data_dir)
             self.store = Store(data_dir, local_dir).load()
             self.store.attach_events(events.EventLog(data_dir / "events", local_dir / events.SEEN_FILE, self.author_id()))
             merged = self.store.sync_events()
