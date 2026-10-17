@@ -16,6 +16,7 @@ Module = where the code lives today in `free/lexo/`. "Coupling" = how hard it is
 | Validation: tags, variables, brackets, length, dialogue-box fit; language packs | `validator`, `fontmetrics`, `lang` | core |
 | **Find & replace across the project** (plain text) | `textedit` | only `app.py` |
 | **Spelling hints** from the project's own vocabulary (basic) | `spelling` | `app.py` |
+| **Results bar in the film layouts** (quick translating / proofreading): with a search or filter active, "Result 3 of 16", previous / next and a list of all hits to pick from | The list of lines is hidden there | UI only | only `app.py` |
 | **Menu of a choice**: the question (or the lines said before the menu), all choices with their translations, the condition of each, and the first lines after each choice, read from the game script | Choices live in `translate strings`, far from the dialogue; what a choice means is what follows it | `menus`, `app_menu` | only `app.py` |
 | Scene preview with game images (background and the pictures shown over it) and fonts (layered images are not drawn yet, planned; the preview says so) | `gameimages`, `rpa`, `fontmetrics` | only `app.py` |
 | Glossary, import of character names, term check | `app`, `validator` | core |
