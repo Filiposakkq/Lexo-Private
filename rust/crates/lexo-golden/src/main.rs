@@ -56,6 +56,12 @@ fn main() {
         }
         return;
     }
+    if args.first().map(String::as_str) == Some("--dump-game") && args.len() > 1 {
+        // `--dump-game <game folder> [translation folder]`: the pictures, the scenes of some lines and the missed texts of a game, one JSON line (nothing is written)
+        let tl = args.get(2).map(std::path::Path::new);
+        println!("{}", lexo_golden::data::game_json(std::path::Path::new(&args[1]), tl));
+        return;
+    }
     let (list, strict) = (args.iter().any(|a| a == "--list"), args.iter().any(|a| a == "--strict"));
     let golden = golden_dir();
     let cases = match inventory(&golden) {

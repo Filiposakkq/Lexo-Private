@@ -5,14 +5,18 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use lexo_core::bulk::{self, Assignment, Selection};
 use lexo_core::clock::{Clock, TestClock};
 use lexo_core::config::Config;
+use lexo_core::editor;
 use lexo_core::events::{self, EventLog};
 use lexo_core::export;
 use lexo_core::fixes::{self, Planned};
+use lexo_core::gameimages::GameImages;
 use lexo_core::history::{self, History};
 use lexo_core::layout::{self, Layout};
+use lexo_core::lint::{self, Platform};
 use lexo_core::lock::{Owner, ProjectLock};
 use lexo_core::memory::{self, Memory};
 use lexo_core::messages::render;
+use lexo_core::missed;
 use lexo_core::project::{self, Project};
 use lexo_core::snapshots;
 use lexo_core::store::{self, Kind, Store};
@@ -140,6 +144,7 @@ struct Runner<'a> {
     mem: Option<Memory>,
     project: Option<Project>,
     progress: Option<Value>,
+    gi: Option<GameImages>,
 }
 
 fn err_text(e: &lexo_core::fsutil::WriteFailed) -> String {
@@ -805,6 +810,196 @@ impl Runner<'_> {
                     a.get("rels").filter(|r| r.as_array().is_some_and(|x| !x.is_empty())).map(|r| strings(r).iter().map(|s| nat(s)).collect());
                 bulk::rule_candidates(p, st, &glossary, &strings(&a["rules"]), rels.as_deref())
             }
+            "gameimages.build" => {
+                let mut gi = GameImages::new(&self.p(&a["dir"]));
+                gi.build();
+                let s = gi.summary();
+                self.gi = Some(gi);
+                s
+            }
+            "gameimages.resolve" => {
+                let gi = self.gi.as_ref().ok_or("no game images")?;
+                json!(strings(&a["names"]).iter().map(|n| gi.resolve(n).map(|(k, r)| json!([k, r.kind(), r.rel()]))).collect::<Vec<_>>())
+            }
+            "gameimages.scene_for" => {
+                let gi = self.gi.as_ref().ok_or("no game images")?;
+                gi.scene_for(&script_lines(&self.p(&a["script"])), a["line"].as_u64().unwrap_or(0) as usize)
+            }
+            "gameimages.scene_starts" => {
+                json!(GameImages::scene_starts(&script_lines(&self.p(&a["script"]))).iter().map(|(n, w)| json!([n, w])).collect::<Vec<_>>())
+            }
+            "gameimages.image" | "gameimages.font" => {
+                let gi = self.gi.as_ref().ok_or("no game images")?;
+                let got =
+                    if op == "gameimages.image" { gi.image_bytes(a["key"].as_str().unwrap_or("")) } else { gi.font_bytes(a["name"].as_str().unwrap_or("")) };
+                match got {
+                    Ok((data, mime)) => json!({"mime": mime, "size": data.len(), "sha1": sha1_hex(&data)}),
+                    Err(e) => json!({"error": e.0.wire()}),
+                }
+            }
+            "missed.known" => {
+                let k = missed::known_texts(&self.p(&a["tl"]));
+                fn sorted(s: &std::collections::HashSet<String>) -> Vec<&String> {
+                    let mut v: Vec<&String> = s.iter().collect();
+                    v.sort();
+                    v
+                }
+                let mut places: Vec<&(String, usize)> = k.places.iter().collect();
+                places.sort();
+                json!({"strings": sorted(&k.strings), "dialogue": sorted(&k.dialogue), "places": places.iter().map(|(f, l)| json!([f, l])).collect::<Vec<_>>()})
+            }
+            "missed.find" => {
+                let k = if a["tl"].as_str().is_some() {
+                    missed::known_texts(&self.p(&a["tl"]))
+                } else {
+                    missed::Known { strings: Default::default(), dialogue: Default::default(), places: Default::default() }
+                };
+                let mode = a["mode"].as_str().unwrap_or("places");
+                let (items, truncated) = missed::find_missed(
+                    &self.p(&a["game"]),
+                    &k.strings,
+                    (mode == "dialogue").then_some(&k.dialogue),
+                    (mode == "places").then_some(&k.places),
+                    a["limit"].as_u64().map_or(5000, |n| n as usize),
+                    &a.get("functions").map(strings).unwrap_or_default(),
+                    &a.get("ignored").map(strings).unwrap_or_default(),
+                );
+                json!({"items": items.iter().map(|i| i.to_json()).collect::<Vec<_>>(), "truncated": truncated})
+            }
+            "missed.suggest" => {
+                let known = if a["tl"].as_str().is_some() { missed::known_strings(&self.p(&a["tl"])) } else { Default::default() };
+                let r = missed::suggest_functions(
+                    &self.p(&a["game"]),
+                    &known,
+                    &a.get("functions").map(strings).unwrap_or_default(),
+                    &a.get("ignored").map(strings).unwrap_or_default(),
+                    a["min_calls"].as_u64().map_or(3, |n| n as usize),
+                );
+                json!(r.iter().map(|(n, c, e)| json!({"name": n, "calls": c, "example": e})).collect::<Vec<_>>())
+            }
+            "missed.write" => {
+                let items: Vec<missed::Item> = a["items"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|i| missed::Item {
+                        text: i["text"].as_str().unwrap_or("").into(),
+                        file: i["file"].as_str().unwrap_or("").into(),
+                        line: i["line"].as_i64().unwrap_or(0),
+                    })
+                    .collect();
+                let w = missed::write_strings(
+                    &self.p(&a["tl"]),
+                    a["language"].as_str().unwrap_or(""),
+                    &items,
+                    self.backup_dir(a).as_deref(),
+                    a["into_files"].as_bool().unwrap_or(false),
+                    clock,
+                )
+                .map_err(|e| err_text(&e))?;
+                json!({"file": w.file, "files": w.files.iter().map(|(f, n)| (f.clone(), json!(n))).collect::<Map<String, Value>>(), "added": w.added, "skipped": w.skipped})
+            }
+            "missed.settings_load" => {
+                let (f, i) = missed::load_settings(&self.p(&a["data"]));
+                json!({"functions": f, "ignored": i})
+            }
+            "missed.settings_save" => {
+                let (f, i) = missed::save_settings(&self.p(&a["data"]), &strings(&a["functions"]), &strings(&a["ignored"]), clock).map_err(|e| err_text(&e))?;
+                json!({"functions": f, "ignored": i})
+            }
+            "missed.looks" => {
+                json!({"looks": strings(&a["texts"]).iter().map(|t| missed::looks_like_text(t)).collect::<Vec<_>>(), "scripts": missed::has_scripts(&self.p(&a["dir"]))})
+            }
+            "lint.find_python" => json!(lint::find_python(&self.p(&a["sdk"]), platform(a)).map(|p| p.to_string_lossy().into_owned())),
+            "lint.find_launcher" => json!(lint::find_launcher(&self.p(&a["folder"])).map(|p| p.to_string_lossy().into_owned())),
+            "lint.build" => {
+                let cmd = a.get("command").map(strings).unwrap_or_else(|| vec!["lint".to_string()]);
+                let cmd: Vec<&str> = cmd.iter().map(String::as_str).collect();
+                match lint::build_command(&self.p(&a["sdk"]), &self.p(&a["base"]), &cmd, platform(a)) {
+                    Ok((argv, cwd)) => json!({"argv": argv, "cwd": cwd.to_string_lossy()}),
+                    Err(e) => json!({"error": e.0.wire()}),
+                }
+            }
+            "lint.parse" => json!(lint::parse(a["text"].as_str().unwrap_or(""))
+                .iter()
+                .map(|i| json!({"file": i.file, "line": i.line, "message": i.message}))
+                .collect::<Vec<_>>()),
+            "lint.run" => {
+                let calls = std::cell::RefCell::new(Vec::new());
+                let (code, text) = (a["code"].as_i64().unwrap_or(0) as i32, a["text"].as_str().unwrap_or("").to_string());
+                let runner = |argv: &[String], cwd: &Path| {
+                    calls.borrow_mut().push(json!([argv, cwd.to_string_lossy()]));
+                    Ok((code, text.clone()))
+                };
+                match lint::run(&self.p(&a["sdk"]), &self.p(&a["base"]), &runner, platform(a)) {
+                    Ok(r) => json!({"result": r.to_json(), "calls": calls.into_inner()}),
+                    Err(e) => json!({"error": e.0.wire()}),
+                }
+            }
+            "editor.shlex" => {
+                let posix = a["posix"].as_bool().unwrap_or(true);
+                json!(strings(&a["texts"])
+                    .iter()
+                    .map(|t| match editor::shlex_split(t, posix) {
+                        Ok(v) => json!(v),
+                        Err(e) => json!({"error": e}),
+                    })
+                    .collect::<Vec<_>>())
+            }
+            "editor.custom" => match editor::custom_command(
+                &self.sub(a["template"].as_str().unwrap_or("")),
+                Path::new(&self.sub(a["path"].as_str().unwrap_or(""))),
+                a["line"].as_i64().unwrap_or(1),
+                platform(a),
+            ) {
+                Ok(argv) => json!(argv),
+                Err(m) => json!({"error": m.wire()}),
+            },
+            "editor.find" => {
+                let which_map: Map<String, Value> = a.get("which").and_then(Value::as_object).cloned().unwrap_or_default();
+                let which = |n: &str| which_map.get(n).and_then(Value::as_str).map(String::from);
+                let env: editor::Env = a.get("env").and_then(Value::as_object).cloned().unwrap_or_default();
+                json!({"vscode": editor::find_vscode(&which, &env, platform(a)), "notepadpp": editor::find_notepadpp(&which, &env)})
+            }
+            "editor.open" => {
+                let found: Map<String, Value> = a.get("finder").and_then(Value::as_object).cloned().unwrap_or_default();
+                let fail: Vec<String> = a.get("fail").map(strings).unwrap_or_default();
+                let (calls, opened) = (std::cell::RefCell::new(Vec::new()), std::cell::RefCell::new(Vec::new()));
+                let mut runner = |argv: &[String]| {
+                    calls.borrow_mut().push(json!(argv));
+                    if fail.contains(&argv[0]) || argv.iter().any(|x| fail.contains(x)) {
+                        return Err("cannot start".to_string());
+                    }
+                    Ok(())
+                };
+                let opener_fail = a["opener_fail"].as_bool().unwrap_or(false);
+                let mut opener = |p: &Path| {
+                    opened.borrow_mut().push(json!(p.to_string_lossy()));
+                    if opener_fail {
+                        Err("no default program".to_string())
+                    } else {
+                        Ok(())
+                    }
+                };
+                let cfg: Map<String, Value> = a
+                    .get("cfg")
+                    .and_then(Value::as_object)
+                    .map(|o| o.iter().map(|(k, v)| (k.clone(), v.as_str().map_or(v.clone(), |s| json!(self.sub(s))))).collect())
+                    .unwrap_or_default();
+                let root = a["root"].as_str().map(|r| self.p(&json!(r)));
+                let res = editor::open_in_editor(
+                    &self.p(&a["path"]),
+                    a["line"].as_i64().unwrap_or(1),
+                    &Value::Object(cfg),
+                    root.as_deref(),
+                    &mut runner,
+                    &|kind: &str| found.get(kind).and_then(Value::as_str).map(String::from),
+                    &mut opener,
+                    &|_: &str| None,
+                    platform(a),
+                );
+                json!({"result": res, "calls": calls.into_inner(), "opened": opened.into_inner()})
+            }
             other => return Err(format!("unknown data step {other}")),
         })
     }
@@ -984,6 +1179,26 @@ fn golden_root() -> PathBuf {
     crate::golden_dir().join("../..")
 }
 
+fn platform(a: &Value) -> Platform {
+    match a["platform"].as_str().unwrap_or("windows") {
+        "mac" => Platform::Mac,
+        "linux" => Platform::Linux,
+        _ => Platform::Windows,
+    }
+}
+
+/// The lines of a script the way `GameImages.script_lines` reads them.
+fn script_lines(path: &Path) -> Vec<String> {
+    lexo_core::util::py_splitlines(&String::from_utf8_lossy(&std::fs::read(path).unwrap_or_default()))
+}
+
+impl Runner<'_> {
+    /// `<TMP>` in a parameter stands for the temporary folder of the scenario.
+    fn sub(&self, s: &str) -> String {
+        s.replace("<TMP>", &self.root.to_string_lossy().replace('\\', "/"))
+    }
+}
+
 fn roots(base: &Path) -> Vec<String> {
     let canon = std::fs::canonicalize(base).map(|p| p.to_string_lossy().trim_start_matches(r"\\?\").to_string()).unwrap_or_default();
     let mut out: Vec<String> = Vec::new();
@@ -1015,9 +1230,10 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
         for (rel, content) in spec["files"].as_object().into_iter().flatten() {
             let p = tmp.join(rel);
             std::fs::create_dir_all(p.parent().unwrap()).map_err(|e| e.to_string())?;
-            let bytes = match content.get("base64").and_then(Value::as_str) {
-                Some(b) => base64_decode(b),
-                None => content.as_str().unwrap_or("").as_bytes().to_vec(),
+            let bytes = match (content.get("base64").and_then(Value::as_str), content.get("from").and_then(Value::as_str)) {
+                (Some(b), _) => base64_decode(b),
+                (None, Some(f)) => std::fs::read(crate::golden_dir().join(f)).map_err(|e| format!("{f}: {e}"))?,
+                _ => content.as_str().unwrap_or("").as_bytes().to_vec(),
             };
             std::fs::write(&p, bytes).map_err(|e| e.to_string())?;
         }
@@ -1040,6 +1256,7 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
             mem: None,
             project: None,
             progress: None,
+            gi: None,
         };
         let mut steps = Vec::new();
         for st in spec["steps"].as_array().ok_or("no steps")? {
@@ -1090,5 +1307,46 @@ pub fn project_json(root: &Path, skip: &[String]) -> Value {
         "added": report.as_ref().map(|r| r.added.clone()).unwrap_or_default(), "empty": report.as_ref().map(|r| r.empty.clone()).unwrap_or_default(),
         "errors": report.as_ref().map(|r| r.errors.len()).unwrap_or(0),
         "rows": rows.iter().map(|r| json!([r.name, r.done, r.todo, r.total, r.corr, r.auto])).collect::<Vec<_>>(), "proof": proof,
+    })
+}
+
+/// What the real-data comparison reads from a game folder: the index of its pictures and characters, the picture behind every 40th line of its scripts and the texts that the
+/// translation of `tl_dir` misses; nothing is written.
+pub fn game_json(game: &Path, tl_dir: Option<&Path>) -> Value {
+    let mut gi = GameImages::new(game);
+    gi.build();
+    let mut scripts: Vec<(String, PathBuf)> = Vec::new();
+    fn walk(dir: &Path, root: &Path, out: &mut Vec<(String, PathBuf)>) {
+        if let Ok(rd) = std::fs::read_dir(dir) {
+            for e in rd.filter_map(|e| e.ok()) {
+                let p = e.path();
+                let name = e.file_name().to_string_lossy().to_lowercase();
+                if p.is_dir() {
+                    if !["cache", "tl", "__pycache__", ".git"].contains(&name.as_str()) {
+                        walk(&p, root, out);
+                    }
+                } else if name.ends_with(".rpy") {
+                    out.push((p.strip_prefix(root).unwrap().to_string_lossy().replace('\\', "/"), p));
+                }
+            }
+        }
+    }
+    walk(game, game, &mut scripts);
+    scripts.sort();
+    let mut scenes = Map::new();
+    for (rel, path) in &scripts {
+        let lines = script_lines(path);
+        let at: Vec<Value> = (1..=lines.len()).filter(|n| n % 40 == 0).map(|n| json!([n, gi.scene_for(&lines, n)])).collect();
+        scenes.insert(rel.clone(), json!({"starts": GameImages::scene_starts(&lines).len(), "at": at}));
+    }
+    let known = tl_dir.map(missed::known_texts);
+    let (items, truncated) = match &known {
+        Some(k) => missed::find_missed(game, &k.strings, Some(&k.dialogue), Some(&k.places), 5000, &[], &[]),
+        None => (Vec::new(), false),
+    };
+    let suggest = known.as_ref().map(|k| missed::suggest_functions(game, &k.strings, &[], &[], 3)).unwrap_or_default();
+    json!({
+        "images": gi.summary(), "scenes": scenes, "missed": {"items": items.iter().map(|i| i.to_json()).collect::<Vec<_>>(), "truncated": truncated},
+        "suggest": suggest.iter().map(|(n, c, e)| json!({"name": n, "calls": c, "example": e})).collect::<Vec<_>>(),
     })
 }

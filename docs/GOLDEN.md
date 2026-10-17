@@ -33,8 +33,8 @@ their undo are all compared, and a port that writes a line differently by one by
 `data/<name>.json` holds `files` (path under a temporary folder -> text, or `{"base64": ...}`), a `clock` (`local` and `utc` time, fixed) and `steps`: `{"op": "store.assign", ...parameters}`.
 The runner writes the files, runs the steps in order with the clock replaced, records the answer (or the error text) of every step and, at the end, every file under the folder
 (SHA-1 and text): so the CSV files of the store, the event logs, `history.csv`, `config.json`, the backups and the zips are compared as files. The ops: `csv.read`, `csv.text`,
-`write_csv`, `atomic_write`, `make_backup`, `config.*`, `datadir.*`, `lock.*`, `layout.use`, `store.*`, `events.*`, `history.*`, `texthistory.*`, `memory.*`, `snapshots.*`,
-plus `advance` / `set_epoch` / `set_local` (the clock), `write_file`, `remove_file`, `list_dir`. Both runners implement the same ops (`DataRunner` in `golden_tool.py`, `data.rs` in `lexo-golden`).
+`write_csv`, `atomic_write`, `make_backup`, `config.*`, `datadir.*`, `lock.*`, `layout.use`, `store.*`, `events.*`, `history.*`, `texthistory.*`, `memory.*`, `snapshots.*`, `project.*`, `fixes.*`, `export.*`, `bulk.*`, `gameimages.*`, `missed.*`, `lint.*` (the Python and SDK programs are fakes),
+`editor.*` (finders and starters of programs are fakes; `<TMP>` stands for the temporary folder), plus `advance` / `set_epoch` / `set_local` (the clock), `write_file`, `remove_file`, `list_dir`. Both runners implement the same ops (`DataRunner` in `golden_tool.py`, `data.rs` in `lexo-golden`).
 
 Things the data scenarios settle on purpose:
 - **The clock.** `datetime.now()` is the fixed local time, `datetime.now(utc)` the fixed UTC time (so the names of backups, the stamps of events and the manifests of snapshots are known); `time.time()` is the real

@@ -1,0 +1,755 @@
+{
+ "files_after": {
+  "root/outside/b.rpy": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/proj/a.rpy": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/proj/notes.txt": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/proj/odd&name.rpy": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  },
+  "root/tools/ed.exe": {
+   "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
+   "text": "x"
+  }
+ },
+ "steps": [
+  {
+   "answer": [
+    [
+     "a",
+     "b",
+     "c"
+    ],
+    [
+     "a b",
+     "c"
+    ],
+    [
+     "a b",
+     "c d"
+    ],
+    [
+     "a b"
+    ],
+    [
+     "xy zw"
+    ],
+    {
+     "error": "No closing quotation"
+    },
+    [],
+    [
+     "spaced",
+     "out"
+    ],
+    [
+     "esc",
+     "q\"uote",
+     "end"
+    ],
+    [
+     ""
+    ]
+   ],
+   "op": "editor.shlex",
+   "params": {
+    "posix": true,
+    "texts": [
+     "a b c",
+     "\"a b\" c",
+     "'a b' \"c d\"",
+     "a\\ b",
+     "x\"y z\"w",
+     "\"unclosed",
+     "",
+     "  spaced   out  ",
+     "esc \"q\\\"uote\" end",
+     "''"
+    ]
+   }
+  },
+  {
+   "answer": [
+    [
+     "a",
+     "b",
+     "c"
+    ],
+    [
+     "\"a b\"",
+     "c"
+    ],
+    [
+     "'a b'",
+     "\"c d\""
+    ],
+    [
+     "a\\",
+     "b"
+    ],
+    [
+     "x\"y",
+     "z\"w"
+    ],
+    {
+     "error": "No closing quotation"
+    },
+    [],
+    [
+     "\"C:\\Program Files\\ed.exe\"",
+     "--line",
+     "{line}",
+     "{file}"
+    ],
+    [
+     "\"a b\"",
+     "c"
+    ]
+   ],
+   "op": "editor.shlex",
+   "params": {
+    "posix": false,
+    "texts": [
+     "a b c",
+     "\"a b\" c",
+     "'a b' \"c d\"",
+     "a\\ b",
+     "x\"y z\"w",
+     "\"unclosed",
+     "",
+     "\"C:\\Program Files\\ed.exe\" --line {line} {file}",
+     "\"a b\"c"
+    ]
+   }
+  },
+  {
+   "answer": [
+    "<TMP>/root/tools/ed.exe",
+    "--line",
+    "7",
+    "<TMP>/root/proj/a.rpy"
+   ],
+   "op": "editor.custom",
+   "params": {
+    "line": 7,
+    "path": "<TMP>/root/proj/a.rpy",
+    "platform": "windows",
+    "template": "\"<TMP>/root/tools/ed.exe\" --line {line} {file}"
+   }
+  },
+  {
+   "answer": [
+    "ed",
+    "--goto",
+    "<TMP>/root/proj/a.rpy:3"
+   ],
+   "op": "editor.custom",
+   "params": {
+    "line": 3,
+    "path": "<TMP>/root/proj/a.rpy",
+    "platform": "linux",
+    "template": "ed --goto {file}:{line}"
+   }
+  },
+  {
+   "answer": [
+    "ed",
+    "<TMP>/root/proj/a.rpy"
+   ],
+   "op": "editor.custom",
+   "params": {
+    "line": 3,
+    "path": "<TMP>/root/proj/a.rpy",
+    "platform": "linux",
+    "template": "ed"
+   }
+  },
+  {
+   "answer": {
+    "error": "The custom command is empty."
+   },
+   "op": "editor.custom",
+   "params": {
+    "line": 3,
+    "path": "<TMP>/root/proj/a.rpy",
+    "platform": "linux",
+    "template": "   "
+   }
+  },
+  {
+   "answer": {
+    "error": "No closing quotation"
+   },
+   "op": "editor.custom",
+   "params": {
+    "line": 3,
+    "path": "<TMP>/root/proj/a.rpy",
+    "platform": "windows",
+    "template": "\"unclosed {file}"
+   }
+  },
+  {
+   "answer": {
+    "notepadpp": "/opt/npp/notepad++",
+    "vscode": "/opt/vscode/code"
+   },
+   "op": "editor.find",
+   "params": {
+    "platform": "windows",
+    "which": {
+     "code": "/opt/vscode/code",
+     "notepad++": "/opt/npp/notepad++"
+    }
+   }
+  },
+  {
+   "answer": {
+    "notepadpp": null,
+    "vscode": null
+   },
+   "op": "editor.find",
+   "params": {
+    "env": {
+     "LOCALAPPDATA": "<TMP>/nowhere"
+    },
+    "platform": "windows",
+    "which": {}
+   }
+  },
+  {
+   "answer": {
+    "notepadpp": null,
+    "vscode": "/usr/bin/codium"
+   },
+   "op": "editor.find",
+   "params": {
+    "platform": "linux",
+    "which": {
+     "codium": "/usr/bin/codium"
+    }
+   }
+  },
+  {
+   "answer": {
+    "notepadpp": null,
+    "vscode": null
+   },
+   "op": "editor.find",
+   "params": {
+    "platform": "linux",
+    "which": {}
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:12"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:12"
+     ],
+     "editor": "vscode",
+     "jumped": true,
+     "message": "Opened in VS Code at line 12.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {
+     "notepadpp": "/opt/npp/notepad++.exe",
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 12,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/npp/notepad++.exe",
+      "-n1",
+      "<TMP>/root/proj/a.rpy"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/npp/notepad++.exe",
+      "-n1",
+      "<TMP>/root/proj/a.rpy"
+     ],
+     "editor": "notepadpp",
+     "jumped": true,
+     "message": "Opened in Notepad++ at line 1.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "cfg": {
+     "preferred": "notepadpp"
+    },
+    "finder": {
+     "notepadpp": "/opt/npp/notepad++.exe",
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 0,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/npp/notepad++.exe",
+      "-n5",
+      "<TMP>/root/proj/a.rpy"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/npp/notepad++.exe",
+      "-n5",
+      "<TMP>/root/proj/a.rpy"
+     ],
+     "editor": "notepadpp",
+     "jumped": true,
+     "message": "Opened in Notepad++ at line 5.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "cfg": {
+     "preferred": "vscode"
+    },
+    "finder": {
+     "notepadpp": "/opt/npp/notepad++.exe"
+    },
+    "line": 5,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:5"
+     ],
+     [
+      "/opt/npp/notepad++.exe",
+      "-n5",
+      "<TMP>/root/proj/a.rpy"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/npp/notepad++.exe",
+      "-n5",
+      "<TMP>/root/proj/a.rpy"
+     ],
+     "editor": "notepadpp",
+     "jumped": true,
+     "message": "Opened in Notepad++ at line 5.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "fail": [
+     "/opt/code/Code.exe"
+    ],
+    "finder": {
+     "notepadpp": "/opt/npp/notepad++.exe",
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 5,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:5"
+     ]
+    ],
+    "opened": [
+     "<TMP>/root/proj/a.rpy"
+    ],
+    "result": {
+     "command": [
+      "<TMP>/root/proj/a.rpy"
+     ],
+     "editor": "system",
+     "jumped": false,
+     "message": "VS Code and Notepad++ could not be started (vscode: cannot start; Notepad++ not found). The file is open in the default program, but without jumping to line 5 – set the editor in Settings.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "fail": [
+     "/opt/code/Code.exe"
+    ],
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 5,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "opened": [
+     "<TMP>/root/proj/a.rpy"
+    ],
+    "result": {
+     "command": [],
+     "editor": "",
+     "jumped": false,
+     "message": "The file could not be opened: VS Code not found; Notepad++ not found; default program: no default program",
+     "ok": false
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {},
+    "line": 5,
+    "opener_fail": true,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "opened": [
+     "<TMP>/root/proj/a.rpy"
+    ],
+    "result": {
+     "command": [
+      "<TMP>/root/proj/a.rpy"
+     ],
+     "editor": "system",
+     "jumped": false,
+     "message": "VS Code and Notepad++ could not be started (not set). The file is open in the default program, but without jumping to line 5 – set the editor in Settings.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "cfg": {
+     "preferred": "system"
+    },
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 5,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "<TMP>/root/tools/ed.exe",
+      "--at",
+      "9",
+      "<TMP>/root/proj/a.rpy"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "<TMP>/root/tools/ed.exe",
+      "--at",
+      "9",
+      "<TMP>/root/proj/a.rpy"
+     ],
+     "editor": "custom",
+     "jumped": true,
+     "message": "Opened in custom editor at line 9.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "cfg": {
+     "custom": "\"<TMP>/root/tools/ed.exe\" --at {line} {file}",
+     "preferred": "custom"
+    },
+    "finder": {},
+    "line": 9,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:9"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:9"
+     ],
+     "editor": "vscode",
+     "jumped": true,
+     "message": "Opened in VS Code at line 9.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "cfg": {
+     "custom": "no-such-editor-anywhere {file}",
+     "preferred": "custom"
+    },
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 9,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:9"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/proj/a.rpy:9"
+     ],
+     "editor": "vscode",
+     "jumped": true,
+     "message": "Opened in VS Code at line 9.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "cfg": {
+     "custom": "",
+     "preferred": "custom"
+    },
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 9,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/code/code.cmd",
+      "-g",
+      "<TMP>/root/proj/a.rpy:9"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/code/code.cmd",
+      "-g",
+      "<TMP>/root/proj/a.rpy:9"
+     ],
+     "editor": "vscode",
+     "jumped": true,
+     "message": "Opened in VS Code at line 9.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {
+     "vscode": "/opt/code/code.cmd"
+    },
+    "line": 9,
+    "path": "root/proj/a.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/npp/notepad++.exe",
+      "-n9",
+      "<TMP>/root/proj/odd&name.rpy"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/npp/notepad++.exe",
+      "-n9",
+      "<TMP>/root/proj/odd&name.rpy"
+     ],
+     "editor": "notepadpp",
+     "jumped": true,
+     "message": "Opened in Notepad++ at line 9.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {
+     "notepadpp": "/opt/npp/notepad++.exe",
+     "vscode": "/opt/code/code.cmd"
+    },
+    "line": 9,
+    "path": "root/proj/odd&name.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "opened": [],
+    "result": {
+     "command": [],
+     "editor": "",
+     "jumped": false,
+     "message": "Only .rpy files can be opened.",
+     "ok": false
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 1,
+    "path": "root/proj/notes.txt",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "opened": [],
+    "result": {
+     "command": [],
+     "editor": "",
+     "jumped": false,
+     "message": "The file does not exist: <TMP>/root/proj/missing.rpy",
+     "ok": false
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 1,
+    "path": "root/proj/missing.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [],
+    "opened": [],
+    "result": {
+     "command": [],
+     "editor": "",
+     "jumped": false,
+     "message": "The file is not inside the project folder.",
+     "ok": false
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 1,
+    "path": "root/outside/b.rpy",
+    "root": "root/proj"
+   }
+  },
+  {
+   "answer": {
+    "calls": [
+     [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/outside/b.rpy:1"
+     ]
+    ],
+    "opened": [],
+    "result": {
+     "command": [
+      "/opt/code/Code.exe",
+      "-g",
+      "<TMP>/root/outside/b.rpy:1"
+     ],
+     "editor": "vscode",
+     "jumped": true,
+     "message": "Opened in VS Code at line 1.",
+     "ok": true
+    }
+   },
+   "op": "editor.open",
+   "params": {
+    "finder": {
+     "vscode": "/opt/code/Code.exe"
+    },
+    "line": 1,
+    "path": "root/outside/b.rpy"
+   }
+  }
+ ]
+}

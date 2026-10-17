@@ -1,0 +1,1180 @@
+{
+ "files_after": {
+  "root/bak/extra_strings.rpy.<stamp>.bak": {
+   "sha1": "d44bc8091c7b5c471f1ec82f7a804a8c3a84ace9",
+   "text": "translate czech strings:\n\n    # game/script.rpy:30\n    old \"New text here\"\n    new \"New text here\"\n\n    # game/other.rpy:2\n    old \"Other words follow\"\n    new \"Other words follow\"\n\n    old \"No place\"\n    new \"No place\"\n"
+  },
+  "root/bak/script.rpy.<stamp>.bak": {
+   "sha1": "4bd2dc8c81a6c1fe7cedaf0075c9d343b322dbc3",
+   "text": "# game/script.rpy:16\r\ntranslate czech start_aaaa:\r\n\r\n    # mc \"Hello, how are you?\"\r\n    mc \"Ahoj, jak se mas?\"\r\n\r\n# game/script.rpy:17\r\ntranslate czech start_bbbb:\r\n\r\n    # mc \"This line has a translation block.\"\r\n    mc \"Tento radek ma blok.\"\r\n\r\ntranslate czech strings:\r\n\r\n    # game/script.rpy:15\r\n    old \"Welcome to the game\"\r\n    new \"Vitej ve hre\"\r\n\r\n    old \"Saved the game\"\r\n    new \"Hra ulozena\"\r\n"
+  },
+  "root/data/missed.json": {
+   "sha1": "12d73bc0556af6505376341e8142eff5d2d6dd12",
+   "text": "{\n \"version\": 1,\n \"functions\": [\n  \"alpha\",\n  \"zeta\"\n ],\n \"ignored\": [\n  \"a\",\n  \"b\"\n ]\n}\n"
+  },
+  "root/game/other.rpy": {
+   "sha1": "0c03659bee238b6e8b00e061d743135cc9f7521c",
+   "text": "label other:\n    mc \"Another dialogue line without a block.\"\n    $ renpy.notify(\"Hello, how are you?\")\n    \"Short\"\n"
+  },
+  "root/game/script.rpy": {
+   "sha1": "448c9cb04cb1a5e06d8db27c336f10ad7dcf5cc7",
+   "text": "define mc = Character(\"Mia\")\ndefault title = \"The Great Adventure\"\ndefault names = [\n    \"Indented data line here\",\n]\ninit python:\n    notify(\"Item added to the inventory\")\n    notify(\"Quest updated for the player\")\n    notify(\"You found a hidden room\")\n    popup(\"Another message appears\")\n    obj.append(\"Not a function of the game\")\n\nlabel start:\n    scene bg\n    show text \"Welcome to the game\" at truecenter\n    mc \"Hello, how are you?\"\n    mc \"This line has a translation block.\"\n    mc \"A line that has no block at all, honestly.\"\n    \"Narration without a block.\"\n    $ renpy.notify(\"Saved the game\")\n    $ name = renpy.input(\"What is your name?\")\n    $ message = \"You have new mail\"\n    menu:\n        \"Go left\":\n            jump left\n        \"Go right\" if flag:\n            jump right\n    $ x = \"snake_case_id\"\n    $ path = \"images/bg.png\"\n    $ col = \"#ff00ff\"\n    $ tag = \"{i}Styled{/i} text here\"\n    $ lone = \"Hello\"\n    $ lower = \"nothing\"\n    $ dup = \"You have new mail\"\n    $ t2 = 'Single quoted sentence here'\n\nscreen hud():\n    text \"Screen text is skipped\"\n    $ renpy.notify(\"Python in a screen\")\n\nimage bg = \"bg.png\"\ntranslate czech strings:\n    old \"never read here\"\n    new \"x\"\n"
+  },
+  "root/game/tl/czech/.lexo/ignored.rpy": {
+   "sha1": "12013aac5f8e8c11b058047b203ec1f5c78c72e3",
+   "text": "old \"skipped folder\"\n"
+  },
+  "root/game/tl/czech/extra_strings.rpy": {
+   "sha1": "bb72fd9779ae693ab21106afb63d005ea500c8f4",
+   "text": "translate czech strings:\n\n    # game/script.rpy:30\n    old \"New text here\"\n    new \"New text here\"\n\n    # game/other.rpy:2\n    old \"Other words follow\"\n    new \"Other words follow\"\n\n    old \"No place\"\n    new \"No place\"\n\ntranslate czech strings:\n\n    # game/other.rpy:3\n    old \"Into the extra file\"\n    new \"Into the extra file\"\n\n    # game/../script.rpy:1\n    old \"Outside\"\n    new \"Outside\"\n"
+  },
+  "root/game/tl/czech/script.rpy": {
+   "sha1": "7206cb44896a506729657601ee0a64815c589f33",
+   "text": "# game/script.rpy:16\r\ntranslate czech start_aaaa:\r\n\r\n    # mc \"Hello, how are you?\"\r\n    mc \"Ahoj, jak se mas?\"\r\n\r\n# game/script.rpy:17\r\ntranslate czech start_bbbb:\r\n\r\n    # mc \"This line has a translation block.\"\r\n    mc \"Tento radek ma blok.\"\r\n\r\ntranslate czech strings:\r\n\r\n    # game/script.rpy:15\r\n    old \"Welcome to the game\"\r\n    new \"Vitej ve hre\"\r\n\r\n    old \"Saved the game\"\r\n    new \"Hra ulozena\"\r\n\r\ntranslate czech strings:\r\n\r\n    # game/script.rpy:33\r\n    old \"Into the mirror file\"\r\n    new \"Into the mirror file\"\r\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "looks": [
+     false,
+     false,
+     true,
+     false,
+     true,
+     false,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false,
+     true,
+     false,
+     true,
+     false,
+     true,
+     false,
+     false,
+     true
+    ],
+    "scripts": true
+   },
+   "op": "missed.looks",
+   "params": {
+    "dir": "root/game",
+    "texts": [
+     "",
+     "ab",
+     "Hello",
+     "hello",
+     "hello world",
+     "snake_case_id",
+     "Snake_case",
+     "#ff00ff",
+     "images/bg.png",
+     "{i}Styled{/i} text",
+     "{i}{/i}",
+     "[name]",
+     "[name] is here",
+     "A.B",
+     "Dotted.name",
+     "Ok!",
+     "ABC",
+     "path\\to",
+     "line\\nbreak",
+     "něco česky"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "dialogue": [
+     "Hello, how are you?",
+     "This line has a translation block."
+    ],
+    "places": [
+     [
+      "script.rpy",
+      15
+     ],
+     [
+      "script.rpy",
+      16
+     ],
+     [
+      "script.rpy",
+      17
+     ]
+    ],
+    "strings": [
+     "Saved the game",
+     "Welcome to the game"
+    ]
+   },
+   "op": "missed.known",
+   "params": {
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "context": "mc \"Another dialogue line without a block.\"",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 2,
+      "text": "Another dialogue line without a block."
+     },
+     {
+      "context": "$ renpy.notify(\"Hello, how are you?\")",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 3,
+      "text": "Hello, how are you?"
+     },
+     {
+      "context": "\"Short\"",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 4,
+      "text": "Short"
+     },
+     {
+      "context": "default title = \"The Great Adventure\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 2,
+      "text": "The Great Adventure"
+     },
+     {
+      "context": "mc \"A line that has no block at all, honestly.\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 18,
+      "text": "A line that has no block at all, honestly."
+     },
+     {
+      "context": "\"Narration without a block.\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 19,
+      "text": "Narration without a block."
+     },
+     {
+      "context": "$ name = renpy.input(\"What is your name?\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 21,
+      "text": "What is your name?"
+     },
+     {
+      "context": "$ message = \"You have new mail\"",
+      "count": 2,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 22,
+      "text": "You have new mail"
+     },
+     {
+      "context": "$ renpy.notify(\"Python in a screen\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 39,
+      "text": "Python in a screen"
+     },
+     {
+      "context": "\"Indented data line here\",",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 4,
+      "text": "Indented data line here"
+     },
+     {
+      "context": "notify(\"Item added to the inventory\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 7,
+      "text": "Item added to the inventory"
+     },
+     {
+      "context": "notify(\"Quest updated for the player\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 8,
+      "text": "Quest updated for the player"
+     },
+     {
+      "context": "notify(\"You found a hidden room\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 9,
+      "text": "You found a hidden room"
+     },
+     {
+      "context": "popup(\"Another message appears\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 10,
+      "text": "Another message appears"
+     },
+     {
+      "context": "obj.append(\"Not a function of the game\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 11,
+      "text": "Not a function of the game"
+     },
+     {
+      "context": "$ tag = \"{i}Styled{/i} text here\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 31,
+      "text": "{i}Styled{/i} text here"
+     },
+     {
+      "context": "$ lone = \"Hello\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 32,
+      "text": "Hello"
+     },
+     {
+      "context": "$ t2 = 'Single quoted sentence here'",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 35,
+      "text": "Single quoted sentence here"
+     }
+    ],
+    "truncated": false
+   },
+   "op": "missed.find",
+   "params": {
+    "game": "root/game",
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "context": "mc \"Another dialogue line without a block.\"",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 2,
+      "text": "Another dialogue line without a block."
+     },
+     {
+      "context": "$ renpy.notify(\"Hello, how are you?\")",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 3,
+      "text": "Hello, how are you?"
+     },
+     {
+      "context": "\"Short\"",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 4,
+      "text": "Short"
+     },
+     {
+      "context": "default title = \"The Great Adventure\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 2,
+      "text": "The Great Adventure"
+     },
+     {
+      "context": "mc \"A line that has no block at all, honestly.\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 18,
+      "text": "A line that has no block at all, honestly."
+     },
+     {
+      "context": "\"Narration without a block.\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 19,
+      "text": "Narration without a block."
+     },
+     {
+      "context": "$ name = renpy.input(\"What is your name?\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 21,
+      "text": "What is your name?"
+     },
+     {
+      "context": "$ message = \"You have new mail\"",
+      "count": 2,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 22,
+      "text": "You have new mail"
+     },
+     {
+      "context": "$ renpy.notify(\"Python in a screen\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 39,
+      "text": "Python in a screen"
+     },
+     {
+      "context": "\"Indented data line here\",",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 4,
+      "text": "Indented data line here"
+     },
+     {
+      "context": "notify(\"Item added to the inventory\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 7,
+      "text": "Item added to the inventory"
+     },
+     {
+      "context": "notify(\"Quest updated for the player\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 8,
+      "text": "Quest updated for the player"
+     },
+     {
+      "context": "notify(\"You found a hidden room\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 9,
+      "text": "You found a hidden room"
+     },
+     {
+      "context": "popup(\"Another message appears\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 10,
+      "text": "Another message appears"
+     },
+     {
+      "context": "obj.append(\"Not a function of the game\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 11,
+      "text": "Not a function of the game"
+     },
+     {
+      "context": "$ tag = \"{i}Styled{/i} text here\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 31,
+      "text": "{i}Styled{/i} text here"
+     },
+     {
+      "context": "$ lone = \"Hello\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 32,
+      "text": "Hello"
+     },
+     {
+      "context": "$ t2 = 'Single quoted sentence here'",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 35,
+      "text": "Single quoted sentence here"
+     }
+    ],
+    "truncated": false
+   },
+   "op": "missed.find",
+   "params": {
+    "game": "root/game",
+    "mode": "dialogue",
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "context": "$ renpy.notify(\"Hello, how are you?\")",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 3,
+      "text": "Hello, how are you?"
+     },
+     {
+      "context": "default title = \"The Great Adventure\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 2,
+      "text": "The Great Adventure"
+     },
+     {
+      "context": "$ name = renpy.input(\"What is your name?\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 21,
+      "text": "What is your name?"
+     },
+     {
+      "context": "$ message = \"You have new mail\"",
+      "count": 2,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 22,
+      "text": "You have new mail"
+     },
+     {
+      "context": "$ renpy.notify(\"Python in a screen\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 39,
+      "text": "Python in a screen"
+     },
+     {
+      "context": "\"Indented data line here\",",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 4,
+      "text": "Indented data line here"
+     },
+     {
+      "context": "notify(\"Item added to the inventory\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 7,
+      "text": "Item added to the inventory"
+     },
+     {
+      "context": "notify(\"Quest updated for the player\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 8,
+      "text": "Quest updated for the player"
+     },
+     {
+      "context": "notify(\"You found a hidden room\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 9,
+      "text": "You found a hidden room"
+     },
+     {
+      "context": "popup(\"Another message appears\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 10,
+      "text": "Another message appears"
+     },
+     {
+      "context": "obj.append(\"Not a function of the game\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 11,
+      "text": "Not a function of the game"
+     },
+     {
+      "context": "$ tag = \"{i}Styled{/i} text here\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 31,
+      "text": "{i}Styled{/i} text here"
+     },
+     {
+      "context": "$ lone = \"Hello\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 32,
+      "text": "Hello"
+     },
+     {
+      "context": "$ t2 = 'Single quoted sentence here'",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 35,
+      "text": "Single quoted sentence here"
+     }
+    ],
+    "truncated": false
+   },
+   "op": "missed.find",
+   "params": {
+    "game": "root/game",
+    "mode": "none",
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "context": "mc \"Another dialogue line without a block.\"",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 2,
+      "text": "Another dialogue line without a block."
+     },
+     {
+      "context": "$ renpy.notify(\"Hello, how are you?\")",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 3,
+      "text": "Hello, how are you?"
+     },
+     {
+      "context": "\"Short\"",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 4,
+      "text": "Short"
+     }
+    ],
+    "truncated": true
+   },
+   "op": "missed.find",
+   "params": {
+    "functions": [
+     "popup",
+     "notify",
+     "bad name"
+    ],
+    "game": "root/game",
+    "ignored": [
+     "Hello",
+     "You have new mail"
+    ],
+    "limit": 3,
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "context": "$ renpy.notify(\"Hello, how are you?\")",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 3,
+      "text": "Hello, how are you?"
+     },
+     {
+      "context": "default title = \"The Great Adventure\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 2,
+      "text": "The Great Adventure"
+     },
+     {
+      "context": "show text \"Welcome to the game\" at truecenter",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 15,
+      "text": "Welcome to the game"
+     },
+     {
+      "context": "$ renpy.notify(\"Saved the game\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 20,
+      "text": "Saved the game"
+     },
+     {
+      "context": "$ name = renpy.input(\"What is your name?\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 21,
+      "text": "What is your name?"
+     },
+     {
+      "context": "$ message = \"You have new mail\"",
+      "count": 2,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 22,
+      "text": "You have new mail"
+     },
+     {
+      "context": "$ renpy.notify(\"Python in a screen\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 39,
+      "text": "Python in a screen"
+     },
+     {
+      "context": "\"Indented data line here\",",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 4,
+      "text": "Indented data line here"
+     },
+     {
+      "context": "notify(\"Item added to the inventory\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 7,
+      "text": "Item added to the inventory"
+     },
+     {
+      "context": "notify(\"Quest updated for the player\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 8,
+      "text": "Quest updated for the player"
+     },
+     {
+      "context": "notify(\"You found a hidden room\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 9,
+      "text": "You found a hidden room"
+     },
+     {
+      "context": "popup(\"Another message appears\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 10,
+      "text": "Another message appears"
+     },
+     {
+      "context": "obj.append(\"Not a function of the game\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 11,
+      "text": "Not a function of the game"
+     },
+     {
+      "context": "$ tag = \"{i}Styled{/i} text here\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 31,
+      "text": "{i}Styled{/i} text here"
+     },
+     {
+      "context": "$ lone = \"Hello\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 32,
+      "text": "Hello"
+     },
+     {
+      "context": "$ t2 = 'Single quoted sentence here'",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 35,
+      "text": "Single quoted sentence here"
+     }
+    ],
+    "truncated": false
+   },
+   "op": "missed.find",
+   "params": {
+    "game": "root/game"
+   }
+  },
+  {
+   "answer": [
+    {
+     "calls": 3,
+     "example": "Item added to the inventory",
+     "name": "notify"
+    }
+   ],
+   "op": "missed.suggest",
+   "params": {
+    "game": "root/game",
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": [
+    {
+     "calls": 1,
+     "example": "Another message appears",
+     "name": "popup"
+    }
+   ],
+   "op": "missed.suggest",
+   "params": {
+    "functions": [
+     "notify"
+    ],
+    "game": "root/game",
+    "ignored": [
+     "Quest updated for the player"
+    ],
+    "min_calls": 1
+   }
+  },
+  {
+   "answer": {
+    "functions": [
+     "alpha",
+     "zeta"
+    ],
+    "ignored": [
+     "a",
+     "b"
+    ]
+   },
+   "op": "missed.settings_load",
+   "params": {
+    "data": "root/data"
+   }
+  },
+  {
+   "answer": {
+    "functions": [],
+    "ignored": []
+   },
+   "op": "missed.settings_load",
+   "params": {
+    "data": "root/nothing"
+   }
+  },
+  {
+   "answer": {
+    "functions": [
+     "alpha",
+     "zeta"
+    ],
+    "ignored": [
+     "a",
+     "b"
+    ]
+   },
+   "op": "missed.settings_save",
+   "params": {
+    "data": "root/data",
+    "functions": [
+     "zeta",
+     " alpha ",
+     "bad name",
+     "alpha"
+    ],
+    "ignored": [
+     "b",
+     "a",
+     "",
+     "a"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "functions": [
+     "alpha",
+     "zeta"
+    ],
+    "ignored": [
+     "a",
+     "b"
+    ]
+   },
+   "op": "missed.settings_load",
+   "params": {
+    "data": "root/data"
+   }
+  },
+  {
+   "answer": {
+    "added": 3,
+    "file": "<TMP>/root/game/tl/czech/extra_strings.rpy",
+    "files": {
+     "extra_strings.rpy": 3
+    },
+    "skipped": 3
+   },
+   "op": "missed.write",
+   "params": {
+    "backup_dir": "root/bak",
+    "items": [
+     {
+      "file": "script.rpy",
+      "line": 15,
+      "text": "Welcome to the game"
+     },
+     {
+      "file": "script.rpy",
+      "line": 30,
+      "text": "New text here"
+     },
+     {
+      "file": "script.rpy",
+      "line": 31,
+      "text": "New text here"
+     },
+     {
+      "file": "other.rpy",
+      "line": 2,
+      "text": "Other words follow"
+     },
+     {
+      "file": "x.rpy",
+      "line": 1,
+      "text": ""
+     },
+     {
+      "file": "",
+      "line": 0,
+      "text": "No place"
+     }
+    ],
+    "language": "czech",
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "added": 3,
+    "file": "<TMP>/root/game/tl/czech/extra_strings.rpy",
+    "files": {
+     "extra_strings.rpy": 2,
+     "script.rpy": 1
+    },
+    "skipped": 1
+   },
+   "op": "missed.write",
+   "params": {
+    "backup_dir": "root/bak",
+    "into_files": true,
+    "items": [
+     {
+      "file": "script.rpy",
+      "line": 30,
+      "text": "New text here"
+     },
+     {
+      "file": "script.rpy",
+      "line": 33,
+      "text": "Into the mirror file"
+     },
+     {
+      "file": "other.rpy",
+      "line": 3,
+      "text": "Into the extra file"
+     },
+     {
+      "file": "../script.rpy",
+      "line": 1,
+      "text": "Outside"
+     }
+    ],
+    "language": "czech",
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "context": "$ renpy.notify(\"Hello, how are you?\")",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 3,
+      "text": "Hello, how are you?"
+     },
+     {
+      "context": "\"Short\"",
+      "count": 1,
+      "file": "other.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 4,
+      "text": "Short"
+     },
+     {
+      "context": "default title = \"The Great Adventure\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 2,
+      "text": "The Great Adventure"
+     },
+     {
+      "context": "mc \"A line that has no block at all, honestly.\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 18,
+      "text": "A line that has no block at all, honestly."
+     },
+     {
+      "context": "\"Narration without a block.\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "dialogue",
+      "level": "likely",
+      "line": 19,
+      "text": "Narration without a block."
+     },
+     {
+      "context": "$ name = renpy.input(\"What is your name?\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 21,
+      "text": "What is your name?"
+     },
+     {
+      "context": "$ message = \"You have new mail\"",
+      "count": 2,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 22,
+      "text": "You have new mail"
+     },
+     {
+      "context": "$ renpy.notify(\"Python in a screen\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "likely",
+      "line": 39,
+      "text": "Python in a screen"
+     },
+     {
+      "context": "\"Indented data line here\",",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 4,
+      "text": "Indented data line here"
+     },
+     {
+      "context": "notify(\"Item added to the inventory\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 7,
+      "text": "Item added to the inventory"
+     },
+     {
+      "context": "notify(\"Quest updated for the player\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 8,
+      "text": "Quest updated for the player"
+     },
+     {
+      "context": "notify(\"You found a hidden room\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 9,
+      "text": "You found a hidden room"
+     },
+     {
+      "context": "popup(\"Another message appears\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 10,
+      "text": "Another message appears"
+     },
+     {
+      "context": "obj.append(\"Not a function of the game\")",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 11,
+      "text": "Not a function of the game"
+     },
+     {
+      "context": "$ tag = \"{i}Styled{/i} text here\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 31,
+      "text": "{i}Styled{/i} text here"
+     },
+     {
+      "context": "$ lone = \"Hello\"",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 32,
+      "text": "Hello"
+     },
+     {
+      "context": "$ t2 = 'Single quoted sentence here'",
+      "count": 1,
+      "file": "script.rpy",
+      "kind": "text",
+      "level": "maybe",
+      "line": 35,
+      "text": "Single quoted sentence here"
+     }
+    ],
+    "truncated": false
+   },
+   "op": "missed.find",
+   "params": {
+    "game": "root/game",
+    "tl": "root/game/tl/czech"
+   }
+  },
+  {
+   "answer": [
+    "extra_strings.rpy.<stamp>.bak",
+    "script.rpy.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/bak"
+   }
+  }
+ ]
+}

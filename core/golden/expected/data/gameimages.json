@@ -1,0 +1,723 @@
+{
+ "files_after": {
+  "root/game/bad.rpa": {
+   "sha1": "1278817ee272c6378416de37c3e794ed2250cc65",
+   "text": "not an archive at all\n"
+  },
+  "root/game/data.rpa": {
+   "base64": "UlBBLTMuMCAwMDAwMDAwMDAwMDAwMDU5IDQyNDI0MjQyColQTkctQS1QQVlMT0FEUkVOUFkgUlBDMi1QQVlMT0FEcGxhaW4gdGV4dCBjVFRGLVBBWUxPQUR4nC3MvQrCMBQF4Fj/tTroS7iYPIPZDCKOWQJe0/QHtM1NI+gguPna3kKXw4Hzcb7JB9lOp4yx6gGFawVwXxc4MJioq5RSnSg0zQyHPxyBXlNtbah8bMWNB/+2ODY4UaHDF4qS3BT0hlzmnBcuCA+xFJbHV8SZwblinT33dgF6SzZvano8BFvuZXPPeIw5Lg2mKu3wsccrePI/lOIy0A==",
+   "sha1": "87cc9b617c05616d9e19f717f82feec6e490892e"
+  },
+  "root/game/gui/Font-Regular.ttf": {
+   "sha1": "8c1a8732d8c9e6be53db3f6350cd3e65355bfbd1",
+   "text": "\u0000\u0001\u0000\u0000fake-font"
+  },
+  "root/game/images/Maya_Smile.png": {
+   "base64": "iVBORw0KGgpmYWtlLXBuZw==",
+   "sha1": "5a760288239a8b3a6c1aa4c8db638f91723562f7"
+  },
+  "root/game/images/bg_cafe.jpg": {
+   "base64": "/9j/4EpGSUYtZmFrZQ==",
+   "sha1": "a6138bcc92bd5df08d859bec55ccdc15445f0e8e"
+  },
+  "root/game/images/ep1_cafe_maya1.png": {
+   "base64": "iVBORw0KGgpmYWtlLXBuZw==",
+   "sha1": "5a760288239a8b3a6c1aa4c8db638f91723562f7"
+  },
+  "root/game/images/ep1_cafe_maya2.png": {
+   "base64": "iVBORw0KGgpmYWtlLXBuZw==",
+   "sha1": "5a760288239a8b3a6c1aa4c8db638f91723562f7"
+  },
+  "root/game/images/hero.webp": {
+   "sha1": "2aa6c93b2fcb176cd6c01cd8bf04c40b5cf6e1e9",
+   "text": "RIFF\u0000\u0000\u0000\u0000WEBPfake"
+  },
+  "root/game/images/hero_blink.png": {
+   "base64": "iVBORw0KGgpmYWtlLXBuZw==",
+   "sha1": "5a760288239a8b3a6c1aa4c8db638f91723562f7"
+  },
+  "root/game/images/odd.gif": {
+   "sha1": "be73d3e15f228a8dc3fcb65942f91634d55983b0",
+   "text": "not a gif at all\n"
+  },
+  "root/game/images/sub/Deep.PNG": {
+   "base64": "iVBORw0KGgpmYWtlLXBuZw==",
+   "sha1": "5a760288239a8b3a6c1aa4c8db638f91723562f7"
+  },
+  "root/game/other.rpy": {
+   "sha1": "864a905d52cb2faacac140f95cf4932e5f25c021",
+   "text": "label other:\n    show hero at left\n    show maya happy at right\n    mc \"Only shows\"\n    scene ep1_cafe_maya1 with dissolve\n    scene comp_blink\n    mc \"After\"\n"
+  },
+  "root/game/script.rpy": {
+   "sha1": "f248ec0ff467164bd4692a78575f84be5111d6ae",
+   "text": "define mc = Character(\"Main [name]\", color=\"#ff0000\")\ndefine js = DynamicCharacter(\"jname\", who_color='#0f0')\ndefine narrator = Character(None)\ndefine bad = Character\ndefine mc = Character(\"Second\")\n\nimage ep1_alias = \"images/bg_cafe.jpg\"\nimage maya happy = \"Maya_Smile\"\nimage maya anim:\n    \"ep1_cafe_maya1\"\n    pause 0.5\n    \"ep1_cafe_maya2\"\n    repeat\nimage comp = Composite((100,100), (0,0), \"bg_cafe\")\nimage comp_blink:\n    \"comp\"\n    pause 1\nlayeredimage eileen:\n    always \"eileen_base\"\nimage hero = \"hero_blink\"\nimage chain1 = \"chain2\"\nimage chain2 = \"chain3\"\nimage chain3 = \"bg_cafe\"\nimage deep = \"sub/Deep.PNG\"\n\nlabel start:\n    scene black\n    scene bg_cafe with fade\n    show maya happy at left\n    show hero at right as hero2\n    mc \"Hello\"\n    show maya anim\n    show eileen happy\n    hide hero2\n    show nonexistent\n    mc \"Middle\"\n    scene ep1_alias\n    show maya happy at center:\n    scene eileen\n    scene missing_one\n    show chain1\n    scene white\n    show comp\n    show deep at truecenter\n    hide chain1\n    mc \"End\"\n"
+  },
+  "root/game/tl/skipped.png": {
+   "base64": "iVBORw0KGgpmYWtlLXBuZw==",
+   "sha1": "5a760288239a8b3a6c1aa4c8db638f91723562f7"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "characters": {
+     "js": {
+      "color": "#0f0",
+      "dynamic": true,
+      "name": "[jname]"
+     },
+     "mc": {
+      "color": "#ff0000",
+      "dynamic": false,
+      "name": "Main [name]"
+     },
+     "narrator": {
+      "color": "",
+      "dynamic": false,
+      "name": ""
+     }
+    },
+    "composed": [
+     "comp",
+     "comp_blink"
+    ],
+    "defs": {
+     "chain1": [
+      "chain2"
+     ],
+     "chain2": [
+      "chain3"
+     ],
+     "chain3": [
+      "bg_cafe"
+     ],
+     "deep": [
+      "sub/Deep.PNG"
+     ],
+     "ep1_alias": [
+      "images/bg_cafe.jpg"
+     ],
+     "hero": [
+      "hero_blink"
+     ],
+     "maya anim": [
+      "ep1_cafe_maya1",
+      "ep1_cafe_maya2"
+     ],
+     "maya happy": [
+      "Maya_Smile"
+     ]
+    },
+    "errors": [
+     "bad.rpa: not an RPA 2 / 3 archive"
+    ],
+    "fonts": [
+     "arch-bold.ttf",
+     "font-regular.ttf"
+    ],
+    "layered": [
+     "eileen"
+    ],
+    "paths": [
+     "images/a.png",
+     "images/bg_cafe.jpg",
+     "images/ep1_cafe_maya1.png",
+     "images/ep1_cafe_maya2.png",
+     "images/hero.webp",
+     "images/hero_blink.png",
+     "images/maya_smile.png",
+     "images/odd.gif",
+     "images/sub/deep.png"
+    ],
+    "stems": [
+     "a",
+     "bg_cafe",
+     "deep",
+     "ep1_cafe_maya1",
+     "ep1_cafe_maya2",
+     "hero",
+     "hero_blink",
+     "maya_smile",
+     "odd"
+    ]
+   },
+   "op": "gameimages.build",
+   "params": {
+    "dir": "root/game"
+   }
+  },
+  {
+   "answer": [
+    [
+     "bg_cafe",
+     "file",
+     "images/bg_cafe.jpg"
+    ],
+    [
+     "bg_cafe",
+     "file",
+     "images/bg_cafe.jpg"
+    ],
+    [
+     "bg_cafe",
+     "file",
+     "images/bg_cafe.jpg"
+    ],
+    [
+     "maya_smile",
+     "file",
+     "images/Maya_Smile.png"
+    ],
+    [
+     "ep1_cafe_maya1",
+     "file",
+     "images/ep1_cafe_maya1.png"
+    ],
+    null,
+    [
+     "hero",
+     "file",
+     "images/hero.webp"
+    ],
+    null,
+    null,
+    null,
+    [
+     "bg_cafe",
+     "file",
+     "images/bg_cafe.jpg"
+    ],
+    [
+     "deep",
+     "file",
+     "images/sub/Deep.PNG"
+    ],
+    null,
+    [
+     "a",
+     "rpa",
+     "images/a.png"
+    ],
+    null,
+    null,
+    null,
+    [
+     "ep1_cafe_maya1",
+     "file",
+     "images/ep1_cafe_maya1.png"
+    ]
+   ],
+   "op": "gameimages.resolve",
+   "params": {
+    "names": [
+     "bg_cafe",
+     "BG CAFE",
+     "ep1_alias",
+     "maya happy",
+     "maya anim",
+     "maya",
+     "hero",
+     "hero2",
+     "comp",
+     "comp_blink",
+     "chain1",
+     "deep",
+     "images/bg_cafe.jpg",
+     "a",
+     "nothing_here",
+     "",
+     "'quoted'",
+     "ep1_cafe_maya"
+    ]
+   }
+  },
+  {
+   "answer": [
+    [
+     27,
+     "black"
+    ],
+    [
+     28,
+     "bg_cafe"
+    ],
+    [
+     37,
+     "ep1_alias"
+    ],
+    [
+     39,
+     "eileen"
+    ],
+    [
+     40,
+     "missing_one"
+    ],
+    [
+     42,
+     "white"
+    ]
+   ],
+   "op": "gameimages.scene_starts",
+   "params": {
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": [
+    [
+     5,
+     "ep1_cafe_maya1"
+    ],
+    [
+     6,
+     "comp_blink"
+    ]
+   ],
+   "op": "gameimages.scene_starts",
+   "params": {
+    "script": "root/game/other.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": false,
+    "image": "",
+    "key": "",
+    "layered": false,
+    "layers": [],
+    "missing": [],
+    "script_line": 0
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 1,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": true,
+    "image": "bg_cafe",
+    "key": "bg_cafe",
+    "layered": false,
+    "layers": [
+     {
+      "image": "maya happy",
+      "key": "maya_smile",
+      "x": 0.0
+     }
+    ],
+    "missing": [],
+    "script_line": 28
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 30,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": true,
+    "image": "bg_cafe",
+    "key": "bg_cafe",
+    "layered": true,
+    "layers": [
+     {
+      "image": "maya anim",
+      "key": "ep1_cafe_maya1",
+      "x": 0.5
+     },
+     {
+      "image": "hero",
+      "key": "hero",
+      "x": 1.0
+     }
+    ],
+    "missing": [],
+    "script_line": 28
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 34,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": true,
+    "image": "bg_cafe",
+    "key": "bg_cafe",
+    "layered": true,
+    "layers": [
+     {
+      "image": "maya anim",
+      "key": "ep1_cafe_maya1",
+      "x": 0.5
+     },
+     {
+      "image": "hero",
+      "key": "hero",
+      "x": 1.0
+     }
+    ],
+    "missing": [
+     "nonexistent"
+    ],
+    "script_line": 28
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 36,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": true,
+    "image": "ep1_alias",
+    "key": "bg_cafe",
+    "layered": false,
+    "layers": [
+     {
+      "image": "maya happy",
+      "key": "maya_smile",
+      "x": 0.5
+     }
+    ],
+    "missing": [],
+    "script_line": 37
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 39,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": false,
+    "image": "eileen",
+    "key": "",
+    "layered": true,
+    "layers": [],
+    "missing": [
+     "missing_one"
+    ],
+    "script_line": 39
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 41,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "flat": "#ffffff",
+    "found": true,
+    "image": "white",
+    "key": "",
+    "layered": false,
+    "layers": [],
+    "missing": [],
+    "script_line": 42
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 43,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "flat": "#ffffff",
+    "found": true,
+    "image": "white",
+    "key": "",
+    "layered": true,
+    "layers": [
+     {
+      "image": "deep",
+      "key": "deep",
+      "x": 0.5
+     }
+    ],
+    "missing": [],
+    "script_line": 42
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 45,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "flat": "#ffffff",
+    "found": true,
+    "image": "white",
+    "key": "",
+    "layered": true,
+    "layers": [
+     {
+      "image": "deep",
+      "key": "deep",
+      "x": 0.5
+     }
+    ],
+    "missing": [],
+    "script_line": 42
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 47,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "flat": "#ffffff",
+    "found": true,
+    "image": "white",
+    "key": "",
+    "layered": true,
+    "layers": [
+     {
+      "image": "deep",
+      "key": "deep",
+      "x": 0.5
+     }
+    ],
+    "missing": [],
+    "script_line": 42
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 49,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "flat": "#ffffff",
+    "found": true,
+    "image": "white",
+    "key": "",
+    "layered": true,
+    "layers": [
+     {
+      "image": "deep",
+      "key": "deep",
+      "x": 0.5
+     }
+    ],
+    "missing": [],
+    "script_line": 42
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 52,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "flat": "#ffffff",
+    "found": true,
+    "image": "white",
+    "key": "",
+    "layered": true,
+    "layers": [
+     {
+      "image": "deep",
+      "key": "deep",
+      "x": 0.5
+     }
+    ],
+    "missing": [],
+    "script_line": 42
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 999,
+    "script": "root/game/script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": true,
+    "image": "",
+    "key": "",
+    "layered": false,
+    "layers": [
+     {
+      "image": "hero",
+      "key": "hero",
+      "x": 0.0
+     },
+     {
+      "image": "maya happy",
+      "key": "maya_smile",
+      "x": 1.0
+     }
+    ],
+    "missing": [],
+    "script_line": 2
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 4,
+    "script": "root/game/other.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": true,
+    "image": "ep1_cafe_maya1",
+    "key": "ep1_cafe_maya1",
+    "layered": false,
+    "layers": [],
+    "missing": [],
+    "script_line": 5
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 6,
+    "script": "root/game/other.rpy"
+   }
+  },
+  {
+   "answer": {
+    "found": false,
+    "image": "comp_blink",
+    "key": "",
+    "layered": true,
+    "layers": [],
+    "missing": [],
+    "script_line": 6
+   },
+   "op": "gameimages.scene_for",
+   "params": {
+    "line": 8,
+    "script": "root/game/other.rpy"
+   }
+  },
+  {
+   "answer": {
+    "mime": "image/jpeg",
+    "sha1": "a6138bcc92bd5df08d859bec55ccdc15445f0e8e",
+    "size": 13
+   },
+   "op": "gameimages.image",
+   "params": {
+    "key": "bg_cafe"
+   }
+  },
+  {
+   "answer": {
+    "mime": "image/png",
+    "sha1": "5a760288239a8b3a6c1aa4c8db638f91723562f7",
+    "size": 16
+   },
+   "op": "gameimages.image",
+   "params": {
+    "key": "ep1_cafe_maya1"
+   }
+  },
+  {
+   "answer": {
+    "mime": "image/webp",
+    "sha1": "2aa6c93b2fcb176cd6c01cd8bf04c40b5cf6e1e9",
+    "size": 16
+   },
+   "op": "gameimages.image",
+   "params": {
+    "key": "hero"
+   }
+  },
+  {
+   "answer": {
+    "mime": "image/gif",
+    "sha1": "be73d3e15f228a8dc3fcb65942f91634d55983b0",
+    "size": 17
+   },
+   "op": "gameimages.image",
+   "params": {
+    "key": "odd"
+   }
+  },
+  {
+   "answer": {
+    "mime": "image/png",
+    "sha1": "b3eb3958f69410f942a9e9b0ec09e7d5bd7c30d2",
+    "size": 14
+   },
+   "op": "gameimages.image",
+   "params": {
+    "key": "a"
+   }
+  },
+  {
+   "answer": {
+    "error": "the picture does not exist"
+   },
+   "op": "gameimages.image",
+   "params": {
+    "key": "nothing"
+   }
+  },
+  {
+   "answer": {
+    "mime": "font/ttf",
+    "sha1": "8c1a8732d8c9e6be53db3f6350cd3e65355bfbd1",
+    "size": 13
+   },
+   "op": "gameimages.font",
+   "params": {
+    "name": "Font-Regular.ttf"
+   }
+  },
+  {
+   "answer": {
+    "mime": "font/ttf",
+    "sha1": "8c1a8732d8c9e6be53db3f6350cd3e65355bfbd1",
+    "size": 13
+   },
+   "op": "gameimages.font",
+   "params": {
+    "name": "font-regular.ttf"
+   }
+  },
+  {
+   "answer": {
+    "mime": "font/ttf",
+    "sha1": "9ad5adeb711ac16c4227991519c711df0457f837",
+    "size": 11
+   },
+   "op": "gameimages.font",
+   "params": {
+    "name": "Arch-Bold.ttf"
+   }
+  },
+  {
+   "answer": {
+    "error": "the font does not exist"
+   },
+   "op": "gameimages.font",
+   "params": {
+    "name": "gui/Font-Regular.ttf"
+   }
+  },
+  {
+   "answer": {
+    "error": "the font does not exist"
+   },
+   "op": "gameimages.font",
+   "params": {
+    "name": "missing.ttf"
+   }
+  }
+ ]
+}
