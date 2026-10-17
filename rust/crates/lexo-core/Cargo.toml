@@ -10,7 +10,9 @@ license.workspace = true
 chrono = { version = "0.4", default-features = false, features = ["std"] }
 fancy-regex = "0.14"
 flate2 = "1"
+indexmap = "2"
 regex = "1"
+serde = "1"
 serde_json = { version = "1", features = ["preserve_order"] }
 sha1 = "0.10"
 unicode-normalization = "0.1"

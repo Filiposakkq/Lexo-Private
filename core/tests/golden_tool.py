@@ -315,6 +315,7 @@ def run_data_scenario(path):
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(base64.b64decode(content["base64"]) if isinstance(content, dict) else content.encode("utf-8"))
         clock = _Clock(spec.get("clock", {}))
+        layout.use(layout.Layout())                         # the layout is process-wide state of the Python module: every scenario starts without one
         runner = DataRunner(root, tmp / "cfg", clock)
         steps = []
         with ExitStack() as stack:
@@ -447,6 +448,147 @@ class DataRunner:
         lk = self.locks.pop(a["name"])
         lk.release()
         return not lk.held
+
+    # -- layout, store and the event log
+    def op_layout_use(self, a):
+        from lexo import layout
+        lay = layout.parse(a["raw"])
+        layout.use(lay)
+        return lay.to_json()
+
+    def op_store_open(self, a):
+        from lexo.store import Store
+        self.store = Store(self.p(a["shared"]), self.p(a["local"]))
+        return True
+
+    def op_store_load(self, a):
+        self.store.load()
+        return self._dump_store()
+
+    def op_store_dump(self, a):
+        return self._dump_store()
+
+    def _dump_store(self):
+        st = self.store
+        return {
+            "corr": st.corr, "assign": st.assign,
+            "approved": {f: sorted([list(k) for k in v]) for f, v in st.approved.items()},
+            "episodes": {str(n): s for n, s in st.episodes.items()},
+            "proof": {f: [[b, o, dict(m)] for (b, o), m in sorted(t.items())] for f, t in st.proof.items()},
+            "ignored": {f: [[b, o, c, dict(m)] for (b, o, c), m in sorted(t.items())] for f, t in st.ignored.items()},
+            "glossary": st.glossary, "warnings": list(st.warnings), "unsaved": sorted(st.unsaved), "undo": [s["label"] for s in st.undo_stack]}
+
+    def _change(self, kind, fn):
+        self.store.change(kind, [kind], fn)
+        return self._dump_store()
+
+    def op_store_assign(self, a):
+        st = self.store
+        return self._change("assign", lambda: st.assign.pop(a["file"], None) if a["value"] == "" else st.assign.__setitem__(a["file"], a["value"]))
+
+    def op_store_corr(self, a):
+        st = self.store
+        return self._change("corr", lambda: st.corr.__setitem__(a["file"], {"c": a["c"], "t": a["t"]}))
+
+    def op_store_approve(self, a):
+        from lexo.util import norm_ws
+        st = self.store
+
+        def fn():
+            if a["on"]:
+                st.approved.setdefault(a["file"], set()).add((a["block"], norm_ws(a["original"])))
+            else:
+                st.approved.get(a["file"], set()).discard((a["block"], norm_ws(a["original"])))
+                if not st.approved.get(a["file"], True):
+                    del st.approved[a["file"]]
+        return self._change("approved", fn)
+
+    def op_store_episode(self, a):
+        st = self.store
+        return self._change("episodes", lambda: st.episodes.pop(a["n"], None) if a["state"] is None else st.episodes.__setitem__(a["n"], a["state"]))
+
+    def _marks(self, kind, a, key):
+        table = getattr(self.store, kind)
+
+        def fn():
+            if a["mark"] is None:
+                table.get(a["file"], {}).pop(key, None)
+                if not table.get(a["file"], True):
+                    del table[a["file"]]
+            else:
+                table.setdefault(a["file"], {})[key] = dict(a["mark"])
+        return self._change(kind, fn)
+
+    def op_store_proof(self, a):
+        from lexo.util import norm_ws
+        return self._marks("proof", a, (a["block"], norm_ws(a["original"])))
+
+    def op_store_ignored(self, a):
+        from lexo.util import norm_ws
+        return self._marks("ignored", a, (a["block"], norm_ws(a["original"]), a["code"]))
+
+    def op_store_glossary(self, a):
+        st = self.store
+        return self._change("glossary", lambda: st.glossary.pop(a["code"], None) if a.get("remove") else st.glossary.__setitem__(a["code"], {"n": a["n"], "t": a["t"], "c": a["c"]}))
+
+    def op_store_undo(self, a):
+        label = self.store.undo()
+        return {"label": label, "state": self._dump_store()}
+
+    def op_store_ensure_files(self, a):
+        self.store.ensure_files(a["names"])
+        return self._dump_store()
+
+    def op_store_attach_events(self, a):
+        from lexo.events import EventLog
+        self.store.attach_events(EventLog(self.p(a["dir"]), self.p(a["seen"]), a["author"]))
+        return True
+
+    def op_store_sync_events(self, a):
+        merged = self.store.sync_events()
+        return {"merged": merged, "state": self._dump_store(), "offsets": self.store.events.offsets, "known": self.store.events.known}
+
+    def op_store_funcs(self, a):
+        from lexo import store
+        return {"parse_value": [store.parse_value(v, a["total"]) for v in a["values"]], "parse_corr": [store.parse_corr(v, a["total"]) for v in a["values"]],
+                "text_hash": [store.text_hash(t) for t in a["texts"]],
+                "assign_from_text": [store.assign_from_text(t) for t in a["assign_texts"]], "assign_to_text": [store.assign_to_text(v) for v in a["assigns"]],
+                "valid_assign": [store.valid_assign(v) for v in a["assigns"]], "assign_label": [store.assign_label(v) for v in a["assigns"]],
+                "group_label": [store.group_label(n) for n in a["groups"]], "ep_states": [[k, v] for k, v in store.ep_states()],
+                "ep_of": [store.ep_of(v) for v in a["assigns"]]}
+
+    def op_events_open(self, a):
+        from lexo.events import EventLog
+        self.log = EventLog(self.p(a["dir"]), self.p(a["seen"]), a["author"])
+        return {"author": self.log.author, "known": self.log.known, "offsets": self.log.offsets}
+
+    def op_events_append(self, a):
+        return self.log.append([(k, tuple(key), v) for k, key, v in a["changes"]])
+
+    def op_events_dump(self, a):
+        seen, unseen, ends = self.log.read_all()
+        return {"state": {kind: {json.dumps(list(key)): [v, list(stamp)] for key, (v, stamp) in slot.items()} for kind, slot in self.log.state.items()},
+                "flat": {kind: {json.dumps(list(key)): v for key, v in slot.items()} for kind, slot in self.log.flat().items()},
+                "offsets": self.log.offsets, "known": self.log.known,
+                "read_all": {"seen": [[e, n] for e, n in seen], "unseen": [[e, n] for e, n in unseen], "ends": ends}}
+
+    def op_events_replay_all(self, a):
+        seen, unseen, ends = self.log.read_all()
+        self.log.state = {}
+        self.log.replay(seen)
+        self.log.replay(unseen)
+        return len(seen), len(unseen)
+
+    def op_write_file(self, a):
+        p = self.p(a["path"])
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "ab" if a.get("append") else "wb") as f:
+            f.write(a["text"].encode("utf-8"))
+        return True
+
+    def op_events_clean_author(self, a):
+        from lexo.events import clean_author
+        return [clean_author(n) for n in a["names"]]
 
 
 # =========================================================================================================================== everything

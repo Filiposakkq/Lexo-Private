@@ -1,0 +1,21 @@
+{
+ "_doc": "store + events, a computer that has never seen the log and the log is empty: the CSV state becomes the first events of this author; a later local edit is one more event.",
+ "files": {
+  "root/shared/assignments.csv": "file;group\r\na.rpy;episode 1\r\nb.rpy;general\r\n",
+  "root/shared/proofread.csv": "file;proofread;translated_manual\r\na.rpy;5;\r\nempty.rpy;;\r\n",
+  "root/shared/approved.csv": "file;block;original\r\nb.rpy;strings;Zed\r\na.rpy;strings;Alpha\r\na.rpy;b;Beta\r\n",
+  "root/shared/episode_states.csv": "episode;state\r\n1;proof\r\n",
+  "root/shared/line_marks.csv": "file;block;original;state;hash;note;date\r\na.rpy;b1;Hi;ok;aaaaaaaaaaaa;;2026-10-01\r\n"
+ },
+ "steps": [
+  {"op": "layout.use", "raw": {"sections": [{"n": 1, "groups": [1, 2]}]}},
+  {"op": "store.open", "shared": "root/shared", "local": "root/local"},
+  {"op": "store.load"},
+  {"op": "store.attach_events", "dir": "root/shared/events", "seen": "root/local/events-seen.json", "author": "Bob"},
+  {"op": "store.sync_events"},
+  {"op": "store.sync_events"},
+  {"op": "store.assign", "file": "a.rpy", "value": "ep:2"},
+  {"op": "store.undo"},
+  {"op": "list_dir", "path": "root/shared/events"}
+ ]
+}

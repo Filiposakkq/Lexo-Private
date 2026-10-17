@@ -173,7 +173,9 @@ dependencies = [
  "chrono",
  "fancy-regex",
  "flate2",
+ "indexmap",
  "regex",
+ "serde",
  "serde_json",
  "sha1",
  "unicode-normalization",
@@ -184,6 +186,7 @@ name = "lexo-golden"
 version = "0.0.0"
 dependencies = [
  "chrono",
+ "indexmap",
  "lexo-core",
  "regex",
  "serde_json",

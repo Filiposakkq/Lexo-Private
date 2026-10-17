@@ -1,0 +1,41 @@
+{
+ "_doc": "store: the CSV files of the translator's data read tolerantly (odd rows, bad states, an episode that is not in the layout), written back sorted and with a BOM, every change undoable.",
+ "files": {
+  "root/shared/proofread.csv": "﻿file;proofread;translated_manual\r\na.rpy;50%;\r\nb.rpy;10;5\r\nc.rpy\r\n",
+  "root/shared/assignments.csv": "﻿file;group\r\na.rpy;episode 1\r\nb.rpy;general\r\nc.rpy;Ep 9\r\nd.rpy;nonsense\r\ne.rpy;Chapter 2\r\n",
+  "root/shared/approved.csv": "file;block;original\r\na.rpy;translate czech x;  Hello   world \r\na.rpy;strings;Yes\r\n;strings;skipped (no file)\r\nshort;row\r\n",
+  "root/shared/episode_states.csv": "episode;state\r\n1;wip\r\n2;DONE\r\nx;none\r\n3;bogus\r\n",
+  "root/shared/line_marks.csv": "file;block;original;state;hash;note;date\r\na.rpy;b1;Hi  there;ok;aaaaaaaaaaaa;fine;2026-10-01\r\na.rpy;b2;Bye;fix;bbbbbbbbbbbb\r\na.rpy;b3;Bad;maybe;cccccccccccc\r\nshort;row\r\n",
+  "root/shared/glossary.csv": "code;name;type;note\r\nmc;Main Character;speaker;hero\r\n sage ; The Sage ;term\r\nx\r\n;;\r\n",
+  "root/shared/ignored.csv": "file;block;original;code;hash;note;date\r\na.rpy;b1;Hi;bad-escape;aaaaaaaaaaaa;;2026-10-02\r\na.rpy;b1;Hi;;h\r\nshort;row\r\n"
+ },
+ "steps": [
+  {"op": "store.funcs", "total": 200, "values": ["", "50%", "12.5%", "0,5%", " 7 ", "x", "yes", "1x", "abc", "150", "-3", "2.5", "3.5", "250%", "1e1", "7%", "%"],
+   "texts": ["", "Ahoj", "ahoj", "čeština"], "assign_texts": ["general", "GEN", "Episode 12", "ep 3", "Příběh", "část 7", "", "Day 04"],
+   "assigns": ["", "gen", "ep:1", "ep:3", "ep:03", "ep:x", "bogus"], "groups": [1, 3, 12]},
+  {"op": "layout.use", "raw": {"labels": {"group": "Chapter"}, "sections": [{"n": 1, "groups": [1, 2, 3]}]}},
+  {"op": "store.funcs", "total": 10, "values": ["50%"], "texts": [], "assign_texts": ["Chapter 2"], "assigns": ["", "gen", "ep:1", "ep:3", "ep:4", "ep:x", "bogus"], "groups": [1, 3, 12]},
+  {"op": "store.open", "shared": "root/shared", "local": "root/local"},
+  {"op": "store.load"},
+  {"op": "store.assign", "file": "a.rpy", "value": "ep:2"},
+  {"op": "store.assign", "file": "b.rpy", "value": ""},
+  {"op": "store.assign", "file": "z.rpy", "value": "gen"},
+  {"op": "store.corr", "file": "c.rpy", "c": "100%", "t": ""},
+  {"op": "store.corr", "file": "B.rpy", "c": "1", "t": "2"},
+  {"op": "store.approve", "file": "b.rpy", "block": "translate czech y", "original": "A  B", "on": true},
+  {"op": "store.approve", "file": "a.rpy", "block": "strings", "original": "Yes", "on": false},
+  {"op": "store.episode", "n": 2, "state": "tr"},
+  {"op": "store.episode", "n": 3, "state": null},
+  {"op": "store.proof", "file": "a.rpy", "block": "b9", "original": "New   line", "mark": {"s": "ok", "h": "dddddddddddd", "n": "n", "d": "2026-10-05"}},
+  {"op": "store.proof", "file": "a.rpy", "block": "b2", "original": "Bye", "mark": null},
+  {"op": "store.ignored", "file": "b.rpy", "block": "b1", "original": "X", "code": "double-space", "mark": {"h": "eeeeeeeeeeee", "n": "", "d": "2026-10-06"}},
+  {"op": "store.glossary", "code": "Zed", "n": "Zed Name", "t": "term", "c": "note"},
+  {"op": "store.glossary", "code": "mc", "remove": true, "n": "", "t": "", "c": ""},
+  {"op": "store.undo"},
+  {"op": "store.undo"},
+  {"op": "store.undo"},
+  {"op": "store.undo"},
+  {"op": "store.ensure_files", "names": ["a.rpy", "new1.rpy", "new2.rpy"]},
+  {"op": "list_dir", "path": "root/local/backups"}
+ ]
+}

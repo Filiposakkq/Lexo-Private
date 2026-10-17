@@ -266,7 +266,7 @@ class Store:
             if v:
                 out["assign"][(f,)] = v
         for f, keys in self.approved.items():
-            for b, o in keys:
+            for b, o in sorted(keys):                      # a set has no order: sorted, so the events are written in the same order every time
                 out["approved"][(f, b, o)] = True
         for n, st in self.episodes.items():
             out["episodes"][(n,)] = st

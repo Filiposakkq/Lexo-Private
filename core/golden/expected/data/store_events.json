@@ -1,0 +1,420 @@
+{
+ "files_after": {
+  "root/local/backups/approved.csv.<stamp>.bak": {
+   "sha1": "863f259f0bc023662234a4c3332eaeee40b6fbdc",
+   "text": "file;block;original\r\na.rpy;strings;Kept\r\n"
+  },
+  "root/local/backups/assignments.csv.<stamp>.bak": {
+   "sha1": "6e216de8846ce437e9b67269cdf07ee12e9bbc99",
+   "text": "file;group\r\na.rpy;episode 1\r\nb.rpy;general\r\nold.rpy;episode 2\r\n"
+  },
+  "root/local/backups/proofread.csv.<stamp>.bak": {
+   "sha1": "d756c6d40d21fda68ac0b04252816e660fc8088b",
+   "text": "file;proofread;translated_manual\r\na.rpy;5;\r\nold.rpy;9;9\r\n"
+  },
+  "root/local/events-seen.json": {
+   "sha1": "2f95834b63fa5cfbee0eea05d89bf576e8580128",
+   "text": "{\n \"v\": 1,\n \"offsets\": {\n  \"alice.jsonl\": 850,\n  \"bob.jsonl\": 665,\n  \"dora.jsonl\": 121\n }\n}"
+  },
+  "root/shared/approved.csv": {
+   "sha1": "e6dcd59a5319c446323ba8585b5b6e1c54f5377e",
+   "text": "﻿file;block;original\r\nd.rpy;strings;Yes\r\n"
+  },
+  "root/shared/assignments.csv": {
+   "sha1": "c5e30685ff838cccc8e5dfe5651ee5ca50e7f803",
+   "text": "﻿file;group\r\na.rpy;episode 2\r\nd.rpy;general\r\n"
+  },
+  "root/shared/episode_states.csv": {
+   "sha1": "83cf26933b43a7a0342cf68803addc8552de2572",
+   "text": "﻿episode;state\r\n1;done\r\n2;none\r\n"
+  },
+  "root/shared/events/alice.jsonl": {
+   "sha1": "3b45f48fe94530caa083c85058fa45d3a9a45903",
+   "text": "{\"v\":1,\"t\":\"2026-10-17T08:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"b.rpy\"],\"value\":null}\n{\"v\":1,\"t\":\"2026-10-17T08:01:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"a.rpy\"],\"value\":\"ep:2\"}\n{\"v\":1,\"t\":\"2026-10-17T08:02:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"corr\",\"key\":[\"a.rpy\"],\"value\":{\"c\":\"8\",\"t\":\"\"}}\n{\"v\":1,\"t\":\"2026-10-17T08:03:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"bad.rpy\"],\"value\":\"ep:99\"}\n{\"v\":1,\"t\":\"2026-10-17T08:04:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"episodes\",\"key\":[2],\"value\":\"nonsense\"}\n{\"v\":1,\"t\":\"2026-10-17T08:05:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"episodes\",\"key\":[1],\"value\":\"done\"}\n{\"v\":1,\"t\":\"2026-10-17T12:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"d.rpy\"],\"value\":\"gen\"}\n{\"v\":1,\"t\":\"2026-10-17T12:01:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"c.rpy\"],\"value\":null}\n"
+  },
+  "root/shared/events/bob.jsonl": {
+   "sha1": "39621a7b1c73a762cd12918b3a0f102d1e9fb8ee",
+   "text": "{\"v\":1,\"t\":\"2026-10-17T09:00:00.000000+00:00\",\"a\":\"bob\",\"kind\":\"assign\",\"key\":[\"bad.rpy\"],\"value\":null}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000001+00:00\",\"a\":\"bob\",\"kind\":\"episodes\",\"key\":[2],\"value\":null}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000002+00:00\",\"a\":\"bob\",\"kind\":\"assign\",\"key\":[\"c.rpy\"],\"value\":\"gen\"}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000003+00:00\",\"a\":\"bob\",\"kind\":\"approved\",\"key\":[\"c.rpy\",\"strings\",\"New\"],\"value\":true}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000004+00:00\",\"a\":\"bob\",\"kind\":\"approved\",\"key\":[\"c.rpy\",\"strings\",\"New\"],\"value\":null}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000005+00:00\",\"a\":\"bob\",\"kind\":\"approved\",\"key\":[\"d.rpy\",\"strings\",\"Yes\"],\"value\":null}\n{\"v\":1,\"t\":\"2026-10-17T09:00:00.000006+00:00\",\"a\":\"bob\",\"kind\":\"approved\",\"key\":[\"d.rpy\",\"strings\",\"Yes\"],\"value\":null}\n"
+  },
+  "root/shared/events/dora.jsonl": {
+   "sha1": "bd8115b3ca233f6d8fb694b347a7620e6cf6c714",
+   "text": "{\"v\":1,\"t\":\"2026-10-17T12:02:00.000000+00:00\",\"a\":\"dora\",\"kind\":\"approved\",\"key\":[\"d.rpy\",\"strings\",\"Yes\"],\"value\":true}\n"
+  },
+  "root/shared/proofread.csv": {
+   "sha1": "0d80c4589fd75f981995d97dddf83bc79d980636",
+   "text": "﻿file;proofread;translated_manual\r\na.rpy;8;\r\nold.rpy;;\r\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "sections": [
+     {
+      "groups": [
+       1,
+       2
+      ],
+      "n": 1,
+      "status": "active"
+     }
+    ],
+    "version": 1
+   },
+   "op": "layout.use",
+   "params": {
+    "raw": {
+     "sections": [
+      {
+       "groups": [
+        1,
+        2
+       ],
+       "n": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "answer": true,
+   "op": "store.open",
+   "params": {
+    "local": "root/local",
+    "shared": "root/shared"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Kept"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:1",
+     "b.rpy": "gen",
+     "old.rpy": "ep:2"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "5",
+      "t": ""
+     },
+     "old.rpy": {
+      "c": "9",
+      "t": "9"
+     }
+    },
+    "episodes": {},
+    "glossary": {},
+    "ignored": {},
+    "proof": {},
+    "undo": [],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.load",
+   "params": {}
+  },
+  {
+   "answer": true,
+   "op": "store.attach_events",
+   "params": {
+    "author": "<volatile>",
+    "dir": "root/shared/events",
+    "seen": "root/local/events-seen.json"
+   }
+  },
+  {
+   "answer": {
+    "known": true,
+    "merged": 6,
+    "offsets": {
+     "alice.jsonl": 641,
+     "bob.jsonl": 202
+    },
+    "state": {
+     "approved": {},
+     "assign": {
+      "a.rpy": "ep:2"
+     },
+     "corr": {
+      "a.rpy": {
+       "c": "8",
+       "t": ""
+      },
+      "old.rpy": {
+       "c": "",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "done"
+     },
+     "glossary": {},
+     "ignored": {},
+     "proof": {},
+     "undo": [],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "store.sync_events",
+   "params": {}
+  },
+  {
+   "answer": {
+    "approved": {},
+    "assign": {
+     "a.rpy": "ep:2",
+     "c.rpy": "gen"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "8",
+      "t": ""
+     },
+     "old.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "done"
+    },
+    "glossary": {},
+    "ignored": {},
+    "proof": {},
+    "undo": [
+     "assign"
+    ],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.assign",
+   "params": {
+    "file": "c.rpy",
+    "value": "gen"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "c.rpy": [
+      [
+       "strings",
+       "New"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "c.rpy": "gen"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "8",
+      "t": ""
+     },
+     "old.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "done"
+    },
+    "glossary": {},
+    "ignored": {},
+    "proof": {},
+    "undo": [
+     "assign",
+     "approved"
+    ],
+    "unsaved": [],
+    "warnings": []
+   },
+   "op": "store.approve",
+   "params": {
+    "block": "strings",
+    "file": "c.rpy",
+    "on": true,
+    "original": "New"
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "append": true,
+    "path": "root/shared/events/alice.jsonl",
+    "text": "{\"v\":1,\"t\":\"2026-10-17T12:00:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"d.rpy\"],\"value\":\"gen\"}\n{\"v\":1,\"t\":\"2026-10-17T12:01:00.000000+00:00\",\"a\":\"alice\",\"kind\":\"assign\",\"key\":[\"c.rpy\"],\"value\":null}\n"
+   }
+  },
+  {
+   "answer": true,
+   "op": "write_file",
+   "params": {
+    "append": true,
+    "path": "root/shared/events/dora.jsonl",
+    "text": "{\"v\":1,\"t\":\"2026-10-17T12:02:00.000000+00:00\",\"a\":\"dora\",\"kind\":\"approved\",\"key\":[\"d.rpy\",\"strings\",\"Yes\"],\"value\":true}\n"
+   }
+  },
+  {
+   "answer": {
+    "known": true,
+    "merged": 3,
+    "offsets": {
+     "alice.jsonl": 850,
+     "bob.jsonl": 425,
+     "dora.jsonl": 121
+    },
+    "state": {
+     "approved": {
+      "c.rpy": [
+       [
+        "strings",
+        "New"
+       ]
+      ],
+      "d.rpy": [
+       [
+        "strings",
+        "Yes"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:2",
+      "d.rpy": "gen"
+     },
+     "corr": {
+      "a.rpy": {
+       "c": "8",
+       "t": ""
+      },
+      "old.rpy": {
+       "c": "",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "done"
+     },
+     "glossary": {},
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "assign",
+      "approved"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "store.sync_events",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "approved",
+    "state": {
+     "approved": {},
+     "assign": {
+      "a.rpy": "ep:2",
+      "d.rpy": "gen"
+     },
+     "corr": {
+      "a.rpy": {
+       "c": "8",
+       "t": ""
+      },
+      "old.rpy": {
+       "c": "",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "done"
+     },
+     "glossary": {},
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "assign"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "store.undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "known": true,
+    "merged": 0,
+    "offsets": {
+     "alice.jsonl": 850,
+     "bob.jsonl": 665,
+     "dora.jsonl": 121
+    },
+    "state": {
+     "approved": {
+      "d.rpy": [
+       [
+        "strings",
+        "Yes"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:2",
+      "d.rpy": "gen"
+     },
+     "corr": {
+      "a.rpy": {
+       "c": "8",
+       "t": ""
+      },
+      "old.rpy": {
+       "c": "",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "done"
+     },
+     "glossary": {},
+     "ignored": {},
+     "proof": {},
+     "undo": [
+      "assign"
+     ],
+     "unsaved": [],
+     "warnings": []
+    }
+   },
+   "op": "store.sync_events",
+   "params": {}
+  },
+  {
+   "answer": [
+    "alice.jsonl",
+    "bob.jsonl",
+    "dora.jsonl"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/shared/events"
+   }
+  }
+ ]
+}

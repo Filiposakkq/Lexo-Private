@@ -4,7 +4,11 @@ use crate::normalize::normalize;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use lexo_core::clock::{Clock, TestClock};
 use lexo_core::config::Config;
+use lexo_core::events::{self, EventLog};
+use lexo_core::layout::{self, Layout};
 use lexo_core::lock::{Owner, ProjectLock};
+use lexo_core::messages::render;
+use lexo_core::store::{self, Kind, Store};
 use lexo_core::util::sha1_hex;
 use lexo_core::{csvio, datadir, fsutil};
 use serde_json::{json, Map, Value};
@@ -93,6 +97,9 @@ struct Runner<'a> {
     clock: &'a TestClock,
     locks: HashMap<String, ProjectLock>,
     config: Option<Config>,
+    layout: Layout,
+    store: Option<Store>,
+    log: Option<EventLog>,
 }
 
 fn err_text(e: &lexo_core::fsutil::WriteFailed) -> String {
@@ -207,8 +214,279 @@ impl Runner<'_> {
                 lk.release();
                 json!(!lk.held)
             }
+            "layout.use" => {
+                self.layout = layout::parse(&a["raw"]).map_err(|e| e.to_string())?;
+                self.layout.to_json()
+            }
+            "store.open" => {
+                self.store = Some(Store::new(&self.p(&a["shared"]), Some(&self.p(&a["local"])), self.layout.clone()));
+                json!(true)
+            }
+            "store.load" => {
+                self.store()?.load();
+                self.dump_store()?
+            }
+            "store.dump" => self.dump_store()?,
+            "store.assign" => {
+                let (file, value) = (a["file"].as_str().unwrap_or("").to_string(), a["value"].as_str().unwrap_or("").to_string());
+                self.change(Kind::Assign, move |st| {
+                    if value.is_empty() {
+                        st.assign.shift_remove(&file);
+                    } else {
+                        st.assign.insert(file, value);
+                    }
+                })?
+            }
+            "store.corr" => {
+                let (file, c, t) =
+                    (a["file"].as_str().unwrap_or("").to_string(), a["c"].as_str().unwrap_or("").to_string(), a["t"].as_str().unwrap_or("").to_string());
+                self.change(Kind::Corr, move |st| {
+                    st.corr.insert(file, store::Corr { c, t });
+                })?
+            }
+            "store.approve" => {
+                let file = a["file"].as_str().unwrap_or("").to_string();
+                let key = (a["block"].as_str().unwrap_or("").to_string(), lexo_core::util::norm_ws(a["original"].as_str().unwrap_or("")));
+                let on = a["on"].as_bool().unwrap_or(false);
+                self.change(Kind::Approved, move |st| {
+                    if on {
+                        st.approved.entry(file).or_default().insert(key);
+                    } else {
+                        if let Some(set) = st.approved.get_mut(&file) {
+                            set.remove(&key);
+                        }
+                        if st.approved.get(&file).is_some_and(|s| s.is_empty()) {
+                            st.approved.shift_remove(&file);
+                        }
+                    }
+                })?
+            }
+            "store.episode" => {
+                let n = a["n"].as_i64().unwrap_or(0);
+                let state = a["state"].as_str().map(String::from);
+                self.change(Kind::Episodes, move |st| match state {
+                    None => {
+                        st.episodes.shift_remove(&n);
+                    }
+                    Some(s) => {
+                        st.episodes.insert(n, s);
+                    }
+                })?
+            }
+            "store.proof" | "store.ignored" => {
+                let file = a["file"].as_str().unwrap_or("").to_string();
+                let block = a["block"].as_str().unwrap_or("").to_string();
+                let orig = lexo_core::util::norm_ws(a["original"].as_str().unwrap_or(""));
+                let mark = a["mark"].as_object().cloned();
+                if op == "store.proof" {
+                    self.change(Kind::Proof, move |st| match mark {
+                        None => {
+                            if let Some(t) = st.proof.get_mut(&file) {
+                                t.shift_remove(&(block, orig));
+                            }
+                            if st.proof.get(&file).is_some_and(|t| t.is_empty()) {
+                                st.proof.shift_remove(&file);
+                            }
+                        }
+                        Some(m) => {
+                            st.proof.entry(file).or_default().insert((block, orig), m);
+                        }
+                    })?
+                } else {
+                    let code = a["code"].as_str().unwrap_or("").to_string();
+                    self.change(Kind::Ignored, move |st| match mark {
+                        None => {
+                            if let Some(t) = st.ignored.get_mut(&file) {
+                                t.shift_remove(&(block, orig, code));
+                            }
+                            if st.ignored.get(&file).is_some_and(|t| t.is_empty()) {
+                                st.ignored.shift_remove(&file);
+                            }
+                        }
+                        Some(m) => {
+                            st.ignored.entry(file).or_default().insert((block, orig, code), m);
+                        }
+                    })?
+                }
+            }
+            "store.glossary" => {
+                let code = a["code"].as_str().unwrap_or("").to_string();
+                let remove = a["remove"].as_bool().unwrap_or(false);
+                let g =
+                    store::Gloss { n: a["n"].as_str().unwrap_or("").into(), t: a["t"].as_str().unwrap_or("").into(), c: a["c"].as_str().unwrap_or("").into() };
+                self.change(Kind::Glossary, move |st| {
+                    if remove {
+                        st.glossary.shift_remove(&code);
+                    } else {
+                        st.glossary.insert(code, g);
+                    }
+                })?
+            }
+            "store.undo" => {
+                let label = self.store()?.undo(clock).map_err(|e| err_text(&e))?;
+                json!({"label": label, "state": self.dump_store()?})
+            }
+            "store.ensure_files" => {
+                self.store()?.ensure_files(&strings(&a["names"]), clock);
+                self.dump_store()?
+            }
+            "store.attach_events" => {
+                let log = EventLog::new(&self.p(&a["dir"]), &self.p(&a["seen"]), a["author"].as_str().unwrap_or(""));
+                self.store()?.attach_events(log);
+                json!(true)
+            }
+            "store.sync_events" => {
+                let merged = self.store()?.sync_events(clock);
+                let log = self.store()?.events.as_ref().ok_or("no event log")?;
+                let (offsets, known) = (offsets_json(&log.offsets), log.known);
+                json!({"merged": merged, "state": self.dump_store()?, "offsets": offsets, "known": known})
+            }
+            "store.funcs" => {
+                let l = &self.layout;
+                let total = a["total"].as_i64().unwrap_or(0);
+                let (values, texts, atexts, assigns) = (strings(&a["values"]), strings(&a["texts"]), strings(&a["assign_texts"]), strings(&a["assigns"]));
+                let groups: Vec<i64> = a["groups"].as_array().map(|g| g.iter().filter_map(Value::as_i64).collect()).unwrap_or_default();
+                json!({
+                    "parse_value": values.iter().map(|v| store::parse_value(v, total)).collect::<Vec<_>>(),
+                    "parse_corr": values.iter().map(|v| store::parse_corr(v, total)).collect::<Vec<_>>(),
+                    "text_hash": texts.iter().map(|t| store::text_hash(t)).collect::<Vec<_>>(),
+                    "assign_from_text": atexts.iter().map(|t| store::assign_from_text(t)).collect::<Vec<_>>(),
+                    "assign_to_text": assigns.iter().map(|v| store::assign_to_text(v)).collect::<Vec<_>>(),
+                    "valid_assign": assigns.iter().map(|v| store::valid_assign(v, l)).collect::<Vec<_>>(),
+                    "assign_label": assigns.iter().map(|v| store::assign_label(v, l).wire()).collect::<Vec<_>>(),
+                    "group_label": groups.iter().map(|n| store::group_label(&n.to_string(), l).wire()).collect::<Vec<_>>(),
+                    "ep_states": store::ep_states().iter().map(|(k, m)| json!([k, m.wire()])).collect::<Vec<_>>(),
+                    "ep_of": assigns.iter().map(|v| store::ep_of(v)).collect::<Vec<_>>(),
+                })
+            }
+            "events.clean_author" => json!(strings(&a["names"]).iter().map(|n| events::clean_author(n)).collect::<Vec<_>>()),
+            "events.open" => {
+                let log = EventLog::new(&self.p(&a["dir"]), &self.p(&a["seen"]), a["author"].as_str().unwrap_or(""));
+                let answer = json!({"author": log.author, "known": log.known, "offsets": offsets_json(&log.offsets)});
+                self.log = Some(log);
+                answer
+            }
+            "events.append" => {
+                let changes: Vec<(String, events::Key, Value)> = a["changes"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|c| Some((c[0].as_str()?.to_string(), events::key_of(c[1].as_array()?)?, c[2].clone())))
+                    .collect();
+                let log = self.log.as_mut().ok_or("no event log")?;
+                json!(log.append(&changes, clock).map_err(|e| e.to_string())?)
+            }
+            "events.replay_all" => {
+                let log = self.log.as_mut().ok_or("no event log")?;
+                let (seen, unseen, _) = log.read_all();
+                log.state.clear();
+                log.replay(&seen);
+                log.replay(&unseen);
+                json!([seen.len(), unseen.len()])
+            }
+            "events.dump" => {
+                let log = self.log.as_ref().ok_or("no event log")?;
+                let (seen, unseen, ends) = log.read_all();
+                let pairs = |v: &[(events::Event, String)]| v.iter().map(|(e, n)| json!([e, n])).collect::<Vec<_>>();
+                let state: Map<String, Value> = log
+                    .state
+                    .iter()
+                    .map(|(kind, slot)| {
+                        (kind.clone(), Value::Object(slot.iter().map(|(key, (v, st))| (py_dumps_key(key), json!([v, [st.0, st.1, st.2]]))).collect()))
+                    })
+                    .collect();
+                let flat: Map<String, Value> = log
+                    .flat()
+                    .iter()
+                    .map(|(kind, slot)| (kind.clone(), Value::Object(slot.iter().map(|(key, v)| (py_dumps_key(key), v.clone())).collect())))
+                    .collect();
+                json!({
+                    "state": state, "flat": flat, "offsets": offsets_json(&log.offsets), "known": log.known,
+                    "read_all": {"seen": pairs(&seen), "unseen": pairs(&unseen), "ends": offsets_json(&ends)},
+                })
+            }
+            "write_file" => {
+                let p = self.p(&a["path"]);
+                std::fs::create_dir_all(p.parent().unwrap()).map_err(|e| e.to_string())?;
+                let append = a["append"].as_bool().unwrap_or(false);
+                let mut f = std::fs::OpenOptions::new().create(true).write(true).append(append).truncate(!append).open(&p).map_err(|e| e.to_string())?;
+                std::io::Write::write_all(&mut f, a["text"].as_str().unwrap_or("").as_bytes()).map_err(|e| e.to_string())?;
+                json!(true)
+            }
             other => return Err(format!("unknown data step {other}")),
         })
+    }
+}
+
+fn offsets_json(o: &indexmap::IndexMap<String, u64>) -> Value {
+    Value::Object(o.iter().map(|(k, v)| (k.clone(), json!(v))).collect())
+}
+
+/// `json.dumps(list(key))` of Python: `", "` between the elements, everything outside ASCII written as `\uXXXX`.
+fn py_dumps_key(key: &events::Key) -> String {
+    let items: Vec<String> = key
+        .iter()
+        .map(|k| {
+            let compact = k.to_value().to_string();
+            let mut out = String::new();
+            for c in compact.chars() {
+                if c.is_ascii() {
+                    out.push(c);
+                } else {
+                    let mut buf = [0u16; 2];
+                    for u in c.encode_utf16(&mut buf) {
+                        out.push_str(&format!("\\u{u:04x}"));
+                    }
+                }
+            }
+            out
+        })
+        .collect();
+    format!("[{}]", items.join(", "))
+}
+
+impl Runner<'_> {
+    fn store(&mut self) -> Result<&mut Store, String> {
+        self.store.as_mut().ok_or_else(|| "no store open".to_string())
+    }
+
+    fn change<F: FnOnce(&mut Store)>(&mut self, kind: Kind, f: F) -> Result<Value, String> {
+        let clock: &dyn Clock = self.clock;
+        self.store()?.change(kind.name(), &[kind], f, clock).map_err(|e| err_text(&e))?;
+        self.dump_store()
+    }
+
+    fn dump_store(&mut self) -> Result<Value, String> {
+        let st = self.store()?;
+        let corr: Map<String, Value> = st.corr.iter().map(|(k, v)| (k.clone(), json!({"c": v.c, "t": v.t}))).collect();
+        let approved: Map<String, Value> =
+            st.approved.iter().map(|(f, set)| (f.clone(), json!(set.iter().map(|(b, o)| json!([b, o])).collect::<Vec<_>>()))).collect();
+        let proof: Map<String, Value> = st
+            .proof
+            .iter()
+            .map(|(f, t)| {
+                let mut items: Vec<_> = t.iter().collect();
+                items.sort_by(|a, b| a.0.cmp(b.0));
+                (f.clone(), json!(items.into_iter().map(|((b, o), m)| json!([b, o, m])).collect::<Vec<_>>()))
+            })
+            .collect();
+        let ignored: Map<String, Value> = st
+            .ignored
+            .iter()
+            .map(|(f, t)| {
+                let mut items: Vec<_> = t.iter().collect();
+                items.sort_by(|a, b| a.0.cmp(b.0));
+                (f.clone(), json!(items.into_iter().map(|((b, o, c), m)| json!([b, o, c, m])).collect::<Vec<_>>()))
+            })
+            .collect();
+        Ok(json!({
+            "corr": corr, "assign": st.assign.iter().map(|(k, v)| (k.clone(), json!(v))).collect::<Map<String, Value>>(), "approved": approved,
+            "episodes": st.episodes.iter().map(|(n, s)| (n.to_string(), json!(s))).collect::<Map<String, Value>>(),
+            "proof": proof, "ignored": ignored,
+            "glossary": st.glossary.iter().map(|(k, g)| (k.clone(), json!({"n": g.n, "t": g.t, "c": g.c}))).collect::<Map<String, Value>>(),
+            "warnings": st.warnings.iter().map(|m| m.wire()).collect::<Vec<_>>(),
+            "unsaved": st.unsaved.iter().collect::<Vec<_>>(), "undo": st.undo_labels(),
+        }))
     }
 }
 
@@ -254,7 +532,16 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
         let utc: DateTime<Utc> =
             DateTime::parse_from_rfc3339(c["utc"].as_str().unwrap_or("2026-10-17T09:00:00+00:00")).map_err(|e| e.to_string())?.with_timezone(&Utc);
         let clock = TestClock::new(local, utc);
-        let mut runner = Runner { root: &tmp, cfg_dir: tmp.join("cfg"), clock: &clock, locks: HashMap::new(), config: None };
+        let mut runner = Runner {
+            root: &tmp,
+            cfg_dir: tmp.join("cfg"),
+            clock: &clock,
+            locks: HashMap::new(),
+            config: None,
+            layout: Layout::new(Vec::new(), Default::default(), "", "", Vec::new()),
+            store: None,
+            log: None,
+        };
         let mut steps = Vec::new();
         for st in spec["steps"].as_array().ok_or("no steps")? {
             let op = st["op"].as_str().unwrap_or("");
@@ -263,7 +550,7 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
             entry.insert("op".into(), json!(op));
             entry.insert("params".into(), Value::Object(params));
             match runner.run(op, st) {
-                Ok(v) => entry.insert("answer".into(), v),
+                Ok(v) => entry.insert("answer".into(), render(&v)),
                 Err(e) => entry.insert("error".into(), json!(e)),
             };
             steps.push(Value::Object(entry));

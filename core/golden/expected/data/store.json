@@ -1,0 +1,2874 @@
+{
+ "files_after": {
+  "root/local/backups/approved.csv.<stamp>.bak": {
+   "sha1": "cf6c40760ba5ea8da9cd27bb9747452d7b2a3ff6",
+   "text": "file;block;original\r\na.rpy;translate czech x;  Hello   world \r\na.rpy;strings;Yes\r\n;strings;skipped (no file)\r\nshort;row\r\n"
+  },
+  "root/local/backups/assignments.csv.<stamp>.bak": {
+   "sha1": "b4a68043916471afcd85b269795da0c4e05dee5e",
+   "text": "﻿file;group\r\na.rpy;episode 1\r\nb.rpy;general\r\nc.rpy;Ep 9\r\nd.rpy;nonsense\r\ne.rpy;Chapter 2\r\n"
+  },
+  "root/local/backups/episode_states.csv.<stamp>.bak": {
+   "sha1": "84c9a82db7deef1c82f6dc9fc769ea41cd690919",
+   "text": "episode;state\r\n1;wip\r\n2;DONE\r\nx;none\r\n3;bogus\r\n"
+  },
+  "root/local/backups/glossary.csv.<stamp>.bak": {
+   "sha1": "f877bb03bbf8b1cfe8fd9ba167a637729f824308",
+   "text": "code;name;type;note\r\nmc;Main Character;speaker;hero\r\n sage ; The Sage ;term\r\nx\r\n;;\r\n"
+  },
+  "root/local/backups/ignored.csv.<stamp>.bak": {
+   "sha1": "b45f9a2dd9a54cab8590fe5ee69ceda109424387",
+   "text": "file;block;original;code;hash;note;date\r\na.rpy;b1;Hi;bad-escape;aaaaaaaaaaaa;;2026-10-02\r\na.rpy;b1;Hi;;h\r\nshort;row\r\n"
+  },
+  "root/local/backups/line_marks.csv.<stamp>.bak": {
+   "sha1": "1472400b24814392b8d56a49606bcab54b0cd16a",
+   "text": "file;block;original;state;hash;note;date\r\na.rpy;b1;Hi  there;ok;aaaaaaaaaaaa;fine;2026-10-01\r\na.rpy;b2;Bye;fix;bbbbbbbbbbbb\r\na.rpy;b3;Bad;maybe;cccccccccccc\r\nshort;row\r\n"
+  },
+  "root/local/backups/proofread.csv.<stamp>.bak": {
+   "sha1": "6ff572731c41eb838b4b0e96003f4563b6bd6e07",
+   "text": "﻿file;proofread;translated_manual\r\na.rpy;50%;\r\nb.rpy;10;5\r\nc.rpy\r\n"
+  },
+  "root/shared/approved.csv": {
+   "sha1": "133b4db47b312643d27fb8ef5ca24774ab72a1e4",
+   "text": "﻿file;block;original\r\na.rpy;translate czech x;Hello world\r\nb.rpy;translate czech y;A B\r\n"
+  },
+  "root/shared/assignments.csv": {
+   "sha1": "d29ff5e24b288ab8577ef7b900dd9149c0465480",
+   "text": "﻿file;group\r\na.rpy;episode 2\r\ne.rpy;episode 2\r\nz.rpy;general\r\n"
+  },
+  "root/shared/episode_states.csv": {
+   "sha1": "b9caab5d1ee16ed60b5e05f57b1b10d433b931f5",
+   "text": "﻿episode;state\r\n1;wip\r\n2;tr\r\n3;none\r\n"
+  },
+  "root/shared/glossary.csv": {
+   "sha1": "5e6c7e35f39510676fc94aa9a484e7b3942f1bf5",
+   "text": "﻿code;name;type;note\r\nmc;Main Character;speaker;hero\r\nsage;The Sage;term;\r\nx;;speaker;\r\n"
+  },
+  "root/shared/ignored.csv": {
+   "sha1": "73b3927dfa1dde1d588827aa6b9e708204a6893f",
+   "text": "﻿file;block;original;code;hash;note;date\r\na.rpy;b1;Hi;bad-escape;aaaaaaaaaaaa;;2026-10-02\r\n"
+  },
+  "root/shared/line_marks.csv": {
+   "sha1": "2b8ba21b88f4ab1321f3b1e86b87915995b0b113",
+   "text": "﻿file;block;original;state;hash;note;date\r\na.rpy;b1;Hi there;ok;aaaaaaaaaaaa;fine;2026-10-01\r\na.rpy;b2;Bye;fix;bbbbbbbbbbbb;;\r\na.rpy;b9;New line;ok;dddddddddddd;n;2026-10-05\r\n"
+  },
+  "root/shared/proofread.csv": {
+   "sha1": "a5ddd74fa0af47232b73a1b7d4d929243140b71f",
+   "text": "﻿file;proofread;translated_manual\r\na.rpy;50%;\r\nb.rpy;10;5\r\nB.rpy;1;2\r\nc.rpy;100%;\r\nnew1.rpy;;\r\nnew2.rpy;;\r\n"
+  }
+ },
+ "steps": [
+  {
+   "answer": {
+    "assign_from_text": [
+     "gen",
+     "gen",
+     "ep:12",
+     "ep:3",
+     "",
+     "ep:7",
+     "",
+     "ep:4"
+    ],
+    "assign_label": [
+     "Unassigned",
+     "General (the whole game)",
+     "Episode 1",
+     "Episode 3",
+     "Episode 03",
+     "Episode x",
+     "Episode us"
+    ],
+    "assign_to_text": [
+     "",
+     "general",
+     "episode 1",
+     "episode 3",
+     "episode 03",
+     "episode x",
+     ""
+    ],
+    "ep_of": [
+     null,
+     null,
+     1,
+     3,
+     3,
+     null,
+     null
+    ],
+    "ep_states": [
+     [
+      "none",
+      "Not started"
+     ],
+     [
+      "wip",
+      "In progress"
+     ],
+     [
+      "tr",
+      "Translated"
+     ],
+     [
+      "proof",
+      "In proofreading"
+     ],
+     [
+      "done",
+      "Done"
+     ]
+    ],
+    "group_label": [
+     "Episode 1",
+     "Episode 3",
+     "Episode 12"
+    ],
+    "parse_corr": [
+     0,
+     100,
+     25,
+     1,
+     7,
+     200,
+     200,
+     200,
+     0,
+     150,
+     0,
+     2,
+     3,
+     200,
+     10,
+     14,
+     0
+    ],
+    "parse_value": [
+     null,
+     100,
+     25,
+     1,
+     7,
+     200,
+     200,
+     200,
+     null,
+     150,
+     0,
+     2,
+     3,
+     200,
+     10,
+     14,
+     null
+    ],
+    "text_hash": [
+     "da39a3ee5e6b",
+     "5bda927208c5",
+     "edb433bdd7c1",
+     "beb7542b6ee7"
+    ],
+    "valid_assign": [
+     true,
+     true,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   },
+   "op": "store.funcs",
+   "params": {
+    "assign_texts": [
+     "general",
+     "GEN",
+     "Episode 12",
+     "ep 3",
+     "Příběh",
+     "část 7",
+     "",
+     "Day 04"
+    ],
+    "assigns": [
+     "",
+     "gen",
+     "ep:1",
+     "ep:3",
+     "ep:03",
+     "ep:x",
+     "bogus"
+    ],
+    "groups": [
+     1,
+     3,
+     12
+    ],
+    "texts": [
+     "",
+     "Ahoj",
+     "ahoj",
+     "čeština"
+    ],
+    "total": 200,
+    "values": [
+     "",
+     "50%",
+     "12.5%",
+     "0,5%",
+     " 7 ",
+     "x",
+     "yes",
+     "1x",
+     "abc",
+     "150",
+     "-3",
+     "2.5",
+     "3.5",
+     "250%",
+     "1e1",
+     "7%",
+     "%"
+    ]
+   }
+  },
+  {
+   "answer": {
+    "labels": {
+     "group": "Chapter",
+     "section": "Season"
+    },
+    "sections": [
+     {
+      "groups": [
+       1,
+       2,
+       3
+      ],
+      "n": 1,
+      "status": "active"
+     }
+    ],
+    "version": 1
+   },
+   "op": "layout.use",
+   "params": {
+    "raw": {
+     "labels": {
+      "group": "Chapter"
+     },
+     "sections": [
+      {
+       "groups": [
+        1,
+        2,
+        3
+       ],
+       "n": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "answer": {
+    "assign_from_text": [
+     "ep:2"
+    ],
+    "assign_label": [
+     "Unassigned",
+     "General (the whole game)",
+     "Chapter 1",
+     "Chapter 3",
+     "Chapter 4",
+     "Chapter x",
+     "Chapter us"
+    ],
+    "assign_to_text": [
+     "",
+     "general",
+     "episode 1",
+     "episode 3",
+     "episode 4",
+     "episode x",
+     ""
+    ],
+    "ep_of": [
+     null,
+     null,
+     1,
+     3,
+     4,
+     null,
+     null
+    ],
+    "ep_states": [
+     [
+      "none",
+      "Not started"
+     ],
+     [
+      "wip",
+      "In progress"
+     ],
+     [
+      "tr",
+      "Translated"
+     ],
+     [
+      "proof",
+      "In proofreading"
+     ],
+     [
+      "done",
+      "Done"
+     ]
+    ],
+    "group_label": [
+     "Chapter 1",
+     "Chapter 3",
+     "Chapter 12"
+    ],
+    "parse_corr": [
+     5
+    ],
+    "parse_value": [
+     5
+    ],
+    "text_hash": [],
+    "valid_assign": [
+     true,
+     true,
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
+   },
+   "op": "store.funcs",
+   "params": {
+    "assign_texts": [
+     "Chapter 2"
+    ],
+    "assigns": [
+     "",
+     "gen",
+     "ep:1",
+     "ep:3",
+     "ep:4",
+     "ep:x",
+     "bogus"
+    ],
+    "groups": [
+     1,
+     3,
+     12
+    ],
+    "texts": [],
+    "total": 10,
+    "values": [
+     "50%"
+    ]
+   }
+  },
+  {
+   "answer": true,
+   "op": "store.open",
+   "params": {
+    "local": "root/local",
+    "shared": "root/shared"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes"
+      ],
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:1",
+     "b.rpy": "gen",
+     "e.rpy": "ep:2"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.load",
+   "params": {}
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes"
+      ],
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "b.rpy": "gen",
+     "e.rpy": "ep:2"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.assign",
+   "params": {
+    "file": "a.rpy",
+    "value": "ep:2"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes"
+      ],
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.assign",
+   "params": {
+    "file": "b.rpy",
+    "value": ""
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes"
+      ],
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.assign",
+   "params": {
+    "file": "z.rpy",
+    "value": "gen"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes"
+      ],
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.corr",
+   "params": {
+    "c": "100%",
+    "file": "c.rpy",
+    "t": ""
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes"
+      ],
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.corr",
+   "params": {
+    "c": "1",
+    "file": "B.rpy",
+    "t": "2"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "strings",
+       "Yes"
+      ],
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.approve",
+   "params": {
+    "block": "translate czech y",
+    "file": "b.rpy",
+    "on": true,
+    "original": "A  B"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "done"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.approve",
+   "params": {
+    "block": "strings",
+    "file": "a.rpy",
+    "on": false,
+    "original": "Yes"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.episode",
+   "params": {
+    "n": 2,
+    "state": "tr"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.episode",
+   "params": {
+    "n": 3,
+    "state": null
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ],
+      [
+       "b9",
+       "New line",
+       {
+        "d": "2026-10-05",
+        "h": "dddddddddddd",
+        "n": "n",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes",
+     "proof"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.proof",
+   "params": {
+    "block": "b9",
+    "file": "a.rpy",
+    "mark": {
+     "d": "2026-10-05",
+     "h": "dddddddddddd",
+     "n": "n",
+     "s": "ok"
+    },
+    "original": "New   line"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b9",
+       "New line",
+       {
+        "d": "2026-10-05",
+        "h": "dddddddddddd",
+        "n": "n",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes",
+     "proof",
+     "proof"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.proof",
+   "params": {
+    "block": "b2",
+    "file": "a.rpy",
+    "mark": null,
+    "original": "Bye"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ],
+     "b.rpy": [
+      [
+       "b1",
+       "X",
+       "double-space",
+       {
+        "d": "2026-10-06",
+        "h": "eeeeeeeeeeee",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b9",
+       "New line",
+       {
+        "d": "2026-10-05",
+        "h": "dddddddddddd",
+        "n": "n",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes",
+     "proof",
+     "proof",
+     "ignored"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.ignored",
+   "params": {
+    "block": "b1",
+    "code": "double-space",
+    "file": "b.rpy",
+    "mark": {
+     "d": "2026-10-06",
+     "h": "eeeeeeeeeeee",
+     "n": ""
+    },
+    "original": "X"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "Zed": {
+      "c": "note",
+      "n": "Zed Name",
+      "t": "term"
+     },
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ],
+     "b.rpy": [
+      [
+       "b1",
+       "X",
+       "double-space",
+       {
+        "d": "2026-10-06",
+        "h": "eeeeeeeeeeee",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b9",
+       "New line",
+       {
+        "d": "2026-10-05",
+        "h": "dddddddddddd",
+        "n": "n",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes",
+     "proof",
+     "proof",
+     "ignored",
+     "glossary"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.glossary",
+   "params": {
+    "c": "note",
+    "code": "Zed",
+    "n": "Zed Name",
+    "t": "term"
+   }
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "Zed": {
+      "c": "note",
+      "n": "Zed Name",
+      "t": "term"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ],
+     "b.rpy": [
+      [
+       "b1",
+       "X",
+       "double-space",
+       {
+        "d": "2026-10-06",
+        "h": "eeeeeeeeeeee",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b9",
+       "New line",
+       {
+        "d": "2026-10-05",
+        "h": "dddddddddddd",
+        "n": "n",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes",
+     "proof",
+     "proof",
+     "ignored",
+     "glossary",
+     "glossary"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.glossary",
+   "params": {
+    "c": "",
+    "code": "mc",
+    "n": "",
+    "remove": true,
+    "t": ""
+   }
+  },
+  {
+   "answer": {
+    "label": "glossary",
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "translate czech x",
+        "Hello world"
+       ]
+      ],
+      "b.rpy": [
+       [
+        "translate czech y",
+        "A B"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:2",
+      "e.rpy": "ep:2",
+      "z.rpy": "gen"
+     },
+     "corr": {
+      "B.rpy": {
+       "c": "1",
+       "t": "2"
+      },
+      "a.rpy": {
+       "c": "50%",
+       "t": ""
+      },
+      "b.rpy": {
+       "c": "10",
+       "t": "5"
+      },
+      "c.rpy": {
+       "c": "100%",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "wip",
+      "2": "tr"
+     },
+     "glossary": {
+      "Zed": {
+       "c": "note",
+       "n": "Zed Name",
+       "t": "term"
+      },
+      "mc": {
+       "c": "hero",
+       "n": "Main Character",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "",
+       "n": "The Sage",
+       "t": "term"
+      },
+      "x": {
+       "c": "",
+       "n": "",
+       "t": "speaker"
+      }
+     },
+     "ignored": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi",
+        "bad-escape",
+        {
+         "d": "2026-10-02",
+         "h": "aaaaaaaaaaaa",
+         "n": ""
+        }
+       ]
+      ],
+      "b.rpy": [
+       [
+        "b1",
+        "X",
+        "double-space",
+        {
+         "d": "2026-10-06",
+         "h": "eeeeeeeeeeee",
+         "n": ""
+        }
+       ]
+      ]
+     },
+     "proof": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi there",
+        {
+         "d": "2026-10-01",
+         "h": "aaaaaaaaaaaa",
+         "n": "fine",
+         "s": "ok"
+        }
+       ],
+       [
+        "b9",
+        "New line",
+        {
+         "d": "2026-10-05",
+         "h": "dddddddddddd",
+         "n": "n",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [
+      "assign",
+      "assign",
+      "assign",
+      "corr",
+      "corr",
+      "approved",
+      "approved",
+      "episodes",
+      "proof",
+      "proof",
+      "ignored",
+      "glossary"
+     ],
+     "unsaved": [],
+     "warnings": [
+      "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+     ]
+    }
+   },
+   "op": "store.undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "glossary",
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "translate czech x",
+        "Hello world"
+       ]
+      ],
+      "b.rpy": [
+       [
+        "translate czech y",
+        "A B"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:2",
+      "e.rpy": "ep:2",
+      "z.rpy": "gen"
+     },
+     "corr": {
+      "B.rpy": {
+       "c": "1",
+       "t": "2"
+      },
+      "a.rpy": {
+       "c": "50%",
+       "t": ""
+      },
+      "b.rpy": {
+       "c": "10",
+       "t": "5"
+      },
+      "c.rpy": {
+       "c": "100%",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "wip",
+      "2": "tr"
+     },
+     "glossary": {
+      "mc": {
+       "c": "hero",
+       "n": "Main Character",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "",
+       "n": "The Sage",
+       "t": "term"
+      },
+      "x": {
+       "c": "",
+       "n": "",
+       "t": "speaker"
+      }
+     },
+     "ignored": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi",
+        "bad-escape",
+        {
+         "d": "2026-10-02",
+         "h": "aaaaaaaaaaaa",
+         "n": ""
+        }
+       ]
+      ],
+      "b.rpy": [
+       [
+        "b1",
+        "X",
+        "double-space",
+        {
+         "d": "2026-10-06",
+         "h": "eeeeeeeeeeee",
+         "n": ""
+        }
+       ]
+      ]
+     },
+     "proof": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi there",
+        {
+         "d": "2026-10-01",
+         "h": "aaaaaaaaaaaa",
+         "n": "fine",
+         "s": "ok"
+        }
+       ],
+       [
+        "b9",
+        "New line",
+        {
+         "d": "2026-10-05",
+         "h": "dddddddddddd",
+         "n": "n",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [
+      "assign",
+      "assign",
+      "assign",
+      "corr",
+      "corr",
+      "approved",
+      "approved",
+      "episodes",
+      "proof",
+      "proof",
+      "ignored"
+     ],
+     "unsaved": [],
+     "warnings": [
+      "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+     ]
+    }
+   },
+   "op": "store.undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "ignored",
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "translate czech x",
+        "Hello world"
+       ]
+      ],
+      "b.rpy": [
+       [
+        "translate czech y",
+        "A B"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:2",
+      "e.rpy": "ep:2",
+      "z.rpy": "gen"
+     },
+     "corr": {
+      "B.rpy": {
+       "c": "1",
+       "t": "2"
+      },
+      "a.rpy": {
+       "c": "50%",
+       "t": ""
+      },
+      "b.rpy": {
+       "c": "10",
+       "t": "5"
+      },
+      "c.rpy": {
+       "c": "100%",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "wip",
+      "2": "tr"
+     },
+     "glossary": {
+      "mc": {
+       "c": "hero",
+       "n": "Main Character",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "",
+       "n": "The Sage",
+       "t": "term"
+      },
+      "x": {
+       "c": "",
+       "n": "",
+       "t": "speaker"
+      }
+     },
+     "ignored": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi",
+        "bad-escape",
+        {
+         "d": "2026-10-02",
+         "h": "aaaaaaaaaaaa",
+         "n": ""
+        }
+       ]
+      ]
+     },
+     "proof": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi there",
+        {
+         "d": "2026-10-01",
+         "h": "aaaaaaaaaaaa",
+         "n": "fine",
+         "s": "ok"
+        }
+       ],
+       [
+        "b9",
+        "New line",
+        {
+         "d": "2026-10-05",
+         "h": "dddddddddddd",
+         "n": "n",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [
+      "assign",
+      "assign",
+      "assign",
+      "corr",
+      "corr",
+      "approved",
+      "approved",
+      "episodes",
+      "proof",
+      "proof"
+     ],
+     "unsaved": [],
+     "warnings": [
+      "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+     ]
+    }
+   },
+   "op": "store.undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "proof",
+    "state": {
+     "approved": {
+      "a.rpy": [
+       [
+        "translate czech x",
+        "Hello world"
+       ]
+      ],
+      "b.rpy": [
+       [
+        "translate czech y",
+        "A B"
+       ]
+      ]
+     },
+     "assign": {
+      "a.rpy": "ep:2",
+      "e.rpy": "ep:2",
+      "z.rpy": "gen"
+     },
+     "corr": {
+      "B.rpy": {
+       "c": "1",
+       "t": "2"
+      },
+      "a.rpy": {
+       "c": "50%",
+       "t": ""
+      },
+      "b.rpy": {
+       "c": "10",
+       "t": "5"
+      },
+      "c.rpy": {
+       "c": "100%",
+       "t": ""
+      }
+     },
+     "episodes": {
+      "1": "wip",
+      "2": "tr"
+     },
+     "glossary": {
+      "mc": {
+       "c": "hero",
+       "n": "Main Character",
+       "t": "speaker"
+      },
+      "sage": {
+       "c": "",
+       "n": "The Sage",
+       "t": "term"
+      },
+      "x": {
+       "c": "",
+       "n": "",
+       "t": "speaker"
+      }
+     },
+     "ignored": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi",
+        "bad-escape",
+        {
+         "d": "2026-10-02",
+         "h": "aaaaaaaaaaaa",
+         "n": ""
+        }
+       ]
+      ]
+     },
+     "proof": {
+      "a.rpy": [
+       [
+        "b1",
+        "Hi there",
+        {
+         "d": "2026-10-01",
+         "h": "aaaaaaaaaaaa",
+         "n": "fine",
+         "s": "ok"
+        }
+       ],
+       [
+        "b2",
+        "Bye",
+        {
+         "d": "",
+         "h": "bbbbbbbbbbbb",
+         "n": "",
+         "s": "fix"
+        }
+       ],
+       [
+        "b9",
+        "New line",
+        {
+         "d": "2026-10-05",
+         "h": "dddddddddddd",
+         "n": "n",
+         "s": "ok"
+        }
+       ]
+      ]
+     },
+     "undo": [
+      "assign",
+      "assign",
+      "assign",
+      "corr",
+      "corr",
+      "approved",
+      "approved",
+      "episodes",
+      "proof"
+     ],
+     "unsaved": [],
+     "warnings": [
+      "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+     ]
+    }
+   },
+   "op": "store.undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "approved": {
+     "a.rpy": [
+      [
+       "translate czech x",
+       "Hello world"
+      ]
+     ],
+     "b.rpy": [
+      [
+       "translate czech y",
+       "A B"
+      ]
+     ]
+    },
+    "assign": {
+     "a.rpy": "ep:2",
+     "e.rpy": "ep:2",
+     "z.rpy": "gen"
+    },
+    "corr": {
+     "B.rpy": {
+      "c": "1",
+      "t": "2"
+     },
+     "a.rpy": {
+      "c": "50%",
+      "t": ""
+     },
+     "b.rpy": {
+      "c": "10",
+      "t": "5"
+     },
+     "c.rpy": {
+      "c": "100%",
+      "t": ""
+     },
+     "new1.rpy": {
+      "c": "",
+      "t": ""
+     },
+     "new2.rpy": {
+      "c": "",
+      "t": ""
+     }
+    },
+    "episodes": {
+     "1": "wip",
+     "2": "tr"
+    },
+    "glossary": {
+     "mc": {
+      "c": "hero",
+      "n": "Main Character",
+      "t": "speaker"
+     },
+     "sage": {
+      "c": "",
+      "n": "The Sage",
+      "t": "term"
+     },
+     "x": {
+      "c": "",
+      "n": "",
+      "t": "speaker"
+     }
+    },
+    "ignored": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi",
+       "bad-escape",
+       {
+        "d": "2026-10-02",
+        "h": "aaaaaaaaaaaa",
+        "n": ""
+       }
+      ]
+     ]
+    },
+    "proof": {
+     "a.rpy": [
+      [
+       "b1",
+       "Hi there",
+       {
+        "d": "2026-10-01",
+        "h": "aaaaaaaaaaaa",
+        "n": "fine",
+        "s": "ok"
+       }
+      ],
+      [
+       "b2",
+       "Bye",
+       {
+        "d": "",
+        "h": "bbbbbbbbbbbb",
+        "n": "",
+        "s": "fix"
+       }
+      ],
+      [
+       "b9",
+       "New line",
+       {
+        "d": "2026-10-05",
+        "h": "dddddddddddd",
+        "n": "n",
+        "s": "ok"
+       }
+      ]
+     ]
+    },
+    "undo": [
+     "assign",
+     "assign",
+     "assign",
+     "corr",
+     "corr",
+     "approved",
+     "approved",
+     "episodes",
+     "proof"
+    ],
+    "unsaved": [],
+    "warnings": [
+     "assignments.csv: c.rpy → Ep 9 is not a valid assignment, ignoring it."
+    ]
+   },
+   "op": "store.ensure_files",
+   "params": {
+    "names": [
+     "a.rpy",
+     "new1.rpy",
+     "new2.rpy"
+    ]
+   }
+  },
+  {
+   "answer": [
+    "approved.csv.<stamp>.bak",
+    "assignments.csv.<stamp>.bak",
+    "episode_states.csv.<stamp>.bak",
+    "glossary.csv.<stamp>.bak",
+    "ignored.csv.<stamp>.bak",
+    "line_marks.csv.<stamp>.bak",
+    "proofread.csv.<stamp>.bak"
+   ],
+   "op": "list_dir",
+   "params": {
+    "path": "root/local/backups"
+   }
+  }
+ ]
+}
