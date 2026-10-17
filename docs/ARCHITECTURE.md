@@ -31,8 +31,11 @@ checks plus the UI texts, and the server hands the UI texts out. The tests that 
 `validate(line)`, `search(query)`, `snapshot()`, `scene(line)`, `generate_translation(game, language)`.
 
 ## Extension points for Pro
-`translate_provider` (machine translation), `memory_provider` (translation memory), `exporter` (progress/web), `team_sync`.
-A Pro module only adds an implementation; the UI shows the feature when the module is present and licensed.
+Built (see PRO-DESIGN.md): `core/lexo/extensions.py` is the host. A Pro feature is a **JSON call** (`host.call("publish.web", "plan", {...})`) answered by the separately delivered
+Pro pack (`pro/lexo_pro`); without the pack the feature is locked and no flag in Core or Free can change that. The first extracted feature is `publish.web`; four more are still
+in Core behind the old flag (`Feature.extracted = False` in `features.py`), listed in PRO-DESIGN.md.
+Planned names for further features: `translate_provider` (machine translation batches), `memory_provider` (fuzzy translation memory), `exporter`, `team_sync`.
+The UI shows a feature when the pack offers it, otherwise a locked hint.
 
 ## Free / Pro split (proposal)
 - **Free**: the whole translating workflow (see docs/FEATURES.md): editor, proofreading, validation, find & replace, spelling, history with diff, scene preview, statistics, translation generator.

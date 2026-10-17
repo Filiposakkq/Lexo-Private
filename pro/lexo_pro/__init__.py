@@ -1,0 +1,52 @@
+"""Lexo Pro pack (private, delivered only to licensed users; never part of the public repository).
+
+Core finds this package by its name (`lexo_pro`, see lexo/extensions.py) and calls `provider()`. Everything here depends on Core (`lexo`), never the other way round.
+The pack decides on its own what it offers and with which limits (`offers`): the place for the licence check and for the demo mode of an unlicensed pack.
+Today it offers everything it contains, because the licence check does not exist yet (roadmap step 6).
+"""
+import json
+from pathlib import Path
+
+from lexo import messages
+from lexo.extensions import API, ExtensionError
+
+from . import publish
+
+__version__ = "0.1.0"
+
+
+class Provider:
+    api = API
+    version = __version__
+
+    def offers(self):
+        return {"publish.web": {"limit": None}}
+
+    def ui_strings(self, code):
+        """The Czech (or other) texts of the messages of this pack, from ui/<code>.json."""
+        path = Path(__file__).resolve().parent / "ui" / f"{code}.json"
+        try:
+            return json.loads(path.read_text(encoding="utf-8")).get("strings", {})
+        except (OSError, ValueError):
+            return {}
+
+    def call(self, feature, method, payload):
+        if feature == "publish.web":
+            return self._publish(method, payload)
+        raise ExtensionError(f"The Pro pack has no feature {feature}.")
+
+    def _publish(self, method, p):
+        try:
+            if method == "plan":
+                out = publish.plan(p["web"], p["data"], p["text"])
+            elif method == "publish":
+                out = publish.publish(p["web"], p["data"], p["text"], p["token"], p["branch"])
+            else:
+                raise ExtensionError(f"publish.web has no method {method}.")
+        except publish.PublishError as e:
+            raise ExtensionError(*e.args) from e              # the message (with its template) goes on to the user
+        return messages.wire(out)                              # plain JSON: messages travel as {"$m": template, "p": values}
+
+
+def provider():
+    return Provider()

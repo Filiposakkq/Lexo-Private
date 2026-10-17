@@ -1,5 +1,6 @@
 """Public progress data: preview, plan, publishing."""
-from . import export, publish as pub
+from . import export
+from .extensions import ExtensionError
 from .messages import msg
 from .messages import text_of
 from .app_base import AppError
@@ -24,8 +25,8 @@ class PublishPart:
             if problems:
                 raise AppError(msg("The export did not pass the check: {problems}", problems="; ".join(problems)))
             try:
-                info = pub.plan(self.config.get("web", {}), data, export.render(data))
-            except pub.PublishError as e:
+                info = self.ext.call("publish.web", "plan", {"web": self.config.get("web", {}), "data": data, "text": export.render(data)})
+            except ExtensionError as e:
                 raise AppError(text_of(e)) from e
             info["summary"] = {"episodes": len(data["episodes"]), "files": data["files"]["total"],
                                "estimate": data["estimate"]["status"]}
@@ -40,6 +41,6 @@ class PublishPart:
             if problems:
                 raise AppError(msg("The export did not pass the check: {problems}", problems="; ".join(problems)))
             try:
-                return pub.publish(self.config.get("web", {}), data, export.render(data), token, branch)
-            except pub.PublishError as e:
+                return self.ext.call("publish.web", "publish", {"web": self.config.get("web", {}), "data": data, "text": export.render(data), "token": token, "branch": branch})
+            except ExtensionError as e:
                 raise AppError(text_of(e)) from e

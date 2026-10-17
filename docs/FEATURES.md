@@ -5,7 +5,7 @@ Principle: the **whole translating workflow is free** (so people can really use 
 app still works fully without it, and nothing that users see as a basic right is locked (find & replace, spelling, history).
 
 Revision 2 follows a review of revision 1 (find & replace, spelling and line diff move to Free; four pain points are added to Pro).
-Module = where the code lives today in `core/lexo/`. "Coupling" = how hard it is to pull the feature out later.
+Module = where the code lives today in `core/lexo/`. "Coupling" = which other code imports the module (**not** whether the feature is Free or Pro): "only `app.py`" means nothing else uses it, so it can be lifted out later. How Pro features are kept apart and delivered: PRO-DESIGN.md.
 
 ## Free
 | Feature | Module | Coupling |

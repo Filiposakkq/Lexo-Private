@@ -19,7 +19,8 @@ from dataclasses import dataclass
 class Feature:
     id: str
     title: str
-    free_limit: object = "locked"       # "locked" or the number of items per action Free may use
+    free_limit: object = "locked"       # "locked" or the number of items per action Free may use (only for a feature that is not extracted yet)
+    extracted: bool = False             # True: the code is in the Pro pack and the extension host decides (extensions.py); False: still in Core, gated by `Entitlements`
 
 
 CATALOG = {f.id: f for f in (
@@ -27,7 +28,7 @@ CATALOG = {f.id: f for f in (
     Feature("fixes.safe", "Safe bulk fixes with preview", 20),
     Feature("replace.regex", "Regex find & replace", "locked"),
     Feature("bulk.categorize", "Bulk categorisation suggestions", 20),
-    Feature("publish.web", "Publishing progress to a website", "locked"),
+    Feature("publish.web", "Publishing progress to a website", "locked", extracted=True),
 )}
 
 
@@ -56,7 +57,7 @@ class Entitlements:
         return Decision(feature, True, int(spec.free_limit))
 
     def status(self):
-        """For the UI: every gated feature with its decision."""
+        """For the UI: every gated feature with its decision (the features that are not extracted yet; see `status_of`)."""
         return {fid: {"title": spec.title, "available": d.available, "limit": d.limit, "pro": self.pro}
                 for fid, spec in CATALOG.items() for d in [self.decide(fid)]}
 
@@ -69,3 +70,21 @@ def default():
     """DEVELOPMENT default: everything on. It becomes FREE when the licence loader exists (roadmap step 6).
     LEXO_TIER=free lets a developer try the free behaviour."""
     return FREE if os.environ.get("LEXO_TIER", "").lower() == "free" else Entitlements(True, "dev")
+
+
+def decide(feature, entitlements, host):
+    """The decision for one feature: an extracted feature is the business of the extension host (a Pro pack must offer it), the others of `entitlements`."""
+    spec = CATALOG.get(feature)
+    if spec is not None and spec.extracted:
+        return host.decide(feature)
+    return entitlements.decide(feature)
+
+
+def status_of(entitlements, host):
+    """For the UI: every gated feature, whether it is available and with which limit, and whether a Pro pack is there at all."""
+    out = {}
+    for fid, spec in CATALOG.items():
+        d = decide(fid, entitlements, host)
+        out[fid] = {"title": spec.title, "available": d.available, "limit": d.limit, "pro": host.present if spec.extracted else entitlements.pro}
+    return out
+

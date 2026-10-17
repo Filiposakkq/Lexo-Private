@@ -23,8 +23,9 @@ import subprocess
 import sys
 from pathlib import Path, PurePosixPath
 
-from .util import WriteFailed, atomic_write_bytes
-from .messages import msg
+from lexo import export
+from lexo.util import WriteFailed, atomic_write_bytes
+from lexo.messages import msg
 
 NOWIN = {"creationflags": 0x08000000} if sys.platform.startswith("win") else {}
 COMMIT_MESSAGE = "chore(translation): update progress data"
@@ -76,12 +77,11 @@ def locate_repo(spec):
 
 
 def clean_target(rel):
-    """Validate the target path inside the repository (relative, no '..', a .json file)."""
-    rel = str(rel).replace("\\", "/").strip()
-    pp = PurePosixPath(rel)
-    if not rel or pp.is_absolute() or ".." in pp.parts or re.match(r"^[A-Za-z]:", rel) or pp.suffix.lower() != ".json":
-        raise PublishError(msg("Invalid path of the file in the repository: {rel} (it must be a relative path to a .json file).", rel=rel))
-    return str(pp)
+    """Validate the target path inside the repository (relative, no '..', a .json file); the check itself is Core's (it also validates the setting)."""
+    try:
+        return export.clean_target(rel)
+    except export.TargetError as e:
+        raise PublishError(str(e)) from e
 
 
 def canonical(data):
