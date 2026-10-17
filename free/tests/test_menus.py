@@ -92,6 +92,13 @@ class MenuAroundTests(unittest.TestCase):
         self.assertEqual(menus.find_menu(NESTED, 6)["before"], [2])          # not "In the if branch." (another path), nor the lines of an earlier menu
         self.assertEqual(menus.find_menu(NESTED, 12)["before"], [2, 11])     # the bodies of the first menu are skipped; the if / else is walked over
 
+    def test_a_choice_without_dialogue_keeps_the_first_lines_of_its_body(self):
+        m = menus.find_menu(NESTED, 12)
+        self.assertEqual(m["options"][1]["body"], ["            pass"])
+        self.assertEqual(menus.find_menu(NESTED, 6)["options"][1]["body"], ["                $ y = 1"])
+        lines = ['menu:', '    "Yes":', '        $ x += 1', '        show a 3', '        menu Q2:', '            "Deep":', '                pass', '        $ ignored = 1']
+        self.assertEqual(menus.find_menu(lines, 2)["options"][0]["body"], ['        $ x += 1', '        show a 3', '        menu Q2:', '            "Deep":'])
+
     def test_the_lines_of_a_choice_belong_to_its_menu(self):
         self.assertEqual(menus.menu_around(NESTED, 14)["menu_line"], 12)     # first line of the body of A
         self.assertEqual(menus.menu_around(NESTED, 16)["menu_line"], 12)     # inside an `if` in the body: beyond the lines the menu shows? it is the 2nd say line

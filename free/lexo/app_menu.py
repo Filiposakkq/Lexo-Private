@@ -1,12 +1,14 @@
 """The menu a choice belongs to: question, the other choices, and what follows each of them (read from the game script)."""
 import re
+import textwrap
 
 from . import menus
 from .app_base import AppError
 from .messages import msg
 from .util import norm_ws
 
-REF_RE = re.compile(r"^(game/.+?):(\d+)$")
+NL = chr(10)
+REF_RE =re.compile(r"^(game/.+?):(\d+)$")
 
 
 class MenuPart:
@@ -54,6 +56,7 @@ class MenuPart:
         for k, o in enumerate(found["options"]):
             hit = by_text.get(norm_ws(o["text"]))
             out_opts.append({"n": o["n"], "text": o["text"], "cond": o["cond"], "current": k == found["current"],
-                             "entry": row(*hit) if hit else None, "after": [say(n) for n in o["after"]]})
+                             "entry": row(*hit) if hit else None, "after": [say(n) for n in o["after"]],
+                             "body": [] if o["after"] else textwrap.dedent(NL.join(o["body"])).splitlines()})
         return {"available": True, "script": f"{m.group(1)}:{found['menu_line']}", "question": [say(n) for n in found["question"]],
                 "before": [say(n) for n in found["before"]], "options": out_opts}

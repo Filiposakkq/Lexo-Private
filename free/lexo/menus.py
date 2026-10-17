@@ -21,6 +21,7 @@ MENU_RE = re.compile(r"^\s*menu(?:\s+\w+)?\s*(?:\(.*\))?\s*:\s*(?:#.*)?$")
 SAY_RE = re.compile(r"""^\s*(?:[A-Za-z_][\w.]*(?:\s+[\w@.]+)*\s+)?(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')\s*(?:with\s+.+)?$""")
 NOT_SAY = {"if", "elif", "else", "while", "for", "show", "scene", "hide", "play", "stop", "queue", "with", "image", "define", "default", "label", "jump", "call",
            "return", "pass", "python", "init", "screen", "transform", "style", "translate", "window", "pause", "voice", "renpy", "camera", "text", "menu", "$"}
+BODY_LINES = 4            # first lines of the body of a choice kept as they are (what a choice does when no dialogue follows)
 AFTER_LINES = 2           # lines of dialogue shown after each choice
 BEFORE_LINES = 2          # lines of dialogue shown before a menu that has no question of its own
 LOOK_BACK = 60
@@ -146,10 +147,13 @@ def find_menu(lines, line, choice=None):
         if ind == level:
             m = OPTION_RE.match(text)
             if m:
-                options.append({"n": i + 1, "text": m.group(1) if m.group(1) is not None else m.group(2), "cond": m.group(3) or "", "after": []})
+                options.append({"n": i + 1, "text": m.group(1) if m.group(1) is not None else m.group(2), "cond": m.group(3) or "", "after": [], "body": []})
             elif not options and is_say(text):
                 question.append(i + 1)
-        elif options and len(options[-1]["after"]) < AFTER_LINES:
+        elif options:
+            if len(options[-1]["body"]) < BODY_LINES:
+                options[-1]["body"].append(text.rstrip())
+        if ind > level and options and len(options[-1]["after"]) < AFTER_LINES:
             if MENU_RE.match(text):                                   # a menu inside a choice: its lines are not this choice's
                 options[-1]["after"].append(0)
             elif is_say(text) and 0 not in options[-1]["after"]:

@@ -338,7 +338,7 @@ export async function viewEntries() {
       const editor = S.compEditor ? pair : null;
       return (S.compFull ? [inPane(gamePreview(d, ed.ta)), editor] : [editor, tabsFn()]).filter(Boolean);
     }
-    if (film) return [inPane(gamePreview(d, ed.ta)), pair, fileStrip(d), filmStrip(d), ...(S.quick === 'proof' ? [proofPane(d)] : S.quick ? [] : [tabsFn()])];
+    if (film) return [inPane(gamePreview(d, ed.ta)), pair, fileStrip(d), filmStrip(d), quickMenu(d), ...(S.quick === 'proof' ? [proofPane(d)] : S.quick ? [] : [tabsFn()])];
     if (S.companionOpen && pref('ui.slimMain', true)) {
       return [pair, h('div', { class: 'slimnote muted' }, T('The scene, check, proofreading and other tabs are in the second window. '),
         h('button', { class: 'btn small ghost', onclick: () => { setPref('ui.slimMain', false); drawDetail(S.ent.detail); } }, T('Show them here too')))];
@@ -742,6 +742,12 @@ export async function viewEntries() {
      first lines after each choice, because what a choice means is what follows it. The open line is marked; click any line to jump to it. */
   const menuFor = (file, line) => ((S.menuCache ||= new Map()).has(file + '\t' + line) ? S.menuCache.get(file + '\t' + line)
     : (S.menuCache.set(file + '\t' + line, get('entry/menu', { file, line }).catch((e) => ({ available: false, reason: e.message }))), S.menuCache.get(file + '\t' + line)));
+  /* The same menu in the quick translating / proofreading modes: shown under the film strip only when the line belongs to a menu. */
+  function quickMenu(d) {
+    const box = h('details', { class: 'quickmenu', hidden: true, open: true }, h('summary', null, T('Menu')));
+    if (d.ref) menuFor(d.file, d.line).then((r) => { if (r.available && box.isConnected !== false) { box.append(menuBox(d)); box.hidden = false; } });
+    return box;
+  }
   function menuBox(d) {
     const box = h('div', { class: 'menubox' });
     box.append(loading());
@@ -763,6 +769,7 @@ export async function viewEntries() {
             h('div', { class: 'mwho' }, h('span', { class: 'chip choice' }, T('Choice')), o.cond ? h('span', { class: 'chip', title: o.cond }, T('if {cond}', { cond: o.cond })) : null, o.current ? h('span', { class: 'mhere' }, T('this line')) : null),
             h('div', { class: 'mtxt' }, o.entry ? textOf(o.entry) : h('span', { class: 'muted' }, T('(not found in the translation)'))),
             h('div', { class: 'msrc muted' }, fmtText(o.text))),
+          !o.after.length && o.body?.length ? h('div', { class: 'mbody' }, h('div', { class: 'muted' }, T('No dialogue follows; the script continues with:')), h('pre', { class: 'ctxcode' }, o.body.join('\n'))) : null,
           o.after.length ? h('div', { class: 'mafter' }, h('div', { class: 'mafterhead muted' }, T('then:')), ...o.after.map((x) => sayRow(x, 'after'))) : null));
       }
       box.replaceChildren(h('div', { class: 'muted mono', style: { fontSize: '12px' } }, T('Game script: '), r.script), ...parts);
