@@ -85,6 +85,6 @@ def status_of(entitlements, host):
     out = {}
     for fid, spec in CATALOG.items():
         d = decide(fid, entitlements, host)
-        out[fid] = {"title": spec.title, "available": d.available, "limit": d.limit, "pro": host.present if spec.extracted else entitlements.pro}
+        out[fid] = {"title": spec.title, "available": d.available, "limit": d.limit, "pro": host.present if spec.extracted else entitlements.pro, "extracted": spec.extracted}
     return out
 

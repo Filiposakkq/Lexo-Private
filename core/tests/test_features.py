@@ -48,6 +48,7 @@ class EntitlementTests(unittest.TestCase):
         self.assertEqual(set(st), set(features.CATALOG))
         self.assertEqual(st["mt.batch"]["limit"], 20)
         self.assertEqual((st["publish.web"]["available"], st["publish.web"]["pro"]), (False, False))
+        self.assertEqual((st["publish.web"]["extracted"], st["mt.batch"]["extracted"]), (True, False))      # which features are already apart from Core
 
 
 class ExtensionHostTests(unittest.TestCase):

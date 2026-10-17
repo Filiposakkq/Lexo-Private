@@ -28,6 +28,47 @@ Because the border is plain JSON it does not matter how the pack runs:
 
 Switching from the first to the second changes only the transport inside `ExtensionHost`; no feature code changes. **"Sidecar" is just that: a second program next to the app, started and stopped by the app.** The user does not run it by hand.
 
+## Limits, the free taste, and who enforces them
+The limit of a feature (for example 20 lines per action) is **not a number in Free**. The pack says what it offers (`offers()` returns `{"limit": 20}` or `{"limit": None}`), and the host passes it on; the pack also **enforces** it inside its own code, so editing Free does not remove it.
+
+**The demo must work without any extra step**, so it cannot be "download the pack first". Two kinds of Pro features, two ways of delivering them:
+
+| Kind | Examples | Where it lives | Without a licence | With a licence |
+|---|---|---|---|---|
+| **Taste features**: cheap to copy, good for a first impression | batch machine translation, safe fixes with preview, regex replace, bulk categorisation | in the **demo pack**, which is **built into the installer** next to Free (closed source: only the built pack is shipped, never the source) | works with the limit the pack sets (20 lines per action) | the licence file switches the limit off |
+| **Premium features**: the real value, hard to rebuild | carry a translation over to a new game version, fuzzy memory, LLM style check, release builder, team work | in the **premium pack**, **never shipped without a licence** | locked; the UI describes it and shows the value ("37 identical originals") | downloaded after the licence is seen |
+
+So the user sees: install -> the taste features work with their limits at once -> a licence key lifts the limits and brings the premium features.
+
+What this protects and what it does not (honest): the taste features are on every machine as a built pack, so a determined person could patch the pack, as with any shipped program; they are cheap, so that is accepted. The premium features are not on a machine without a licence at all. In the Python phase a shipped pack is readable Python and easy to change; the real protection of the taste pack comes with the compiled sidecar (Rust phase). Free itself holds neither feature nor limit in any phase.
+
+(Until a feature is extracted its old limit is a number in Core; see FEATURES.md, column "In the Pro pack?".)
+
+## Entering a licence (what happens, step by step)
+Not built yet; this is the design.
+1. The user types the **licence key** in Free (Settings -> Licence). Free contains only this small *activation client*: it sends the key to the licence server over HTTPS. It holds no secret and no feature.
+2. The server checks the key and answers with (a) a **signed licence file** (who, which features, valid until, a device id if we bind one) and (b) the **address of the premium pack** to download, also signed.
+3. Free downloads the premium pack and verifies its **signature** with the public key built into Free; a wrong or swapped pack is not loaded. It stores the licence file next to the packs.
+4. At start each **pack** reads the licence file and verifies **its** signature with its own public key (offline, no network). A valid licence: it offers everything it contains. Missing, expired or broken: the demo pack offers its limits, the premium pack offers nothing.
+5. **Putting a key into Free changes nothing by itself**: Free only fetches. What the user gets is decided by the packs and the signed file, which Free cannot forge (the private key stays with the author).
+
+## Sharing the pack and the licence: what is done about it
+Nobody can fully stop a licensed person from sending files on; the aim is that sharing is inconvenient, traceable and not worth it. Decided with the owner:
+
+1. **The pack alone unlocks nothing.** The premium pack offers nothing without a valid, signed licence file.
+2. **A licence is bound to devices: 2 per licence.** The licence file carries a device id and the server counts activations. A copied file does not work on a third computer. The user frees a device (a button in Settings, which tells the server) when changing computers.
+3. **Every download is made for one licence.** The server **encrypts** the premium pack with a key that belongs only to that licence (the key arrives with the signed licence file and lives in memory only while the application runs), and puts an invisible **watermark** into it (the licence id, in several places of the pack). A leaked pack is useless without its key and can be traced to the licence it was made for.
+4. **Online check, now and then.** The pack asks the server whether the licence is still valid and receives a renewed signed licence file. The interval is a value **inside the signed licence file** (default **30 days**; **14 days** is possible for a licence that is suspected of being shared), so it can be changed without updating the application. A failed check never blocks work (no internet is normal): after a missed check the pack keeps working for a grace period of the same length, then falls back to the demo limits with a clear message. Translations and project files are never touched. A revoked licence is simply not renewed.
+5. The value of Pro is in what cannot be copied from a screenshot (carry-over, fuzzy memory, style check, release builder); the cheap taste features are in the installer's demo pack and are not what the income stands on.
+
+What it does not prevent: a licensed person who is determined to patch the program, or to share a whole computer. The price is meant to be low enough that buying is simpler than working around it.
+
+## Decisions of the owner
+- Watermark and per-licence encryption of the premium pack: **yes**.
+- Online check every **30 days** (14 for suspicious licences), grace period of the same length: **yes**.
+- **2 devices** per licence: **yes**.
+- **One-off payment: decided.** A one-off licence for the current major version (1.x, updates and fixes included), a paid upgrade for the next major version. Why: no running cost per user (the user brings their own machine translation key, nothing is hosted), the target users are hobby translators who dislike subscriptions, and a leaked licence can still be revoked by the online check, since a revocation needs no expiry date. A yearly licence would make sense only if the product grew a running cost (hosted translation, a team server); the code would not change, only the contents of the licence file (what it covers and until when).
+
 ## Updates (the question "one app, but two things")
 - Free and the pack have **separate version numbers**, and both know the **interface version** (`API` in `extensions.py`, now 1).
 - The application's updater looks at one **manifest**: `{free: version, pack: version, api: 1, files: [url, sha256, signature]}`.
@@ -46,7 +87,7 @@ Not done (each is its own piece of work, listed so nothing is forgotten):
 - **Four features are still in Core** behind the old flag (`Feature.extracted = False`): `mt.batch`, `fixes.safe`, `replace.regex`, `bulk.categorize`. Until each is extracted, someone who edits Core can unlock it. Each needs its own split, because the module holds both the free and the paid half (a single line of machine translation is free, a batch is Pro; the safe fixes with a preview are Pro, the plain speaker fix is free; plain replace is free, regex replace is Pro; approving identical lines is free, suggesting groups is Pro).
 - The **sidecar transport**, the **signature check** and the **manifest updater**.
 - The **licence**: the file, the check inside the pack, the demo limits, the server that hands out the pack.
-- Decisions that belong to the owner: price and form of the licence, and the licence of the public part (see FEATURES.md, open questions).
+- Decisions that belong to the owner and are still open: the licence of the public part (see FEATURES.md, open questions) and the price.
 
 ## For a developer
 - Running from the repository: `py free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
