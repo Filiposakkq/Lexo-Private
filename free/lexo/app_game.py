@@ -165,7 +165,7 @@ class GamePart:
         try:
             sc = gi.scene_for(script, int(m.group(2)))
         except OSError:
-            out["reason"] = f"Skript {m.group(1)} nebyl nalezen (jsou po ruce jen .rpyc?)."
+            out["reason"] = msg("The script {name} was not found (are only .rpyc files at hand?).", name=m.group(1))
             return out
         fonts = self.game_fonts()
         for kind in ("text", "name"):
@@ -173,12 +173,13 @@ class GamePart:
             out["fonts_" + kind] = {"file": fn, "url": "/api/game/font?g=" + self._game_token() + "&k=" + urllib.parse.quote(fn, safe="")} if fn in gi.fonts else None
         ch = gi.characters.get(ent.who or "")
         out["speaker"] = ch
-        out.update(available=True, found=sc["found"], image=sc["image"], missing=sc["missing"], script=f"{m.group(1)}:{sc['script_line']}",
+        out.update(available=True, found=sc["found"], layered=sc.get("layered", False), image=sc["image"], missing=sc["missing"], script=f"{m.group(1)}:{sc['script_line']}",
                    flat=sc.get("flat", ""), index_errors=gi.errors[:3], images=len(gi.stems))
         if sc["found"] and sc["key"]:
             out["url"] = "/api/game/image?g=" + self._game_token() + "&k=" + urllib.parse.quote(sc["key"], safe="")
         elif not sc["found"]:
-            out["reason"] = msg("I found no picture (scene / show) before this line that can be traced in the game archives.")
+            out["reason"] = (msg("The scene is built from layered or composed images, which Lexo does not draw yet.") if sc.get("layered")
+                             else msg("I found no picture (scene / show) before this line that can be traced in the game archives."))
         return out
 
     def game_font(self, name):

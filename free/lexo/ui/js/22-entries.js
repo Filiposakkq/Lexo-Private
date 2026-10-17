@@ -622,7 +622,8 @@ export async function viewEntries() {
       else if (scene.url && imgOk) where = T('Picture: {image} (according to {script}) – an estimate from the game script.', { image: scene.image, script: scene.script });
       else where = scene.reason || (scene.found ? T('The picture could not be loaded.') : T('The scene picture could not be found.'));
       const fontNote = !scene.available ? '' : fam ? ' ' + T('Game font: {file}.', { file: scene.fonts_text.file }) : T(' The game font could not be loaded, a substitute is shown.');
-      info.textContent = `${where}${fontNote} ${T('Window {w}×{h}, font {size} px ({source}); limit {lines}.', { w: g.screen_width, h: g.screen_height, size: g.text_size, source: g.source, lines: tn(g.max_lines, '{n} line', '{n} lines') })}`;
+      const layerNote = scene.layered ? ' ' + T('Layered images are not supported yet: characters made of layers are not drawn here. Support is planned.') : '';
+      info.textContent = `${where}${layerNote}${fontNote} ${T('Window {w}×{h}, font {size} px ({source}); limit {lines}.', { w: g.screen_width, h: g.screen_height, size: g.text_size, source: g.source, lines: tn(g.max_lines, '{n} line', '{n} lines') })}`;
     }
     ta.addEventListener('input', () => { clearTimeout(box._t); box._t = setTimeout(draw, 150); });
     ta.addEventListener('draft', () => draw());

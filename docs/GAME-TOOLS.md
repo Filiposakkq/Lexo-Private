@@ -56,3 +56,13 @@ The dialog has "Select all / Select none" and an option **"Put each text into th
 (`script2.rpy` -> `tl/czech/script2.rpy`) as one more strings block, so the file and group statistics follow it; a text whose script has no translation file still goes to `extra_strings.rpy`.
 Experimental means: it mostly works and saves work, but it edits your translation files and may not do the right thing in every game; a snapshot is made first. Line endings are kept, and a path that would lead outside
 the translation folder is never followed. The feature is part of the Free version.
+
+## Scene preview and layered images (not supported yet, planned)
+The preview follows the game script upwards to the last `scene` / `show` whose image it can find as a file. That is exactly right for games made of full-screen renders and wrong for games that build a
+picture from several parts. **Layered images are not supported yet; support is planned.** What the preview does instead of a wrong picture:
+- **Recognised as layered or composed:** `layeredimage name:`, `image x = Composite(...)` / `LiveComposite` / `im.Composite` / `ConditionSwitch` / `DynamicImage` / `Fixed`, and ATL blocks with `contains`.
+  Their parts are never taken for the whole picture.
+- **A layered character on a background:** the background is shown, and a note says that characters made of layers are not drawn.
+- **A scene that is itself layered:** no picture is shown (not an older, wrong one), and the preview says why.
+Measured on eight games: the three that preview badly use them heavily (LoSeSb: 257 files with `layeredimage`; Our Red String about 2 100 and Four Elements about 7 900 composite or switch definitions); the others have almost none.
+Drawing them would need the definitions evaluated: reading the attribute groups and `if` conditions of `layeredimage`, and the code of composites and switches. That is closest to running the game's engine for the picture, so it belongs after the Rust port or with an engine-backed renderer.

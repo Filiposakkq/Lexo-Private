@@ -24,6 +24,9 @@ CHAR_RE = re.compile(r"^\s*define\s+(\w+)\s*=\s*(Dynamic)?Character\(\s*(?:(?P<q
 COLOR_RE = re.compile(r"\b(?:who_color|color)\s*=\s*[\"'](#[0-9a-fA-F]{3,8})[\"']")
 IMG_EXT = (".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif")
 MIME = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".avif": "image/avif", ".gif": "image/gif"}
+LAYERED_RE = re.compile(r"^layeredimage\s+([A-Za-z0-9_.\-]+)\s*:")
+# an image made of several parts: a composite, a switch, ATL `contains`; Lexo does not draw those yet (see docs/GAME-TOOLS.md)
+COMPOSED_RE = re.compile(r"\b(?:LiveComposite|Composite|im\.Composite|ConditionSwitch|DynamicImage|Fixed|contains)\b")
 IMAGE_DEF_RE = re.compile(r"^image\s+([A-Za-z0-9_ .\-]+?)\s*(=|:)\s*(.*)$")
 STRING_RE = re.compile(r"\"([^\"\\]*)\"|'([^'\\]*)'")
 CANDIDATE_RE = re.compile(r"^[\w ./\-]+$")
@@ -45,6 +48,7 @@ class GameImages:
         self.dir = Path(game_dir)
         self.stems = {}                 # lower-case file name without extension -> ref
         self.paths = {}                 # lower-case relative path -> ref
+        self.layered, self.composed = set(), set()      # names of layered / composed images (not drawn yet)
         self.defs = {}                  # lower-case image name -> [candidate strings]
         self.fonts = {}                 # lower-case file name -> ref
         self.characters = {}            # speaker code -> {name, color, dynamic}
@@ -111,6 +115,9 @@ class GameImages:
                     dyn = bool(cm.group(2))
                     nm = cm.group("name") or ""
                     self.characters[cm.group(1)] = {"name": ("[" + nm + "]") if dyn else nm, "color": col.group(1) if col else "", "dynamic": dyn}
+                lm = LAYERED_RE.match(lines[i])
+                if lm:
+                    self.layered.add(_clean(lm.group(1)))
                 m = IMAGE_DEF_RE.match(lines[i])
                 i += 1
                 if not m:
@@ -122,6 +129,9 @@ class GameImages:
                     while j < len(lines) and j - i < 15 and (not lines[j].strip() or lines[j][:1] in " \t"):
                         texts.append(lines[j])
                         j += 1
+                if any(COMPOSED_RE.search(t) for t in texts):
+                    self.composed.add(name)                 # several parts: never take one of them for the whole picture
+                    continue
                 cands = []
                 for t in texts:
                     for g in STRING_RE.finditer(t):
@@ -234,6 +244,7 @@ class GameImages:
         Returns {found, image, key, script_line, flat?, missing:[names that could not be found]}."""
         lines = self.script_lines(script_path)
         missing = []
+        layered = False                                  # a character or a scene on the way is made of layers, which are not drawn
         for n in range(min(line - 1, len(lines)) - 1, max(-1, line - 1 - LOOK_UP), -1):
             m = STMT_RE.match(lines[n])
             if not m:
@@ -242,12 +253,22 @@ class GameImages:
             if not what or what.lower().startswith(SKIP_FIRST):
                 continue
             tokens = what.split()
+            if self.is_layered(what, tokens):
+                if m.group(1) == "scene":                # the whole scene is layered: no honest picture exists
+                    return {"found": False, "image": what, "key": "", "script_line": n + 1, "missing": missing, "layered": True}
+                layered = True                           # a layered character on a background: show the background, say so
+                continue
             if m.group(1) == "scene" and tokens[0].lower() in FLAT:
-                return {"found": True, "image": tokens[0], "key": "", "flat": FLAT[tokens[0].lower()], "script_line": n + 1, "missing": missing}
+                return {"found": True, "image": tokens[0], "key": "", "flat": FLAT[tokens[0].lower()], "script_line": n + 1, "missing": missing, "layered": layered}
             for cand in (what, tokens[0]):
                 hit = self.resolve(cand)
                 if hit:
-                    return {"found": True, "image": cand, "key": hit[0], "script_line": n + 1, "missing": missing}
+                    return {"found": True, "image": cand, "key": hit[0], "script_line": n + 1, "missing": missing, "layered": layered}
             if len(missing) < 5:
                 missing.append(what)
-        return {"found": False, "image": "", "key": "", "script_line": 0, "missing": missing}
+        return {"found": False, "image": "", "key": "", "script_line": 0, "missing": missing, "layered": layered}
+
+    def is_layered(self, what, tokens):
+        """Is the image of a `scene` / `show` statement made of layers (`layeredimage`, a composite, a condition switch)?"""
+        name = _clean(what)
+        return name in self.composed or _clean(tokens[0]) in self.layered or _clean(tokens[0]) in self.composed or " ".join(name.split()[:2]) in self.composed
