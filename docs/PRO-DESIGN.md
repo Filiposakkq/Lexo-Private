@@ -29,23 +29,28 @@ Because the border is plain JSON it does not matter how the pack runs:
 Switching from the first to the second changes only the transport inside `ExtensionHost`; no feature code changes. **"Sidecar" is just that: a second program next to the app, started and stopped by the app.** The user does not run it by hand.
 
 ## Limits, the free taste, and who enforces them
-The limit of a feature (for example 20 lines per action) is **not a number in Free**. The pack says what it offers (`offers()` returns `{"limit": 20}` or `{"limit": None}`), and the host passes it on; the pack also **enforces** it inside its own code. Three states, with no flag in Free that could be flipped:
+The limit of a feature (for example 20 lines per action) is **not a number in Free**. The pack says what it offers (`offers()` returns `{"limit": 20}` or `{"limit": None}`), and the host passes it on; the pack also **enforces** it inside its own code, so editing Free does not remove it.
 
-| State | What the user has | What the feature does |
-|---|---|---|
-| No pack | Free only | locked; the UI shows a short description and the value ("37 identical originals") |
-| Demo pack | Free + the pack downloaded **without** a licence (anyone can) | works with the limit the pack sets (the "taste": 20 lines per action) |
-| Licensed pack | Free + the pack + a valid licence | unlimited |
+**The demo must work without any extra step**, so it cannot be "download the pack first". Two kinds of Pro features, two ways of delivering them:
 
-So limits can exist, they live in Pro, and editing Free does not remove them. (Until a feature is extracted its old limit is a number in Core; see FEATURES.md, column "In the Pro pack?".)
+| Kind | Examples | Where it lives | Without a licence | With a licence |
+|---|---|---|---|---|
+| **Taste features**: cheap to copy, good for a first impression | batch machine translation, safe fixes with preview, regex replace, bulk categorisation | in the **demo pack**, which is **built into the installer** next to Free (closed source: only the built pack is shipped, never the source) | works with the limit the pack sets (20 lines per action) | the licence file switches the limit off |
+| **Premium features**: the real value, hard to rebuild | carry a translation over to a new game version, fuzzy memory, LLM style check, release builder, team work | in the **premium pack**, **never shipped without a licence** | locked; the UI describes it and shows the value ("37 identical originals") | downloaded after the licence is seen |
+
+So the user sees: install -> the taste features work with their limits at once -> a licence key lifts the limits and brings the premium features.
+
+What this protects and what it does not (honest): the taste features are on every machine as a built pack, so a determined person could patch the pack, as with any shipped program; they are cheap, so that is accepted. The premium features are not on a machine without a licence at all. In the Python phase a shipped pack is readable Python and easy to change; the real protection of the taste pack comes with the compiled sidecar (Rust phase). Free itself holds neither feature nor limit in any phase.
+
+(Until a feature is extracted its old limit is a number in Core; see FEATURES.md, column "In the Pro pack?".)
 
 ## Entering a licence (what happens, step by step)
 Not built yet; this is the design.
-1. The user types the **licence key** in Free (Settings → Licence). Free contains only this small *activation client*: it sends the key to the licence server over HTTPS. It holds no secret and no feature.
-2. The server checks the key and answers with (a) a **signed licence file** (who, which features, valid until, a device id if we bind one) and (b) the **address of the Pro pack** to download, also signed.
-3. Free downloads the pack and verifies its **signature** with the public key built into Free; a wrong or swapped pack is not loaded. It stores the licence file next to the pack.
-4. At start the **pack** reads the licence file and verifies **its** signature with its own public key (offline, no network). A valid licence: it offers everything. Missing, expired or broken: it offers the demo limits, or nothing.
-5. **Putting a key into Free changes nothing by itself**: Free only fetches. What the user gets is decided by the pack and the signed file, which Free cannot forge (the private key stays with the author).
+1. The user types the **licence key** in Free (Settings -> Licence). Free contains only this small *activation client*: it sends the key to the licence server over HTTPS. It holds no secret and no feature.
+2. The server checks the key and answers with (a) a **signed licence file** (who, which features, valid until, a device id if we bind one) and (b) the **address of the premium pack** to download, also signed.
+3. Free downloads the premium pack and verifies its **signature** with the public key built into Free; a wrong or swapped pack is not loaded. It stores the licence file next to the packs.
+4. At start each **pack** reads the licence file and verifies **its** signature with its own public key (offline, no network). A valid licence: it offers everything it contains. Missing, expired or broken: the demo pack offers its limits, the premium pack offers nothing.
+5. **Putting a key into Free changes nothing by itself**: Free only fetches. What the user gets is decided by the packs and the signed file, which Free cannot forge (the private key stays with the author).
 
 ## The "30-day check" (optional online refresh)
 A one-off licence can work completely offline forever. For a yearly licence, or to be able to revoke a leaked key, the pack can **ask the server every 30 days** whether the licence is still valid and fetch a renewed signed file. Rules that keep it fair: it never blocks on a failed check (no internet is normal); after a missed check the pack keeps working for a **grace period** (for example another 30 days) and then falls back to the demo limits, with a clear message; the user's translations and files are never touched. This is a choice for the owner (offline forever vs. yearly with a refresh), not a technical limit; the host and the interface do not change either way, because the check lives in the pack.

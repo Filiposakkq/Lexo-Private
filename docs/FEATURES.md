@@ -33,7 +33,7 @@ Module = where the code lives today in `core/lexo/`. "Coupling" = which other co
 ## Pro
 Aimed at people with bigger projects, a website or Patreon, or a team. Priced low: a one-off licence or a small yearly one.
 
-**In the Pro pack?** *yes* = the code is in `pro/lexo_pro` (private), the feature is locked in Free whatever flags are changed, and its limits and demo mode belong to the pack (PRO-DESIGN.md). *no* = still in Core behind the old development flag (`Feature.extracted = False` in `features.py`): it works, but someone who edits Core can unlock it, so it is on the list of features to extract. *not built* = does not exist yet; when it is built it is written in the pack from the start.
+**In the Pro pack?** *yes* = the code is in `pro/lexo_pro` (private), the feature is locked in Free whatever flags are changed, and its limits belong to the pack. The cheap *taste* features (batch machine translation, safe fixes, regex replace, categorisation) will ship inside the installer as a demo pack with limits, so the demo needs no extra download; the *premium* ones are downloaded only after a licence (PRO-DESIGN.md). *no* = still in Core behind the old development flag (`Feature.extracted = False` in `features.py`): it works, but someone who edits Core can unlock it, so it is on the list of features to extract. *not built* = does not exist yet; when it is built it is written in the pack from the start.
 
 
 | Feature | Why people pay for it | Module | Coupling | In the Pro pack? |
