@@ -10,7 +10,6 @@ or fixed by hand.
 """
 import re
 
-from . import validator
 from .messages import msg
 
 TOKEN_RE = re.compile(r"\{[^}]*\}|\[[^\]]*\]|\\.")      # tag, variable, escape

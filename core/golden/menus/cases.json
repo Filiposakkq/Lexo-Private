@@ -1,0 +1,86 @@
+{
+ "cases": [
+  {
+   "script": "plain.rpy",
+   "line": 6,
+   "choice": null,
+   "note": "a choice line itself"
+  },
+  {
+   "script": "plain.rpy",
+   "line": 5,
+   "choice": "Leave",
+   "note": "Ren'Py 7 records the menu line"
+  },
+  {
+   "script": "plain.rpy",
+   "line": 5,
+   "choice": null
+  },
+  {
+   "script": "plain.rpy",
+   "line": 14,
+   "choice": null,
+   "note": "a menu inside a choice"
+  },
+  {
+   "script": "plain.rpy",
+   "line": 19,
+   "choice": null,
+   "note": "a menu with its own question"
+  },
+  {
+   "script": "plain.rpy",
+   "line": 3,
+   "choice": null,
+   "note": "said before the menu (around)",
+   "around": true
+  },
+  {
+   "script": "plain.rpy",
+   "line": 7,
+   "choice": null,
+   "note": "first line of a choice (around)",
+   "around": true
+  },
+  {
+   "script": "plain.rpy",
+   "line": 1,
+   "choice": null
+  },
+  {
+   "script": "plain.rpy",
+   "line": 99,
+   "choice": null
+  },
+  {
+   "script": "nested.rpy",
+   "line": 6,
+   "choice": "Warm it up",
+   "note": "a menu that opens an else block"
+  },
+  {
+   "script": "nested.rpy",
+   "line": 12,
+   "choice": "A"
+  },
+  {
+   "script": "nested.rpy",
+   "line": 2,
+   "choice": null,
+   "note": "before an if / else (around)",
+   "around": true
+  },
+  {
+   "script": "effects.rpy",
+   "line": 1,
+   "choice": "No"
+  },
+  {
+   "script": "effects.rpy",
+   "line": 5,
+   "choice": "Yes (+1)",
+   "note": "no dialogue: the body is kept"
+  }
+ ]
+}

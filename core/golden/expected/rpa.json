@@ -1,0 +1,80 @@
+{
+ "garbage": {
+  "error": "not an RPA 2 / 3 archive"
+ },
+ "hostile": {
+  "error": "the archive cannot be read"
+ },
+ "truncated": {
+  "error": "the archive cannot be read"
+ },
+ "v2": {
+  "files": {
+   "deep/er/path/c.txt": {
+    "length": 12,
+    "offset": 57,
+    "prefix": "",
+    "sha1": "2d89bd5a37b30a5c3b87f3e54ecd47f788973555"
+   },
+   "fonts/Arch-Bold.ttf": {
+    "length": 11,
+    "offset": 69,
+    "prefix": "",
+    "sha1": "9ad5adeb711ac16c4227991519c711df0457f837"
+   },
+   "images/a.png": {
+    "length": 14,
+    "offset": 25,
+    "prefix": "",
+    "sha1": "b3eb3958f69410f942a9e9b0ec09e7d5bd7c30d2"
+   },
+   "scripts/b.rpyc": {
+    "length": 18,
+    "offset": 39,
+    "prefix": "",
+    "sha1": "48a402531a98286937de34272292a0f4b9ccfefe"
+   }
+  },
+  "version": "RPA-2.0"
+ },
+ "v3": {
+  "files": {
+   "deep/er/path/c.txt": {
+    "length": 12,
+    "offset": 66,
+    "prefix": "",
+    "sha1": "2d89bd5a37b30a5c3b87f3e54ecd47f788973555"
+   },
+   "fonts/Arch-Bold.ttf": {
+    "length": 11,
+    "offset": 78,
+    "prefix": "",
+    "sha1": "9ad5adeb711ac16c4227991519c711df0457f837"
+   },
+   "images/a.png": {
+    "length": 14,
+    "offset": 34,
+    "prefix": "",
+    "sha1": "b3eb3958f69410f942a9e9b0ec09e7d5bd7c30d2"
+   },
+   "scripts/b.rpyc": {
+    "length": 18,
+    "offset": 48,
+    "prefix": "",
+    "sha1": "48a402531a98286937de34272292a0f4b9ccfefe"
+   }
+  },
+  "version": "RPA-3.0"
+ },
+ "v3_prefix": {
+  "files": {
+   "images/p.png": {
+    "length": 16,
+    "offset": 34,
+    "prefix": "5052454649583a",
+    "sha1": "6c2a7c843109e5b230084b387308b5541765b03f"
+   }
+  },
+  "version": "RPA-3.0"
+ }
+}

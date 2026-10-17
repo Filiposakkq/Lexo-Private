@@ -1,0 +1,46 @@
+{
+ "_doc": "language = the target language pack used while parsing (cs = Czech letters, neutral = any non-ASCII letter counts)",
+ "bad_encoding": {
+  "language": "cs"
+ },
+ "comments_only": {
+  "language": "cs"
+ },
+ "crlf_bom": {
+  "language": "cs"
+ },
+ "dialogue_attributes": {
+  "language": "cs"
+ },
+ "dialogue_basic": {
+  "language": "cs"
+ },
+ "empty": {
+  "language": "cs"
+ },
+ "escapes": {
+  "language": "cs"
+ },
+ "kinds": {
+  "language": "cs"
+ },
+ "old_new_speaker": {
+  "language": "cs"
+ },
+ "refs": {
+  "language": "cs"
+ },
+ "strings": {
+  "language": "cs"
+ },
+ "structure_problems": {
+  "language": "cs"
+ },
+ "two_languages": {
+  "language": "cs"
+ },
+ "kinds_neutral": {
+  "language": "neutral",
+  "file": "kinds.rpy"
+ }
+}

@@ -61,6 +61,7 @@ The app is a local HTTP JSON server + pywebview window; the UI is ES modules in 
 
 ## 6. Commands (Windows, from `D:\RenPy Stuff\Lexo\free`)
 ```
+py core/tests/golden_tool.py                         # regenerate the golden answers (core/golden/expected) when a change of behaviour is meant
 py core/tests/contract_tool.py                       # regenerate the interface contract (api.json, shapes.json, docs/API.md) after a change in core/lexo/api.py
 py run_tests.py                                 # all Python tests: Core (core/tests), Free (free/tests), Pro (pro/tests, private repo only); `core`, `free` or `pro` runs one
 py tests/ui/serve_selftest.py --no-open          # synthetic project + prints a URL; open it with ?selftest=1&lang=cs

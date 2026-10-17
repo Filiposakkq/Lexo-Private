@@ -1,0 +1,2958 @@
+{
+ "files_after": {
+  "screens.rpy": {
+   "sha1": "1bcedbeb9df0ab3ca535dba612405c231de73e37",
+   "text": "translate czech strings:\n\n    # game/screens.rpy:2\n    old \"Start\"\n    new \"Začít\"\n\n    # game/screens.rpy:3\n    old \"Quit\"\n    new \"Quit\"\n\n    # game/screens.rpy:4\n    old \"Version 1.0\"\n    new \"Verze 1.0\"\n"
+  },
+  "script.rpy": {
+   "sha1": "a5c75a95d69b0b77ce74d14c2540ee3c244aea02",
+   "text": "# game/script.rpy:9\ntranslate czech start_aaaa0001:\n\n    # mc \"Hello there, friend.\"\n    mc \"Ahoj tam, příteli.\"\n\n# game/script.rpy:10\ntranslate czech start_aaaa0002:\n\n    # sa \"Hey, it's you again!\"\n    sa \"Hele, zase ty!\"\n\n# game/script.rpy:13\ntranslate czech start_aaaa0003:\n\n    # mc \"Want a coffee?\"\n    mc \"Want a coffee?\"\n\n# game/script.rpy:14\ntranslate czech start_aaaa0004:\n\n    # sa \"Sure.\"\n    sa \"Jasně.\"\n\n# game/script.rpy:19\ntranslate czech start_aaaa0005:\n\n    # mc \"Bye, [name].\"\n    mc \"Měj se, [jmeno].\"\n\n# game/script.rpy:20\ntranslate czech start_aaaa0006:\n\n    # sa \"{i}See you{/i} around.\"\n    sa \"{i}Uvidíme se{/i} jindy.\"\n\n# game/script.rpy:21\ntranslate czech start_aaaa0007:\n\n    # \"The end of the scene.\"\n    \"Konec scény.\"\n\ntranslate czech strings:\n\n    # game/script.rpy:11\n    old \"Invite her\"\n    new \"Pozvat ji\"\n\n    # game/script.rpy:11\n    old \"Leave\"\n    new \"Leave\"\n"
+  }
+ },
+ "project": "basic",
+ "steps": [
+  {
+   "answer": {
+    "config_error": "",
+    "notices": [],
+    "ok": true,
+    "prefs": {},
+    "project_dir": "<TMP>/p/game/tl/czech",
+    "ready": true,
+    "version": "1.7.0"
+   },
+   "op": "state",
+   "params": {}
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 3,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 0,
+     "wip": 2
+    },
+    "general": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": false,
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "screens.rpy",
+      "script.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 2.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 2,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [],
+    "totals": {
+     "approved": 0,
+     "done": 9,
+     "percent": 75.0,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 3,
+     "total": 12
+    },
+    "unassigned": {
+     "files": 2,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 12
+     },
+     "translation": {
+      "done": 9,
+      "percent": 75.0,
+      "total": 12
+     }
+    },
+    "undo": [],
+    "unsaved": [],
+    "validation": {
+     "error": 1,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 1
+    },
+    "worst_files": [
+     {
+      "errors": 1,
+      "lines": 9,
+      "name": "script.rpy",
+      "score": 44.4,
+      "warnings": 1
+     }
+    ]
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 2,
+      "corr": 0,
+      "done": 2,
+      "errors": 0,
+      "name": "screens.rpy",
+      "order": 1,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "wip",
+      "todo": 1,
+      "total": 3,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 7,
+      "corr": 0,
+      "done": 7,
+      "errors": 1,
+      "name": "script.rpy",
+      "order": 1,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "wip",
+      "todo": 2,
+      "total": 9,
+      "warnings": 1
+     }
+    ],
+    "ok": true
+   },
+   "op": "files",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 12,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 9,
+     "stale": 0,
+     "todo": 3,
+     "translated": 9
+    },
+    "items": [
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/screens.rpy:2",
+      "source": "Start",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Začít",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 9,
+      "proof": "",
+      "ref": "game/screens.rpy:3",
+      "source": "Quit",
+      "src_line": 8,
+      "status": "todo",
+      "target": "Quit",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 13,
+      "proof": "",
+      "ref": "game/screens.rpy:4",
+      "source": "Version 1.0",
+      "src_line": 12,
+      "status": "translated",
+      "target": "Verze 1.0",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "translate czech start_aaaa0001",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/script.rpy:9",
+      "source": "Hello there, friend.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj tam, příteli.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech start_aaaa0002",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 11,
+      "proof": "",
+      "ref": "game/script.rpy:10",
+      "source": "Hey, it's you again!",
+      "src_line": 10,
+      "status": "translated",
+      "target": "Hele, zase ty!",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0003",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 17,
+      "proof": "",
+      "ref": "game/script.rpy:13",
+      "source": "Want a coffee?",
+      "src_line": 16,
+      "status": "todo",
+      "target": "Want a coffee?",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech start_aaaa0004",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 23,
+      "proof": "",
+      "ref": "game/script.rpy:14",
+      "source": "Sure.",
+      "src_line": 22,
+      "status": "translated",
+      "target": "Jasně.",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0005",
+      "file": "script.rpy",
+      "issues": [
+       {
+        "code": "variable-unknown",
+        "severity": "error"
+       },
+       {
+        "code": "variable-missing",
+        "severity": "warning"
+       }
+      ],
+      "kind": "",
+      "line": 29,
+      "proof": "",
+      "ref": "game/script.rpy:19",
+      "source": "Bye, [name].",
+      "src_line": 28,
+      "status": "translated",
+      "target": "Měj se, [jmeno].",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech start_aaaa0006",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 35,
+      "proof": "",
+      "ref": "game/script.rpy:20",
+      "source": "{i}See you{/i} around.",
+      "src_line": 34,
+      "status": "translated",
+      "target": "{i}Uvidíme se{/i} jindy.",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0007",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 41,
+      "proof": "",
+      "ref": "game/script.rpy:21",
+      "source": "The end of the scene.",
+      "src_line": 40,
+      "status": "translated",
+      "target": "Konec scény.",
+      "unit": "dialogue",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 47,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Invite her",
+      "src_line": 46,
+      "status": "translated",
+      "target": "Pozvat ji",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 51,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Leave",
+      "src_line": 50,
+      "status": "todo",
+      "target": "Leave",
+      "unit": "string",
+      "who": ""
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 12
+   },
+   "op": "entries",
+   "params": {
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 12,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 9,
+     "stale": 0,
+     "todo": 3,
+     "translated": 9
+    },
+    "items": [
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 9,
+      "proof": "",
+      "ref": "game/screens.rpy:3",
+      "source": "Quit",
+      "src_line": 8,
+      "status": "todo",
+      "target": "Quit",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "translate czech start_aaaa0003",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 17,
+      "proof": "",
+      "ref": "game/script.rpy:13",
+      "source": "Want a coffee?",
+      "src_line": 16,
+      "status": "todo",
+      "target": "Want a coffee?",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 51,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Leave",
+      "src_line": 50,
+      "status": "todo",
+      "target": "Leave",
+      "unit": "string",
+      "who": ""
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 3
+   },
+   "op": "entries",
+   "params": {
+    "status": "todo"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 5,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 3,
+     "stale": 0,
+     "todo": 2,
+     "translated": 3
+    },
+    "items": [
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/screens.rpy:2",
+      "source": "Start",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Začít",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 9,
+      "proof": "",
+      "ref": "game/screens.rpy:3",
+      "source": "Quit",
+      "src_line": 8,
+      "status": "todo",
+      "target": "Quit",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 13,
+      "proof": "",
+      "ref": "game/screens.rpy:4",
+      "source": "Version 1.0",
+      "src_line": 12,
+      "status": "translated",
+      "target": "Verze 1.0",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 47,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Invite her",
+      "src_line": 46,
+      "status": "translated",
+      "target": "Pozvat ji",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 51,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Leave",
+      "src_line": 50,
+      "status": "todo",
+      "target": "Leave",
+      "unit": "string",
+      "who": ""
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 5
+   },
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "unit": "string"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 1,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 0,
+     "stale": 0,
+     "todo": 1,
+     "translated": 0
+    },
+    "items": [
+     {
+      "block": "translate czech start_aaaa0003",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 17,
+      "proof": "",
+      "ref": "game/script.rpy:13",
+      "source": "Want a coffee?",
+      "src_line": 16,
+      "status": "todo",
+      "target": "Want a coffee?",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 1
+   },
+   "op": "entries",
+   "params": {
+    "q": "coffee",
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 2,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 2,
+     "stale": 0,
+     "todo": 0,
+     "translated": 2
+    },
+    "items": [
+     {
+      "block": "translate czech start_aaaa0002",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 11,
+      "proof": "",
+      "ref": "game/script.rpy:10",
+      "source": "Hey, it's you again!",
+      "src_line": 10,
+      "status": "translated",
+      "target": "Hele, zase ty!",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0006",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 35,
+      "proof": "",
+      "ref": "game/script.rpy:20",
+      "source": "{i}See you{/i} around.",
+      "src_line": 34,
+      "status": "translated",
+      "target": "{i}Uvidíme se{/i} jindy.",
+      "unit": "dialogue",
+      "who": "sa"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 2
+   },
+   "op": "entries",
+   "params": {
+    "q": "you",
+    "status": "all",
+    "word": true
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 9,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 7,
+     "stale": 0,
+     "todo": 2,
+     "translated": 7
+    },
+    "items": [
+     {
+      "block": "translate czech start_aaaa0003",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 17,
+      "proof": "",
+      "ref": "game/script.rpy:13",
+      "source": "Want a coffee?",
+      "src_line": 16,
+      "status": "todo",
+      "target": "Want a coffee?",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech start_aaaa0004",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 23,
+      "proof": "",
+      "ref": "game/script.rpy:14",
+      "source": "Sure.",
+      "src_line": 22,
+      "status": "translated",
+      "target": "Jasně.",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0005",
+      "file": "script.rpy",
+      "issues": [
+       {
+        "code": "variable-unknown",
+        "severity": "error"
+       },
+       {
+        "code": "variable-missing",
+        "severity": "warning"
+       }
+      ],
+      "kind": "",
+      "line": 29,
+      "proof": "",
+      "ref": "game/script.rpy:19",
+      "source": "Bye, [name].",
+      "src_line": 28,
+      "status": "translated",
+      "target": "Měj se, [jmeno].",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 2,
+    "ok": true,
+    "total": 9
+   },
+   "op": "entries",
+   "params": {
+    "file": "script.rpy",
+    "limit": 3,
+    "offset": 2,
+    "sort": "status",
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "after": [
+     {
+      "line": 11,
+      "proof": "",
+      "source": "Hey, it's you again!",
+      "status": "translated",
+      "target": "Hele, zase ty!",
+      "who": "sa"
+     },
+     {
+      "line": 17,
+      "proof": "",
+      "source": "Want a coffee?",
+      "status": "todo",
+      "target": "Want a coffee?",
+      "who": "mc"
+     }
+    ],
+    "before": [],
+    "block": "translate czech start_aaaa0001",
+    "cur_raw": "mc \"Ahoj tam, příteli.\"",
+    "file": "script.rpy",
+    "issues": [],
+    "key": [
+     "translate czech start_aaaa0001",
+     "Hello there, friend."
+    ],
+    "kind": "",
+    "line": 5,
+    "ok": true,
+    "path": "<TMP>/p/game/tl/czech/script.rpy",
+    "proof": "",
+    "proof_date": "<volatile>",
+    "proof_note": "",
+    "ref": "game/script.rpy:9",
+    "source": "Hello there, friend.",
+    "src_line": 4,
+    "src_raw": "mc \"Hello there, friend.\"",
+    "status": "translated",
+    "target": "Ahoj tam, příteli.",
+    "terms": [],
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   "op": "entry",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "answer": {
+    "after": [
+     {
+      "line": 23,
+      "proof": "",
+      "source": "Sure.",
+      "status": "translated",
+      "target": "Jasně.",
+      "who": "sa"
+     },
+     {
+      "line": 29,
+      "proof": "",
+      "source": "Bye, [name].",
+      "status": "translated",
+      "target": "Měj se, [jmeno].",
+      "who": "mc"
+     }
+    ],
+    "before": [
+     {
+      "line": 5,
+      "proof": "",
+      "source": "Hello there, friend.",
+      "status": "translated",
+      "target": "Ahoj tam, příteli.",
+      "who": "mc"
+     },
+     {
+      "line": 11,
+      "proof": "",
+      "source": "Hey, it's you again!",
+      "status": "translated",
+      "target": "Hele, zase ty!",
+      "who": "sa"
+     }
+    ],
+    "block": "translate czech start_aaaa0003",
+    "cur_raw": "mc \"Want a coffee?\"",
+    "file": "script.rpy",
+    "issues": [],
+    "key": [
+     "translate czech start_aaaa0003",
+     "Want a coffee?"
+    ],
+    "kind": "english",
+    "line": 17,
+    "ok": true,
+    "path": "<TMP>/p/game/tl/czech/script.rpy",
+    "proof": "",
+    "proof_date": "<volatile>",
+    "proof_note": "",
+    "ref": "game/script.rpy:13",
+    "source": "Want a coffee?",
+    "src_line": 16,
+    "src_raw": "mc \"Want a coffee?\"",
+    "status": "todo",
+    "target": "Want a coffee?",
+    "terms": [],
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   "op": "entry",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "answer": {
+    "after": [
+     {
+      "line": 13,
+      "proof": "",
+      "source": "Version 1.0",
+      "status": "translated",
+      "target": "Verze 1.0",
+      "who": ""
+     }
+    ],
+    "before": [
+     {
+      "line": 5,
+      "proof": "",
+      "source": "Start",
+      "status": "translated",
+      "target": "Začít",
+      "who": ""
+     }
+    ],
+    "block": "strings",
+    "cur_raw": "new \"Quit\"",
+    "file": "screens.rpy",
+    "issues": [],
+    "key": [
+     "strings",
+     "Quit"
+    ],
+    "kind": "same",
+    "line": 9,
+    "ok": true,
+    "path": "<TMP>/p/game/tl/czech/screens.rpy",
+    "proof": "",
+    "proof_date": "<volatile>",
+    "proof_note": "",
+    "ref": "game/screens.rpy:3",
+    "source": "Quit",
+    "src_line": 8,
+    "src_raw": "old \"Quit\"",
+    "status": "todo",
+    "target": "Quit",
+    "terms": [],
+    "unit": "string",
+    "who": ""
+   },
+   "op": "entry",
+   "params": {
+    "file": "screens.rpy",
+    "line": 9
+   }
+  },
+  {
+   "answer": {
+    "findings": 2,
+    "items": [
+     {
+      "file": "script.rpy",
+      "issues": [
+       {
+        "category": "syntax",
+        "code": "variable-unknown",
+        "extra": {},
+        "ignore_note": "",
+        "ignored": false,
+        "message": "The variable [jmeno] is not in the original – a typo? The game might crash.",
+        "severity": "error"
+       },
+       {
+        "category": "syntax",
+        "code": "variable-missing",
+        "extra": {},
+        "ignore_note": "",
+        "ignored": false,
+        "message": "The translation is missing the variable [name].",
+        "severity": "warning"
+       }
+      ],
+      "line": 29,
+      "severity": "error",
+      "source": "Bye, [name].",
+      "src_who": "mc",
+      "target": "Měj se, [jmeno].",
+      "who": "mc"
+     }
+    ],
+    "ok": true,
+    "sev_counts": {
+     "error": 1,
+     "info": 0,
+     "warning": 1
+    },
+    "total": 1
+   },
+   "op": "validation",
+   "params": {
+    "group": "line"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "category": "syntax",
+      "code": "variable-unknown",
+      "extra": {},
+      "file": "script.rpy",
+      "ignore_note": "",
+      "ignored": false,
+      "line": 29,
+      "message": "The variable [jmeno] is not in the original – a typo? The game might crash.",
+      "severity": "error",
+      "source": "Bye, [name].",
+      "src_who": "mc",
+      "target": "Měj se, [jmeno].",
+      "who": "mc"
+     }
+    ],
+    "ok": true,
+    "sev_counts": {
+     "error": 1,
+     "info": 0,
+     "warning": 1
+    },
+    "total": 1
+   },
+   "op": "validation",
+   "params": {
+    "severity": "error"
+   }
+  },
+  {
+   "answer": {
+    "findings": 0,
+    "items": [],
+    "ok": true,
+    "sev_counts": {
+     "error": 0,
+     "info": 0,
+     "warning": 0
+    },
+    "total": 0
+   },
+   "op": "validation",
+   "params": {
+    "group": "line",
+    "q": "coffee"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "code": "mc",
+      "count": 3,
+      "example": "Hello there, friend.",
+      "file": "script.rpy",
+      "in_project": true,
+      "line": 5,
+      "name": "",
+      "note": "",
+      "type": "speaker"
+     },
+     {
+      "code": "sa",
+      "count": 3,
+      "example": "Hey, it's you again!",
+      "file": "script.rpy",
+      "in_project": true,
+      "line": 11,
+      "name": "",
+      "note": "",
+      "type": "speaker"
+     }
+    ],
+    "names": {},
+    "ok": true,
+    "types": [
+     "speaker",
+     "term"
+    ],
+    "unnamed": 2
+   },
+   "op": "glossary",
+   "params": {}
+  },
+  {
+   "answer": {
+    "characters": {
+     "mc": {
+      "color": "#ffaf05",
+      "dynamic": false,
+      "name": "Mike"
+     },
+     "narrator": {
+      "color": "",
+      "dynamic": false,
+      "name": ""
+     },
+     "sa": {
+      "color": "#99cc33",
+      "dynamic": false,
+      "name": "Sage"
+     }
+    },
+    "ok": true
+   },
+   "op": "game/characters",
+   "params": {}
+  },
+  {
+   "answer": {
+    "available": true,
+    "lines": [
+     {
+      "hit": false,
+      "n": 3,
+      "text": "define narrator = Character(None)"
+     },
+     {
+      "hit": false,
+      "n": 4,
+      "text": ""
+     },
+     {
+      "hit": false,
+      "n": 5,
+      "text": "label start:"
+     },
+     {
+      "hit": false,
+      "n": 6,
+      "text": "    scene bg room with fade"
+     },
+     {
+      "hit": false,
+      "n": 7,
+      "text": "    show sage smile at left"
+     },
+     {
+      "hit": false,
+      "n": 8,
+      "text": "    mc \"Hello there, friend.\""
+     },
+     {
+      "hit": true,
+      "n": 9,
+      "text": "    sa \"Hey, it's you again!\""
+     },
+     {
+      "hit": false,
+      "n": 10,
+      "text": "    menu:"
+     },
+     {
+      "hit": false,
+      "n": 11,
+      "text": "        \"Invite her\" if met_her:"
+     },
+     {
+      "hit": false,
+      "n": 12,
+      "text": "            mc \"Want a coffee?\""
+     },
+     {
+      "hit": false,
+      "n": 13,
+      "text": "            sa \"Sure.\""
+     },
+     {
+      "hit": false,
+      "n": 14,
+      "text": "        \"Leave\":"
+     },
+     {
+      "hit": false,
+      "n": 15,
+      "text": "            $ dk(-1)"
+     }
+    ],
+    "ok": true,
+    "path": "<TMP>/p/game/script.rpy",
+    "ref": "game/script.rpy:9"
+   },
+   "op": "entry/context",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "answer": {
+    "file": "script.rpy",
+    "items": [
+     {
+      "current": false,
+      "line": 5,
+      "over": false,
+      "proof": "",
+      "source": "Hello there, friend.",
+      "status": "translated",
+      "target": "Ahoj tam, příteli.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "current": false,
+      "line": 11,
+      "over": false,
+      "proof": "",
+      "source": "Hey, it's you again!",
+      "status": "translated",
+      "target": "Hele, zase ty!",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "current": true,
+      "line": 17,
+      "over": false,
+      "proof": "",
+      "source": "Want a coffee?",
+      "status": "todo",
+      "target": "Want a coffee?",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "current": false,
+      "line": 23,
+      "over": false,
+      "proof": "",
+      "source": "Sure.",
+      "status": "translated",
+      "target": "Jasně.",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "current": false,
+      "line": 29,
+      "over": false,
+      "proof": "",
+      "source": "Bye, [name].",
+      "status": "translated",
+      "target": "Měj se, [jmeno].",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "ok": true
+   },
+   "op": "entry/scene",
+   "params": {
+    "file": "script.rpy",
+    "line": 17,
+    "radius": 2
+   }
+  },
+  {
+   "answer": {
+    "available": true,
+    "cur": 0,
+    "items": [
+     {
+      "count": 4,
+      "done": 3,
+      "line": 5,
+      "name": "bg",
+      "proofed": 0,
+      "script": "game/script.rpy:6"
+     },
+     {
+      "count": 3,
+      "done": 3,
+      "line": 29,
+      "name": "bg",
+      "proofed": 0,
+      "script": "game/script.rpy:17"
+     },
+     {
+      "count": 2,
+      "done": 1,
+      "line": 47,
+      "name": "bg",
+      "proofed": 0,
+      "script": "game/script.rpy:6"
+     }
+    ],
+    "ok": true
+   },
+   "op": "scenes",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "answer": {
+    "available": true,
+    "flat": "",
+    "fonts_name": null,
+    "fonts_text": null,
+    "found": false,
+    "gui": {
+     "dialogue_width": 1116,
+     "dialogue_xpos": 402,
+     "dialogue_ypos": 75,
+     "name_text_size": 45,
+     "name_xpos": 360,
+     "name_ypos": 50,
+     "screen_height": 1080,
+     "screen_width": 1920,
+     "source": "gui.rpy of the game",
+     "text_size": 33,
+     "textbox_height": 278
+    },
+    "image": "",
+    "images": 0,
+    "index_errors": [],
+    "layered": false,
+    "layers": [],
+    "missing": [
+     "sage smile",
+     "bg room"
+    ],
+    "ok": true,
+    "reason": "I found no picture (scene / show) before this line that can be traced in the game archives.",
+    "script": "game/script.rpy:0",
+    "speaker": {
+     "color": "#ffaf05",
+     "dynamic": false,
+     "name": "Mike"
+    },
+    "who": "mc"
+   },
+   "op": "game/scene",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "answer": {
+    "available": true,
+    "before": [
+     {
+      "entry": null,
+      "here": false,
+      "n": 8,
+      "script": "mc \"Hello there, friend.\""
+     },
+     {
+      "entry": {
+       "file": "script.rpy",
+       "line": 5,
+       "source": "Hello there, friend.",
+       "status": "translated",
+       "target": "Ahoj tam, příteli.",
+       "who": "mc"
+      },
+      "here": false,
+      "n": 9,
+      "script": ""
+     }
+    ],
+    "ok": true,
+    "options": [
+     {
+      "after": [
+       {
+        "entry": null,
+        "here": false,
+        "n": 12,
+        "script": "mc \"Want a coffee?\""
+       },
+       {
+        "entry": {
+         "file": "script.rpy",
+         "line": 17,
+         "source": "Want a coffee?",
+         "status": "todo",
+         "target": "Want a coffee?",
+         "who": "mc"
+        },
+        "here": false,
+        "n": 13,
+        "script": ""
+       }
+      ],
+      "body": [],
+      "cond": "met_her",
+      "current": true,
+      "entry": {
+       "file": "script.rpy",
+       "line": 47,
+       "source": "Invite her",
+       "status": "translated",
+       "target": "Pozvat ji",
+       "who": ""
+      },
+      "n": 11,
+      "text": "Invite her",
+      "where": ""
+     },
+     {
+      "after": [],
+      "body": [
+       "$ dk(-1)",
+       "$ renpy.pause(0.2)"
+      ],
+      "cond": "",
+      "current": false,
+      "entry": {
+       "file": "script.rpy",
+       "line": 51,
+       "source": "Leave",
+       "status": "todo",
+       "target": "Leave",
+       "who": ""
+      },
+      "n": 14,
+      "text": "Leave",
+      "where": "game/script.rpy:11"
+     }
+    ],
+    "question": [],
+    "script": "game/script.rpy:10"
+   },
+   "op": "entry/menu",
+   "params": {
+    "file": "script.rpy",
+    "line": 47
+   }
+  },
+  {
+   "answer": {
+    "available": true,
+    "before": [
+     {
+      "entry": null,
+      "here": false,
+      "n": 8,
+      "script": "mc \"Hello there, friend.\""
+     },
+     {
+      "entry": {
+       "file": "script.rpy",
+       "line": 5,
+       "source": "Hello there, friend.",
+       "status": "translated",
+       "target": "Ahoj tam, příteli.",
+       "who": "mc"
+      },
+      "here": false,
+      "n": 9,
+      "script": ""
+     }
+    ],
+    "ok": true,
+    "options": [
+     {
+      "after": [
+       {
+        "entry": null,
+        "here": false,
+        "n": 12,
+        "script": "mc \"Want a coffee?\""
+       },
+       {
+        "entry": {
+         "file": "script.rpy",
+         "line": 17,
+         "source": "Want a coffee?",
+         "status": "todo",
+         "target": "Want a coffee?",
+         "who": "mc"
+        },
+        "here": true,
+        "n": 13,
+        "script": ""
+       }
+      ],
+      "body": [],
+      "cond": "met_her",
+      "current": false,
+      "entry": {
+       "file": "script.rpy",
+       "line": 47,
+       "source": "Invite her",
+       "status": "translated",
+       "target": "Pozvat ji",
+       "who": ""
+      },
+      "n": 11,
+      "text": "Invite her",
+      "where": ""
+     },
+     {
+      "after": [],
+      "body": [
+       "$ dk(-1)",
+       "$ renpy.pause(0.2)"
+      ],
+      "cond": "",
+      "current": false,
+      "entry": {
+       "file": "script.rpy",
+       "line": 51,
+       "source": "Leave",
+       "status": "todo",
+       "target": "Leave",
+       "who": ""
+      },
+      "n": 14,
+      "text": "Leave",
+      "where": "game/script.rpy:11"
+     }
+    ],
+    "question": [],
+    "script": "game/script.rpy:10"
+   },
+   "op": "entry/menu",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "answer": {
+    "available": true,
+    "before": [
+     {
+      "entry": null,
+      "here": false,
+      "n": 8,
+      "script": "mc \"Hello there, friend.\""
+     },
+     {
+      "entry": {
+       "file": "script.rpy",
+       "line": 5,
+       "source": "Hello there, friend.",
+       "status": "translated",
+       "target": "Ahoj tam, příteli.",
+       "who": "mc"
+      },
+      "here": true,
+      "n": 9,
+      "script": ""
+     }
+    ],
+    "ok": true,
+    "options": [
+     {
+      "after": [
+       {
+        "entry": null,
+        "here": false,
+        "n": 12,
+        "script": "mc \"Want a coffee?\""
+       },
+       {
+        "entry": {
+         "file": "script.rpy",
+         "line": 17,
+         "source": "Want a coffee?",
+         "status": "todo",
+         "target": "Want a coffee?",
+         "who": "mc"
+        },
+        "here": false,
+        "n": 13,
+        "script": ""
+       }
+      ],
+      "body": [],
+      "cond": "met_her",
+      "current": false,
+      "entry": {
+       "file": "script.rpy",
+       "line": 47,
+       "source": "Invite her",
+       "status": "translated",
+       "target": "Pozvat ji",
+       "who": ""
+      },
+      "n": 11,
+      "text": "Invite her",
+      "where": ""
+     },
+     {
+      "after": [],
+      "body": [
+       "$ dk(-1)",
+       "$ renpy.pause(0.2)"
+      ],
+      "cond": "",
+      "current": false,
+      "entry": {
+       "file": "script.rpy",
+       "line": 51,
+       "source": "Leave",
+       "status": "todo",
+       "target": "Leave",
+       "who": ""
+      },
+      "n": 14,
+      "text": "Leave",
+      "where": "game/script.rpy:11"
+     }
+    ],
+    "question": [],
+    "script": "game/script.rpy:10"
+   },
+   "op": "entry/menu",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "answer": {
+    "count": 0,
+    "ok": true,
+    "versions": []
+   },
+   "op": "entry/history",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "answer": {
+    "exact": [],
+    "ok": true,
+    "similar": []
+   },
+   "op": "entry/memory",
+   "params": {
+    "file": "script.rpy",
+    "line": 5
+   }
+  },
+  {
+   "answer": {
+    "groups": [],
+    "lines": 0,
+    "ok": true,
+    "total": 0
+   },
+   "op": "consistency",
+   "params": {}
+  },
+  {
+   "answer": {
+    "current": {
+     "folders": [],
+     "groups": [],
+     "label": "Episode",
+     "sections": 0,
+     "series": ""
+    },
+    "ok": true,
+    "proposal": {
+     "folders": [],
+     "groups": [],
+     "label": "Episode",
+     "matched": 0,
+     "sections": [],
+     "series": "",
+     "total": 2
+    },
+    "words": [
+     "Folder",
+     "Episode",
+     "Chapter",
+     "Part",
+     "Day",
+     "Update",
+     "Act"
+    ]
+   },
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "answer": {
+    "data": {
+     "episodes": [],
+     "estimate": {
+      "basis_days": 0,
+      "confidence": null,
+      "days_with_data": 1,
+      "eta": null,
+      "eta_early": null,
+      "eta_late": null,
+      "pace_per_day": null,
+      "remaining": 3,
+      "status": "insufficient_data"
+     },
+     "files": {
+      "done": 0,
+      "none": 0,
+      "rev": 0,
+      "total": 2,
+      "tr": 0,
+      "wip": 2
+     },
+     "general": {
+      "files": 0,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     },
+     "history": [
+      {
+       "date": "<volatile>",
+       "proofreading": 0.0,
+       "translation": 75.0
+      }
+     ],
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 12
+     },
+     "schema": 2,
+     "scope": {
+      "episodes": [],
+      "planned_seasons": [],
+      "seasons": []
+     },
+     "seasons": [],
+     "title": "",
+     "translation": {
+      "done": 9,
+      "percent": 75.0,
+      "total": 12
+     },
+     "unassigned": {
+      "files": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 12
+      },
+      "translation": {
+       "done": 9,
+       "percent": 75.0,
+       "total": 12
+      }
+     },
+     "updated": "<volatile>"
+    },
+    "ok": true,
+    "path": "<TMP>/cfg/projects/<id>/progress.json",
+    "problems": []
+   },
+   "op": "export/preview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "enabled": true,
+    "interval_hours": 12,
+    "items": [],
+    "keep": 20,
+    "ok": true
+   },
+   "op": "snapshots",
+   "params": {}
+  },
+  {
+   "answer": {
+    "ok": true,
+    "state": "idle"
+   },
+   "op": "lint/status",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "active": 0,
+     "expired": 0,
+     "gone": 0,
+     "resolved": 0
+    },
+    "items": [],
+    "ok": true
+   },
+   "op": "ignore/list",
+   "params": {}
+  },
+  {
+   "answer": {
+    "author": "<volatile>",
+    "count_symbol_only_as_done": false,
+    "editor": {
+     "custom": "",
+     "preferred": "auto"
+    },
+    "game_gui": {
+     "dialogue_width": 1116,
+     "dialogue_xpos": 402,
+     "dialogue_ypos": 75,
+     "name_text_size": 45,
+     "name_xpos": 360,
+     "name_ypos": 50,
+     "screen_height": 1080,
+     "screen_width": 1920,
+     "source": "gui.rpy of the game",
+     "text_size": 33,
+     "textbox_height": 278
+    },
+    "goals": {
+     "proofread_per_week": 0,
+     "translate_per_week": 0
+    },
+    "lint": {
+     "sdk": ""
+    },
+    "mt": {
+     "api_key": "",
+     "base_url": "",
+     "consent": false,
+     "has_key": false,
+     "model": "",
+     "provider": "",
+     "source_lang": "EN",
+     "target_lang": ""
+    },
+    "ok": true,
+    "project_dir": "<TMP>/p/game/tl/czech",
+    "skip_files": [
+     "common.rpy"
+    ],
+    "snapshots": {
+     "enabled": true,
+     "interval_hours": 12,
+     "keep": 20
+    },
+    "ui": {},
+    "validation": {
+     "enabled": true,
+     "length": {
+      "enabled": true,
+      "max_ratio": 2.2,
+      "min_extra_chars": 25,
+      "min_missing_chars": 18,
+      "min_ratio": 0.45,
+      "min_source_chars": 12
+     },
+     "show_info": false,
+     "spelling": true,
+     "textbox": {
+      "chars_per_line": 65,
+      "enabled": true,
+      "max_lines": 4
+     }
+    },
+    "version": 1,
+    "web": {
+     "path": "web/progress.json",
+     "repo": "",
+     "title": ""
+    }
+   },
+   "op": "settings",
+   "params": {}
+  },
+  {
+   "answer": {
+    "features": {
+     "bulk.categorize": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Bulk categorisation suggestions"
+     },
+     "fixes.safe": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Safe bulk fixes with preview"
+     },
+     "mt.batch": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Batch machine translation"
+     },
+     "publish.web": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Publishing progress to a website"
+     },
+     "replace.regex": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Regex find & replace"
+     }
+    },
+    "ok": true,
+    "pack": [],
+    "problems": [],
+    "tier": "free"
+   },
+   "op": "features",
+   "params": {}
+  },
+  {
+   "answer": {
+    "langs": [
+     {
+      "code": "en",
+      "name": "English"
+     },
+     {
+      "code": "cs",
+      "name": "Čeština"
+     }
+    ],
+    "ok": true
+   },
+   "op": "ui-langs",
+   "params": {}
+  },
+  {
+   "answer": {
+    "line": 17,
+    "ok": true,
+    "wrapped": false
+   },
+   "op": "entry/next",
+   "params": {
+    "file": "script.rpy",
+    "kind": "todo",
+    "line": 5
+   }
+  },
+  {
+   "answer": {
+    "file": "script.rpy",
+    "found": true,
+    "line": 5,
+    "ok": true
+   },
+   "op": "proof/next",
+   "params": {
+    "after": 0,
+    "file": "script.rpy"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "files": 1,
+     "selected": 1,
+     "total": 1
+    },
+    "items": [
+     {
+      "approved": false,
+      "block": "translate czech start_aaaa0003",
+      "file": "script.rpy",
+      "is_reference": true,
+      "key": [
+       "translate czech start_aaaa0003",
+       "Want a coffee?"
+      ],
+      "kind": "english",
+      "line": 17,
+      "notes": [
+       "looks like untranslated English"
+      ],
+      "selectable": true,
+      "selected": true,
+      "text": "Want a coffee?",
+      "who": "mc"
+     }
+    ],
+    "ok": true,
+    "reference": {
+     "file": "script.rpy",
+     "line": 17,
+     "text": "Want a coffee?",
+     "who": "mc"
+    },
+    "scope": "project"
+   },
+   "op": "approve/preview",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "answer": {
+    "issues": [],
+    "literal_error": "",
+    "ok": true
+   },
+   "op": "entry/check",
+   "params": {
+    "file": "script.rpy",
+    "line": 17,
+    "text": "Chceš kávu?"
+   }
+  },
+  {
+   "answer": {
+    "backup": "<TMP>/cfg/projects/<id>/backups/script.rpy.<stamp>.bak",
+    "changed": true,
+    "label": "edit",
+    "ok": true,
+    "problems": []
+   },
+   "op": "entry/save",
+   "params": {
+    "file": "script.rpy",
+    "line": 17,
+    "text": "Chceš kávu?"
+   }
+  },
+  {
+   "answer": {
+    "after": [
+     {
+      "line": 23,
+      "proof": "",
+      "source": "Sure.",
+      "status": "translated",
+      "target": "Jasně.",
+      "who": "sa"
+     },
+     {
+      "line": 29,
+      "proof": "",
+      "source": "Bye, [name].",
+      "status": "translated",
+      "target": "Měj se, [jmeno].",
+      "who": "mc"
+     }
+    ],
+    "before": [
+     {
+      "line": 5,
+      "proof": "",
+      "source": "Hello there, friend.",
+      "status": "translated",
+      "target": "Ahoj tam, příteli.",
+      "who": "mc"
+     },
+     {
+      "line": 11,
+      "proof": "",
+      "source": "Hey, it's you again!",
+      "status": "translated",
+      "target": "Hele, zase ty!",
+      "who": "sa"
+     }
+    ],
+    "block": "translate czech start_aaaa0003",
+    "cur_raw": "mc \"Chceš kávu?\"",
+    "file": "script.rpy",
+    "issues": [],
+    "key": [
+     "translate czech start_aaaa0003",
+     "Want a coffee?"
+    ],
+    "kind": "",
+    "line": 17,
+    "ok": true,
+    "path": "<TMP>/p/game/tl/czech/script.rpy",
+    "proof": "",
+    "proof_date": "<volatile>",
+    "proof_note": "",
+    "ref": "game/script.rpy:13",
+    "source": "Want a coffee?",
+    "src_line": 16,
+    "src_raw": "mc \"Want a coffee?\"",
+    "status": "translated",
+    "target": "Chceš kávu?",
+    "terms": [],
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   "op": "entry",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "answer": {
+    "count": 1,
+    "ok": true,
+    "versions": [
+     {
+      "current": true,
+      "text": "Chceš kávu?",
+      "time": "<volatile>",
+      "via": "edit in the app"
+     },
+     {
+      "current": false,
+      "text": "Want a coffee?",
+      "time": "<volatile>",
+      "via": "original text before the first recorded change"
+     }
+    ]
+   },
+   "op": "entry/history",
+   "params": {
+    "file": "script.rpy",
+    "line": 17
+   }
+  },
+  {
+   "answer": {
+    "changed": 0,
+    "label": "proof",
+    "ok": true,
+    "problems": [],
+    "skipped": [
+     [
+      "script.rpy",
+      "the line changed in the file – refresh the files"
+     ]
+    ]
+   },
+   "op": "proof/set",
+   "params": {
+    "items": [
+     {
+      "file": "script.rpy",
+      "line": 5
+     }
+    ],
+    "note": "checked",
+    "state": "ok"
+   }
+  },
+  {
+   "answer": {
+    "label": "assign",
+    "ok": true,
+    "problems": []
+   },
+   "op": "assign",
+   "params": {
+    "name": "script.rpy",
+    "v": "gen"
+   }
+  },
+  {
+   "answer": {
+    "items": [
+     {
+      "code": "mc",
+      "count": 3,
+      "example": "Hello there, friend.",
+      "file": "script.rpy",
+      "in_project": true,
+      "line": 5,
+      "name": "Mike",
+      "note": "",
+      "type": "speaker"
+     },
+     {
+      "code": "sa",
+      "count": 3,
+      "example": "Hey, it's you again!",
+      "file": "script.rpy",
+      "in_project": true,
+      "line": 11,
+      "name": "",
+      "note": "",
+      "type": "speaker"
+     },
+     {
+      "code": "friend",
+      "count": 0,
+      "example": "",
+      "file": "",
+      "in_project": false,
+      "line": 0,
+      "name": "přítel",
+      "note": "",
+      "type": "term"
+     }
+    ],
+    "names": {
+     "mc": "Mike"
+    },
+    "ok": true,
+    "types": [
+     "speaker",
+     "term"
+    ],
+    "unnamed": 1
+   },
+   "op": "glossary/set",
+   "params": {
+    "items": [
+     {
+      "code": "mc",
+      "name": "Mike",
+      "type": "speaker"
+     },
+     {
+      "code": "friend",
+      "name": "přítel",
+      "type": "term"
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "code": "friend",
+    "czech": "přítel",
+    "found": 1,
+    "items": [
+     {
+      "file": "script.rpy",
+      "line": 5,
+      "source": "Hello there, friend.",
+      "target": "Ahoj tam, příteli.",
+      "translated": true,
+      "used": true,
+      "who": "mc"
+     }
+    ],
+    "missing": 0,
+    "ok": true,
+    "truncated": false,
+    "untranslated": 0
+   },
+   "op": "glossary/occurrences",
+   "params": {
+    "code": "friend"
+   }
+  },
+  {
+   "answer": {
+    "author": "<volatile>",
+    "count_symbol_only_as_done": false,
+    "editor": {
+     "custom": "",
+     "preferred": "auto"
+    },
+    "game_gui": {
+     "dialogue_width": 1116,
+     "dialogue_xpos": 402,
+     "dialogue_ypos": 75,
+     "name_text_size": 45,
+     "name_xpos": 360,
+     "name_ypos": 50,
+     "screen_height": 1080,
+     "screen_width": 1920,
+     "source": "gui.rpy of the game",
+     "text_size": 33,
+     "textbox_height": 278
+    },
+    "goals": {
+     "proofread_per_week": 0,
+     "translate_per_week": 0
+    },
+    "lint": {
+     "sdk": ""
+    },
+    "mt": {
+     "api_key": "",
+     "base_url": "",
+     "consent": false,
+     "has_key": false,
+     "model": "",
+     "provider": "",
+     "source_lang": "EN",
+     "target_lang": ""
+    },
+    "ok": true,
+    "project_dir": "<TMP>/p/game/tl/czech",
+    "skip_files": [
+     "common.rpy"
+    ],
+    "snapshots": {
+     "enabled": true,
+     "interval_hours": 12,
+     "keep": 20
+    },
+    "ui": {},
+    "validation": {
+     "enabled": true,
+     "length": {
+      "enabled": true,
+      "max_ratio": 2.2,
+      "min_extra_chars": 25,
+      "min_missing_chars": 18,
+      "min_ratio": 0.45,
+      "min_source_chars": 12
+     },
+     "show_info": true,
+     "spelling": true,
+     "textbox": {
+      "chars_per_line": 65,
+      "enabled": true,
+      "max_lines": 4
+     }
+    },
+    "version": 1,
+    "web": {
+     "path": "web/progress.json",
+     "repo": "",
+     "title": ""
+    }
+   },
+   "op": "settings/update",
+   "params": {
+    "validation": {
+     "show_info": true
+    }
+   }
+  },
+  {
+   "answer": {
+    "ok": true,
+    "snapshot": {
+     "app": "1.7.0",
+     "bytes": 1114,
+     "files": 2,
+     "name": "snap-<stamp>-manual.zip",
+     "reason": "manual",
+     "time": "<volatile>"
+    }
+   },
+   "op": "snapshots/create",
+   "params": {}
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 2,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 0,
+     "wip": 2
+    },
+    "general": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 9
+     },
+     "translation": {
+      "done": 8,
+      "percent": 88.9,
+      "total": 9
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": false,
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [
+      "screens.rpy",
+      "script.rpy"
+     ],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "changed 2.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 2,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [],
+    "totals": {
+     "approved": 0,
+     "done": 10,
+     "percent": 83.3,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 2,
+     "total": 12
+    },
+    "unassigned": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 3
+     },
+     "translation": {
+      "done": 2,
+      "percent": 66.7,
+      "total": 3
+     }
+    },
+    "undo": [
+     "Glossary (2)",
+     "Assignment of script.rpy"
+    ],
+    "unsaved": [],
+    "validation": {
+     "error": 1,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 1
+    },
+    "worst_files": [
+     {
+      "errors": 1,
+      "lines": 9,
+      "name": "script.rpy",
+      "score": 44.4,
+      "warnings": 1
+     }
+    ]
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 9,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 8,
+     "stale": 0,
+     "todo": 1,
+     "translated": 8
+    },
+    "items": [
+     {
+      "block": "translate czech start_aaaa0001",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 5,
+      "proof": "",
+      "ref": "game/script.rpy:9",
+      "source": "Hello there, friend.",
+      "src_line": 4,
+      "status": "translated",
+      "target": "Ahoj tam, příteli.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech start_aaaa0002",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 11,
+      "proof": "",
+      "ref": "game/script.rpy:10",
+      "source": "Hey, it's you again!",
+      "src_line": 10,
+      "status": "translated",
+      "target": "Hele, zase ty!",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0003",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 17,
+      "proof": "",
+      "ref": "game/script.rpy:13",
+      "source": "Want a coffee?",
+      "src_line": 16,
+      "status": "translated",
+      "target": "Chceš kávu?",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech start_aaaa0004",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 23,
+      "proof": "",
+      "ref": "game/script.rpy:14",
+      "source": "Sure.",
+      "src_line": 22,
+      "status": "translated",
+      "target": "Jasně.",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0005",
+      "file": "script.rpy",
+      "issues": [
+       {
+        "code": "variable-unknown",
+        "severity": "error"
+       },
+       {
+        "code": "variable-missing",
+        "severity": "warning"
+       }
+      ],
+      "kind": "",
+      "line": 29,
+      "proof": "",
+      "ref": "game/script.rpy:19",
+      "source": "Bye, [name].",
+      "src_line": 28,
+      "status": "translated",
+      "target": "Měj se, [jmeno].",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech start_aaaa0006",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 35,
+      "proof": "",
+      "ref": "game/script.rpy:20",
+      "source": "{i}See you{/i} around.",
+      "src_line": 34,
+      "status": "translated",
+      "target": "{i}Uvidíme se{/i} jindy.",
+      "unit": "dialogue",
+      "who": "sa"
+     },
+     {
+      "block": "translate czech start_aaaa0007",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 41,
+      "proof": "",
+      "ref": "game/script.rpy:21",
+      "source": "The end of the scene.",
+      "src_line": 40,
+      "status": "translated",
+      "target": "Konec scény.",
+      "unit": "dialogue",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 47,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Invite her",
+      "src_line": 46,
+      "status": "translated",
+      "target": "Pozvat ji",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 51,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Leave",
+      "src_line": 50,
+      "status": "todo",
+      "target": "Leave",
+      "unit": "string",
+      "who": ""
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 9
+   },
+   "op": "entries",
+   "params": {
+    "file": "script.rpy",
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "label": "undo",
+    "ok": true,
+    "problems": [],
+    "undone": "Glossary (2)"
+   },
+   "op": "undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "Editing line 17 in script.rpy",
+    "lines": 1,
+    "ok": true,
+    "problems": [],
+    "restored": [
+     "script.rpy"
+    ]
+   },
+   "op": "fix/undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 3,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 0,
+     "wip": 2
+    },
+    "general": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 9
+     },
+     "translation": {
+      "done": 7,
+      "percent": 77.8,
+      "total": 9
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": false,
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [
+      "screens.rpy",
+      "script.rpy"
+     ],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "changed 2.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 2,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [],
+    "totals": {
+     "approved": 0,
+     "done": 9,
+     "percent": 75.0,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 3,
+     "total": 12
+    },
+    "unassigned": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 3
+     },
+     "translation": {
+      "done": 2,
+      "percent": 66.7,
+      "total": 3
+     }
+    },
+    "undo": [
+     "Assignment of script.rpy"
+    ],
+    "unsaved": [],
+    "validation": {
+     "error": 1,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 1
+    },
+    "worst_files": [
+     {
+      "errors": 1,
+      "lines": 9,
+      "name": "script.rpy",
+      "score": 44.4,
+      "warnings": 1
+     }
+    ]
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 12,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 9,
+     "stale": 0,
+     "todo": 3,
+     "translated": 9
+    },
+    "items": [
+     {
+      "block": "strings",
+      "file": "screens.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 9,
+      "proof": "",
+      "ref": "game/screens.rpy:3",
+      "source": "Quit",
+      "src_line": 8,
+      "status": "todo",
+      "target": "Quit",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "translate czech start_aaaa0003",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 17,
+      "proof": "",
+      "ref": "game/script.rpy:13",
+      "source": "Want a coffee?",
+      "src_line": 16,
+      "status": "todo",
+      "target": "Want a coffee?",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "strings",
+      "file": "script.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 51,
+      "proof": "",
+      "ref": "game/script.rpy:11",
+      "source": "Leave",
+      "src_line": 50,
+      "status": "todo",
+      "target": "Leave",
+      "unit": "string",
+      "who": ""
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 3
+   },
+   "op": "entries",
+   "params": {
+    "status": "todo"
+   }
+  }
+ ]
+}

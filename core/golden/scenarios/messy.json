@@ -1,0 +1,81 @@
+{
+ "project": "messy",
+ "doc": "windows line ends and a BOM, a file that is not UTF-8, duplicated ids and strings, untranslated English and symbols",
+ "steps": [
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "files",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all"
+   }
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "todo",
+    "kind": "english"
+   }
+  },
+  {
+   "op": "validation",
+   "params": {
+    "group": "line"
+   }
+  },
+  {
+   "op": "entry",
+   "params": {
+    "file": "bad.rpy",
+    "line": 4
+   }
+  },
+  {
+   "op": "entry",
+   "params": {
+    "file": "crlf.rpy",
+    "line": 9
+   }
+  },
+  {
+   "op": "entry/save",
+   "params": {
+    "file": "crlf.rpy",
+    "line": 9,
+    "text": "Druhý řádek."
+   }
+  },
+  {
+   "op": "refresh",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "file": "crlf.rpy"
+   }
+  },
+  {
+   "op": "consistency",
+   "params": {}
+  },
+  {
+   "op": "fix/undo",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "file": "crlf.rpy"
+   }
+  }
+ ]
+}

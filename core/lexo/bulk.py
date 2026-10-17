@@ -3,26 +3,13 @@
 The suggestions of groups for files are a Pro feature (the Pro pack, bulk.categorize); applying them, and the approval of identical lines, are here.
 Both only *propose* what they show; nothing changes until the caller applies the reviewed result.
 """
-import posixpath
 import re
 from collections import Counter, defaultdict
 
 from . import rpy
-from . import layout
-from .store import assign_label, valid_assign
+from .store import valid_assign
 from .util import norm_ws
-from .messages import join, msg
-
-def episode_hint(n, rows):
-    """Rough % for an episode from file names alone (kept from the original tool; display only)."""
-    pat = re.compile(rf"(?<![a-z])(?:episode|ep)[ _-]?0*{n}(?!\d)")
-    d = t = 0
-    for r in rows:
-        if pat.search(_posix(r.name)):
-            d += r.done
-            t += r.total
-    return f"≈ {d / t * 100:.0f} %" if t else ""
-
+from .messages import msg
 
 def apply_assignments(store, items):
     """Apply reviewed assignments in one undoable step.

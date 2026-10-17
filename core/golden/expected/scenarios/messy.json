@@ -1,0 +1,837 @@
+{
+ "files_after": {
+  "bad.rpy": {
+   "base64": "dHJhbnNsYXRlIGN6ZWNoIGJhZF8wMDAwMDAwMToKCiAgICAjIG1jICJDYWZlIgogICAgbWMgIkthduFybmEiCg==",
+   "sha1": "1c0076063173dcbd8bf3ec23bfca61d2c3c012c1"
+  },
+  "crlf.rpy": {
+   "sha1": "4fba9246098173458996128f65e2c6a78ec5c46d",
+   "text": "﻿translate czech crlf_00000001:\r\n\r\n    # mc \"Windows line ends.\"\r\n    mc \"Konce řádkův Windows.\"\r\n\r\ntranslate czech crlf_00000002:\r\n\r\n    # mc \"Second.\"\r\n    mc \"Second.\"\r\n"
+  },
+  "dup.rpy": {
+   "sha1": "d042c5f8ecb3c758617a9d6d32501a42afbf9587",
+   "text": "translate czech dup_00000001:\n\n    # mc \"First\"\n    mc \"První\"\n\ntranslate czech dup_00000001:\n\n    # mc \"Second\"\n    mc \"Druhý\"\n\ntranslate czech strings:\n\n    old \"Same text twice\"\n    new \"Stejný text\"\n\n    old \"Same text twice\"\n    new \"Stejný text jinak\"\n"
+  },
+  "english.rpy": {
+   "sha1": "9306f07b25c7273d717574549bfd346374684982",
+   "text": "translate czech eng_00000001:\n\n    # mc \"I am going to the park today and I will not be back soon.\"\n    mc \"I am going to the park today and I will not be back soon.\"\n\ntranslate czech eng_00000002:\n\n    # mc \"...\"\n    mc \"...\"\n\ntranslate czech eng_00000003:\n\n    # mc \"Oh\"\n    mc \"Oh\"\n"
+  }
+ },
+ "project": "messy",
+ "steps": [
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 4,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 1,
+     "rev": 0,
+     "tr": 2,
+     "wip": 1
+    },
+    "general": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": false,
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "bad.rpy",
+      "crlf.rpy",
+      "dup.rpy",
+      "english.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 4.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 4,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 60.0,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 4,
+     "total": 10
+    },
+    "unassigned": {
+     "files": 4,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 10
+     },
+     "translation": {
+      "done": 6,
+      "percent": 60.0,
+      "total": 10
+     }
+    },
+    "undo": [],
+    "unsaved": [],
+    "validation": {
+     "error": 2,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": [
+     {
+      "errors": 1,
+      "lines": 1,
+      "name": "bad.rpy",
+      "score": 300.0,
+      "warnings": 0
+     },
+     {
+      "errors": 1,
+      "lines": 4,
+      "name": "dup.rpy",
+      "score": 75.0,
+      "warnings": 0
+     }
+    ]
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 1,
+      "name": "bad.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "crlf.rpy",
+      "order": 1,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "wip",
+      "todo": 1,
+      "total": 2,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 4,
+      "corr": 0,
+      "done": 4,
+      "errors": 1,
+      "name": "dup.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 4,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 0,
+      "corr": 0,
+      "done": 0,
+      "errors": 0,
+      "name": "english.rpy",
+      "order": 0,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "none",
+      "todo": 3,
+      "total": 3,
+      "warnings": 0
+     }
+    ],
+    "ok": true
+   },
+   "op": "files",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 10,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 6,
+     "stale": 0,
+     "todo": 4,
+     "translated": 6
+    },
+    "items": [
+     {
+      "block": "translate czech bad_00000001",
+      "file": "bad.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 4,
+      "proof": "",
+      "ref": "",
+      "source": "Cafe",
+      "src_line": 3,
+      "status": "translated",
+      "target": "Kav�rna",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech crlf_00000001",
+      "file": "crlf.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 4,
+      "proof": "",
+      "ref": "",
+      "source": "Windows line ends.",
+      "src_line": 3,
+      "status": "translated",
+      "target": "Konce řádkův Windows.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech crlf_00000002",
+      "file": "crlf.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 9,
+      "proof": "",
+      "ref": "",
+      "source": "Second.",
+      "src_line": 8,
+      "status": "todo",
+      "target": "Second.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech dup_00000001",
+      "file": "dup.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 4,
+      "proof": "",
+      "ref": "",
+      "source": "First",
+      "src_line": 3,
+      "status": "translated",
+      "target": "První",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech dup_00000001",
+      "file": "dup.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 9,
+      "proof": "",
+      "ref": "",
+      "source": "Second",
+      "src_line": 8,
+      "status": "translated",
+      "target": "Druhý",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "strings",
+      "file": "dup.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 14,
+      "proof": "",
+      "ref": "",
+      "source": "Same text twice",
+      "src_line": 13,
+      "status": "translated",
+      "target": "Stejný text",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "strings",
+      "file": "dup.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 17,
+      "proof": "",
+      "ref": "",
+      "source": "Same text twice",
+      "src_line": 16,
+      "status": "translated",
+      "target": "Stejný text jinak",
+      "unit": "string",
+      "who": ""
+     },
+     {
+      "block": "translate czech eng_00000001",
+      "file": "english.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 4,
+      "proof": "",
+      "ref": "",
+      "source": "I am going to the park today and I will not be back soon.",
+      "src_line": 3,
+      "status": "todo",
+      "target": "I am going to the park today and I will not be back soon.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech eng_00000002",
+      "file": "english.rpy",
+      "issues": [],
+      "kind": "symbols",
+      "line": 9,
+      "proof": "",
+      "ref": "",
+      "source": "...",
+      "src_line": 8,
+      "status": "todo",
+      "target": "...",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech eng_00000003",
+      "file": "english.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 14,
+      "proof": "",
+      "ref": "",
+      "source": "Oh",
+      "src_line": 13,
+      "status": "todo",
+      "target": "Oh",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 10
+   },
+   "op": "entries",
+   "params": {
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 2,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 0,
+     "stale": 0,
+     "todo": 2,
+     "translated": 0
+    },
+    "items": [
+     {
+      "block": "translate czech eng_00000001",
+      "file": "english.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 4,
+      "proof": "",
+      "ref": "",
+      "source": "I am going to the park today and I will not be back soon.",
+      "src_line": 3,
+      "status": "todo",
+      "target": "I am going to the park today and I will not be back soon.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech eng_00000003",
+      "file": "english.rpy",
+      "issues": [],
+      "kind": "english",
+      "line": 14,
+      "proof": "",
+      "ref": "",
+      "source": "Oh",
+      "src_line": 13,
+      "status": "todo",
+      "target": "Oh",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 2
+   },
+   "op": "entries",
+   "params": {
+    "kind": "english",
+    "status": "todo"
+   }
+  },
+  {
+   "answer": {
+    "findings": 2,
+    "items": [
+     {
+      "file": "bad.rpy",
+      "issues": [
+       {
+        "category": "structure",
+        "code": "bad-encoding",
+        "extra": {},
+        "ignore_note": "",
+        "ignored": false,
+        "message": "The file is not valid UTF-8 (some characters could not be read). Ren'Py reads scripts as UTF-8 – save it in the editor as “UTF-8”.",
+        "severity": "error"
+       }
+      ],
+      "line": 1,
+      "severity": "error",
+      "source": "",
+      "src_who": "",
+      "target": "",
+      "who": ""
+     },
+     {
+      "file": "dup.rpy",
+      "issues": [
+       {
+        "category": "structure",
+        "code": "duplicate-id",
+        "extra": {},
+        "message": "A translate block with the same identifier already exists (dup.rpy:1); Ren'Py will reject it.",
+        "severity": "error"
+       }
+      ],
+      "line": 6,
+      "severity": "error",
+      "source": "",
+      "src_who": "",
+      "target": "",
+      "who": ""
+     }
+    ],
+    "ok": true,
+    "sev_counts": {
+     "error": 2,
+     "info": 0,
+     "warning": 0
+    },
+    "total": 2
+   },
+   "op": "validation",
+   "params": {
+    "group": "line"
+   }
+  },
+  {
+   "answer": {
+    "after": [],
+    "before": [],
+    "block": "translate czech bad_00000001",
+    "cur_raw": "mc \"Kav�rna\"",
+    "file": "bad.rpy",
+    "issues": [],
+    "key": [
+     "translate czech bad_00000001",
+     "Cafe"
+    ],
+    "kind": "",
+    "line": 4,
+    "ok": true,
+    "path": "<TMP>/p/game/tl/czech/bad.rpy",
+    "proof": "",
+    "proof_date": "<volatile>",
+    "proof_note": "",
+    "ref": "",
+    "source": "Cafe",
+    "src_line": 3,
+    "src_raw": "mc \"Cafe\"",
+    "status": "translated",
+    "target": "Kav�rna",
+    "terms": [],
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   "op": "entry",
+   "params": {
+    "file": "bad.rpy",
+    "line": 4
+   }
+  },
+  {
+   "answer": {
+    "after": [],
+    "before": [
+     {
+      "line": 4,
+      "proof": "",
+      "source": "Windows line ends.",
+      "status": "translated",
+      "target": "Konce řádkův Windows.",
+      "who": "mc"
+     }
+    ],
+    "block": "translate czech crlf_00000002",
+    "cur_raw": "mc \"Second.\"",
+    "file": "crlf.rpy",
+    "issues": [],
+    "key": [
+     "translate czech crlf_00000002",
+     "Second."
+    ],
+    "kind": "same",
+    "line": 9,
+    "ok": true,
+    "path": "<TMP>/p/game/tl/czech/crlf.rpy",
+    "proof": "",
+    "proof_date": "<volatile>",
+    "proof_note": "",
+    "ref": "",
+    "source": "Second.",
+    "src_line": 8,
+    "src_raw": "mc \"Second.\"",
+    "status": "todo",
+    "target": "Second.",
+    "terms": [],
+    "unit": "dialogue",
+    "who": "mc"
+   },
+   "op": "entry",
+   "params": {
+    "file": "crlf.rpy",
+    "line": 9
+   }
+  },
+  {
+   "answer": {
+    "backup": "<TMP>/cfg/projects/<id>/backups/crlf.rpy.<stamp>.bak",
+    "changed": true,
+    "label": "edit",
+    "ok": true,
+    "problems": []
+   },
+   "op": "entry/save",
+   "params": {
+    "file": "crlf.rpy",
+    "line": 9,
+    "text": "Druhý řádek."
+   }
+  },
+  {
+   "answer": {
+    "added": [],
+    "changed": false,
+    "empty": [],
+    "errors": [],
+    "merged_events": 0,
+    "modified": [],
+    "moved_metadata": 0,
+    "needs_confirm": false,
+    "ok": true,
+    "removed": [],
+    "renamed": [],
+    "retried": [],
+    "save_problems": [],
+    "seconds": "<volatile>",
+    "summary": "No changes.",
+    "unchanged": 4
+   },
+   "op": "refresh",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 2,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 2,
+     "stale": 0,
+     "todo": 0,
+     "translated": 2
+    },
+    "items": [
+     {
+      "block": "translate czech crlf_00000001",
+      "file": "crlf.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 4,
+      "proof": "",
+      "ref": "",
+      "source": "Windows line ends.",
+      "src_line": 3,
+      "status": "translated",
+      "target": "Konce řádkův Windows.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech crlf_00000002",
+      "file": "crlf.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 9,
+      "proof": "",
+      "ref": "",
+      "source": "Second.",
+      "src_line": 8,
+      "status": "translated",
+      "target": "Druhý řádek.",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 2
+   },
+   "op": "entries",
+   "params": {
+    "file": "crlf.rpy",
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "groups": [
+     {
+      "key": "=Same text twice",
+      "source": "Same text twice",
+      "sources": [
+       "Same text twice"
+      ],
+      "total": 2,
+      "variants": [
+       {
+        "count": 1,
+        "lines": [
+         {
+          "file": "dup.rpy",
+          "line": 14,
+          "who": ""
+         }
+        ],
+        "target": "Stejný text"
+       },
+       {
+        "count": 1,
+        "lines": [
+         {
+          "file": "dup.rpy",
+          "line": 17,
+          "who": ""
+         }
+        ],
+        "target": "Stejný text jinak"
+       }
+      ]
+     }
+    ],
+    "lines": 2,
+    "ok": true,
+    "total": 1
+   },
+   "op": "consistency",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "Editing line 9 in crlf.rpy",
+    "lines": 1,
+    "ok": true,
+    "problems": [],
+    "restored": [
+     "crlf.rpy"
+    ]
+   },
+   "op": "fix/undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 2,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 1,
+     "stale": 0,
+     "todo": 1,
+     "translated": 1
+    },
+    "items": [
+     {
+      "block": "translate czech crlf_00000001",
+      "file": "crlf.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 4,
+      "proof": "",
+      "ref": "",
+      "source": "Windows line ends.",
+      "src_line": 3,
+      "status": "translated",
+      "target": "Konce řádkův Windows.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech crlf_00000002",
+      "file": "crlf.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 9,
+      "proof": "",
+      "ref": "",
+      "source": "Second.",
+      "src_line": 8,
+      "status": "todo",
+      "target": "Second.",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 2
+   },
+   "op": "entries",
+   "params": {
+    "file": "crlf.rpy",
+    "status": "all"
+   }
+  }
+ ]
+}

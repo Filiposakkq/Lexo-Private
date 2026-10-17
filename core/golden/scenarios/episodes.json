@@ -1,0 +1,106 @@
+{
+ "project": "episodes",
+ "doc": "numbered groups from a layout file: the overview by group, states, assignments",
+ "steps": [
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "files",
+   "params": {}
+  },
+  {
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "op": "entries",
+   "params": {
+    "status": "all",
+    "file": "ep2_story.rpy"
+   }
+  },
+  {
+   "op": "assign",
+   "params": {
+    "name": "ep1_story.rpy",
+    "v": "ep:1"
+   }
+  },
+  {
+   "op": "assign",
+   "params": {
+    "name": "ep2_story.rpy",
+    "v": "ep:2"
+   }
+  },
+  {
+   "op": "assign",
+   "params": {
+    "name": "options.rpy",
+    "v": "gen"
+   }
+  },
+  {
+   "op": "episode",
+   "params": {
+    "ep": 1,
+    "state": "wip"
+   }
+  },
+  {
+   "op": "episode",
+   "params": {
+    "ep": 2,
+    "state": "done"
+   }
+  },
+  {
+   "op": "assign/apply",
+   "params": {
+    "items": [
+     {
+      "name": "ep3_story.rpy",
+      "value": "ep:3"
+     }
+    ]
+   }
+  },
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "export/preview",
+   "params": {}
+  },
+  {
+   "op": "groups/apply",
+   "params": {
+    "label": "Chapter",
+    "groups": [
+     1,
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "op": "undo",
+   "params": {}
+  },
+  {
+   "op": "overview",
+   "params": {}
+  }
+ ]
+}

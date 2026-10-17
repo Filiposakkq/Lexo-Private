@@ -21,7 +21,7 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 from lexo import export
 from lexo.util import WriteFailed, atomic_write_bytes

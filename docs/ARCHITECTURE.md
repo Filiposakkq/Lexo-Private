@@ -42,7 +42,7 @@ api.call(app, "entries", {"status": "todo", "limit": 10})        # the same call
 - **Tests keep it honest** (`core/tests/test_contract.py`, `free/tests/test_contract_ui.py`): the generated files match the code; every operation answers with the recorded shape (a lost key or
   a changed type fails); every operation is run by the test or named with a reason; the UI only calls operations that exist; the server serves each read operation like a direct call.
   The interface changes on purpose, in one visible place.
-- **For the Rust port**: the same table and the same shapes are what it is checked against, plus the fixture project (`contract_tool.build_fixture`); roadmap step 6 turns that into fixed test data.
+- **For the Rust port**: the same table and the same shapes are what it is checked against, plus the golden data (`core/golden`, docs/GOLDEN.md): fixed inputs and the recorded answers, down to the bytes of the files written.
 
 To add an operation: write it in `api.py` (with an `example` the contract test can run, or a reason in `NOT_EXERCISED`), run `py core/tests/contract_tool.py`, commit the three generated files with it.
 

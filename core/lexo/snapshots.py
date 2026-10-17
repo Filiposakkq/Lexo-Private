@@ -10,7 +10,6 @@ import io
 import json
 import os
 import re
-import time
 import zipfile
 from datetime import datetime
 from pathlib import Path

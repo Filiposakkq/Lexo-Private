@@ -1,0 +1,1519 @@
+{
+ "files_after": {
+  "ep1_story.rpy": {
+   "sha1": "4a8f865457e826897e3c38dbbecfc1540795528f",
+   "text": "# game/ep1_story.rpy:3\ntranslate czech ep1_00000001:\n\n    # mc \"Welcome to episode one.\"\n    mc \"Vítej v první epizodě.\"\n\n# game/ep1_story.rpy:4\ntranslate czech ep1_00000002:\n\n    # mc \"Second line of 1.\"\n    mc \"Druhý řádek 1.\"\n"
+  },
+  "ep2_story.rpy": {
+   "sha1": "36eb53c56e7c6982d33bcc6c6f2d7b5ae9248e8b",
+   "text": "# game/ep2_story.rpy:3\ntranslate czech ep2_00000001:\n\n    # mc \"Welcome to episode two.\"\n    mc \"Welcome to episode two.\"\n\n# game/ep2_story.rpy:4\ntranslate czech ep2_00000002:\n\n    # mc \"Second line of 2.\"\n    mc \"Druhý řádek 2.\"\n"
+  },
+  "ep3_story.rpy": {
+   "sha1": "909275ae5e8f174d4554273da6c66bdf15aeab93",
+   "text": "# game/ep3_story.rpy:3\ntranslate czech ep3_00000001:\n\n    # mc \"Welcome to episode three.\"\n    mc \"Vítej ve třetí epizodě.\"\n\n# game/ep3_story.rpy:4\ntranslate czech ep3_00000002:\n\n    # mc \"Second line of 3.\"\n    mc \"Druhý řádek 3.\"\n"
+  },
+  "options.rpy": {
+   "sha1": "3815af0bdcdcef4c76f80a3289006ae1ce20bc9c",
+   "text": "translate czech strings:\n\n    old \"Options\"\n    new \"Nastavení\"\n"
+  }
+ },
+ "project": "episodes",
+ "steps": [
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 3,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 1,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 3,
+     "wip": 1
+    },
+    "general": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": true,
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "ep1_story.rpy",
+      "ep2_story.rpy",
+      "ep3_story.rpy",
+      "options.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 4.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 4,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2,
+       3
+      ],
+      "episodes_done": 0,
+      "episodes_total": 3,
+      "files": 0,
+      "files_done": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "status": "active",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     }
+    ],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 85.7,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 1,
+     "total": 7
+    },
+    "unassigned": {
+     "files": 4,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 7
+     },
+     "translation": {
+      "done": 6,
+      "percent": 85.7,
+      "total": 7
+     }
+    },
+    "undo": [],
+    "unsaved": [],
+    "validation": {
+     "error": 0,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": []
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "files": [
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 2,
+      "corr": 0,
+      "done": 2,
+      "errors": 0,
+      "name": "ep1_story.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 2,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "ep2_story.rpy",
+      "order": 1,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "wip",
+      "todo": 1,
+      "total": 2,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 2,
+      "corr": 0,
+      "done": 2,
+      "errors": 0,
+      "name": "ep3_story.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 2,
+      "warnings": 0
+     },
+     {
+      "approved": 0,
+      "assign": "",
+      "auto": 1,
+      "corr": 0,
+      "done": 1,
+      "errors": 0,
+      "name": "options.rpy",
+      "order": 2,
+      "proof_fix": 0,
+      "proof_marked": 0,
+      "proof_stale": 0,
+      "status": "tr",
+      "todo": 0,
+      "total": 1,
+      "warnings": 0
+     }
+    ],
+    "ok": true
+   },
+   "op": "files",
+   "params": {}
+  },
+  {
+   "answer": {
+    "current": {
+     "folders": [],
+     "groups": [
+      1,
+      2,
+      3
+     ],
+     "label": "Episode",
+     "sections": 1,
+     "series": ""
+    },
+    "ok": true,
+    "proposal": {
+     "folders": [],
+     "groups": [
+      1,
+      2,
+      3
+     ],
+     "label": "Episode",
+     "matched": 3,
+     "sections": [
+      {
+       "groups": [
+        1,
+        2,
+        3
+       ],
+       "n": 1
+      }
+     ],
+     "series": "",
+     "total": 4
+    },
+    "words": [
+     "Folder",
+     "Episode",
+     "Chapter",
+     "Part",
+     "Day",
+     "Update",
+     "Act"
+    ]
+   },
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "answer": {
+    "counts": {
+     "all": 2,
+     "approved": 0,
+     "fix": 0,
+     "proofed": 0,
+     "review": 1,
+     "stale": 0,
+     "todo": 1,
+     "translated": 1
+    },
+    "items": [
+     {
+      "block": "translate czech ep2_00000001",
+      "file": "ep2_story.rpy",
+      "issues": [],
+      "kind": "same",
+      "line": 5,
+      "proof": "",
+      "ref": "game/ep2_story.rpy:3",
+      "source": "Welcome to episode two.",
+      "src_line": 4,
+      "status": "todo",
+      "target": "Welcome to episode two.",
+      "unit": "dialogue",
+      "who": "mc"
+     },
+     {
+      "block": "translate czech ep2_00000002",
+      "file": "ep2_story.rpy",
+      "issues": [],
+      "kind": "",
+      "line": 11,
+      "proof": "",
+      "ref": "game/ep2_story.rpy:4",
+      "source": "Second line of 2.",
+      "src_line": 10,
+      "status": "translated",
+      "target": "Druhý řádek 2.",
+      "unit": "dialogue",
+      "who": "mc"
+     }
+    ],
+    "offset": 0,
+    "ok": true,
+    "total": 2
+   },
+   "op": "entries",
+   "params": {
+    "file": "ep2_story.rpy",
+    "status": "all"
+   }
+  },
+  {
+   "answer": {
+    "label": "assign",
+    "ok": true,
+    "problems": []
+   },
+   "op": "assign",
+   "params": {
+    "name": "ep1_story.rpy",
+    "v": "ep:1"
+   }
+  },
+  {
+   "answer": {
+    "label": "assign",
+    "ok": true,
+    "problems": []
+   },
+   "op": "assign",
+   "params": {
+    "name": "ep2_story.rpy",
+    "v": "ep:2"
+   }
+  },
+  {
+   "answer": {
+    "label": "assign",
+    "ok": true,
+    "problems": []
+   },
+   "op": "assign",
+   "params": {
+    "name": "options.rpy",
+    "v": "gen"
+   }
+  },
+  {
+   "answer": {
+    "label": "episode",
+    "ok": true,
+    "problems": []
+   },
+   "op": "episode",
+   "params": {
+    "ep": 1,
+    "state": "wip"
+   }
+  },
+  {
+   "answer": {
+    "label": "episode",
+    "ok": true,
+    "problems": []
+   },
+   "op": "episode",
+   "params": {
+    "ep": 2,
+    "state": "done"
+   }
+  },
+  {
+   "answer": {
+    "applied": [
+     "ep3_story.rpy"
+    ],
+    "label": "bulk-assign",
+    "ok": true,
+    "problems": [],
+    "skipped": []
+   },
+   "op": "assign/apply",
+   "params": {
+    "items": [
+     {
+      "name": "ep3_story.rpy",
+      "value": "ep:3"
+     }
+    ]
+   }
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "wip",
+      "translation": {
+       "done": 2,
+       "percent": 100.0,
+       "total": 2
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "done",
+      "translation": {
+       "done": 1,
+       "percent": 50.0,
+       "total": 2
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "n": 3,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 2,
+       "percent": 100.0,
+       "total": 2
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 1,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 3,
+     "wip": 1
+    },
+    "general": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 1
+     },
+     "translation": {
+      "done": 1,
+      "percent": 100.0,
+      "total": 1
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": true,
+    "labels": {
+     "group": "Episode",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "ep1_story.rpy",
+      "ep2_story.rpy",
+      "ep3_story.rpy",
+      "options.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 4.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 4,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2,
+       3
+      ],
+      "episodes_done": 1,
+      "episodes_total": 3,
+      "files": 3,
+      "files_done": 2,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 6
+      },
+      "status": "active",
+      "translation": {
+       "done": 5,
+       "percent": 83.3,
+       "total": 6
+      }
+     }
+    ],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 85.7,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 1,
+     "total": 7
+    },
+    "unassigned": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "undo": [
+     "Assignment of files (1)",
+     "State of group 2",
+     "State of group 1",
+     "Assignment of options.rpy",
+     "Assignment of ep2_story.rpy"
+    ],
+    "unsaved": [],
+    "validation": {
+     "error": 0,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": []
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "data": {
+     "episodes": [
+      {
+       "files": 1,
+       "files_done": 1,
+       "files_proofread": 0,
+       "files_total": 1,
+       "n": 1,
+       "percent": 100.0,
+       "proofreading": {
+        "done": 0,
+        "percent": 0.0,
+        "total": 2
+       },
+       "season": 1,
+       "status": "wip",
+       "translation": {
+        "done": 2,
+        "percent": 100.0,
+        "total": 2
+       }
+      },
+      {
+       "files": 1,
+       "files_done": 0,
+       "files_proofread": 0,
+       "files_total": 1,
+       "n": 2,
+       "percent": 50.0,
+       "proofreading": {
+        "done": 0,
+        "percent": 0.0,
+        "total": 2
+       },
+       "season": 1,
+       "status": "done",
+       "translation": {
+        "done": 1,
+        "percent": 50.0,
+        "total": 2
+       }
+      },
+      {
+       "files": 1,
+       "files_done": 1,
+       "files_proofread": 0,
+       "files_total": 1,
+       "n": 3,
+       "percent": 100.0,
+       "proofreading": {
+        "done": 0,
+        "percent": 0.0,
+        "total": 2
+       },
+       "season": 1,
+       "status": "none",
+       "translation": {
+        "done": 2,
+        "percent": 100.0,
+        "total": 2
+       }
+      }
+     ],
+     "estimate": {
+      "basis_days": 0,
+      "confidence": null,
+      "days_with_data": 1,
+      "eta": null,
+      "eta_early": null,
+      "eta_late": null,
+      "pace_per_day": null,
+      "remaining": 1,
+      "status": "insufficient_data"
+     },
+     "files": {
+      "done": 0,
+      "none": 0,
+      "rev": 0,
+      "total": 4,
+      "tr": 3,
+      "wip": 1
+     },
+     "general": {
+      "files": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 1
+      },
+      "translation": {
+       "done": 1,
+       "percent": 100.0,
+       "total": 1
+      }
+     },
+     "history": [
+      {
+       "date": "<volatile>",
+       "proofreading": 0.0,
+       "translation": 85.7
+      }
+     ],
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 7
+     },
+     "schema": 2,
+     "scope": {
+      "episodes": [
+       1,
+       2,
+       3
+      ],
+      "planned_seasons": [],
+      "seasons": [
+       1
+      ]
+     },
+     "seasons": [
+      {
+       "episodes": [
+        1,
+        2,
+        3
+       ],
+       "episodes_done": 1,
+       "episodes_total": 3,
+       "files": 3,
+       "files_done": 2,
+       "n": 1,
+       "proofreading": {
+        "done": 0,
+        "percent": 0.0,
+        "total": 6
+       },
+       "status": "active",
+       "translation": {
+        "done": 5,
+        "percent": 83.3,
+        "total": 6
+       }
+      }
+     ],
+     "title": "",
+     "translation": {
+      "done": 6,
+      "percent": 85.7,
+      "total": 7
+     },
+     "unassigned": {
+      "files": 0,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     },
+     "updated": "<volatile>"
+    },
+    "ok": true,
+    "path": "<TMP>/cfg/projects/<id>/progress.json",
+    "problems": []
+   },
+   "op": "export/preview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "groups": [
+     1,
+     2,
+     3
+    ],
+    "label": "Chapter",
+    "ok": true,
+    "series": ""
+   },
+   "op": "groups/apply",
+   "params": {
+    "groups": [
+     1,
+     2,
+     3
+    ],
+    "label": "Chapter"
+   }
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "wip",
+      "translation": {
+       "done": 2,
+       "percent": 100.0,
+       "total": 2
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "done",
+      "translation": {
+       "done": 1,
+       "percent": 50.0,
+       "total": 2
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "n": 3,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 2,
+       "percent": 100.0,
+       "total": 2
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 1,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 3,
+     "wip": 1
+    },
+    "general": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 1
+     },
+     "translation": {
+      "done": 1,
+      "percent": 100.0,
+      "total": 1
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": true,
+    "labels": {
+     "group": "Chapter",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "ep1_story.rpy",
+      "ep2_story.rpy",
+      "ep3_story.rpy",
+      "options.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 4.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 4,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2,
+       3
+      ],
+      "episodes_done": 1,
+      "episodes_total": 3,
+      "files": 3,
+      "files_done": 2,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 6
+      },
+      "status": "active",
+      "translation": {
+       "done": 5,
+       "percent": 83.3,
+       "total": 6
+      }
+     }
+    ],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 85.7,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 1,
+     "total": 7
+    },
+    "unassigned": {
+     "files": 0,
+     "proofreading": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     },
+     "translation": {
+      "done": 0,
+      "percent": null,
+      "total": 0
+     }
+    },
+    "undo": [
+     "Assignment of files (1)",
+     "State of group 2",
+     "State of group 1",
+     "Assignment of options.rpy",
+     "Assignment of ep2_story.rpy"
+    ],
+    "unsaved": [],
+    "validation": {
+     "error": 0,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": []
+   },
+   "op": "overview",
+   "params": {}
+  },
+  {
+   "answer": {
+    "current": {
+     "folders": [],
+     "groups": [
+      1,
+      2,
+      3
+     ],
+     "label": "Chapter",
+     "sections": 1,
+     "series": ""
+    },
+    "ok": true,
+    "proposal": {
+     "folders": [],
+     "groups": [
+      1,
+      2,
+      3
+     ],
+     "label": "Episode",
+     "matched": 3,
+     "sections": [
+      {
+       "groups": [
+        1,
+        2,
+        3
+       ],
+       "n": 1
+      }
+     ],
+     "series": "",
+     "total": 4
+    },
+    "words": [
+     "Folder",
+     "Episode",
+     "Chapter",
+     "Part",
+     "Day",
+     "Update",
+     "Act"
+    ]
+   },
+   "op": "groups/suggest",
+   "params": {}
+  },
+  {
+   "answer": {
+    "label": "undo",
+    "ok": true,
+    "problems": [],
+    "undone": "Assignment of files (1)"
+   },
+   "op": "undo",
+   "params": {}
+  },
+  {
+   "answer": {
+    "episode_states": [
+     {
+      "key": "none",
+      "label": "Not started"
+     },
+     {
+      "key": "wip",
+      "label": "In progress"
+     },
+     {
+      "key": "tr",
+      "label": "Translated"
+     },
+     {
+      "key": "proof",
+      "label": "In proofreading"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     }
+    ],
+    "episodes": [
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 1,
+      "files_proofread": 0,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "wip",
+      "translation": {
+       "done": 2,
+       "percent": 100.0,
+       "total": 2
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 1,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 2,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 2
+      },
+      "season": 1,
+      "status": "done",
+      "translation": {
+       "done": 1,
+       "percent": 50.0,
+       "total": 2
+      }
+     },
+     {
+      "eta_days": null,
+      "files": 0,
+      "files_done": 0,
+      "files_proofread": 0,
+      "n": 3,
+      "proofreading": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      },
+      "season": 1,
+      "status": "none",
+      "translation": {
+       "done": 0,
+       "percent": null,
+       "total": 0
+      }
+     }
+    ],
+    "estimate": {
+     "basis_days": 0,
+     "confidence": null,
+     "days_with_data": 1,
+     "eta": null,
+     "eta_early": null,
+     "eta_late": null,
+     "pace_per_day": null,
+     "reason": "Not enough data yet: the history covers only one day, the records are from 1 days (at least 7 days and 3 days with a record are needed).",
+     "remaining": 1,
+     "status": "insufficient_data"
+    },
+    "file_counts": {
+     "done": 0,
+     "none": 0,
+     "rev": 0,
+     "tr": 3,
+     "wip": 1
+    },
+    "general": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 1
+     },
+     "translation": {
+      "done": 1,
+      "percent": 100.0,
+      "total": 1
+     }
+    },
+    "goals": {
+     "proofread": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "translate": {
+      "auto": true,
+      "days_left": 2,
+      "done": 0,
+      "goal": null,
+      "left": 0,
+      "needed_per_day": 0,
+      "pace_per_week": null,
+      "percent": 0,
+      "status": "no_goal"
+     },
+     "week_start": "2026-10-12"
+    },
+    "group_names": {},
+    "groups_defined": true,
+    "labels": {
+     "group": "Chapter",
+     "section": "Season"
+    },
+    "last_refresh": {
+     "added": [
+      "ep1_story.rpy",
+      "ep2_story.rpy",
+      "ep3_story.rpy",
+      "options.rpy"
+     ],
+     "changed": true,
+     "empty": [],
+     "errors": [],
+     "modified": [],
+     "removed": [],
+     "renamed": [],
+     "seconds": "<volatile>",
+     "summary": "added 4.",
+     "unchanged": 0
+    },
+    "last_save_error": "",
+    "loaded_at": "<volatile>",
+    "lock_lost": false,
+    "ok": true,
+    "project": {
+     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "files": 4,
+     "local_dir": "<TMP>/cfg/projects/<id>",
+     "path": "<TMP>/p/game/tl/czech",
+     "skipped": [
+      "common.rpy"
+     ]
+    },
+    "recent": [],
+    "seasons": [
+     {
+      "episodes": [
+       1,
+       2,
+       3
+      ],
+      "episodes_done": 1,
+      "episodes_total": 3,
+      "files": 2,
+      "files_done": 1,
+      "n": 1,
+      "proofreading": {
+       "done": 0,
+       "percent": 0.0,
+       "total": 4
+      },
+      "status": "active",
+      "translation": {
+       "done": 3,
+       "percent": 75.0,
+       "total": 4
+      }
+     }
+    ],
+    "totals": {
+     "approved": 0,
+     "done": 6,
+     "percent": 85.7,
+     "proof_fix": 0,
+     "proof_marked": 0,
+     "proof_stale": 0,
+     "proofread": 0,
+     "proofread_percent": 0.0,
+     "remaining": 1,
+     "total": 7
+    },
+    "unassigned": {
+     "files": 1,
+     "proofreading": {
+      "done": 0,
+      "percent": 0.0,
+      "total": 2
+     },
+     "translation": {
+      "done": 2,
+      "percent": 100.0,
+      "total": 2
+     }
+    },
+    "undo": [
+     "State of group 2",
+     "State of group 1",
+     "Assignment of options.rpy",
+     "Assignment of ep2_story.rpy",
+     "Assignment of ep1_story.rpy"
+    ],
+    "unsaved": [],
+    "validation": {
+     "error": 0,
+     "ignored": 0,
+     "info": 0,
+     "length": 0,
+     "warning": 0
+    },
+    "worst_files": []
+   },
+   "op": "overview",
+   "params": {}
+  }
+ ]
+}
