@@ -208,7 +208,7 @@ def write_strings(tl_dir, language, items, backup_dir=None):
     file and by group stay right; a text whose script has no translation file goes to `extra_strings.rpy`. The place does not matter to the game:
     Ren'Py reads every strings block of every file. Texts already in the string table are not written twice.
     Returns {file, files: {path: count}, added, skipped}."""
-    tl_dir = Path(tl_dir)
+    tl_dir = Path(tl_dir).resolve()                  # one spelling of the path (Windows short names such as RUNNER~1 differ otherwise)
     known = known_strings(tl_dir)
     targets, seen, skipped = {}, set(), 0
     for it in items:
