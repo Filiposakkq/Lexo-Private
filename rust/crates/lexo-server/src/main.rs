@@ -34,6 +34,9 @@ fn main() {
             let user = lexo_core::config::config_dir().join("packs");
             let user = cfg_dir.as_ref().map_or(user, |d| d.join("packs"));
             let mut app = App::new(config, Packs { bundled: packs, user: Some(user) });
+            if !selftest {
+                app.mt_http = Some(Box::new(lexo_core::net::post)); // the real network (the self-test must not touch it)
+            }
             if let Some(p) = &project_for_app {
                 match app.open_project(p, false) {
                     Ok(_) => {

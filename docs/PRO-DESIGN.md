@@ -42,7 +42,7 @@ The Rust pack is a **program**, `lexo-pro-sidecar` (`pro/rust/lexo-pro`). The ap
 
 An error is `{"id": N, "ok": false, "error": <text or {"$m": ...}>}`. A pack that cannot be started is a note in the settings, never an error; `LEXO_NO_PRO` leaves it out (what a Free installation looks like).
 
-Not built yet: the **licence check** itself (the pack is "licensed" in a development build, `LEXO_PRO_DEMO=1` shows the demo limits) and a network client for the batch machine translation.
+Not built yet: the **licence check** itself (the pack is "licensed" in a development build, `LEXO_PRO_DEMO=1` shows the demo limits). The network client (`lexo_core::net::post`) is built; the pack uses it for the batch machine translation.
 
 ## Limits, the free taste, and who enforces them
 The limit of a feature (for example 20 lines per action) is **not a number in Free**. The pack says what it offers (`offers()` returns `{"limit": 20}` or `{"limit": None}`), and the host passes it on; the pack also **enforces** it inside its own code, so editing Free does not remove it.

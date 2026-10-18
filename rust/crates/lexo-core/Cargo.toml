@@ -16,4 +16,5 @@ serde = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 sha1 = "0.10"
 unicode-normalization = "0.1"
+ureq = { version = "2", default-features = false, features = ["tls", "native-certs"] }
 zip = { version = "2", default-features = false, features = ["deflate"] }

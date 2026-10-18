@@ -27,11 +27,6 @@ fn plain(text: String) -> ExtensionError {
     ExtensionError(Text::Plain(text))
 }
 
-/// The network of the machine translation of the pack: none in a build without a client (the single-line translation of the application has the same limit).
-fn no_network(_: &str, _: &[(String, String)], _: &[u8]) -> Result<(u16, String), MtError> {
-    Err(MtError(lexo_core::messages::msg("The connection to the service failed: {reason}", &[("reason", json!("this build has no network client yet"))])))
-}
-
 /// The function that sends a request of the machine translation.
 type HttpFn = Box<dyn Fn(&str, &[(String, String)], &[u8]) -> Result<(u16, String), MtError> + Send + Sync>;
 
@@ -94,7 +89,7 @@ impl Provider for LexoProProvider {
             ("mt.batch", "translate") => {
                 let http: Http = match &self.http {
                     Some(h) => &**h,
-                    None => &no_network,
+                    None => &lexo_core::net::post,
                 };
                 mt_batch::translate(payload, http)
             }
