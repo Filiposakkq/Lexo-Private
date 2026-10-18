@@ -1609,6 +1609,20 @@
   "the licence file is not readable": "licenční soubor nejde přečíst",
   "the signature of the licence is wrong": "podpis licence je špatný",
   "this build cannot verify licences": "tato verze neumí ověřovat licence",
-  "this licence was cancelled": "tato licence byla zrušena"
+  "this licence was cancelled": "tato licence byla zrušena",
+  "Computer removed.": "Počítač odebrán.",
+  "Computer renamed.": "Počítač přejmenován.",
+  "Free the place of “{name}”? You can do this {left} more time(s) in the next {days} days.": "Uvolnit místo počítače „{name}“? Můžeš to udělat ještě {left}× během následujících {days} dní.",
+  "Name of this computer (optional)": "Název tohoto počítače (nepovinné)",
+  "Name of this computer:": "Název tohoto počítače:",
+  "Places used: {n} of {max}.": "Obsazená místa: {n} z {max}.",
+  "Rename": "Přejmenovat",
+  "The list of computers needs a connection to the licence server.": "Seznam počítačů potřebuje spojení s licenčním serverem.",
+  "This computer": "Tento počítač",
+  "Unnamed computer": "Nepojmenovaný počítač",
+  "You have used all releases for now. Write to the seller if you need to free a place.": "Teď už jsi využil všechna uvolnění. Pokud potřebuješ uvolnit místo, napiš prodejci.",
+  "Your computers": "Tvoje počítače",
+  "e.g. Home PC": "např. Domácí PC",
+  "last seen {date}": "naposledy viděn {date}"
  }
 }

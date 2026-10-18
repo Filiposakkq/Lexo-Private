@@ -20,6 +20,18 @@ export async function body(req: Request): Promise<Record<string, unknown> | null
 
 export const str = (v: unknown) => (typeof v === "string" ? v : "");
 
+/** A text from the application that goes into the database and the admin page: no control characters, a limited length. */
+export const clean = (v: unknown, max: number) => str(v).replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max);
+
+/** Releasing a computer by the user (from the application) is limited: this many times in this many days. The owner can free a computer in the admin without the limit. */
+export const RELEASE_LIMIT = 2;
+export const RELEASE_DAYS = 30;
+
+async function releaseRoom(env: Env, id: string, now: number): Promise<{ left: number; next: number | null }> {
+  const used = await store.userReleases(env.DB, id, now - RELEASE_DAYS * 86400);
+  return { left: Math.max(0, RELEASE_LIMIT - used.count), next: used.count >= RELEASE_LIMIT && used.oldest ? used.oldest + RELEASE_DAYS * 86400 : null };
+}
+
 // ---------------------------------------------------------------- the calls of the application
 
 /** `activate {key, device}`: takes a place for the device (at most `max_devices`) and returns the signed licence file. */
@@ -43,17 +55,17 @@ export async function activate(req: Request, env: Env, now: number): Promise<Res
       await store.logEvent(env.DB, now, l.id, "refused", `device limit ${n}/${l.max_devices}`);
       return fail("device_limit", 409, { devices: n, max: l.max_devices });
     }
-    await store.takePlace(env.DB, l.id, device, now);
+    await store.takePlace(env.DB, l.id, device, now, clean(b.name, 40), clean(b.version, 20));
     await store.logEvent(env.DB, now, l.id, "activate", device.slice(0, 8));
   } else {
-    await store.touch(env.DB, l.id, device, now);
+    await store.touch(env.DB, l.id, device, now, clean(b.name, 40), clean(b.version, 20));
     await store.logEvent(env.DB, now, l.id, "activate-again", device.slice(0, 8));
   }
   return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, payloadFor(l, device, now)) });
 }
 
 /** The licence of a request that carries a licence file made by this server and a device: `refresh` and `deactivate` use it. */
-async function ownLicence(req: Request, env: Env): Promise<{ l: LicenceRow; device: string } | Response> {
+async function ownLicence(req: Request, env: Env): Promise<{ l: LicenceRow; device: string; b: Record<string, unknown> } | Response> {
   const b = await body(req);
   const device = str(b?.device);
   if (!b || !DEVICE_RE.test(device)) return fail("bad_request", 400);
@@ -62,7 +74,7 @@ async function ownLicence(req: Request, env: Env): Promise<{ l: LicenceRow; devi
   const l = await store.byId(env.DB, str(p.id));
   if (!l) return fail("bad_licence", 403);
   if (p.device !== "any" && p.device !== device) return fail("bad_licence", 403);
-  return { l, device };
+  return { l, device, b };
 }
 
 /** `refresh {licence, device}`: the regular check; a renewed file, or a refusal for a revoked licence. */
@@ -76,7 +88,7 @@ export async function refresh(req: Request, env: Env, now: number): Promise<Resp
   }
   const mine = await store.activation(env.DB, l.id, device);
   if (!mine || mine.released !== null) return fail("not_activated", 403);
-  await store.touch(env.DB, l.id, device, now);
+  await store.touch(env.DB, l.id, device, now, clean(r.b.name, 40), clean(r.b.version, 20));
   await store.logEvent(env.DB, now, l.id, "refresh", device.slice(0, 8));
   return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, payloadFor(l, device, now)) });
 }
@@ -85,9 +97,49 @@ export async function refresh(req: Request, env: Env, now: number): Promise<Resp
 export async function deactivate(req: Request, env: Env, now: number): Promise<Response> {
   const r = await ownLicence(req, env);
   if (r instanceof Response) return r;
+  const room = await releaseRoom(env, r.l.id, now);
+  if (room.left === 0) {
+    await store.logEvent(env.DB, now, r.l.id, "refused", "release limit (deactivate)");
+    return fail("release_limit", 429, { next: room.next, limit: RELEASE_LIMIT, days: RELEASE_DAYS });
+  }
   await store.release(env.DB, r.l.id, r.device, now);
   await store.logEvent(env.DB, now, r.l.id, "deactivate", r.device.slice(0, 8));
   return json({ ok: true });
+}
+
+/** `devices {licence, device}`: the computers that hold the licence (the user sees them in Settings), how many places there are and how many releases are left. */
+export async function devices(req: Request, env: Env, now: number): Promise<Response> {
+  const r = await ownLicence(req, env);
+  if (r instanceof Response) return r;
+  const list = await store.activeDevices(env.DB, r.l.id);
+  const room = await releaseRoom(env, r.l.id, now);
+  return json({
+    ok: true,
+    devices: list.map((a) => ({ id: a.device, name: a.name, version: a.app_version, last_seen: a.last_seen, created: a.created, current: a.device === r.device })),
+    max: r.l.max_devices,
+    releases_left: room.left,
+    release_limit: RELEASE_LIMIT,
+    release_days: RELEASE_DAYS,
+    next_release_at: room.next,
+  });
+}
+
+/** `release {licence, device, target}`: the user frees another computer (a lost one). Limited: RELEASE_LIMIT times in RELEASE_DAYS days. */
+export async function release(req: Request, env: Env, now: number): Promise<Response> {
+  const r = await ownLicence(req, env);
+  if (r instanceof Response) return r;
+  const target = str(r.b.target);
+  if (!DEVICE_RE.test(target)) return fail("bad_request", 400);
+  const a = await store.activation(env.DB, r.l.id, target);
+  if (!a || a.released !== null) return fail("not_found", 404);
+  const room = await releaseRoom(env, r.l.id, now);
+  if (room.left === 0) {
+    await store.logEvent(env.DB, now, r.l.id, "refused", "release limit");
+    return fail("release_limit", 429, { next: room.next, limit: RELEASE_LIMIT, days: RELEASE_DAYS });
+  }
+  await store.release(env.DB, r.l.id, target, now);
+  await store.logEvent(env.DB, now, r.l.id, "release-user", target.slice(0, 8));
+  return json({ ok: true, releases_left: room.left - 1 });
 }
 
 // ---------------------------------------------------------------- the payment provider

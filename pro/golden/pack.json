@@ -85,7 +85,9 @@
   "The licence server sent a file that this version of Aside cannot use. Check for an update.": "Licenční server poslal soubor, který tato verze Aside nezvládne. Zkontroluj aktualizace.",
   "There is no licence on this computer.": "V tomto počítači není žádná licence.",
   "This licence is already used on {max} computers. Free a place in Aside on one of them (Settings, Licence), or write to the seller.": "Tato licence už je použitá na {max} počítačích. Uvolni místo v Aside na jednom z nich (Nastavení, Licence), nebo napiš prodejci.",
-  "This licence was cancelled. Write to the seller if you think that is a mistake.": "Tato licence byla zrušena. Pokud si myslíš, že je to omyl, napiš prodejci."
+  "This licence was cancelled. Write to the seller if you think that is a mistake.": "Tato licence byla zrušena. Pokud si myslíš, že je to omyl, napiš prodejci.",
+  "That computer is not on this licence any more.": "Tento počítač už na této licenci není.",
+  "You have already freed computers {limit} times in the last {days} days. Write to the seller to free another place.": "Už jsi uvolnil počítače {limit}× za posledních {days} dní. Napiš prodejci, ať uvolní další místo."
  },
  "ui_xx": {},
  "cases": [

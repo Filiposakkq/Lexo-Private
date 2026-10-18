@@ -6,7 +6,7 @@ use lexo_core::mt::MtError;
 use lexo_pro::{licence, LexoProProvider};
 use serde_json::{json, Value};
 use std::sync::atomic::{AtomicBool, AtomicI64, AtomicUsize, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02x}")).collect()
@@ -30,14 +30,16 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
     let issued = Arc::new(AtomicI64::new(now()));
     let revoked = Arc::new(AtomicBool::new(false));
     let refreshes = Arc::new(AtomicUsize::new(0));
+    let seen: Arc<Mutex<Vec<(String, Value)>>> = Arc::new(Mutex::new(Vec::new()));
     let fake = {
-        let (down, issued, revoked, refreshes) = (down.clone(), issued.clone(), revoked.clone(), refreshes.clone());
+        let (down, issued, revoked, refreshes, seen) = (down.clone(), issued.clone(), revoked.clone(), refreshes.clone(), seen.clone());
         move |url: &str, _headers: &[(String, String)], body: &[u8]| -> Result<(u16, String), MtError> {
             if down.load(Ordering::SeqCst) {
                 return Err(MtError(msg("The connection to the service failed: {reason}", &[("reason", json!("offline"))])));
             }
             let b: Value = serde_json::from_slice(body).unwrap();
             let path = url.rsplit_once("/v1/").map(|(_, p)| p).unwrap_or("");
+            seen.lock().unwrap().push((path.to_string(), b.clone()));
             let signed = |key: &SigningKey| {
                 let payload = json!({"v": 1, "id": "L-TEST", "features": ["all"], "major": 1, "device": b["device"],
                                      "issued": issued.fetch_add(1, Ordering::SeqCst), "check_days": 14});
@@ -57,6 +59,15 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
                     }
                 }
                 ("deactivate", _) => (200, json!({"ok": true}).to_string()),
+                ("devices", _) => (
+                    200,
+                    json!({"ok": true, "devices": [{"id": b["device"], "name": "Notebook", "current": true}, {"id": "bbbb", "name": "", "current": false}], "max": 2, "releases_left": 1}).to_string(),
+                ),
+                ("release", _) => match b["target"].as_str() {
+                    Some("dead") => (429, json!({"ok": false, "error": "release_limit", "limit": 2, "days": 30}).to_string()),
+                    Some("gone") => (404, json!({"ok": false, "error": "not_found"}).to_string()),
+                    _ => (200, json!({"ok": true, "releases_left": 0}).to_string()),
+                },
                 _ => (404, "{}".to_string()),
             })
         }
@@ -133,5 +144,19 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
     call("activate", json!({"key": "ASIDE-GOOD"})).unwrap();
     call("check", json!({})).unwrap();
     assert_eq!(call("status", json!({})).unwrap()["state"], "refused", "the check at the start finds out that the licence was cancelled");
+
+    // the name of the computer and the version go to the server; the list of computers and the freeing of another one
+    revoked.store(false, Ordering::SeqCst);
+    call("activate", json!({"key": "ASIDE-GOOD", "name": "  My laptop "})).unwrap();
+    let last = |what: &str| seen.lock().unwrap().iter().rev().find(|(p, _)| p == what).map(|(_, b)| b.clone()).unwrap();
+    assert_eq!(last("activate")["name"], "My laptop");
+    assert_eq!(last("activate")["version"], env!("CARGO_PKG_VERSION"));
+    call("rename", json!({"name": "Work PC"})).unwrap();
+    assert_eq!(last("refresh")["name"], "Work PC", "the new name is sent at once");
+    let d = call("devices", json!({})).unwrap();
+    assert_eq!((d["devices"].as_array().unwrap().len(), d["releases_left"].as_i64()), (2, Some(1)));
+    assert_eq!(call("release", json!({"target": "bbbb"})).unwrap()["releases_left"], 0);
+    assert!(text(call("release", json!({"target": "dead"}))).contains("freed computers 2 times in the last 30 days"));
+    assert!(text(call("release", json!({"target": "gone"}))).contains("not on this licence"));
     let _ = std::fs::remove_dir_all(&tmp);
 }

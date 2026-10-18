@@ -6,6 +6,8 @@ export interface ActivationRow {
   created: number;
   last_seen: number;
   released: number | null;
+  name: string;
+  app_version: string;
 }
 
 export interface EventRow {
@@ -53,17 +55,39 @@ export async function activeCount(db: D1Database, id: string): Promise<number> {
   return r?.n ?? 0;
 }
 
-/** Takes a place for a device (or takes the place of a released one again). */
-export const takePlace = (db: D1Database, id: string, device: string, now: number) =>
+/** Takes a place for a device (or takes the place of a released one again). An empty name or version keeps what is stored. */
+export const takePlace = (db: D1Database, id: string, device: string, now: number, name = "", version = "") =>
   db
     .prepare(
-      "INSERT INTO activations (licence_id, device, created, last_seen, released) VALUES (?,?,?,?,NULL) ON CONFLICT(licence_id, device) DO UPDATE SET released = NULL, last_seen = excluded.last_seen",
+      `INSERT INTO activations (licence_id, device, created, last_seen, released, name, app_version) VALUES (?,?,?,?,NULL,?,?)
+       ON CONFLICT(licence_id, device) DO UPDATE SET released = NULL, last_seen = excluded.last_seen,
+         name = CASE WHEN excluded.name <> '' THEN excluded.name ELSE name END,
+         app_version = CASE WHEN excluded.app_version <> '' THEN excluded.app_version ELSE app_version END`,
     )
-    .bind(id, device, now, now)
+    .bind(id, device, now, now, name, version)
     .run();
 
-export const touch = (db: D1Database, id: string, device: string, now: number) =>
-  db.prepare("UPDATE activations SET last_seen = ? WHERE licence_id = ? AND device = ?").bind(now, id, device).run();
+export const touch = (db: D1Database, id: string, device: string, now: number, name = "", version = "") =>
+  db
+    .prepare(
+      `UPDATE activations SET last_seen = ?, name = CASE WHEN ? <> '' THEN ? ELSE name END, app_version = CASE WHEN ? <> '' THEN ? ELSE app_version END
+       WHERE licence_id = ? AND device = ?`,
+    )
+    .bind(now, name, name, version, version, id, device)
+    .run();
+
+/** The computers that hold the licence now. */
+export const activeDevices = async (db: D1Database, id: string) =>
+  (await db.prepare("SELECT * FROM activations WHERE licence_id = ? AND released IS NULL ORDER BY created").bind(id).all<ActivationRow>()).results;
+
+/** How many times the user released a computer in the last `days` days (the owner's releases do not count), and when the oldest of them was. */
+export async function userReleases(db: D1Database, id: string, since: number): Promise<{ count: number; oldest: number | null }> {
+  const r = await db
+    .prepare("SELECT COUNT(*) AS n, MIN(at) AS oldest FROM events WHERE licence_id = ? AND kind IN ('deactivate', 'release-user') AND at > ?")
+    .bind(id, since)
+    .first<{ n: number; oldest: number | null }>();
+  return { count: r?.n ?? 0, oldest: r?.oldest ?? null };
+}
 
 export const release = (db: D1Database, id: string, device: string, now: number) =>
   db.prepare("UPDATE activations SET released = ? WHERE licence_id = ? AND device = ? AND released IS NULL").bind(now, id, device).run();

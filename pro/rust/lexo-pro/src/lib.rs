@@ -107,9 +107,12 @@ impl Provider for LexoProProvider {
             )
             .map_err(publish::Failure::into_error),
             ("licence", "status") => Ok(licence::status().to_json()),
-            ("licence", "activate") => licence_client::activate(payload["key"].as_str().unwrap_or(""), self.http()),
+            ("licence", "activate") => licence_client::activate_named(payload["key"].as_str().unwrap_or(""), payload["name"].as_str(), self.http()),
             ("licence", "refresh") => licence_client::refresh(self.http()),
             ("licence", "deactivate") => licence_client::deactivate(self.http()),
+            ("licence", "devices") => licence_client::devices(self.http()),
+            ("licence", "release") => licence_client::release(payload["target"].as_str().unwrap_or(""), self.http()),
+            ("licence", "rename") => licence_client::rename(payload["name"].as_str().unwrap_or(""), self.http()),
             ("licence", "check") => {
                 licence_client::refresh_if_stale(self.http());
                 Ok(licence::status().to_json())

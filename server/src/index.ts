@@ -1,7 +1,7 @@
 import { adminApi } from "./admin.ts";
 import { ADMIN_PAGE } from "./adminPage.ts";
 import type { Env } from "./env.ts";
-import { activate, deactivate, fail, parseLemonSqueezy, refresh, webhook } from "./handlers.ts";
+import { activate, deactivate, devices, fail, parseLemonSqueezy, refresh, release, webhook } from "./handlers.ts";
 
 const now = () => Math.floor(Date.now() / 1000);
 
@@ -25,6 +25,10 @@ export default {
             return await refresh(req, env, now());
           case "/v1/deactivate":
             return await deactivate(req, env, now());
+          case "/v1/devices":
+            return await devices(req, env, now());
+          case "/v1/release":
+            return await release(req, env, now());
           case "/v1/webhook/lemonsqueezy":
             return await webhook(req, env, now(), parseLemonSqueezy);
         }
