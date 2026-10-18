@@ -118,11 +118,14 @@ pub fn refresh(http: Http) -> Result<Value, ExtensionError> {
     let file = current()?;
     let (status, answer) =
         raw(http, "/v1/refresh", &json!({"licence": file, "device": licence::device_id(), "name": licence::device_name(), "version": crate::VERSION}))?;
-    if answer["error"] == json!("revoked") {
-        // the server cancelled this licence: the pack stops now, not at the end of the check interval
-        if let Some(id) = licence::file_id(&file.to_string()) {
-            licence::mark_revoked(&id);
-        }
+    // the server cancelled the licence ("revoked") or freed the place of this computer ("not_activated"): the pack stops now, not at the end of the check interval
+    let reason = match answer["error"].as_str() {
+        Some("revoked") => Some("cancelled"),
+        Some("not_activated") => Some("removed"),
+        _ => None,
+    };
+    if let (Some(reason), Some(id)) = (reason, licence::file_id(&file.to_string())) {
+        licence::mark_revoked(&id, reason);
     }
     let answer = check(status, answer)?;
     Ok(store(&answer["licence"])?.to_json())

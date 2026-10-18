@@ -43,6 +43,7 @@ const reasonText = (r) => ({
   'this build cannot verify licences': () => T('this build cannot verify licences'),
   'the licence file comes from a newer version of the licence system': () => T('the licence file comes from a newer version of the licence system'),
   'this licence was cancelled': () => T('this licence was cancelled'),
+  'this computer was removed from the licence': () => T('this computer was removed from the licence'),
 }[r] || (() => r || ''))();
 /* The computers that hold the licence: their names, the places, and freeing another computer (limited by the server). Filled in when the server answers; without a connection the box says so. */
 function deviceBox(run) {
