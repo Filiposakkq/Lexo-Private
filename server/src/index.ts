@@ -1,4 +1,5 @@
-import { ADMIN_PAGE, adminApi } from "./admin.ts";
+import { adminApi } from "./admin.ts";
+import { ADMIN_PAGE } from "./adminPage.ts";
 import type { Env } from "./env.ts";
 import { activate, deactivate, fail, parseLemonSqueezy, refresh, webhook } from "./handlers.ts";
 
@@ -11,7 +12,7 @@ export default {
     try {
       if (req.method === "GET" && path === "/admin") {
         return new Response(ADMIN_PAGE, {
-          headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex", "content-security-policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; frame-ancestors 'none'" },
+          headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex", "content-security-policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; frame-ancestors 'none'" },
         });
       }
       if (path.startsWith("/admin/api/")) return await adminApi(req, env, now(), path.slice("/admin/api/".length));
