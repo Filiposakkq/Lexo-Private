@@ -88,7 +88,7 @@ kbd { display: inline-block; min-width: 1.8em; text-align: center; padding: .12e
 .top-cta { display: flex; gap: .5rem; align-items: center; }
 .menu-btn { display: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); cursor: pointer; align-items: center; justify-content: center; }
 .menu-btn svg { width: 20px; height: 20px; }
-@media (max-width: 960px) { .nav, .top-cta .hide-m { display: none; } .menu-btn { display: inline-flex; } .top-cta { margin-left: auto; } }
+@media (max-width: 1100px) { .nav, .top-cta .hide-m { display: none; } .menu-btn { display: inline-flex; } .top-cta { margin-left: auto; } }
 .sheet { position: fixed; inset: 0; z-index: 70; background: var(--bg); padding: calc(env(safe-area-inset-top, 0px) + 14px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 1.4rem; overflow-y: auto; }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; }
 .sheet nav { display: grid; }
@@ -118,3 +118,15 @@ footer { border-top: 1px solid var(--line); padding-block: 2.8rem calc(2.8rem + 
 .btn-hot { position: relative; overflow: hidden; }
 .btn-hot::before { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent); transform: skewX(-20deg); animation: sheen 4.5s ease-in-out infinite; }
 @keyframes sheen { 0%, 70% { left: -60%; } 100% { left: 130%; } }
+
+/* sub-pages: a shared hero and section rhythm */
+.page-hero { position: relative; overflow: hidden; padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) clamp(2.5rem, 1.5rem + 3vw, 4rem); }
+.page-hero .wrap { position: relative; z-index: 1; }
+.page-hero h1 { font-size: clamp(2.5rem, 1.7rem + 3.5vw, 4.4rem); font-weight: 800; letter-spacing: -.05em; line-height: 1; max-width: 16ch; }
+.page-hero .lead { font-size: 1.15rem; max-width: 60ch; margin-top: 1.2rem; }
+.sec { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
+.sec.band { background: var(--bg-2); border-block: 1px solid var(--line); }
+.sec-head { max-width: 760px; margin-bottom: clamp(1.8rem, 1.4rem + 2vw, 3rem); }
+.sec-head .lead, .sec .lead { font-size: 1.1rem; max-width: 60ch; margin-top: 1rem; }
+.copy-btn { font: 700 .8rem/1 var(--f-display); padding: .55rem .8rem; border-radius: 999px; border: 1px solid var(--line-2); background: var(--card-2); color: var(--ink); cursor: pointer; min-height: 36px; }
+.copy-btn:hover { border-color: var(--red); }

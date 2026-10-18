@@ -1,0 +1,132 @@
+title: Aside Compared
+desc: How Aside compares with a text editor, spreadsheets, the Ren'Py SDK alone, general translation tools, web localisation platforms and other Ren'Py translation tools.
+sub: Compare
+---css---
+/* Layout concept: a fair scorecard. One wide matrix of ways to translate, then the Ren'Py tools by name, then "pick this if". */
+.mx-wrap { overflow-x: auto; border-radius: var(--r); border: 1px solid var(--line); background: var(--card); }
+table.mx { width: 100%; border-collapse: collapse; min-width: 880px; font-size: .9rem; }
+.mx th, .mx td { padding: .8rem .9rem; border-bottom: 1px solid var(--line); text-align: center; vertical-align: top; }
+.mx th:first-child, .mx td:first-child { text-align: left; position: sticky; left: 0; background: var(--card); z-index: 1; min-width: 190px; }
+.mx thead th { font: 800 .86rem/1.25 var(--f-display); color: var(--ink); background: var(--card-2); vertical-align: bottom; }
+.mx thead th:first-child { background: var(--card-2); }
+.mx thead th small { display: block; font: 500 .72rem/1.3 var(--f-body); color: var(--muted); margin-top: .25rem; }
+.mx thead th.us { background: linear-gradient(180deg, var(--wine-2), var(--wine)); color: #fff; }
+.mx thead th.us small { color: #FFC2CF; }
+.mx td.us { background: rgba(255, 49, 92, .07); }
+.mx tbody tr:hover td { background: var(--red-tint); }
+.mx tbody tr:hover td:first-child { background: var(--card-2); }
+.mx td:first-child b { display: block; color: var(--ink); font-weight: 600; }
+.mx td:first-child span { font-size: .8rem; color: var(--muted); }
+.mx tr:last-child td { border-bottom: 0; }
+.y, .n, .p { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 800; font-size: .85rem; }
+.y { background: var(--ok-soft); color: var(--ok); }
+.n { background: rgba(255, 255, 255, .05); color: var(--muted); }
+.p { background: var(--warn-soft); color: var(--warn); }
+.mx td em { display: block; font-style: normal; font-size: .76rem; color: var(--muted); margin-top: .3rem; line-height: 1.35; }
+.key { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; font-size: .84rem; color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: .45rem; }
+.key .y, .key .n, .key .p { width: 22px; height: 22px; font-size: .75rem; }
+.note { margin-top: 1rem; font-size: .84rem; color: var(--muted); max-width: 80ch; }
+.picks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 900px) { .picks { grid-template-columns: minmax(0, 1fr); } }
+.pick { padding: 1.5rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); display: grid; gap: .6rem; align-content: start; }
+.pick.us { background: linear-gradient(160deg, var(--wine-2), var(--wine)); border-color: transparent; box-shadow: var(--shadow); }
+.pick.us h3 { color: #fff; }
+.pick .if { font: 800 .7rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); }
+.pick.us .if { color: #FFC2CF; }
+.pick p { font-size: .95rem; }
+.combo { margin-top: 2rem; padding: 1.4rem 1.6rem; border-radius: var(--r); border: 1.5px dashed var(--line-2); display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.2rem; align-items: center; }
+.combo .flow { display: flex; align-items: center; gap: .5rem; font: 800 .9rem/1 var(--f-display); color: var(--ink); flex-wrap: wrap; }
+.combo .flow span { padding: .5rem .8rem; border-radius: 999px; background: var(--card-2); }
+.combo .flow span.us { background: var(--grad); color: #fff; }
+.combo .flow svg { width: 18px; height: 18px; color: var(--red-text); }
+@media (max-width: 700px) { .combo { grid-template-columns: minmax(0, 1fr); } }
+---body---
+<section class="page-hero">
+  <div class="blob" style="width:480px;height:480px;right:-140px;top:-180px;background:#FF315C"></div>
+  <div class="wrap">
+    <span class="kicker">Compare</span>
+    <h1>Aside next to <span class="grad-text">everything else.</span></h1>
+    <p class="lead">There are many ways to translate a Ren'Py game. Here is a fair look at what each one is good at, so you can pick the right tool, or the right mix.</p>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Ways to translate</span>
+      <h2>Six ways, side by side.</h2>
+    </div>
+    <div class="mx-wrap">
+      <table class="mx">
+        <thead><tr>
+          <th scope="col">What you need</th>
+          <th scope="col" class="us">Aside<small>built for Ren'Py translation</small></th>
+          <th scope="col">Text editor<small>VS Code, Notepad++</small></th>
+          <th scope="col">Spreadsheet<small>export to Excel or Sheets</small></th>
+          <th scope="col">Ren'Py SDK alone<small>generate, then play</small></th>
+          <th scope="col">General CAT tools<small>desktop translation suites</small></th>
+          <th scope="col">Web platforms<small>Weblate, Crowdin and similar</small></th>
+        </tr></thead>
+        <tbody>
+          <tr><td><b>Tags and variables checked</b><span>a broken {i} or [name] caught before the game runs</span></td><td class="us"><span class="y">✓</span><em>every line, as you type</em></td><td><span class="n">–</span><em>colours only, with an extension</em></td><td><span class="n">–</span></td><td><span class="p">~</span><em>lint, or a crash when you play</em></td><td><span class="p">~</span><em>placeholder rules vary</em></td><td><span class="p">~</span><em>checks you configure</em></td></tr>
+          <tr><td><b>Fits the dialogue box</b><span>measured with the game's own font</span></td><td class="us"><span class="y">✓</span></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="p">~</span><em>you see it when you play</em></td><td><span class="n">–</span></td><td><span class="n">–</span></td></tr>
+          <tr><td><b>Scene and speaker next to the line</b></td><td class="us"><span class="y">✓</span><em>full-screen scenes; layered not drawn yet</em></td><td><span class="p">~</span><em>a comment with the original</em></td><td><span class="n">–</span></td><td><span class="p">~</span><em>play to the line</em></td><td><span class="n">–</span></td><td><span class="p">~</span><em>screenshots you upload</em></td></tr>
+          <tr><td><b>Choice menus in context</b><span>question, options and what follows</span></td><td class="us"><span class="y">✓</span></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="p">~</span><em>play every branch</em></td><td><span class="n">–</span></td><td><span class="n">–</span></td></tr>
+          <tr><td><b>Proofreading state and progress</b></td><td class="us"><span class="y">✓</span><em>per line, file and episode</em></td><td><span class="n">–</span></td><td><span class="p">~</span><em>by hand, in a column</em></td><td><span class="n">–</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td></tr>
+          <tr><td><b>Writes straight into the .rpy files</b></td><td class="us"><span class="y">✓</span><em>after a backup</em></td><td><span class="y">✓</span></td><td><span class="n">–</span><em>export and import back</em></td><td><span class="y">✓</span><em>generates the files</em></td><td><span class="p">~</span><em>through a filter or plug-in</em></td><td><span class="p">~</span><em>through a file format</em></td></tr>
+          <tr><td><b>Prepares a built game</b><span>.rpa archives, compiled scripts</span></td><td class="us"><span class="y">✓</span><em>window comes with the first release</em></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="n">–</span><em>needs the source scripts</em></td><td><span class="n">–</span></td><td><span class="n">–</span></td></tr>
+          <tr><td><b>Finds texts the generator misses</b></td><td class="us"><span class="y">✓</span><em>experimental</em></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="n">–</span></td></tr>
+          <tr><td><b>Translation memory</b></td><td class="us"><span class="p">~</span><em>identical lines; fuzzy planned for Pro</em></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="n">–</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td></tr>
+          <tr><td><b>Many people at once</b></td><td class="us"><span class="p">~</span><em>shared folder now; teamwork planned for Pro</em></td><td><span class="n">–</span></td><td><span class="p">~</span><em>shared sheet</em></td><td><span class="n">–</span></td><td><span class="p">~</span></td><td><span class="y">✓</span></td></tr>
+          <tr><td><b>Offline, files stay with you</b></td><td class="us"><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="y">✓</span></td><td><span class="p">~</span><em>online, unless self-hosted</em></td></tr>
+          <tr><td><b>Price</b></td><td class="us"><b style="color:var(--ink)">Free</b><em>Pro: one-off</em></td><td><em>free</em></td><td><em>free to paid</em></td><td><em>free</em></td><td><em>free to paid</em></td><td><em>free tiers to paid</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="key"><span><span class="y">✓</span>does it well</span><span><span class="p">~</span>partly, or with effort</span><span><span class="n">–</span>no</span></div>
+    <p class="note">Categories, not every product: a single tool in a category may do more. If something here is wrong for a tool you use, tell the author on filiposakkq.dev.</p>
+  </div>
+</section>
+
+<section class="sec band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Ren'Py tools by name</span>
+      <h2>Other tools made for Ren'Py.</h2>
+      <p class="lead">They are built for different jobs. This table follows each project's own README as checked on 17 October 2026; a feature not listed there may still exist.</p>
+    </div>
+    <div class="mx-wrap">
+      <table class="mx" style="min-width:760px">
+        <thead><tr><th scope="col"></th><th scope="col" class="us">Aside</th><th scope="col">Renquill</th><th scope="col">RenLocalizer</th><th scope="col">renpy-translator</th></tr></thead>
+        <tbody>
+          <tr><td><b>Main job</b></td><td class="us"><em>translating, proofreading and checking by hand</em></td><td><em>managing translation projects in the browser</em></td><td><em>automatic translation with many engines, plus an editor</em></td><td><em>extracting and machine translating, with unpack and repack</em></td></tr>
+          <tr><td><b>Runs on</b></td><td class="us"><em>Windows desktop app</em></td><td><em>web app, can be self-hosted</em></td><td><em>desktop and command line; Windows, Linux, macOS</em></td><td><em>Windows builds</em></td></tr>
+          <tr><td><b>Machine translation</b></td><td class="us"><em>one line with your key; batch in Pro</em></td><td><em>not in the README</em></td><td><em>Google, Bing, OpenAI, DeepSeek, Gemini, local models</em></td><td><em>Google, DeepL, OpenAI, Youdao and others</em></td></tr>
+          <tr><td><b>Tags and variables</b></td><td class="us"><span class="y">✓</span><em>every line checked against its original</em></td><td><em>not in the README</em></td><td><em>protected while translating; the editor checks them</em></td><td><em>contents of {} [] are not translated</em></td></tr>
+          <tr><td><b>Proofreading and history</b></td><td class="us"><span class="y">✓</span><em>per line, file and group; diff of every line</em></td><td><em>tracks progress</em></td><td><em>not described</em></td><td><em>not described</em></td></tr>
+          <tr><td><b>Scene preview</b></td><td class="us"><span class="y">✓</span><em>full-screen scenes</em></td><td><em>not mentioned</em></td><td><em>not described</em></td><td><em>not described</em></td></tr>
+          <tr><td><b>Licence</b></td><td class="us"><em>closed; Free to use, Pro paid</em></td><td><em>MIT</em></td><td><em>GPL-3.0</em></td><td><em>MIT</em></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Which one</span>
+      <h2>Pick by the job, not the logo.</h2>
+    </div>
+    <div class="picks">
+      <div class="pick us spot"><span class="if">Pick Aside if</span><h3>You translate by hand and care how it reads.</h3><p>Checks that never let a tag break, the scene and the choices next to the line, a clear proofreading state, history, and the texts the generator missed.</p></div>
+      <div class="pick spot"><span class="if">Pick a machine translation tool if</span><h3>You want a rough version fast.</h3><p>RenLocalizer or renpy-translator push a whole game through many engines, and can unpack and repack it as a mod.</p></div>
+      <div class="pick spot"><span class="if">Pick a web platform if</span><h3>A large team works in the browser.</h3><p>Weblate, Crowdin or Renquill give accounts, roles and a shared memory online, at the cost of uploading the texts.</p></div>
+    </div>
+    <div class="combo">
+      <div class="flow"><span>Machine translate</span><svg><use href="#i-arrow"/></svg><span class="us">Check and proofread in Aside</span><svg><use href="#i-arrow"/></svg><span>Ship</span></div>
+      <p>Many translators mix tools. Aside reads plain <code>.rpy</code> files, so it fits after any tool that writes them, and catches what a machine broke.</p>
+    </div>
+  </div>
+</section>

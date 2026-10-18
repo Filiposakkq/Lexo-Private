@@ -7,3 +7,6 @@ Open `index.html` in a browser, or serve the folder with any static server.
 
 The numbers on the page come from docs/RUST-PORT.md (Progress), docs/GAME-TESTS.md, docs/FEATURES.md and docs/PRIVACY.md; update them when those change.
 The links (Ko-fi, filiposakkq.dev, the Being a DIK translation) are the ones of the earlier draft on `feat/web`.
+
+Sub-pages `compare.html`, `blog.html` and `developers.html` are assembled from `pages/` (shared header and footer in `pages/_head.html` and `_foot.html`) by `python web/tools/build_pages.py`; edit the files in `pages/`, not the generated ones. `site.js` holds the mobile menu and the counters of the sub-pages; `badge/` the Translation ready badges.
+The beta form on the home page has no backend yet: it makes a cast card and a text to copy. Set `data-endpoint` on `#join` to a URL that accepts a JSON POST to receive applications.

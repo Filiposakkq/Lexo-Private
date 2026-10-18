@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Translation Ready Badge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="For Ren'Py game developers: make your game easy to translate, check it with Aside, and show the Translation ready badge.">
+<meta name="theme-color" content="#12070A">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+/* Layout concept: a certificate desk. The badge is the hero object; the checklist and the code tips read like a spec. */
+.badge-stage { margin-top: 2.4rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; align-items: stretch; }
+@media (max-width: 860px) { .badge-stage { grid-template-columns: minmax(0, 1fr); } }
+.badge-show { position: relative; border-radius: 24px; padding: clamp(1.6rem, 1rem + 3vw, 3rem); background: radial-gradient(60% 70% at 50% 40%, rgba(255, 49, 92, .25), transparent 70%), var(--card); border: 1px solid var(--line-2); display: grid; place-items: center; gap: 1.2rem; overflow: hidden; }
+.badge-show img { width: min(100%, 330px); height: auto; filter: drop-shadow(0 18px 30px rgba(255, 49, 92, .35)); animation: hover 5s ease-in-out infinite; }
+@keyframes hover { 50% { transform: translateY(-6px) rotate(-1deg); } }
+.badge-show .shine { position: absolute; inset: -50%; background: conic-gradient(from 0deg, transparent, rgba(255, 112, 67, .12), transparent 30%); animation: spin 14s linear infinite; pointer-events: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.variants { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: center; position: relative; }
+.variants button { font: 700 .8rem/1 var(--f-display); padding: .55rem .85rem; border-radius: 999px; border: 1px solid var(--line-2); background: var(--card-2); color: var(--text); cursor: pointer; min-height: 36px; }
+.variants button[aria-pressed="true"] { background: var(--grad); color: #fff; border-color: transparent; }
+.embed { border-radius: 24px; padding: clamp(1.3rem, 1rem + 1.5vw, 2rem); background: var(--card); border: 1px solid var(--line); display: grid; gap: .9rem; align-content: start; min-width: 0; }
+.embed h3 { font-size: 1.1rem; }
+.tabs { display: flex; gap: .4rem; flex-wrap: wrap; }
+.tabs button { font: 700 .8rem/1 var(--f-display); padding: .5rem .8rem; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; min-height: 34px; }
+.tabs button[aria-selected="true"] { background: var(--card-2); color: var(--ink); border-color: var(--line-2); }
+.code { position: relative; }
+.code pre { margin: 0; padding: 1rem 1.1rem; padding-right: 5.5rem; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); color: #FFD9E1; font: 400 .8rem/1.6 var(--f-mono); white-space: pre-wrap; word-break: break-all; min-height: 4.5rem; }
+.code .copy-btn { position: absolute; top: .6rem; right: .6rem; }
+.embed small { color: var(--muted); font-size: .82rem; }
+
+.checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; counter-reset: c; }
+@media (max-width: 760px) { .checklist { grid-template-columns: minmax(0, 1fr); } }
+.ck { padding: 1.3rem 1.3rem 1.3rem 4.2rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); position: relative; cursor: pointer; transition: border-color .2s, background-color .2s; }
+.ck input { position: absolute; opacity: 0; pointer-events: none; }
+.ck::before { content: ""; position: absolute; left: 1.3rem; top: 1.3rem; width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--line-2); transition: background .2s, border-color .2s; }
+.ck.done { border-color: rgba(79, 214, 156, .35); background: linear-gradient(0deg, var(--ok-soft), var(--ok-soft)), var(--card); }
+.ck.done::before { background: var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 6 9 17l-5-5' fill='none' stroke='%2312070A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 18px no-repeat; border-color: var(--ok); }
+.ck:focus-within { outline: 2px solid var(--red); outline-offset: 3px; }
+.ck b { display: block; color: var(--ink); font: 700 1rem/1.35 var(--f-display); }
+.ck span { display: block; font-size: .9rem; color: var(--muted); margin-top: .3rem; }
+.meter-row { display: flex; align-items: center; gap: 1rem; margin-top: 1.4rem; flex-wrap: wrap; }
+.meter { flex: 1; min-width: 200px; height: 12px; border-radius: 99px; background: var(--card); overflow: hidden; border: 1px solid var(--line); }
+.meter i { display: block; height: 100%; width: 0; background: var(--grad); border-radius: 99px; transition: width .5s cubic-bezier(.3, 0, .2, 1); box-shadow: 0 0 14px var(--red); }
+.meter-txt { font: 700 .9rem/1 var(--f-display); color: var(--ink); }
+.meter-txt.ok { color: var(--ok); }
+
+.tips { display: grid; gap: 1rem; }
+.tip { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1.4rem; padding: 1.4rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); align-items: start; }
+@media (max-width: 860px) { .tip { grid-template-columns: minmax(0, 1fr); } }
+.tip h3 { font-size: 1.08rem; }
+.tip p { font-size: .93rem; margin-top: .5rem; }
+.tip pre { margin: 0; padding: .9rem 1rem; border-radius: 12px; background: var(--wine); color: #F2DDE2; font: 400 .8rem/1.65 var(--f-mono); overflow-x: auto; }
+.tip pre .c { color: #B98C98; }
+.tip pre .bad { color: #FF8FA6; }
+.tip pre .ok { color: #7BE3B5; }
+.honor { margin-top: 1.4rem; padding: 1.2rem 1.4rem; border-radius: var(--r); border: 1.5px dashed var(--line-2); font-size: .94rem; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF315C"/><stop offset="1" stop-color="#FF7043"/></linearGradient>
+    <symbol id="logo" viewBox="80 80 900 870">
+      <path d="M238.4 292.5 Q272.1 192.2 376.6 175 L797.6 105.9 Q960 79.3 949.7 243.6 L915.1 798 Q905.9 944.7 760.8 921.6 L185.9 830.1 Q64 810.7 103.4 693.6 Z" fill="url(#brandg)"/>
+      <path d="M187.5 756.6 L452.6 318.8 Q470.8 288.6 506.1 288.6 L567.3 288.6 Q602.5 288.6 618.2 320.2 L834.2 756.6 L675.4 756.6 L524.9 453.2 L363.8 756.6 Z" fill="#fff"/>
+      <path d="M466.1 633.1 L614.3 633.1 L675.4 756.6 L552 756.6 Z" fill="#fff" fill-opacity=".62"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Aside, home"><svg aria-hidden="true"><use href="#logo"/></svg>aside<span class="sub">Developers</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="./#tour">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="./#pricing">Pricing</a>
+      <a href="releases.html">Releases</a>
+      <a href="blog.html">Blog</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+    <div class="top-cta"><a class="btn btn-sm btn-hot" href="./#beta">Join the beta</a></div>
+  </div>
+</header>
+
+<main id="main">
+<section class="page-hero">
+  <div class="blob" style="width:480px;height:480px;right:-140px;top:-180px;background:#FF315C"></div>
+  <div class="wrap">
+    <span class="kicker">For game developers</span>
+    <h1>Make your game <span class="grad-text">easy to translate.</span></h1>
+    <p class="lead">Fan translations bring a game to new players. A few habits in your scripts decide whether a translation takes a weekend or a month. Check your game, then show translators it is ready.</p>
+    <div class="badge-stage">
+      <div class="badge-show spot">
+        <div class="shine"></div>
+        <img id="badge-img" src="badge/translation-ready-dark.svg" width="220" height="48" alt="Translation ready, checked with Aside">
+        <div class="variants" role="group" aria-label="Badge style">
+          <button aria-pressed="true" data-v="dark">Dark</button>
+          <button aria-pressed="false" data-v="light">Light</button>
+          <button aria-pressed="false" data-v="small">Small</button>
+        </div>
+      </div>
+      <div class="embed">
+        <h3>Put it on your game page</h3>
+        <div class="tabs" role="tablist" aria-label="Code format">
+          <button role="tab" aria-selected="true" data-f="html">HTML</button>
+          <button role="tab" aria-selected="false" data-f="md">Markdown</button>
+          <button role="tab" aria-selected="false" data-f="bb">BBCode</button>
+        </div>
+        <div class="code"><pre id="embed-code"></pre><button class="copy-btn" id="copy">Copy</button></div>
+        <small>HTML for itch.io and your site, Markdown for GitHub and Patreon posts, BBCode for forums.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">The checklist</span>
+      <h2>Is your game translation ready?</h2>
+      <p class="lead">Tick what is true for your game. When all six are, the badge is yours. Aside helps you check the first two.</p>
+    </div>
+    <div class="checklist" id="checklist">
+      <label class="ck"><input type="checkbox" id="ck1"><b>Translation files generate</b><span>Ren'Py's translate command (or preparing the game in Aside) runs through without errors.</span></label>
+      <label class="ck"><input type="checkbox" id="ck2"><b>No visible text is missed</b><span>Aside's list of missed texts has no likely text left: every text the player sees reaches the translation files.</span></label>
+      <label class="ck"><input type="checkbox" id="ck3"><b>Texts in variables are marked</b><span>Titles, item names and messages kept in variables use <code>_()</code> and are shown with <code>!t</code>.</span></label>
+      <label class="ck"><input type="checkbox" id="ck4"><b>Sentences are not glued from pieces</b><span>One sentence is one string with <code>[variables]</code> inside, never words joined in code.</span></label>
+      <label class="ck"><input type="checkbox" id="ck5"><b>Speakers are Characters</b><span>Names are defined with <code>Character()</code>, so translators can find and translate them.</span></label>
+      <label class="ck"><input type="checkbox" id="ck6"><b>Room for longer text, no text in images</b><span>The dialogue box takes a longer line, the font has accented letters, and menus are not pictures.</span></label>
+    </div>
+    <div class="meter-row"><div class="meter" aria-hidden="true"><i id="meter"></i></div><span class="meter-txt" id="meter-txt" aria-live="polite">0 of 6</span></div>
+    <p class="honor">There is no review and no fee. The badge is a promise from you to translators, and it means the most when it is true.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Small habits</span>
+      <h2>Four fixes that save translators days.</h2>
+    </div>
+    <div class="tips">
+      <div class="tip spot"><div><h3>Mark texts kept in variables</h3><p>The generator only sees strings marked with <code>_()</code>. Show the variable with <code>!t</code>, and Ren'Py looks up its translation.</p></div>
+<pre><span class="c"># invisible to translators</span>
+$ chapter = "The Lighthouse"
+<span class="c"># translatable</span>
+$ chapter = _("The Lighthouse")
+"Chapter: [chapter!t]"   <span class="ok">← translated</span></pre></div>
+      <div class="tip spot"><div><h3>Wrap texts shown from code</h3><p>Notifications, input prompts and <code>show text</code> lines are not dialogue. Mark them, or they stay in your language in every translation.</p></div>
+<pre>$ renpy.notify(<span class="ok">_(</span>"Item added"<span class="ok">)</span>)
+$ name = renpy.input(<span class="ok">_(</span>"What is your name?"<span class="ok">)</span>)
+show text <span class="ok">_(</span>"Three days later..."<span class="ok">)</span></pre></div>
+      <div class="tip spot"><div><h3>One sentence, one string</h3><p>Word order changes between languages. Joined pieces cannot be reordered; a whole sentence with a variable can.</p></div>
+<pre><span class="bad">"You found " + str(n) + " coins."</span>   <span class="c"># can't be translated well</span>
+<span class="ok">"You found [n] coins."</span>              <span class="c"># can</span></pre></div>
+      <div class="tip spot"><div><h3>Leave room, and a font switch</h3><p>Translations often run longer. Keep spare space in the dialogue box, pick a font with accented letters, and let translators change it for their language.</p></div>
+<pre>translate czech style default:
+    font "fonts/NotoSans-Regular.ttf"</pre></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="./"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
+      <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
+    </div>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="releases.html">Releases</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
+  </div>
+</footer>
+<script>
+(function () {
+  var BASE = "https://aside.filiposakkq.dev/";
+  var v = "dark", f = "html";
+  var img = document.getElementById("badge-img"), code = document.getElementById("embed-code");
+  function src() { return "badge/translation-ready-" + v + ".svg"; }
+  function render() {
+    var url = BASE + src(), alt = "Translation ready, checked with Aside";
+    code.textContent = f === "html" ? '<a href="' + BASE + 'developers.html"><img src="' + url + '" alt="' + alt + '"></a>' :
+      f === "md" ? "[![" + alt + "](" + url + ")](" + BASE + "developers.html)" :
+      "[url=" + BASE + "developers.html][img]" + url + "[/img][/url]";
+    img.src = src();
+    img.width = v === "small" ? 150 : 220; img.height = v === "small" ? 24 : 48;
+  }
+  document.querySelectorAll(".variants button").forEach(function (b) {
+    b.addEventListener("click", function () { v = b.getAttribute("data-v"); document.querySelectorAll(".variants button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); render(); });
+  });
+  document.querySelectorAll(".tabs button").forEach(function (b) {
+    b.addEventListener("click", function () { f = b.getAttribute("data-f"); document.querySelectorAll(".tabs button").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); }); render(); });
+  });
+  var copy = document.getElementById("copy");
+  copy.addEventListener("click", function () {
+    var done = function () { copy.textContent = "Copied"; setTimeout(function () { copy.textContent = "Copy"; }, 1600); };
+    var fallback = function () { var r = document.createRange(); r.selectNodeContents(code); var s = getSelection(); s.removeAllRanges(); s.addRange(r); copy.textContent = "Selected"; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code.textContent).then(done, fallback); else fallback();
+  });
+  render();
+  var boxes = document.querySelectorAll("#checklist input"), meter = document.getElementById("meter"), txt = document.getElementById("meter-txt");
+  function upd() {
+    var n = 0; boxes.forEach(function (b) { b.closest(".ck").classList.toggle("done", b.checked); if (b.checked) n++; });
+    meter.style.width = (n / 6 * 100) + "%";
+    txt.textContent = n === 6 ? "Ready. The badge is yours." : n + " of 6"; txt.classList.toggle("ok", n === 6);
+  }
+  boxes.forEach(function (b) { b.addEventListener("change", upd); });
+  upd();
+})();
+</script>
+<script src="site.js"></script>
+</body>
+</html>

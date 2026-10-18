@@ -102,7 +102,7 @@ section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
 @media (prefers-reduced-motion: reduce) { .js .reveal.pre { opacity: 1; transform: none; } .bars.pre i { transform: none; } }
 </style>
 </head>
-<body>
+<body data-own-counters>
 <a class="skip" href="#main">Skip to content</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -123,10 +123,11 @@ section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
     <a class="brand" href="./" aria-label="Aside, home"><svg aria-hidden="true"><use href="#logo"/></svg>aside<span class="sub">Releases</span></a>
     <nav class="nav" aria-label="Main">
       <a href="./#tour">Features</a>
+      <a href="compare.html">Compare</a>
       <a href="./#pricing">Pricing</a>
       <a href="releases.html" class="on">Releases</a>
+      <a href="blog.html">Blog</a>
       <a href="docs.html">Docs</a>
-      <a href="./#faq">FAQ</a>
     </nav>
     <div class="top-cta"><a class="btn btn-sm btn-hot" href="#next">Get Aside</a></div>
   </div>
@@ -316,5 +317,6 @@ section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
   }
 })();
 </script>
+<script src="site.js"></script>
 </body>
 </html>
