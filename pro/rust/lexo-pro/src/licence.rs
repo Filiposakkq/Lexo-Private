@@ -4,7 +4,7 @@
 //!
 //! **The licence file** (`licence.json` in the settings folder of the application, `LEXO_LICENCE_FILE` overrides) is `{"payload": <base64url JSON>, "sig": <base64url Ed25519>}`. The
 //! signature covers the bytes of the payload and is checked offline with the public key built into the pack. The payload:
-//! `{"v": 1, "id": "...", "features": ["all"] or a list, "major": 1, "device": "<device id>" or "any", "issued": <unix seconds>, "check_days": 30}`.
+//! `{"v": 1, "id": "...", "features": ["all"] or a list, "major": 1, "device": "<device id>" or "any", "issued": <unix seconds>, "check_days": 14}`.
 //! `issued` is when the server made the file; a renewed file (the regular online check) has a later `issued`.
 //!
 //! The states (`Status`): a valid file is `Licensed` until `issued + check_days`, then `Grace` for the same number of days (a missed check never blocks work), then `Expired`: the demo
@@ -25,10 +25,13 @@ pub const DEMO_LIMITS: [(&str, i64); 3] = [("bulk.categorize", 5), ("mt.batch", 
 /// The major version of the product that this pack belongs to; a licence covers one major version.
 pub const PRODUCT_MAJOR: u64 = 1;
 
-/// The public key of the licence server, 64 hex digits. **Empty until the owner has made the key pair** (`lexo-pro-licence keygen`): then no file can verify.
-const PUBLIC_KEY_HEX: &str = "";
+/// The public key of the licence server (64 hex digits; the private key stays with the owner, made with `lexo-pro-licence keygen`).
+const PUBLIC_KEY_HEX: &str = "1317d76f9189e042509235a6d05e0b8664f4cfffad8f34638472feccddb94a91";
 
 const DAY: i64 = 86_400;
+
+/// The interval of the online check when the file does not say.
+const DEFAULT_CHECK_DAYS: i64 = 14;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Status {
@@ -115,7 +118,7 @@ pub fn evaluate(file: &str, now: i64, device: &str, key: Option<&VerifyingKey>) 
         None => Some(Vec::new()),
     };
     let Some(issued) = p["issued"].as_i64() else { return UNREADABLE };
-    let check = p["check_days"].as_i64().unwrap_or(30).clamp(1, 365);
+    let check = p["check_days"].as_i64().unwrap_or(DEFAULT_CHECK_DAYS).clamp(1, 365);
     let due = issued + check * DAY;
     if now <= due {
         Status::Licensed { id, features, days_to_check: (due - now + DAY - 1) / DAY }
@@ -282,7 +285,8 @@ mod tests {
 
     #[test]
     fn hex_and_the_built_in_key() {
-        assert!(PUBLIC_KEY_HEX.is_empty() || from_hex(PUBLIC_KEY_HEX).is_some_and(|b| b.len() == 32));
+        let bytes: [u8; 32] = from_hex(PUBLIC_KEY_HEX).and_then(|b| b.try_into().ok()).expect("the built-in key is 64 hex digits");
+        assert!(VerifyingKey::from_bytes(&bytes).is_ok(), "the built-in key is a valid Ed25519 key");
         assert_eq!(from_hex("zz"), None);
         assert_eq!(from_hex("0aFf"), Some(vec![10, 255]));
     }
