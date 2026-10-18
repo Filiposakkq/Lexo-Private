@@ -50,3 +50,28 @@ pub fn dump_ops(tl: &Path, scratch: &Path) -> Value {
     app.close();
     Value::Object(out)
 }
+
+/// `lexo-golden --run-ops <translation folder (a COPY)> <scratch folder> <ops.json>`: run a list of `[operation, parameters]` on the project and give `[{answer} | {error}]` for each.
+/// The list is made by the Python side of the comparison (`rust/tools/diff_ops_real_games.py`), so both Cores are asked exactly the same.
+pub fn run_ops(tl: &Path, scratch: &Path, ops: &Value) -> Value {
+    let cfg = scratch.join("cfg");
+    let mut config = Config::new(Some(&cfg.join("config.json")));
+    config.load();
+    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: Some(cfg.join("packs")) });
+    let mut out: Vec<Value> = Vec::new();
+    match app.open_project(&tl.to_string_lossy(), false) {
+        Err(e) => out.push(json!({"open_error": e.text().text()})),
+        Ok(_) => {
+            for item in ops.as_array().into_iter().flatten() {
+                let (name, params) = (item[0].as_str().unwrap_or(""), &item[1]);
+                out.push(match api::call(&mut app, name, params) {
+                    Ok(a) => json!({"answer": render(a.json().unwrap_or(&Value::Null))}),
+                    Err(e) => json!({"error": e.text().text()}),
+                });
+            }
+        }
+    }
+    app.close();
+    Value::Array(out)
+}
