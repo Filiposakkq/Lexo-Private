@@ -172,6 +172,8 @@ def make_handler(sess):
                     with sess.focus_cv:
                         sess.focus_cv.wait_for(lambda: sess.focus["seq"] > int(after), timeout=20)
                 return self._json({"ok": True, **sess.focus})
+            if r == "licence":                 # the licence of the Pro pack belongs to the Rust application; this (reference) server has none
+                return self._json({"ok": True, "state": "none"})
             if r == "ping":
                 wid = q1(q, "w")
                 if wid:
