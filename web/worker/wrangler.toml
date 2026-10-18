@@ -1,8 +1,9 @@
 # The website of Aside and its small server: one Cloudflare Worker that serves the pages of web/ and answers /api and /admin.
 # Separate from the licence server (server/): its own database, its own secrets, its own deploy.
-# Secrets are NOT here; set them with `npx wrangler secret put <NAME>` (README.md, "Set up"):
-#   ADMIN_TOKEN (a long random string for /admin), RESEND_API_KEY (a Resend key that may send as aside@filiposakkq.dev),
-#   TURNSTILE_SECRET (the secret key of the Turnstile widget; without it the forms are not protected against bots).
+# Secrets are NOT here; add them in the Cloudflare dashboard (Workers, aside-web, Settings, Variables and Secrets, type Secret)
+# or with `npx wrangler secret put <NAME>` (README.md, "Set up"). A deploy never removes them.
+#   HASH_SALT (a long random string, set once), RESEND_API_KEY (a Resend key that may send as aside@filiposakkq.dev),
+#   TURNSTILE_SECRET (the secret key of the Turnstile widget), ADMIN_TOKEN (optional emergency password for /admin).
 name = "aside-web"
 main = "src/index.ts"
 compatibility_date = "2026-10-01"
@@ -21,6 +22,10 @@ MAIL_FROM = "Aside <aside@filiposakkq.dev>"
 OWNER_EMAIL = "aside@filiposakkq.dev"
 # the public site key of the Turnstile widget (empty = the forms work without it)
 TURNSTILE_SITE_KEY = ""
+# Cloudflare Access in front of /admin: the team domain ("<team>.cloudflareaccess.com") and the Application Audience (AUD) tag
+# of the Access application. Not secret. Empty = only ADMIN_TOKEN can open the admin.
+ACCESS_TEAM_DOMAIN = ""
+ACCESS_AUD = ""
 
 [[d1_databases]]
 binding = "DB"

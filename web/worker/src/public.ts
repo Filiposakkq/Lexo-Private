@@ -1,6 +1,6 @@
 import type { Env } from "./env.ts";
 import * as mail from "./mail.ts";
-import { body, fail, human, ipHash, isEmail, isUrl, json, line, randomId, sha256Hex, str, text, within } from "./util.ts";
+import { body, fail, human, ipHash, isEmail, isUrl, json, line, randomId, salt, sha256Hex, str, text, within } from "./util.ts";
 
 const DAY = 86400;
 
@@ -110,7 +110,7 @@ export async function apply(req: Request, env: Env, now: number): Promise<Respon
 // ---------------------------------------------------------------- roadmap and votes
 
 const VOTER_RE = /^[0-9a-f]{32}$/;
-const voterHash = async (env: Env, voter: string) => (await sha256Hex("voter:" + env.ADMIN_TOKEN + ":" + voter)).slice(0, 32);
+const voterHash = async (env: Env, voter: string) => (await sha256Hex("voter:" + salt(env) + ":" + voter)).slice(0, 32);
 
 export async function roadmapList(env: Env): Promise<{ id: string; col: string; title: string; text: string; tier: string; sort: number; votes: number }[]> {
   return (

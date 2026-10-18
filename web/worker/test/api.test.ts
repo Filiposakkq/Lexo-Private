@@ -219,6 +219,42 @@ describe("the admin", () => {
   });
 });
 
+describe("Cloudflare Access", () => {
+  const b64 = (v: string | Uint8Array) => btoa(typeof v === "string" ? v : String.fromCharCode(...v)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  async function jwt(claims: Json, kid = "test-key"): Promise<string> {
+    const key = await crypto.subtle.importKey("jwk", JSON.parse((env as unknown as { TEST_ACCESS_KEY: string }).TEST_ACCESS_KEY), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+    const now = Math.floor(Date.now() / 1000);
+    const head = b64(JSON.stringify({ alg: "RS256", kid, typ: "JWT" }));
+    const body = b64(JSON.stringify({ aud: ["test-aud-0123"], iss: "https://aside-test.cloudflareaccess.com", email: "owner@example.com", iat: now, exp: now + 3600, ...claims }));
+    const sig = new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(head + "." + body)));
+    return head + "." + body + "." + b64(sig);
+  }
+  const viaAccess = async (token: string) => call("/admin/api/overview", { headers: { "cf-access-jwt-assertion": token } });
+
+  it("lets in a request signed by Access for this application", async () => {
+    const r = await viaAccess(await jwt({}));
+    expect(r.status).toBe(200);
+    expect(r.json.via).toBe("access");
+  });
+
+  it("refuses another application, another team, an expired, a tampered or an unknown-key token", async () => {
+    expect((await viaAccess(await jwt({ aud: ["other-app"] }))).status).toBe(401);
+    expect((await viaAccess(await jwt({ iss: "https://evil.cloudflareaccess.com" }))).status).toBe(401);
+    expect((await viaAccess(await jwt({ exp: Math.floor(Date.now() / 1000) - 10 }))).status).toBe(401);
+    expect((await viaAccess(await jwt({}, "other-key"))).status).toBe(401);
+    const good = await jwt({});
+    const [h, , s] = good.split(".");
+    const forged = h + "." + b64(JSON.stringify({ aud: ["test-aud-0123"], iss: "https://aside-test.cloudflareaccess.com", email: "x@y.z", exp: 9999999999 })) + "." + s;
+    expect((await viaAccess(forged)).status).toBe(401);
+  });
+
+  it("without either, says which doors exist", async () => {
+    const r = await call("/admin/api/overview");
+    expect(r.status).toBe(401);
+    expect(r.json).toMatchObject({ access: true, token: true });
+  });
+});
+
 describe("mails", () => {
   it("escape what people typed", () => {
     const { html, text } = render({ subject: "Hi <b>", lines: ["<script>x</script>", "• one\n• two", "https://aside.test/report.html#abc"] });

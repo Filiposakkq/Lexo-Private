@@ -55,7 +55,7 @@ export function randomId(n = 10): string {
 /** The address of the visitor, hashed with a server secret (the address itself is never stored). */
 export async function ipHash(req: Request, env: Env): Promise<string> {
   const ip = req.headers.get("cf-connecting-ip") ?? "local";
-  return (await sha256Hex("ip:" + env.ADMIN_TOKEN + ":" + ip)).slice(0, 32);
+  return (await sha256Hex("ip:" + salt(env) + ":" + ip)).slice(0, 32);
 }
 
 /** Counts a request of a kind and says whether the visitor is still within `limit` requests per `seconds`. */
@@ -84,5 +84,8 @@ export async function human(env: Env, token: unknown, req: Request): Promise<boo
     return false;
   }
 }
+
+/** The salt of the hashes (HASH_SALT; a fixed fallback keeps things working before it is set). */
+export const salt = (env: Env) => env.HASH_SALT || "aside-web-unsalted";
 
 export const site = (env: Env) => (env.SITE_URL ?? "https://aside.filiposakkq.dev").replace(/\/+$/, "");

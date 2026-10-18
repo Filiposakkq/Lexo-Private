@@ -1,12 +1,8 @@
 import type { Env } from "./env.ts";
 import * as mail from "./mail.ts";
 import { program, roadmapList, settings } from "./public.ts";
-import { body, fail, isUrl, json, line, randomId, safeEqual, str, text } from "./util.ts";
-
-function authorised(req: Request, env: Env): boolean {
-  const given = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
-  return !!env.ADMIN_TOKEN && env.ADMIN_TOKEN.length >= 16 && safeEqual(given, env.ADMIN_TOKEN);
-}
+import { adminConfigured, admitted } from "./access.ts";
+import { body, fail, isUrl, json, line, randomId, str, text } from "./util.ts";
 
 const all = async <T = Record<string, unknown>>(env: Env, sql: string, ...args: unknown[]) => (await env.DB.prepare(sql).bind(...args).all<T>()).results;
 const one = <T = Record<string, unknown>>(env: Env, sql: string, ...args: unknown[]) => env.DB.prepare(sql).bind(...args).first<T>();
@@ -15,10 +11,11 @@ const pick = (v: unknown, allowed: string[], fallback: string) => (allowed.inclu
 
 interface App { id: string; route: "test" | "licence"; nick: string; email: string; state: string; code: string | null; trial_start: number | null }
 
-/** `/admin/api/...`: every call needs `Authorization: Bearer <ADMIN_TOKEN>`. */
+/** `/admin/api/...`: every call needs a valid Cloudflare Access token, or `Authorization: Bearer <ADMIN_TOKEN>` (src/access.ts). */
 export async function adminApi(req: Request, env: Env, now: number, path: string): Promise<Response> {
-  if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 16) return fail("admin_not_configured", 503);
-  if (!authorised(req, env)) return fail("unauthorised", 401);
+  if (!adminConfigured(env)) return fail("admin_not_configured", 503);
+  const via = await admitted(req, env, now);
+  if (!via) return fail("unauthorised", 401, { access: !!(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD), token: !!env.ADMIN_TOKEN });
   const url = new URL(req.url);
   const [a, b, c] = path.split("/").filter(Boolean);
   const q = (k: string) => url.searchParams.get(k) ?? "";
@@ -29,6 +26,7 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         const count = async (sql: string) => (await one<{ n: number }>(env, sql))?.n ?? 0;
         return json({
           ok: true,
+          via,
           program: await program(env),
           mail: !!env.RESEND_API_KEY,
           turnstile: !!env.TURNSTILE_SECRET,
