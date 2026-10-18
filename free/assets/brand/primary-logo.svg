@@ -3,8 +3,8 @@
 <rect width="1092" height="324" fill="none"/>
 <g transform="translate(8 18) scale(.285)">
 <path d="M238.4 292.5 Q272.1 192.2 376.6 175 L797.6 105.9 Q960 79.3 949.7 243.6 L915.1 798 Q905.9 944.7 760.8 921.6 L185.9 830.1 Q64 810.7 103.4 693.6 Z" fill="url(#gs)"/>
-<path d="M230 760 L414 300 Q430 260 466 260 H558 Q594 260 610 300 L794 760 H652 L512 414 L372 760 Z" fill="#FFFFFF"/>
-<path d="M454 638 H603 L652 760 H508 Z" fill="#FFFFFF" fill-opacity=".62"/>
+<path d="M187.5 756.6 L452.6 318.8 Q470.8 288.6 506.1 288.6 L567.3 288.6 Q602.5 288.6 618.2 320.2 L834.2 756.6 L675.4 756.6 L524.9 453.2 L363.8 756.6 Z" fill="#FFFFFF"/>
+<path d="M466.1 633.1 L614.3 633.1 L675.4 756.6 L552 756.6 Z" fill="#FFFFFF" fill-opacity=".62"/>
 </g>
 <text x="300" y="166" font-family="Inter, Manrope, Arial, sans-serif" font-size="150" font-weight="800" letter-spacing="-7" fill="#EAEAEA">aside</text>
 <circle cx="572" cy="37" r="13" fill="url(#g)"/>
