@@ -1,0 +1,271 @@
+title: Aside Beta Programs
+desc: Apply to test Aside before release, or apply for a free Aside Pro licence for your Ren'Py translation project.
+sub: Beta
+---css---
+/* Layout concept: two routes, like the first choice in a visual novel. Pick one, then a short application in steps
+   with a progress rail; the last step reviews everything and sends it as an e-mail. */
+.routes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; margin-top: 2.4rem; }
+@media (max-width: 860px) { .routes { grid-template-columns: minmax(0, 1fr); } }
+.route { position: relative; text-align: left; display: grid; gap: .9rem; align-content: start; padding: clamp(1.4rem, 1rem + 1.5vw, 2rem); border-radius: 24px; border: 1.5px solid var(--line-2); background: var(--card); color: inherit; font: inherit; cursor: pointer; overflow: hidden; transition: transform .25s, border-color .25s, box-shadow .25s; }
+.route:hover { transform: translateY(-4px); border-color: rgba(255, 49, 92, .5); }
+.route[aria-pressed="true"] { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint), var(--shadow); background: linear-gradient(160deg, rgba(255, 49, 92, .14), rgba(255, 112, 67, .04) 60%), var(--card); }
+.route .letter { position: absolute; right: 1.2rem; top: .4rem; font: 800 6rem/1 var(--f-display); color: rgba(255, 150, 172, .06); letter-spacing: -.05em; pointer-events: none; }
+.route[aria-pressed="true"] .letter { color: rgba(255, 49, 92, .16); }
+.route .tagr { justify-self: start; font: 800 .68rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); }
+.route h2 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); }
+.route p { font-size: .97rem; }
+.route .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 520px) { .route .cols { grid-template-columns: minmax(0, 1fr); } }
+.route h4 { font: 800 .72rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: .5rem; }
+.route ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; font-size: .9rem; }
+.route li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: .5rem; }
+.route li svg { width: 16px; height: 16px; margin-top: .2rem; color: var(--ok); }
+.route .ask li svg { color: var(--red-text); }
+.route .go { justify-self: start; display: inline-flex; align-items: center; gap: .5rem; font: 800 .92rem/1 var(--f-display); color: var(--ink); padding: .75rem 1.1rem; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line-2); }
+.route[aria-pressed="true"] .go { background: var(--grad); color: #fff; border-color: transparent; }
+.route .go svg { width: 16px; height: 16px; }
+
+.wizard { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: clamp(1.2rem, 1rem + 2vw, 2.5rem); align-items: start; }
+@media (max-width: 860px) { .wizard { grid-template-columns: minmax(0, 1fr); } }
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 90px); display: grid; gap: .3rem; }
+@media (max-width: 860px) { .rail { position: static; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: .4rem; } }
+.rail .rt { font: 800 .72rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); margin-bottom: .6rem; }
+@media (max-width: 860px) { .rail .rt { display: none; } }
+.rstep { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: .7rem; align-items: center; padding: .55rem .6rem; border-radius: 12px; color: var(--muted); font: 700 .92rem/1.2 var(--f-display); }
+.rstep i { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .85rem; border: 2px solid var(--line-2); transition: background .3s, border-color .3s, color .3s; }
+.rstep.now { color: var(--ink); background: var(--card); }
+.rstep.now i { border-color: var(--red); color: var(--red-text); box-shadow: 0 0 14px rgba(255, 49, 92, .4); }
+.rstep.ok i { background: var(--ok); border-color: var(--ok); color: #12070A; }
+@media (max-width: 860px) { .rstep { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; font-size: .72rem; padding: .4rem .2rem; } }
+.bar { height: 6px; border-radius: 99px; background: var(--card); overflow: hidden; margin-bottom: 1.4rem; }
+.bar i { display: block; height: 100%; width: 0; background: var(--grad); border-radius: 99px; transition: width .45s cubic-bezier(.3, 0, .2, 1); box-shadow: 0 0 12px var(--red); }
+
+.panel { border-radius: 24px; background: var(--card); border: 1px solid var(--line-2); padding: clamp(1.3rem, 1rem + 1.5vw, 2.2rem); box-shadow: var(--shadow); min-width: 0; }
+.step { display: grid; gap: 1.1rem; animation: in .45s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes in { from { opacity: 0; transform: translateX(16px); } }
+.step h3 { font-size: 1.35rem; }
+.step > p { color: var(--muted); font-size: .95rem; margin-top: -.6rem; }
+.fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 600px) { .fields { grid-template-columns: minmax(0, 1fr); } }
+.f { display: grid; gap: .4rem; align-content: start; }
+.f.full { grid-column: 1 / -1; }
+.f > label, .f > .lab { font: 700 .76rem/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.f > label b, .f > .lab b { color: var(--red-text); }
+.f input[type=text], .f input[type=email], .f input[type=url], .f select, .f textarea { width: 100%; min-height: 48px; padding: .65rem .85rem; border-radius: 12px; border: 1.5px solid var(--line-2); background: var(--bg); color: var(--ink); font: 400 1rem var(--f-body); outline: none; transition: border-color .15s, box-shadow .15s; }
+.f textarea { min-height: 96px; resize: vertical; }
+.f input:focus, .f select:focus, .f textarea:focus { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint); }
+.f .hint { font-size: .8rem; color: var(--muted); }
+.f.bad input, .f.bad select, .f.bad textarea { border-color: var(--bad); }
+.f .msg { font-size: .8rem; color: var(--bad); min-height: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip span { display: inline-flex; align-items: center; min-height: 40px; padding: .5rem .85rem; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--bg); font: 600 .88rem/1.2 var(--f-display); color: var(--text); cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+.chip input:checked + span { border-color: var(--red); background: var(--red-soft); color: #fff; }
+.chip input:focus-visible + span { outline: 2px solid var(--red); outline-offset: 2px; }
+.f.bad .chips span { border-color: rgba(255, 92, 124, .6); }
+.agree { display: grid; gap: .55rem; }
+.ag { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: .7rem; align-items: start; padding: .85rem 1rem; border-radius: 14px; background: var(--bg); border: 1.5px solid var(--line); cursor: pointer; font-size: .94rem; transition: border-color .15s; }
+.ag input { width: 20px; height: 20px; margin: .1rem 0 0; accent-color: var(--red); }
+.ag:has(input:checked) { border-color: rgba(79, 214, 156, .45); }
+.f.bad .ag:not(:has(input:checked)) { border-color: rgba(255, 92, 124, .6); }
+.nav-row { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; margin-top: .4rem; }
+.count { font: 500 .76rem/1 var(--f-mono); color: var(--muted); text-align: right; }
+
+.review { display: grid; gap: .4rem; border-radius: 16px; background: var(--bg); border: 1px solid var(--line); padding: 1rem 1.1rem; }
+.review div { display: grid; grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: .8rem; font-size: .92rem; padding-block: .35rem; border-bottom: 1px dashed var(--line); }
+.review div:last-child { border-bottom: 0; }
+.review dt { color: var(--muted); }
+.review dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; white-space: pre-wrap; }
+@media (max-width: 520px) { .review div { grid-template-columns: minmax(0, 1fr); gap: .1rem; } }
+.send-box { display: grid; gap: .8rem; padding: 1.1rem 1.2rem; border-radius: 16px; background: linear-gradient(160deg, var(--wine-2), var(--wine)); color: #F2DDE2; }
+.send-box .addr { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font: 600 1rem/1.3 var(--f-mono); color: #fff; }
+.send-box p { font-size: .9rem; }
+.done-card { text-align: center; display: grid; gap: .8rem; justify-items: center; padding: 1.5rem 0; animation: in .5s both; }
+.done-card .big { width: 84px; height: 84px; border-radius: 50%; background: var(--grad); display: grid; place-items: center; box-shadow: 0 0 40px rgba(255, 49, 92, .5); }
+.done-card .big svg { width: 40px; height: 40px; color: #fff; }
+.done-card h3 { font-size: 1.6rem; }
+.done-card p { max-width: 50ch; color: var(--text); }
+---body---
+<section class="page-hero">
+  <div class="blob" style="width:520px;height:520px;right:-160px;top:-200px;background:#FF315C"></div>
+  <div class="blob" style="width:320px;height:320px;left:-140px;bottom:-140px;background:#FF7043;opacity:.25;animation-delay:-6s"></div>
+  <div class="wrap">
+    <span class="kicker">Beta programs</span>
+    <h1>Choose your <span class="grad-text">route.</span></h1>
+    <p class="lead">Two ways to be part of Aside before the first release. Each has its own short application. Fields marked <b style="color:var(--red-text)">*</b> are required, and the answers go straight to <b style="color:var(--ink)">aside@filiposakkq.dev</b>.</p>
+    <div class="routes">
+      <button class="route spot" type="button" data-route="test" aria-pressed="false" aria-controls="apply">
+        <span class="letter">A</span>
+        <span class="tagr">Route A · Testing</span>
+        <h2>Test the builds</h2>
+        <p>Get every test build first, try it on real games and report what breaks.</p>
+        <div class="cols">
+          <div><h4>You get</h4><ul><li><svg><use href="#i-check"/></svg>Builds before everyone</li><li><svg><use href="#i-check"/></svg>A direct line to the author</li><li><svg><use href="#i-check"/></svg>A say in what gets fixed first</li></ul></div>
+          <div class="ask"><h4>We ask</h4><ul><li><svg><use href="#i-arrow"/></svg>Bug reports with steps and screenshots</li><li><svg><use href="#i-arrow"/></svg>A Windows PC and a Ren'Py game</li><li><svg><use href="#i-arrow"/></svg>Test builds stay private</li></ul></div>
+        </div>
+        <span class="go">Apply to test <svg><use href="#i-arrow"/></svg></span>
+      </button>
+      <button class="route spot" type="button" data-route="licence" aria-pressed="false" aria-controls="apply">
+        <span class="letter">B</span>
+        <span class="tagr">Route B · Free licence</span>
+        <h2>Get Pro for your project</h2>
+        <p>Translate a real game with Aside, and tell us honestly how it went.</p>
+        <div class="cols">
+          <div><h4>You get</h4><ul><li><svg><use href="#i-check"/></svg>A free Aside Pro licence</li><li><svg><use href="#i-check"/></svg>Help setting up your project</li><li><svg><use href="#i-check"/></svg>A spot in the showcase, if you like</li></ul></div>
+          <div class="ask"><h4>We ask</h4><ul><li><svg><use href="#i-arrow"/></svg>A real, active translation project</li><li><svg><use href="#i-arrow"/></svg>Feedback after 2 and 4 weeks</li><li><svg><use href="#i-arrow"/></svg>The game author's permission</li></ul></div>
+        </div>
+        <span class="go">Apply for a licence <svg><use href="#i-arrow"/></svg></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="sec band" id="apply" hidden>
+  <div class="wrap wizard">
+    <div class="rail" id="rail"></div>
+    <div>
+      <div class="bar"><i id="bar"></i></div>
+      <form class="panel" id="form" novalidate></form>
+    </div>
+  </div>
+</section>
+---script---
+(function () {
+  var MAIL = "aside@filiposakkq.dev";
+  var LANGS = ["Czech", "Slovak", "Polish", "German", "French", "Spanish", "Portuguese (Brazil)", "Italian", "Russian", "Ukrainian", "Turkish", "Indonesian", "Vietnamese", "Japanese", "Chinese", "Korean", "Other"];
+  /* field: [id, label, type, required, options/extra] */
+  var ROUTES = {
+    test: { name: "Testing", subject: "Aside beta: testing application", steps: [
+      { t: "About you", d: "So we know who you are and how to reach you.", f: [
+        ["nick", "Nickname", "text", 1], ["email", "E-mail", "email", 1],
+        ["discord", "Discord name", "text", 0, { hint: "Optional, for faster bug chats" }],
+        ["speak", "Languages you speak", "chips", 1, { opts: ["English", "Czech", "Slovak", "Polish", "German", "Spanish", "French", "Russian", "Other"], multi: 1 }] ] },
+      { t: "Your setup", d: "Test builds behave differently on different computers.", f: [
+        ["win", "Windows", "chips", 1, { opts: ["Windows 11", "Windows 10"] }],
+        ["ram", "Memory (RAM)", "chips", 1, { opts: ["4 GB", "8 GB", "16 GB", "32 GB or more"] }],
+        ["screen", "Screen", "chips", 0, { opts: ["Laptop", "1080p", "1440p", "4K"] }],
+        ["exp", "Your experience with translating Ren'Py games", "chips", 1, { opts: ["New to it", "Translated one game", "I translate regularly", "I make Ren'Py games"] }],
+        ["games", "Ren'Py games you can test on", "textarea", 1, { min: 10, hint: "Names of games you own, ideally of different sizes" }] ] },
+      { t: "Commitment", d: "Testing helps only when bugs are reported well.", f: [
+        ["hours", "Time you can give", "chips", 1, { opts: ["1–2 h a week", "3–5 h a week", "More"] }],
+        ["agree", "You agree", "agree", 1, { opts: ["I will report bugs with the steps that cause them and a screenshot.", "I understand test builds can have bugs, and I keep a backup of my translation.", "I will not share test builds or their download links."] }],
+        ["note", "Anything else?", "textarea", 0, { hint: "Other tools you use, what you hope Aside fixes" }] ] } ] },
+    licence: { name: "Free licence", subject: "Aside beta: free licence application", steps: [
+      { t: "About you", d: "The licence is issued to this e-mail address.", f: [
+        ["nick", "Nickname", "text", 1], ["email", "E-mail", "email", 1],
+        ["discord", "Discord name", "text", 0, { hint: "Optional" }],
+        ["lang", "You translate into", "select", 1, { opts: LANGS }] ] },
+      { t: "Your project", d: "Tell us about the translation you would use Aside for.", f: [
+        ["game", "Game", "text", 1, { hint: "Name and version" }],
+        ["gamelink", "Link to the game", "url", 1, { hint: "Its page on itch.io, Patreon, Steam or a forum" }],
+        ["size", "Size of the game", "chips", 1, { opts: ["Under 10k lines", "10k–50k", "50k–150k", "Over 150k", "Not sure"] }],
+        ["progress", "How far you are", "chips", 1, { opts: ["Starting", "Under 25 %", "25–75 %", "Over 75 %", "Updating to a new version"] }],
+        ["team", "Team", "chips", 1, { opts: ["Just me", "2–3 people", "4 or more"] }],
+        ["where", "Where your translation is or will be published", "text", 1, { hint: "A link, or \"not published yet\"" }],
+        ["tools", "Tools you use now", "text", 1, { hint: "e.g. Notepad++, Translator++, renpy-translator" }] ] },
+      { t: "What we ask", d: "A free licence in exchange for real use and honest feedback.", f: [
+        ["why", "What do you hope Pro saves you?", "textarea", 1, { min: 30, hint: "A few sentences: what takes you the most time today" }],
+        ["agree", "You agree", "agree", 1, { opts: ["I will use Aside for this project for at least 4 weeks.", "I will send feedback after 2 and after 4 weeks.", "I will report the bugs I find.", "I have, or will ask for, the game author's permission before publishing."] }],
+        ["show", "Showcase", "agree", 0, { opts: ["You may list my translation in the Aside showcase."] }] ] } ] }
+  };
+  var route = null, step = 0, data = {};
+  var form = document.getElementById("form"), rail = document.getElementById("rail"), bar = document.getElementById("bar"), apply = document.getElementById("apply");
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  function field(f) {
+    var id = f[0], lab = f[1], type = f[2], req = f[3], x = f[4] || {}, v = data[id], star = req ? " <b>*</b>" : "";
+    var h = '<div class="f' + (type === "textarea" || type === "agree" || type === "chips" && (x.opts || []).length > 4 ? " full" : "") + '" data-id="' + id + '">';
+    if (type === "chips" || type === "agree") h += '<span class="lab" id="lab-' + id + '">' + esc(lab) + star + "</span>"; else h += '<label for="f-' + id + '">' + esc(lab) + star + "</label>";
+    if (type === "text" || type === "email" || type === "url") h += '<input id="f-' + id + '" type="' + type + '" maxlength="160" value="' + esc(v || "") + '"' + (type === "email" ? ' autocomplete="email"' : "") + ">";
+    if (type === "textarea") h += '<textarea id="f-' + id + '" maxlength="800">' + esc(v || "") + "</textarea>" + (x.min ? '<span class="count" id="c-' + id + '"></span>' : "");
+    if (type === "select") h += '<select id="f-' + id + '"><option value="">Choose…</option>' + x.opts.map(function (o) { return "<option" + (v === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>";
+    if (type === "chips") h += '<div class="chips" role="' + (x.multi ? "group" : "radiogroup") + '" aria-labelledby="lab-' + id + '">' + x.opts.map(function (o, i) {
+      var on = x.multi ? (v || []).indexOf(o) >= 0 : v === o;
+      return '<label class="chip"><input type="' + (x.multi ? "checkbox" : "radio") + '" name="' + id + '" id="f-' + id + "-" + i + '" value="' + esc(o) + '"' + (on ? " checked" : "") + "><span>" + esc(o) + "</span></label>"; }).join("") + "</div>";
+    if (type === "agree") h += '<div class="agree" role="group" aria-labelledby="lab-' + id + '">' + x.opts.map(function (o, i) {
+      return '<label class="ag"><input type="checkbox" name="' + id + '" id="f-' + id + "-" + i + '" value="' + esc(o) + '"' + ((v || []).indexOf(o) >= 0 ? " checked" : "") + "><span>" + esc(o) + "</span></label>"; }).join("") + "</div>";
+    if (x.hint) h += '<span class="hint">' + esc(x.hint) + "</span>";
+    return h + '<span class="msg" aria-live="polite"></span></div>';
+  }
+  function steps() { return ROUTES[route].steps; }
+  function drawRail() {
+    var all = steps().map(function (s) { return s.t; }).concat(["Review and send"]);
+    rail.innerHTML = '<span class="rt">Route ' + (route === "test" ? "A · Testing" : "B · Free licence") + "</span>" + all.map(function (t, i) { return '<div class="rstep' + (i < step ? " ok" : i === step ? " now" : "") + '"><i>' + (i < step ? "✓" : i + 1) + "</i><span>" + t + "</span></div>"; }).join("");
+    bar.style.width = (step / all.length * 100) + "%";
+  }
+  function collect() {
+    if (step >= steps().length) return;
+    steps()[step].f.forEach(function (f) {
+      var id = f[0], type = f[2];
+      if (type === "chips" && (f[4] || {}).multi || type === "agree") data[id] = Array.prototype.slice.call(form.querySelectorAll('input[name="' + id + '"]:checked')).map(function (i) { return i.value; });
+      else if (type === "chips") { var c = form.querySelector('input[name="' + id + '"]:checked'); data[id] = c ? c.value : ""; }
+      else { var el = document.getElementById("f-" + id); data[id] = el ? el.value.trim() : ""; }
+    });
+  }
+  function validate() {
+    var ok = true, first = null;
+    steps()[step].f.forEach(function (f) {
+      var id = f[0], type = f[2], req = f[3], x = f[4] || {}, v = data[id], msg = "";
+      if (req) {
+        if (type === "agree") { if ((v || []).length < x.opts.length) msg = "Please agree to all of these."; }
+        else if (Array.isArray(v) ? !v.length : !v) msg = type === "chips" ? "Pick one." : "This is required.";
+        else if (type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) msg = "This does not look like an e-mail address.";
+        else if (type === "url" && !/^https?:\/\/\S+\.\S+/.test(v)) msg = "Paste a full link starting with https://";
+        else if (x.min && v.length < x.min) msg = "A bit more, please (" + v.length + " of at least " + x.min + " characters).";
+      }
+      var box = form.querySelector('[data-id="' + id + '"]');
+      box.classList.toggle("bad", !!msg); box.querySelector(".msg").textContent = msg;
+      if (msg) { ok = false; if (!first) first = box; }
+    });
+    if (first) { var inp = first.querySelector("input, select, textarea"); if (inp) inp.focus(); }
+    return ok;
+  }
+  function body() {
+    var lines = ["Route: " + ROUTES[route].name, ""];
+    steps().forEach(function (s) { s.f.forEach(function (f) { var v = data[f[0]]; if (v && (!Array.isArray(v) || v.length)) lines.push(f[1] + ": " + (Array.isArray(v) ? (f[2] === "agree" ? "\n  - " + v.join("\n  - ") : v.join(", ")) : v)); }); });
+    return lines.join("\n");
+  }
+  function draw() {
+    drawRail();
+    var S = steps(), last = step >= S.length;
+    if (last) {
+      var rows = [];
+      S.forEach(function (s) { s.f.forEach(function (f) { var v = data[f[0]]; if (v && (!Array.isArray(v) || v.length)) rows.push("<div><dt>" + esc(f[1]) + "</dt><dd>" + esc(Array.isArray(v) ? v.join(f[2] === "agree" ? "\n" : ", ") : v) + "</dd></div>"); }); });
+      var href = "mailto:" + MAIL + "?subject=" + encodeURIComponent(ROUTES[route].subject + " (" + data.nick + ")") + "&body=" + encodeURIComponent(body());
+      form.innerHTML = '<div class="step"><h3>Review and send</h3><p>Check your answers. Sending opens your e-mail app with everything filled in.</p><dl class="review" style="margin:0">' + rows.join("") + "</dl>" +
+        '<div class="send-box"><div class="addr">' + MAIL + ' <button type="button" class="copy-btn" id="copy-addr">Copy address</button></div><p>If your e-mail app does not open, copy the application and send it to this address yourself.</p>' +
+        '<div class="nav-row" style="margin:0"><a class="btn btn-hot" id="send" href="' + href + '">Send by e-mail</a><button type="button" class="btn btn-ghost-dark" id="copy-app">Copy application</button></div></div>' +
+        '<div class="nav-row"><button type="button" class="btn" id="back">Back</button><button type="button" class="btn" id="sent">I sent it</button></div></div>';
+      document.getElementById("copy-addr").onclick = function (e) { copy(MAIL, e.target, "Copy address"); };
+      document.getElementById("copy-app").onclick = function (e) { copy("To: " + MAIL + "\nSubject: " + ROUTES[route].subject + "\n\n" + body(), e.target, "Copy application"); };
+      document.getElementById("back").onclick = function () { step--; draw(); };
+      document.getElementById("sent").onclick = function () {
+        bar.style.width = "100%"; rail.querySelectorAll(".rstep").forEach(function (r) { r.className = "rstep ok"; r.querySelector("i").textContent = "✓"; });
+        form.innerHTML = '<div class="done-card"><div class="big"><svg><use href="#i-check"/></svg></div><h3>Thank you, ' + esc(data.nick) + '.</h3><p>Your application is on its way. You will get an answer at ' + esc(data.email) + '. Until then, the <a href="docs.html" style="color:var(--red-text)">documentation</a> is a good read.</p></div>';
+      };
+      return;
+    }
+    var s = S[step];
+    form.innerHTML = '<div class="step"><h3>' + s.t + "</h3><p>" + s.d + '</p><div class="fields">' + s.f.map(field).join("") + '</div><div class="nav-row">' +
+      (step ? '<button type="button" class="btn" id="back">Back</button>' : '<button type="button" class="btn" id="switch">Other route</button>') +
+      '<button type="submit" class="btn btn-hot">' + (step === S.length - 1 ? "Review" : "Next") + "</button></div></div>";
+    s.f.forEach(function (f) { var x = f[4] || {}; if (x.min) { var ta = document.getElementById("f-" + f[0]), c = document.getElementById("c-" + f[0]); var u = function () { c.textContent = ta.value.trim().length + " / " + x.min + "+"; }; ta.addEventListener("input", u); u(); } });
+    var b = document.getElementById("back"); if (b) b.onclick = function () { collect(); step--; draw(); };
+    var sw = document.getElementById("switch"); if (sw) sw.onclick = function () { choose(route === "test" ? "licence" : "test"); };
+  }
+  function copy(text, btn, label) {
+    var ok = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = label; }, 1600); };
+    var fb = function () { var t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); ok(); } catch (e) { btn.textContent = "Copy failed"; } t.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fb); else fb();
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); collect(); if (!validate()) return; step++; draw(); form.scrollIntoView({ block: "start", behavior: "smooth" }); });
+  function choose(r) {
+    if (route !== r) { route = r; step = 0; var keep = { nick: data.nick, email: data.email, discord: data.discord }; data = keep; }
+    document.querySelectorAll(".route").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-route") === r)); });
+    apply.hidden = false; draw();
+  }
+  document.querySelectorAll(".route").forEach(function (b) { b.addEventListener("click", function () { choose(b.getAttribute("data-route")); apply.scrollIntoView({ behavior: "smooth" }); }); });
+  var h = location.hash.replace("#", "");
+  if (h === "test" || h === "licence") choose(h);
+})();

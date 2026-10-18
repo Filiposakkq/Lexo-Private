@@ -1,0 +1,89 @@
+title: Translated with Aside
+desc: Fan translations of Ren'Py games made with Aside, and how to get your translation listed.
+sub: Showcase
+---css---
+/* Layout concept: a wall of game covers. The first translation is the headliner; open slots wait for the next ones. */
+.feature { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); border-radius: 24px; overflow: hidden; border: 1px solid var(--line-2); background: var(--card); box-shadow: var(--shadow); }
+@media (max-width: 860px) { .feature { grid-template-columns: minmax(0, 1fr); } }
+.cover { position: relative; min-height: 320px; background: radial-gradient(60% 60% at 70% 30%, rgba(255, 196, 140, .6), transparent 70%), radial-gradient(70% 60% at 10% 100%, rgba(255, 49, 92, .5), transparent 70%), linear-gradient(160deg, #2A1B3D, #5B2A4A 60%, #E2725B 130%); display: grid; align-content: end; padding: 1.6rem; }
+.cover .flag { position: absolute; top: 1.2rem; left: 1.2rem; display: inline-flex; gap: .4rem; align-items: center; padding: .45rem .7rem; border-radius: 999px; background: rgba(0, 0, 0, .35); border: 1px solid rgba(255, 255, 255, .2); color: #fff; font: 700 .78rem/1 var(--f-display); }
+.cover .flag i { width: 18px; height: 12px; border-radius: 2px; background: linear-gradient(180deg, #fff 50%, #D7141A 50%); position: relative; overflow: hidden; }
+.cover .flag i::after { content: ""; position: absolute; left: 0; top: 0; border-left: 9px solid #11457E; border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+.cover h2 { color: #fff; font-size: clamp(2rem, 1.5rem + 2vw, 3rem); text-shadow: 0 4px 30px rgba(0, 0, 0, .4); }
+.cover p { color: #FFE3E9; margin-top: .4rem; }
+.feature .info { padding: clamp(1.4rem, 1rem + 1.5vw, 2.2rem); display: grid; gap: 1rem; align-content: start; }
+.feature dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 0; }
+.feature dt { font-size: .78rem; color: var(--muted); }
+.feature dd { margin: .2rem 0 0; font: 800 1.25rem/1.2 var(--f-display); color: var(--ink); }
+.feature .note { font-size: .88rem; color: var(--muted); padding: .8rem 1rem; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.2rem; }
+@media (max-width: 860px) { .slots { grid-template-columns: minmax(0, 1fr); } }
+.slot { min-height: 220px; border-radius: 20px; border: 1.5px dashed var(--line-2); display: grid; place-items: center; text-align: center; padding: 1.4rem; color: var(--muted); position: relative; overflow: hidden; }
+.slot::before { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255, 150, 172, .06) 50%, transparent 70%); background-size: 250% 100%; animation: shimmer 3.5s linear infinite; }
+@keyframes shimmer { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+.slot b { display: block; font: 800 1.1rem/1.3 var(--f-display); color: var(--ink); }
+.slot span { font-size: .88rem; }
+.slot .plus { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto .8rem; background: var(--red-tint); color: var(--red-text); font: 800 1.4rem/1 var(--f-display); }
+.how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 860px) { .how { grid-template-columns: minmax(0, 1fr); } }
+.how div { padding: 1.3rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); }
+.how b { display: block; font: 800 1.05rem/1.3 var(--f-display); color: var(--ink); }
+.how span { font-size: .92rem; color: var(--muted); display: block; margin-top: .4rem; }
+.how em { font-style: normal; font: 800 .72rem/1 var(--f-display); letter-spacing: .14em; color: var(--red-text); display: block; margin-bottom: .6rem; }
+.mail-row { margin-top: 1.6rem; display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
+.mail-row code { font-size: .95rem; padding: .5rem .7rem; }
+---body---
+<section class="page-hero">
+  <div class="blob" style="width:480px;height:480px;right:-140px;top:-180px;background:#FF315C"></div>
+  <div class="wrap">
+    <span class="kicker">Showcase</span>
+    <h1>Translated <span class="grad-text">with Aside.</span></h1>
+    <p class="lead">Fan translations made with Aside and the tool it grew from. Finished one? Get it on this wall.</p>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <article class="feature spot">
+      <div class="cover"><span class="flag"><i></i>Czech</span><h2>Being a DIK</h2><p>The translation Aside was born from.</p></div>
+      <div class="info">
+        <dl>
+          <div><dt>Lines</dt><dd>45 291</dd></div>
+          <div><dt>Episodes</dt><dd>8</dd></div>
+          <div><dt>Files</dt><dd>72</dd></div>
+        </dl>
+        <p>The Czech translation of Being a DIK needed a fast editor, checks for broken tags and a clear view of what was proofread. That tool became Aside.</p>
+        <p class="note">Made with the BaDIK Translation Manager, the tool Aside grew out of.</p>
+        <a class="btn btn-hot" href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">Visit the translation <svg><use href="#i-arrow"/></svg></a>
+      </div>
+    </article>
+    <div class="slots">
+      <div class="slot"><div><span class="plus">+</span><b>Your translation here</b><span>Any game, any language</span></div></div>
+      <div class="slot"><div><span class="plus">+</span><b>Your translation here</b><span>Finished or still in progress</span></div></div>
+      <div class="slot"><div><span class="plus">+</span><b>Your translation here</b><span>Solo or with a team</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Get listed</span>
+      <h2>Three steps to the wall.</h2>
+    </div>
+    <div class="how">
+      <div><em>STEP 1</em><b>Translate with Aside</b><span>A translation made or proofread with Aside, finished or in public progress.</span></div>
+      <div><em>STEP 2</em><b>Have permission</b><span>The game's author agrees with the translation being published.</span></div>
+      <div><em>STEP 3</em><b>Send it in</b><span>The game, the language, a link to your translation and a screenshot, to the address below.</span></div>
+    </div>
+    <div class="mail-row"><code id="addr">aside@filiposakkq.dev</code><a class="btn btn-hot" href="mailto:aside@filiposakkq.dev?subject=Showcase%3A%20my%20translation">Send my translation</a><button class="copy-btn" type="button" id="copy">Copy address</button></div>
+  </div>
+</section>
+---script---
+(function () {
+  var b = document.getElementById("copy");
+  b.addEventListener("click", function () {
+    var ok = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy address"; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText("aside@filiposakkq.dev").then(ok, function () { b.textContent = "aside@filiposakkq.dev"; }); else b.textContent = "aside@filiposakkq.dev";
+  });
+})();

@@ -34,7 +34,7 @@ def main(out):
     page = head.strip() + "\n" + body
     page = re.sub(r"(img/[\w.-]+\.(?:webp|png))", lambda m: data_uri(m.group(1)), page)
     (out / "index.html").write_text(page, encoding="utf-8")
-    for name in ("docs.html", "releases.html", "compare.html", "blog.html", "developers.html", "site.css", "site.js", "favicon.svg"):
+    for name in ("docs.html", "releases.html", "compare.html", "blog.html", "developers.html", "beta.html", "showcase.html", "roadmap.html", "site.css", "site.js", "favicon.svg"):
         shutil.copy(WEB / name, out / name)
     shutil.copytree(WEB / "badge", out / "badge", dirs_exist_ok=True)
     print("wrote", out, (out / "index.html").stat().st_size // 1024, "KB")

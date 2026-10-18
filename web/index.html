@@ -313,55 +313,29 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 .miles h3 { font-size: 1rem; }
 .miles p { font-size: .88rem; color: var(--muted); }
 
-/* beta program */
+/* beta teaser and showcase strip */
 .beta { position: relative; overflow: hidden; }
-.beta-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(1.5rem, 1rem + 3vw, 3.5rem); align-items: start; }
-@media (max-width: 960px) { .beta-grid { grid-template-columns: minmax(0, 1fr); } }
-.perks { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; gap: .8rem; }
-.perks li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: .9rem; align-items: start; }
-.perks .pi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--red-tint); color: var(--red-text); font: 800 1rem/1 var(--f-display); }
-.perks b { display: block; color: var(--ink); font: 700 1rem/1.3 var(--f-display); }
-.perks span { font-size: .92rem; color: var(--muted); }
-.credits { margin-top: 1.8rem; height: 190px; border-radius: var(--r); background: #08030A; border: 1px solid var(--line); overflow: hidden; position: relative; mask-image: linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent); -webkit-mask-image: linear-gradient(180deg, transparent, #000 25%, #000 75%, transparent); }
-.credits .roll { position: absolute; left: 0; right: 0; top: 100%; text-align: center; animation: roll 16s linear infinite; display: grid; gap: .35rem; }
-@keyframes roll { to { transform: translateY(calc(-100% - 190px)); } }
-.credits h4 { font: 800 .72rem/1 var(--f-display); letter-spacing: .3em; text-transform: uppercase; color: var(--red-text); margin-top: .9rem; }
-.credits p { font: 600 .98rem/1.4 var(--f-display); color: #F2DDE2; }
-.credits p.you { color: transparent; background: var(--grad); -webkit-background-clip: text; background-clip: text; }
-@media (prefers-reduced-motion: reduce) { .credits .roll { top: 10px; animation: none; } }
-.join { border-radius: 24px; background: var(--card); border: 1px solid var(--line-2); box-shadow: var(--shadow); padding: clamp(1.2rem, 1rem + 1.5vw, 2rem); display: grid; gap: 1rem; }
-.roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
-@media (max-width: 560px) { .roles { grid-template-columns: minmax(0, 1fr); } }
-.role { position: relative; display: grid; gap: .35rem; padding: 1rem; border-radius: 14px; border: 1.5px solid var(--line-2); background: var(--bg); cursor: pointer; transition: border-color .2s, transform .2s, background-color .2s; }
-.role:hover { transform: translateY(-2px); }
-.role input { position: absolute; opacity: 0; pointer-events: none; }
-.role b { font: 800 .98rem/1.2 var(--f-display); color: var(--ink); }
-.role span { font-size: .8rem; color: var(--muted); line-height: 1.4; }
-.role em { justify-self: start; font: 800 .62rem/1 var(--f-display); font-style: normal; letter-spacing: .1em; text-transform: uppercase; padding: .3rem .45rem; border-radius: 5px; background: var(--red-soft); color: #FFC2CF; }
-.role:has(input:checked) { border-color: var(--red); background: linear-gradient(160deg, rgba(255, 49, 92, .16), rgba(255, 112, 67, .06)); box-shadow: 0 0 0 4px var(--red-tint); }
-.role:focus-within { outline: 2px solid var(--red); outline-offset: 2px; }
-.fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .8rem; }
-@media (max-width: 560px) { .fields { grid-template-columns: minmax(0, 1fr); } }
-.field { display: grid; gap: .35rem; }
-.field.full { grid-column: 1 / -1; }
-.field label { font: 700 .74rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.field input, .field select, .field textarea { width: 100%; min-height: 46px; padding: .6rem .8rem; border-radius: 12px; border: 1.5px solid var(--line-2); background: var(--bg); color: var(--ink); font: 400 1rem var(--f-body); outline: none; transition: border-color .15s, box-shadow .15s; }
-.field textarea { min-height: 80px; resize: vertical; }
-.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint); }
-.join .fine { font-size: .8rem; color: var(--muted); }
-.err { color: var(--bad); font-size: .86rem; min-height: 1.2em; }
-.card-out { display: grid; gap: 1rem; animation: pop .6s cubic-bezier(.2, .9, .3, 1.2) both; }
-@keyframes pop { from { opacity: 0; transform: scale(.94) translateY(10px); } }
-.cast { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 16 / 10; background: radial-gradient(60% 60% at 75% 25%, rgba(255, 196, 140, .55), transparent 70%), linear-gradient(160deg, #2A1B3D, #6B2C4A 60%, #E2725B 130%); box-shadow: var(--shadow); }
-.cast .stamp { position: absolute; top: 6%; right: 5%; padding: .45em .8em; border: 2px solid rgba(255, 255, 255, .8); border-radius: 8px; color: #fff; font: 800 clamp(.6rem, .45rem + .5vw, .8rem)/1.2 var(--f-display); letter-spacing: .12em; text-transform: uppercase; transform: rotate(6deg); text-align: center; }
-.cast .stamp small { display: block; font: 600 .9em/1 var(--f-mono); letter-spacing: 0; margin-top: .25em; }
-.cast .logo { position: absolute; top: 6%; left: 5%; display: flex; align-items: center; gap: .4em; font: 800 clamp(.9rem, .7rem + .6vw, 1.15rem)/1 var(--f-display); color: #fff; letter-spacing: -.04em; }
-.cast .logo svg { width: 1.6em; height: 1.6em; }
-.cast .box { position: absolute; left: 4%; right: 4%; bottom: 5%; min-height: 36%; border-radius: 12px; background: rgba(12, 11, 18, .84); border: 1px solid rgba(255, 255, 255, .14); padding: 1.6em 1.2em .9em; color: #F4F1F7; font: 500 clamp(.72rem, .55rem + .7vw, 1rem)/1.45 var(--f-body); }
-.cast .nm { position: absolute; left: 1em; top: 0; transform: translateY(-55%); padding: .25em .9em; border-radius: 7px; background: var(--grad); color: #fff; font: 800 1em/1.3 var(--f-display); max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cast .facts { display: flex; flex-wrap: wrap; gap: .4em .9em; margin-top: .6em; font: 600 .78em/1 var(--f-mono); color: #FFC2CF; }
-.out-actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
-.out-actions p { font-size: .88rem; color: var(--muted); flex-basis: 100%; }
+.route-teasers { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; max-width: 980px; margin-inline: auto; }
+@media (max-width: 760px) { .route-teasers { grid-template-columns: minmax(0, 1fr); } }
+.rt-card { position: relative; overflow: hidden; display: grid; gap: .7rem; padding: clamp(1.4rem, 1rem + 1.5vw, 2rem); border-radius: 24px; background: var(--card); border: 1.5px solid var(--line-2); text-decoration: none; transition: transform .25s, border-color .25s, box-shadow .25s; }
+.rt-card:hover { transform: translateY(-5px); border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint), var(--shadow); }
+.rt-card .rl { position: absolute; right: 1.2rem; top: .2rem; font: 800 6.5rem/1 var(--f-display); color: rgba(255, 49, 92, .1); pointer-events: none; }
+.rt-card .rk { font: 800 .7rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); }
+.rt-card h3 { font-size: 1.5rem; }
+.rt-card p { font-size: .97rem; max-width: 40ch; }
+.rt-card .rgo { justify-self: start; display: inline-flex; align-items: center; gap: .5rem; margin-top: .4rem; font: 800 .92rem/1 var(--f-display); color: #fff; padding: .75rem 1.1rem; border-radius: 999px; background: var(--grad); }
+.rt-card .rgo svg { width: 16px; height: 16px; }
+.showcase-strip { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
+.ss { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: center; }
+@media (max-width: 860px) { .ss { grid-template-columns: minmax(0, 1fr); } }
+.ss-cards { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1rem; }
+.ss-card { min-height: 200px; border-radius: 20px; padding: 1.3rem; display: grid; align-content: end; gap: .3rem; text-decoration: none; background: radial-gradient(60% 60% at 70% 30%, rgba(255, 196, 140, .55), transparent 70%), linear-gradient(160deg, #2A1B3D, #5B2A4A 60%, #E2725B 130%); border: 1px solid var(--line-2); transition: transform .25s; }
+.ss-card:hover { transform: translateY(-4px) rotate(-.5deg); }
+.ss-card b { font: 800 1.4rem/1.1 var(--f-display); color: #fff; }
+.ss-card span { font-size: .88rem; color: #FFE3E9; }
+.ss-card.empty { background: transparent; border: 1.5px dashed var(--line-2); place-content: center; text-align: center; }
+.ss-card.empty b { color: var(--red-text); font-size: 2rem; }
+.ss-card.empty span { color: var(--muted); }
 
 /* sound toggle in the playground */
 .snd { display: inline-flex; align-items: center; gap: .4rem; font: 700 .76rem/1 var(--f-display); padding: .45rem .7rem; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--muted); cursor: pointer; min-height: 32px; }
@@ -432,13 +406,14 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
       <a href="#tour">Features</a>
       <a href="compare.html">Compare</a>
       <a href="#pricing">Pricing</a>
+      <a href="roadmap.html">Roadmap</a>
       <a href="releases.html">Releases</a>
       <a href="blog.html">Blog</a>
       <a href="docs.html">Docs</a>
     </nav>
     <div class="top-cta">
       <a class="btn btn-sm hide-m" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--red)"><use href="#i-heart"/></svg>Ko-fi</a>
-      <a class="btn btn-sm btn-hot" href="#beta">Join the beta</a>
+      <a class="btn btn-sm btn-hot" href="beta.html">Join the beta</a>
       <button class="menu-btn" id="menu-open" aria-label="Open menu" aria-expanded="false" aria-controls="sheet">
         <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
@@ -456,7 +431,8 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <a href="#try">Try it <svg><use href="#i-arrow"/></svg></a>
     <a href="#pricing">Pricing <svg><use href="#i-arrow"/></svg></a>
     <a href="compare.html">Compare <svg><use href="#i-arrow"/></svg></a>
-    <a href="#beta">Join the beta <svg><use href="#i-arrow"/></svg></a>
+    <a href="beta.html">Join the beta <svg><use href="#i-arrow"/></svg></a>
+    <a href="roadmap.html">Roadmap <svg><use href="#i-arrow"/></svg></a>
     <a href="releases.html">Releases <svg><use href="#i-arrow"/></svg></a>
     <a href="blog.html">Blog <svg><use href="#i-arrow"/></svg></a>
     <a href="docs.html">Docs <svg><use href="#i-arrow"/></svg></a>
@@ -678,7 +654,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
           <li><svg><use href="#i-check"/></svg>Regex batches that keep tags and variables safe</li>
           <li><svg><use href="#i-check"/></svg>Publish your progress to your site or Patreon</li>
         </ul>
-        <a class="btn btn-hot" href="#get">Be first to know</a>
+        <a class="btn btn-hot" href="beta.html#licence">Get Pro free in the beta</a>
       </div>
     </div>
     <div class="cmp-wrap">
@@ -751,63 +727,32 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
         <div><span class="st now">Now</span><h3>Installer</h3><p>Per-user install without admin rights. Signing and updates are being finished.</p></div>
         <div><span class="st next">Next</span><h3>First public build</h3><p>A game picker, the "prepare a game" window, and Windows downloads.</p></div>
       </div>
+      <div style="margin-top:1.6rem;display:flex;gap:.6rem;flex-wrap:wrap"><a class="btn" href="roadmap.html">See the roadmap and vote <svg><use href="#i-arrow"/></svg></a><a class="btn" href="releases.html">Releases and changelog</a></div>
     </div>
   </div>
 </section>
 
-<section id="beta" class="sec-beta beta band" style="padding-block: clamp(4rem, 3rem + 5vw, 7.5rem)">
+<section id="beta" class="beta band" style="padding-block: clamp(4rem, 3rem + 5vw, 7.5rem)">
   <div class="blob" style="width:420px;height:420px;left:-160px;top:10%;background:#FF315C;opacity:.3"></div>
-  <div class="wrap beta-grid">
-    <div>
-      <span class="kicker">Beta program</span>
-      <h2>Join the founding cast.</h2>
-      <p class="lead">The first public build needs people who translate real games. Test early builds, get a free licence, or both.</p>
-      <ul class="perks">
-        <li><span class="pi">1</span><div><b>Builds before everyone</b><span>Every test build lands with you first, with a direct line to the author.</span></div></li>
-        <li><span class="pi">2</span><div><b>A free Pro licence</b><span>Translate a real game with Aside and share honest feedback. Active testers keep Pro for the first major version.</span></div></li>
-        <li><span class="pi">3</span><div><b>Your name in the credits</b><span>The founding cast is listed in the credits of the first release, the way a visual novel ends.</span></div></li>
-      </ul>
-      <div class="credits" aria-hidden="true"><div class="roll">
-        <h4>Aside</h4><p>a translation manager for Ren'Py</p>
-        <h4>Written and built by</h4><p>filiposakkq</p>
-        <h4>First translation</h4><p>Being a DIK · Czech</p>
-        <h4>Founding cast</h4><p class="you">Your name here</p><p class="you" id="credit-you">…and you?</p><p>Seats still open</p>
-        <h4>Thank you for playing</h4><p>See you in the first release</p>
-      </div></div>
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker">Beta programs</span>
+      <h2>Two ways in before the release.</h2>
+      <p class="lead">Test the builds, or get a free Pro licence for a real translation project. Each route has its own short application.</p>
     </div>
+    <div class="route-teasers">
+      <a class="rt-card spot" href="beta.html#test"><span class="rl">A</span><span class="rk">Route A · Testing</span><h3>Test the builds</h3><p>Every test build first, a direct line to the author. You report what breaks.</p><span class="rgo">Apply to test <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="rt-card spot" href="beta.html#licence"><span class="rl">B</span><span class="rk">Route B · Free licence</span><h3>Get Pro for your project</h3><p>A free Pro licence for an active translation. You share honest feedback after 2 and 4 weeks.</p><span class="rgo">Apply for a licence <svg><use href="#i-arrow"/></svg></span></a>
+    </div>
+  </div>
+</section>
 
-    <div>
-      <form class="join" id="join" data-endpoint="" novalidate>
-        <div class="roles" role="radiogroup" aria-label="What do you want">
-          <label class="role"><input type="radio" name="role" value="Tester" id="role-test" checked><em>Early builds</em><b>I want to test</b><span>Break the builds, report what broke.</span></label>
-          <label class="role"><input type="radio" name="role" value="Free licence" id="role-lic"><em>Free Pro</em><b>I want a licence</b><span>Translate a real game in Aside, tell me how it went.</span></label>
-          <label class="role"><input type="radio" name="role" value="Tester + licence" id="role-both"><em>Both</em><b>All of it</b><span>Test early and translate for real.</span></label>
-        </div>
-        <div class="fields">
-          <div class="field"><label for="b-nick">Nickname</label><input id="b-nick" name="nick" autocomplete="nickname" placeholder="e.g. Mira" maxlength="40"></div>
-          <div class="field"><label for="b-contact">E-mail or Discord</label><input id="b-contact" name="contact" placeholder="you@mail.com or name" maxlength="80"></div>
-          <div class="field"><label for="b-lang">You translate into</label><select id="b-lang" name="lang"><option>Czech</option><option>Slovak</option><option>Polish</option><option>German</option><option>French</option><option>Spanish</option><option>Portuguese</option><option>Italian</option><option>Russian</option><option>Ukrainian</option><option>Turkish</option><option>Other</option></select></div>
-          <div class="field"><label for="b-win">Windows</label><select id="b-win" name="win"><option>Windows 11</option><option>Windows 10</option></select></div>
-          <div class="field full"><label for="b-game">Game you translate (or want to)</label><input id="b-game" name="game" placeholder="Name of the game, and how far you are" maxlength="120"></div>
-          <div class="field full"><label for="b-note">Anything else? <span style="text-transform:none;letter-spacing:0;font-weight:500">optional</span></label><textarea id="b-note" name="note" maxlength="500" placeholder="Team size, other tools you use, what you hope Aside fixes"></textarea></div>
-        </div>
-        <p class="err" id="b-err" aria-live="polite"></p>
-        <button class="btn btn-hot" type="submit">Get my cast card</button>
-        <p class="fine">Your answers are only used to contact you about the beta.</p>
-      </form>
-      <div class="card-out" id="card-out" hidden>
-        <div class="cast" id="cast">
-          <div class="logo"><svg aria-hidden="true"><use href="#logo"/></svg>aside</div>
-          <div class="stamp">Founding cast<small id="c-no">No. 000</small></div>
-          <div class="box"><span class="nm" id="c-nick">Mira</span><span id="c-line">"I'm in. Let's break some tags."</span><div class="facts"><span id="c-role">Tester</span><span id="c-lang">Czech</span><span id="c-game"></span></div></div>
-        </div>
-        <div class="out-actions">
-          <p id="c-msg">Screenshot your card and share it. To send your application, copy it and post it to the author.</p>
-          <button class="btn btn-hot" type="button" id="c-copy">Copy application</button>
-          <a class="btn" href="https://filiposakkq.dev" target="_blank" rel="noopener">Send to filiposakkq.dev</a>
-          <button class="btn" type="button" id="c-edit">Edit</button>
-        </div>
-      </div>
+<section class="showcase-strip">
+  <div class="wrap ss">
+    <div><span class="kicker">Showcase</span><h2>Translated with Aside.</h2><p class="lead">It started with the Czech translation of Being a DIK. The next spot on the wall could be yours.</p></div>
+    <div class="ss-cards">
+      <a class="ss-card spot" href="showcase.html"><b>Being a DIK</b><span>Czech · 45 291 lines</span></a>
+      <a class="ss-card empty" href="showcase.html"><b>+</b><span>Your translation</span></a>
     </div>
   </div>
 </section>
@@ -817,7 +762,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <div class="side">
       <span class="kicker">FAQ</span>
       <h2>Good questions.</h2>
-      <p>Something else? The <a href="docs.html">documentation</a> goes deeper, or ask the author on <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>.</p>
+      <p>Something else? The <a href="docs.html">documentation</a> goes deeper, or write to <a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a>.</p>
     </div>
     <div class="faq">
       <details><summary>Does Aside change my game?</summary><div class="a">No. Game folders are only read. Aside edits the translation files in <code>game/tl/&lt;language&gt;</code>, always after a backup, and keeps its own data in a small <code>.aside</code> folder next to them.</div></details>
@@ -836,8 +781,8 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <h2>Your translation is waiting. What do you do?</h2>
     <p class="lead">The first Windows build is in final testing. Make your choice.</p>
     <div class="choices">
-      <a class="choice hot" href="#beta">"Let me in early." <small>join the beta</small></a>
-      <a class="choice" href="https://filiposakkq.dev" target="_blank" rel="noopener">"Tell me the day it's out." <small>follow the author</small></a>
+      <a class="choice hot" href="beta.html">"Let me in early." <small>join the beta</small></a>
+      <a class="choice" href="mailto:aside@filiposakkq.dev?subject=Tell%20me%20when%20Aside%20is%20out">"Tell me the day it's out." <small>aside@filiposakkq.dev</small></a>
       <a class="choice" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">"I want to help it happen." <small>a coffee on Ko-fi</small></a>
       <a class="choice" href="docs.html">"Let me read the docs first." <small>documentation</small></a>
     </div>
@@ -854,8 +799,8 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
       <p>Translation manager for Ren'Py, born from the Czech translation of <a href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">Being a DIK</a>. Aside is an independent tool, not affiliated with Ren'Py.</p>
     </div>
     <nav aria-label="Footer">
-      <a href="#tour">Features</a><a href="compare.html">Compare</a><a href="#pricing">Pricing</a><a href="releases.html">Releases</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
-      <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>
+      <a href="#tour">Features</a><a href="compare.html">Compare</a><a href="#pricing">Pricing</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
+      <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a>
     </nav>
   </div>
 </footer>
@@ -1020,37 +965,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     o.connect(g).connect(actx.destination); o.start(now); o.stop(now + .07);
   }
   tr.addEventListener("input", function () { blip(); });
-
-  /* beta: build a cast card from the form; send to an endpoint when one is configured */
-  var join = $("#join"), out = $("#card-out"), appText = "";
-  var LINES = { "Tester": "\u201CI'm in. Let's break some tags.\u201D", "Free licence": "\u201CHand me the script. I'll take it from here.\u201D", "Tester + licence": "\u201CEarly builds and a real game? Say no more.\u201D" };
-  join.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var d = {}; new FormData(join).forEach(function (v, k) { d[k] = String(v).trim(); });
-    if (!d.nick) { $("#b-err").textContent = "Add a nickname, so the card knows who you are."; $("#b-nick").focus(); return; }
-    if (!d.contact) { $("#b-err").textContent = "Add an e-mail or a Discord name, so the author can reach you."; $("#b-contact").focus(); return; }
-    $("#b-err").textContent = "";
-    var no = 1 + Math.floor(Math.random() * 99);
-    $("#c-nick").textContent = d.nick; $("#c-role").textContent = d.role; $("#c-lang").textContent = "\u2192 " + d.lang;
-    $("#c-game").textContent = d.game ? d.game.slice(0, 40) : ""; $("#c-no").textContent = "No. " + ("00" + no).slice(-3);
-    $("#c-line").textContent = LINES[d.role] || LINES.Tester;
-    $("#credit-you").textContent = d.nick;
-    appText = "Aside beta application\nRole: " + d.role + "\nNickname: " + d.nick + "\nContact: " + d.contact + "\nTranslates into: " + d.lang + "\nWindows: " + d.win + (d.game ? "\nGame: " + d.game : "") + (d.note ? "\nNote: " + d.note : "");
-    var ep = join.getAttribute("data-endpoint");
-    if (ep) {
-      fetch(ep, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) })
-        .then(function (r) { $("#c-msg").textContent = r.ok ? "Application sent. The author will write to you. Screenshot your card and share it!" : "Sending failed. Copy the application and send it to the author instead."; })
-        .catch(function () { $("#c-msg").textContent = "Sending failed. Copy the application and send it to the author instead."; });
-    }
-    join.hidden = true; out.hidden = false; out.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  });
-  $("#c-edit").addEventListener("click", function () { out.hidden = true; join.hidden = false; });
-  $("#c-copy").addEventListener("click", function () {
-    var b = $("#c-copy");
-    var ok = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy application"; }, 1800); };
-    var fail = function () { var t = document.createElement("textarea"); t.value = appText; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); ok(); } catch (e) { b.textContent = "Select and copy"; } t.remove(); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(appText).then(ok, fail); else fail();
-  });
 
   /* live touches: spotlight on cards, tilt of the hero window, counters, the status bar, the playground types itself once */
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;

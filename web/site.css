@@ -88,7 +88,7 @@ kbd { display: inline-block; min-width: 1.8em; text-align: center; padding: .12e
 .top-cta { display: flex; gap: .5rem; align-items: center; }
 .menu-btn { display: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); cursor: pointer; align-items: center; justify-content: center; }
 .menu-btn svg { width: 20px; height: 20px; }
-@media (max-width: 1100px) { .nav, .top-cta .hide-m { display: none; } .menu-btn { display: inline-flex; } .top-cta { margin-left: auto; } }
+@media (max-width: 1240px) { .nav, .top-cta .hide-m { display: none; } .menu-btn { display: inline-flex; } .top-cta { margin-left: auto; } }
 .sheet { position: fixed; inset: 0; z-index: 70; background: var(--bg); padding: calc(env(safe-area-inset-top, 0px) + 14px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 1.4rem; overflow-y: auto; }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; }
 .sheet nav { display: grid; }

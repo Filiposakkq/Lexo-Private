@@ -17,7 +17,7 @@
     sheet.className = "sheet"; sheet.id = "sheet"; sheet.hidden = true; sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-label", "Menu");
     sheet.innerHTML = '<div class="sheet-head"><span class="brand">' + top.querySelector(".brand svg").outerHTML + 'aside</span><button class="menu-btn" style="display:inline-flex" aria-label="Close menu"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>' +
       "<nav aria-label=\"Menu\">" + links.map(function (a) { return '<a href="' + a.getAttribute("href") + '">' + a.textContent + ' <svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>'; }).join("") + "</nav>" +
-      '<div class="btns"><a class="btn btn-hot" href="./#beta">Join the beta</a><a class="btn" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Support on Ko-fi</a></div>';
+      '<div class="btns"><a class="btn btn-hot" href="beta.html">Join the beta</a><a class="btn" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Support on Ko-fi</a></div>';
     document.body.appendChild(sheet);
     var set = function (open) { sheet.hidden = !open; btn.setAttribute("aria-expanded", String(open)); document.body.style.overflow = open ? "hidden" : ""; };
     btn.addEventListener("click", function () { set(true); });
