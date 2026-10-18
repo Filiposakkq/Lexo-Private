@@ -5,7 +5,7 @@ use lexo_core::messages::msg;
 use lexo_core::mt::MtError;
 use lexo_pro::{licence, LexoProProvider};
 use serde_json::{json, Value};
-use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, AtomicUsize, Ordering};
 use std::sync::Arc;
 
 fn hex(bytes: &[u8]) -> String {
@@ -28,8 +28,10 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
 
     let down = Arc::new(AtomicBool::new(false));
     let issued = Arc::new(AtomicI64::new(now()));
+    let revoked = Arc::new(AtomicBool::new(false));
+    let refreshes = Arc::new(AtomicUsize::new(0));
     let fake = {
-        let (down, issued) = (down.clone(), issued.clone());
+        let (down, issued, revoked, refreshes) = (down.clone(), issued.clone(), revoked.clone(), refreshes.clone());
         move |url: &str, _headers: &[(String, String)], body: &[u8]| -> Result<(u16, String), MtError> {
             if down.load(Ordering::SeqCst) {
                 return Err(MtError(msg("The connection to the service failed: {reason}", &[("reason", json!("offline"))])));
@@ -46,7 +48,14 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
                 ("activate", Some("ASIDE-FORGED")) => (200, signed(&thief_key)),
                 ("activate", Some("ASIDE-FULL")) => (409, json!({"ok": false, "error": "device_limit", "devices": 2, "max": 2}).to_string()),
                 ("activate", _) => (404, json!({"ok": false, "error": "invalid_key"}).to_string()),
-                ("refresh", _) => (200, signed(&server_key)),
+                ("refresh", _) => {
+                    refreshes.fetch_add(1, Ordering::SeqCst);
+                    if revoked.load(Ordering::SeqCst) {
+                        (403, json!({"ok": false, "error": "revoked"}).to_string())
+                    } else {
+                        (200, signed(&server_key))
+                    }
+                }
                 ("deactivate", _) => (200, json!({"ok": true}).to_string()),
                 _ => (404, "{}".to_string()),
             })
@@ -93,5 +102,36 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
     assert_eq!(call("deactivate", json!({})).unwrap()["state"], "demo");
     assert!(!file.exists());
     assert!(text(call("deactivate", json!({}))).contains("no licence"));
+
+    // a cancelled licence stops at once (not at the end of the check interval) and a restored one works again
+    call("activate", json!({"key": "ASIDE-GOOD"})).unwrap();
+    revoked.store(true, Ordering::SeqCst);
+    assert!(text(call("refresh", json!({}))).contains("cancelled"));
+    let state = call("status", json!({})).unwrap();
+    assert_eq!((state["state"].as_str(), state["reason"].as_str()), (Some("refused"), Some(licence::CANCELLED)));
+    let offers = p.offers();
+    assert!(!offers.contains_key("replace.regex") && offers["bulk.categorize"]["limit"] == 5, "{offers:?}");
+    assert!(file.with_extension("revoked").exists());
+    revoked.store(false, Ordering::SeqCst);
+    assert_eq!(call("refresh", json!({})).unwrap()["state"], "licensed");
+    assert!(!file.with_extension("revoked").exists());
+    assert!(p.offers().contains_key("replace.regex"));
+
+    // the check at the start and every hour: only a file older than six hours is sent to the server
+    let sent = || refreshes.load(Ordering::SeqCst);
+    let before = sent();
+    assert_eq!(call("check", json!({})).unwrap()["state"], "licensed");
+    assert_eq!(sent(), before, "a fresh file is not sent");
+    issued.store(now() - 7 * 3600, Ordering::SeqCst);
+    call("activate", json!({"key": "ASIDE-GOOD"})).unwrap(); // a file made seven hours ago
+    let old = std::fs::read_to_string(&file).unwrap();
+    call("check", json!({})).unwrap();
+    assert_eq!(sent(), before + 1, "an old file is checked");
+    assert_ne!(std::fs::read_to_string(&file).unwrap(), old);
+    revoked.store(true, Ordering::SeqCst);
+    issued.store(now() - 7 * 3600, Ordering::SeqCst);
+    call("activate", json!({"key": "ASIDE-GOOD"})).unwrap();
+    call("check", json!({})).unwrap();
+    assert_eq!(call("status", json!({})).unwrap()["state"], "refused", "the check at the start finds out that the licence was cancelled");
     let _ = std::fs::remove_dir_all(&tmp);
 }

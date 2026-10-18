@@ -110,6 +110,10 @@ impl Provider for LexoProProvider {
             ("licence", "activate") => licence_client::activate(payload["key"].as_str().unwrap_or(""), self.http()),
             ("licence", "refresh") => licence_client::refresh(self.http()),
             ("licence", "deactivate") => licence_client::deactivate(self.http()),
+            ("licence", "check") => {
+                licence_client::refresh_if_stale(self.http());
+                Ok(licence::status().to_json())
+            }
             ("publish.web", other) => Err(plain(format!("publish.web has no method {other}."))),
             _ => Err(plain(format!("The Pro pack has no feature {feature}."))),
         }

@@ -42,6 +42,7 @@ const reasonText = (r) => ({
   'the licence covers another major version of the application': () => T('the licence covers another major version of the application'),
   'this build cannot verify licences': () => T('this build cannot verify licences'),
   'the licence file comes from a newer version of the licence system': () => T('the licence file comes from a newer version of the licence system'),
+  'this licence was cancelled': () => T('this licence was cancelled'),
 }[r] || (() => r || ''))();
 /* Settings, Licence: the state of the licence of the Pro pack, entering a key, the regular check and freeing this computer. The pack decides everything (it checks the signed
    licence file); this only shows its state and sends the key. Without the pack the state is "none". */

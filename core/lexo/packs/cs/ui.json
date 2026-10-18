@@ -1608,6 +1608,7 @@
   "the licence file comes from a newer version of the licence system": "licenční soubor pochází z novější verze licenčního systému",
   "the licence file is not readable": "licenční soubor nejde přečíst",
   "the signature of the licence is wrong": "podpis licence je špatný",
-  "this build cannot verify licences": "tato verze neumí ověřovat licence"
+  "this build cannot verify licences": "tato verze neumí ověřovat licence",
+  "this licence was cancelled": "tato licence byla zrušena"
  }
 }
