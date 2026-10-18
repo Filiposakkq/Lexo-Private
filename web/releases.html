@@ -271,7 +271,7 @@ section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
       <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
       <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
     </div>
-    <nav aria-label="Footer"><a href="./">Home</a><a href="./#pricing">Pricing</a><a href="docs.html">Docs</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a></nav>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="./#pricing">Pricing</a><a href="docs.html">Docs</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a></nav>
   </div>
 </footer>
 
@@ -320,5 +320,35 @@ section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
 })();
 </script>
 <script src="site.js"></script>
+<script>
+/* with the server: published releases from the admin (the newest with its download), above the development history */
+(function () {
+  var esc = function (t) { return String(t || "").replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var TAG = { "new": ["New", "new"], improved: ["Improved", "imp"], fixed: ["Fixed", "fix"], core: ["Core", "core"] };
+  function notes(t) {
+    return (t || "").split("\n").filter(function (l) { return l.trim(); }).map(function (l) {
+      var m = /^(new|improved|fixed|core):\s*(.*)$/i.exec(l.trim()), tag = m ? TAG[m[1].toLowerCase()] : null;
+      return "<li>" + (tag ? '<span class="tag ' + tag[1] + '">' + tag[0] + "</span>" : '<span class="tag imp">Change</span>') + "<span>" + esc(m ? m[2] : l) + "</span></li>";
+    }).join("");
+  }
+  AsideAPI.live().then(function (live) {
+    if (!live) return;
+    AsideAPI.call("releases").then(function (j) {
+      if (!j.ok || !j.items.length) return;
+      var latest = j.items.filter(function (r) { return r.channel === "stable" && r.downloadable; })[0] || j.items[0];
+      var main = document.querySelector(".next-main");
+      main.innerHTML = '<div class="next-top"><span class="pill live">' + (latest.channel === "beta" ? "Beta" : "Latest release") + '</span><span class="pill os">Windows 10 / 11 · 64-bit</span></div>' +
+        "<h2>Aside " + esc(latest.version) + (latest.title ? " · " + esc(latest.title) : "") + "</h2><p>Released " + esc(latest.date) + (latest.size ? " · " + esc(latest.size) : "") + ".</p>" +
+        '<div class="btns">' + (latest.downloadable ? '<a class="btn btn-hot" href="/api/download/' + esc(latest.id) + '">Download for Windows</a>' : "") + '<a class="btn" href="#changelog">What changed</a></div>' +
+        (latest.sha256 ? '<p class="check-box" style="color:var(--muted)">SHA-256: <code style="display:inline;background:none;padding:0;overflow-wrap:anywhere">' + esc(latest.sha256) + "</code></p>" : "");
+      var log = document.querySelector(".log");
+      log.insertAdjacentHTML("afterbegin", j.items.map(function (r) {
+        return '<article class="entry"><div class="entry-card spot"><div class="entry-top"><h3>Aside ' + esc(r.version) + (r.title ? " · " + esc(r.title) : "") + '</h3><span class="pill ' + (r.channel === "beta" ? "os" : "live") + '">' + (r.channel === "beta" ? "Beta" : "Release") + '</span><span class="when">' + esc(r.date) + "</span></div>" +
+          '<ul class="changes">' + notes(r.notes) + "</ul>" + (r.downloadable ? '<p style="margin-top:.9rem"><a class="btn btn-sm" href="/api/download/' + esc(r.id) + '">Download ' + esc(r.version) + "</a></p>" : "") + "</div></article>";
+      }).join(""));
+    });
+  });
+})();
+</script>
 </body>
 </html>

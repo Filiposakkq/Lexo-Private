@@ -1,9 +1,52 @@
 /* Aside website: the parts every page shares.
+   - AsideAPI: the calls to the website's server (/api/...), with Turnstile for forms; when there is no server
+     (a page opened from disk, a preview), `AsideAPI.live()` resolves to false and the pages fall back to e-mail
    - the menu (☰): every page of the site in four groups, the same everywhere
    - the bottom bar on phones: Home, Features, Beta, Docs and the menu
    - the reading line under the header and the "back to top" button
    - the header line on scroll, the light that follows the pointer on .spot cards,
      and counters (.counter[data-to]) that count up when seen (unless the page has its own: body[data-own-counters]) */
+/* the server of the website (web/worker): one config call decides whether the pages talk to it */
+window.AsideAPI = (function () {
+  var cfg = null;
+  function call(path, body) {
+    return fetch("/api/" + path, body === undefined ? { headers: { accept: "application/json" } } : { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: "bad_answer" }; }).then(function (j) { j.status = r.status; return j; }); });
+  }
+  function config() {
+    if (!cfg) cfg = (location.protocol === "file:" ? Promise.reject(new Error("no server")) : call("config"))
+      .then(function (j) { if (!j.ok) throw new Error("no server"); return j; })
+      .catch(function () { return null; });
+    return cfg;
+  }
+  var tsLoading = null;
+  /* Renders the Turnstile check into `box` when the server has a site key; resolves to a function giving the current token. */
+  function human(box) {
+    return config().then(function (c) {
+      if (!c || !c.turnstile || !box) return function () { return ""; };
+      if (!tsLoading) tsLoading = new Promise(function (ok, no) {
+        var s = document.createElement("script"); s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"; s.async = true;
+        s.onload = function () { ok(); }; s.onerror = no; document.head.appendChild(s);
+      });
+      return tsLoading.then(function () {
+        var token = "", id = window.turnstile.render(box, { sitekey: c.turnstile, theme: "dark", callback: function (t) { token = t; }, "expired-callback": function () { token = ""; } });
+        return function () { return token; };
+      }).catch(function () { return function () { return ""; }; });
+    });
+  }
+  /* A friendly sentence for an error answer of the server. */
+  function why(j) {
+    var e = j && j.error;
+    return e === "too_many" ? "Too many tries from this address. Please wait a while and try again." :
+      e === "not_human" ? "The anti-bot check did not pass. Please tick it and send again." :
+      e === "closed" ? "Applications are closed right now." :
+      e === "missing" ? "Something required is missing" + (j.field ? " (" + j.field + ")" : "") + "." :
+      e === "image_too_big" ? "The screenshot is too big. Try a smaller one." :
+      "Sending failed. Please try again, or write to aside@filiposakkq.dev.";
+  }
+  return { call: call, config: config, live: function () { return config().then(function (c) { return !!c; }); }, human: human, why: why };
+})();
+
 (function () {
   "use strict";
   document.documentElement.classList.add("js");
@@ -15,7 +58,7 @@
     ["Product", [["./#tour", "Features"], ["./#try", "Try it"], ["./#pricing", "Pricing"], ["compare.html", "Compare"]]],
     ["Project", [["roadmap.html", "Roadmap"], ["releases.html", "Releases"], ["showcase.html", "Showcase"], ["blog.html", "Blog"]]],
     ["Get involved", [["beta.html", "Beta programs"], ["developers.html", "For game developers"]]],
-    ["Help", [["docs.html", "Documentation"], ["./#faq", "FAQ"]]]
+    ["Help", [["docs.html", "Documentation"], ["./#faq", "FAQ"], ["contact.html", "Contact"]]]
   ];
 
   var top = document.getElementById("top");

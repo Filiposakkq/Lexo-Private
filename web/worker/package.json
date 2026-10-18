@@ -1,0 +1,23 @@
+{
+  "name": "aside-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The website of Aside and its small server (Cloudflare Worker + D1): beta applications, roadmap votes, feedback, bug reports, showcase, contact, releases. Separate from the licence server.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 migrations apply aside-web --remote"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.4",
+    "@cloudflare/workers-types": "^5.20261018.1",
+    "@vitest/runner": "^4.1.12",
+    "@vitest/snapshot": "^4.1.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.151.1"
+  }
+}

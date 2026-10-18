@@ -739,7 +739,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <div class="side">
       <span class="kicker">FAQ</span>
       <h2>Good questions.</h2>
-      <p>Something else? The <a href="docs.html">documentation</a> goes deeper, or write to <a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a>.</p>
+      <p>Something else? The <a href="docs.html">documentation</a> goes deeper, or <a href="contact.html">write to the author</a>.</p>
     </div>
     <div class="faq">
       <details><summary>Does Aside change my game?</summary><div class="a">No. Game folders are only read. Aside edits the translation files in <code>game/tl/&lt;language&gt;</code>, always after a backup, and keeps its own data in a small <code>.aside</code> folder next to them.</div></details>
@@ -778,7 +778,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     </div>
     <nav aria-label="Footer">
       <a href="#tour">Features</a><a href="compare.html">Compare</a><a href="#pricing">Pricing</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
-      <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a>
+      <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a>
     </nav>
   </div>
 </footer>
@@ -983,5 +983,12 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 })();
 </script>
 <script src="site.js"></script>
+<script>
+/* with the server: the places of the beta round as they are now */
+AsideAPI.config().then(function (c) {
+  if (!c) return; var P = c.program;
+  document.querySelectorAll(".seats-mini").forEach(function (el) { var k = el.getAttribute("data-seats"), l = Math.max(0, P[k].places - P[k].taken); el.classList.toggle("full", !l || !P.open); el.textContent = !P.open ? "Closed for now" : l ? l + " of " + P[k].places + " places left · " + P.round : "Round full · waiting list"; });
+});
+</script>
 </body>
 </html>

@@ -163,3 +163,32 @@ footer { border-top: 1px solid var(--line); padding-block: 2.8rem calc(2.8rem + 
 .to-top:hover { transform: translateY(-2px); border-color: var(--red); }
 .to-top svg { width: 20px; height: 20px; }
 @media (max-width: 760px) { .to-top { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); width: 44px; height: 44px; } }
+
+/* forms of the sub-pages (contact, feedback, bug reports) */
+.fcard { border-radius: 24px; background: var(--card); border: 1px solid var(--line-2); padding: clamp(1.2rem, 1rem + 1.5vw, 2rem); display: grid; gap: 1.1rem; box-shadow: var(--shadow); }
+.ffields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 640px) { .ffields { grid-template-columns: minmax(0, 1fr); } }
+.ff { display: grid; gap: .4rem; align-content: start; }
+.ff.full { grid-column: 1 / -1; }
+.ff > label, .ff > .lab { font: 700 .76rem/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.ff > label b, .ff > .lab b { color: var(--red-text); }
+.ff input[type=text], .ff input[type=email], .ff input[type=url], .ff select, .ff textarea { width: 100%; min-height: 48px; padding: .65rem .85rem; border-radius: 12px; border: 1.5px solid var(--line-2); background: var(--bg); color: var(--ink); font: 400 1rem var(--f-body); outline: none; transition: border-color .15s, box-shadow .15s; }
+.ff textarea { min-height: 110px; resize: vertical; }
+.ff input:focus, .ff select:focus, .ff textarea:focus { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint); }
+.ff.bad input, .ff.bad select, .ff.bad textarea { border-color: var(--bad); }
+.ff .hint { font-size: .8rem; color: var(--muted); }
+.fchips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.fchip { position: relative; }
+.fchip input { position: absolute; opacity: 0; pointer-events: none; }
+.fchip span { display: inline-flex; align-items: center; min-height: 44px; padding: .5rem .9rem; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--bg); font: 600 .9rem/1.2 var(--f-display); color: var(--text); cursor: pointer; }
+.fchip input:checked + span { border-color: var(--red); background: var(--red-soft); color: #fff; }
+.fchip input:focus-visible + span { outline: 2px solid var(--red); outline-offset: 2px; }
+.ff.bad .fchip span { border-color: rgba(255, 92, 124, .6); }
+.ferr { color: var(--bad); font-size: .92rem; margin: 0; min-height: 1.2em; }
+.frow { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
+.fnote { color: var(--muted); font-size: .86rem; }
+.fdone { text-align: center; display: grid; gap: .8rem; justify-items: center; padding: 1.5rem .5rem; }
+.fdone .big { width: 80px; height: 80px; border-radius: 50%; background: var(--grad); display: grid; place-items: center; box-shadow: 0 0 40px rgba(255, 49, 92, .5); color: #fff; font: 800 2rem/1 var(--f-display); }
+.fdone h2 { font-size: 1.5rem; }
+.fdone p { max-width: 52ch; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

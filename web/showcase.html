@@ -43,6 +43,28 @@
 .how em { font-style: normal; font: 800 .72rem/1 var(--f-display); letter-spacing: .14em; color: var(--red-text); display: block; margin-bottom: .6rem; }
 .mail-row { margin-top: 1.6rem; display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
 .mail-row code { font-size: .95rem; padding: .5rem .7rem; }
+.entry { min-height: 220px; border-radius: 20px; padding: 1.3rem; display: grid; align-content: end; gap: .35rem; text-decoration: none; position: relative; overflow: hidden; border: 1px solid var(--line-2); background: radial-gradient(60% 60% at 70% 30%, rgba(255, 196, 140, .45), transparent 70%), linear-gradient(160deg, #2A1B3D, #5B2A4A 60%, #E2725B 130%); transition: transform .25s; }
+.entry:hover { transform: translateY(-4px); }
+.entry:nth-child(3n+2) { background: radial-gradient(60% 60% at 30% 20%, rgba(255, 112, 67, .5), transparent 70%), linear-gradient(160deg, #3A0F1D, #170A10); }
+.entry:nth-child(3n) { background: radial-gradient(70% 60% at 70% 80%, rgba(121, 195, 255, .3), transparent 70%), linear-gradient(160deg, #26101C, #120709); }
+.entry .lg { position: absolute; top: 1rem; left: 1rem; padding: .35rem .65rem; border-radius: 999px; background: rgba(0, 0, 0, .35); border: 1px solid rgba(255, 255, 255, .2); color: #fff; font: 700 .76rem/1 var(--f-display); }
+.entry b { font: 800 1.35rem/1.15 var(--f-display); color: #fff; }
+.entry span { font-size: .88rem; color: #FFE3E9; }
+.entry p { font-size: .86rem; color: #F2DDE2; }
+.sform { margin-top: 1.6rem; border-radius: 24px; background: var(--card); border: 1px solid var(--line-2); padding: clamp(1.2rem, 1rem + 1.5vw, 2rem); display: grid; gap: 1rem; max-width: 860px; }
+.sform .fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 640px) { .sform .fields { grid-template-columns: minmax(0, 1fr); } }
+.sform .f { display: grid; gap: .4rem; }
+.sform .f.full { grid-column: 1 / -1; }
+.sform label { font: 700 .76rem/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.sform label b { color: var(--red-text); }
+.sform input, .sform textarea { width: 100%; min-height: 48px; padding: .65rem .85rem; border-radius: 12px; border: 1.5px solid var(--line-2); background: var(--bg); color: var(--ink); font: 400 1rem var(--f-body); outline: none; }
+.sform textarea { min-height: 90px; resize: vertical; }
+.sform input:focus, .sform textarea:focus { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint); }
+.sform .bad input { border-color: var(--bad); }
+.sform .err { color: var(--bad); font-size: .9rem; margin: 0; min-height: 1.2em; }
+.sform .row { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
+.sform .ok { padding: 1rem 1.2rem; border-radius: 14px; background: var(--ok-soft); color: var(--ink); }
 </style>
 </head>
 <body>
@@ -101,15 +123,15 @@
         <a class="btn btn-hot" href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">Visit the translation <svg><use href="#i-arrow"/></svg></a>
       </div>
     </article>
-    <div class="slots">
-      <div class="slot"><div><span class="plus">+</span><b>Your translation here</b><span>Any game, any language</span></div></div>
-      <div class="slot"><div><span class="plus">+</span><b>Your translation here</b><span>Finished or still in progress</span></div></div>
-      <div class="slot"><div><span class="plus">+</span><b>Your translation here</b><span>Solo or with a team</span></div></div>
+    <div class="slots" id="wall">
+      <a class="slot" href="#send"><div><span class="plus">+</span><b>Your translation here</b><span>Any game, any language</span></div></a>
+      <a class="slot" href="#send"><div><span class="plus">+</span><b>Your translation here</b><span>Finished or still in progress</span></div></a>
+      <a class="slot" href="#send"><div><span class="plus">+</span><b>Your translation here</b><span>Solo or with a team</span></div></a>
     </div>
   </div>
 </section>
 
-<section class="sec band">
+<section class="sec band" id="send">
   <div class="wrap">
     <div class="sec-head">
       <span class="kicker">Get listed</span>
@@ -120,7 +142,22 @@
       <div><em>STEP 2</em><b>Share it publicly</b><span>A release, a thread or a page where players can get your translation.</span></div>
       <div><em>STEP 3</em><b>Send it in</b><span>The game, the language, a link to your translation and a screenshot, to the address below.</span></div>
     </div>
-    <div class="mail-row"><code id="addr">aside@filiposakkq.dev</code><a class="btn btn-hot" href="mailto:aside@filiposakkq.dev?subject=Showcase%3A%20my%20translation">Send my translation</a><button class="copy-btn" type="button" id="copy">Copy address</button></div>
+    <div class="mail-row" id="mail-row"><code id="addr">aside@filiposakkq.dev</code><a class="btn btn-hot" href="mailto:aside@filiposakkq.dev?subject=Showcase%3A%20my%20translation">Send my translation</a><button class="copy-btn" type="button" id="copy">Copy address</button></div>
+    <form class="sform" id="sform" novalidate hidden>
+      <div class="fields">
+        <div class="f"><label for="s-game">Game <b>*</b></label><input id="s-game" maxlength="100" autocomplete="off"></div>
+        <div class="f"><label for="s-lang">Language <b>*</b></label><input id="s-lang" maxlength="60" placeholder="e.g. Polish"></div>
+        <div class="f"><label for="s-translator">Translator or team <b>*</b></label><input id="s-translator" maxlength="80"></div>
+        <div class="f"><label for="s-email">Your e-mail <b>*</b></label><input id="s-email" type="email" maxlength="200" autocomplete="email"></div>
+        <div class="f full"><label for="s-link">Link to the translation <b>*</b></label><input id="s-link" type="url" maxlength="300" placeholder="https://"></div>
+        <div class="f"><label for="s-lines">Lines (optional)</label><input id="s-lines" maxlength="20" placeholder="e.g. 45 000"></div>
+        <div class="f full"><label for="s-blurb">A sentence about it (optional)</label><textarea id="s-blurb" maxlength="400"></textarea></div>
+        <input type="text" id="s-website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+      </div>
+      <div id="s-ts"></div>
+      <p class="err" id="s-err" role="alert"></p>
+      <div class="row"><button class="btn btn-hot" type="submit">Send for review</button><span style="color:var(--muted);font-size:.86rem">Entries appear after a quick check. Your e-mail is never shown.</span></div>
+    </form>
   </div>
 </section>
 </main>
@@ -132,10 +169,11 @@
       <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
       <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
     </div>
-    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
   </div>
 </footer>
 <script src="data.js"></script>
+<script src="site.js"></script>
 <script>
 (function () {
   var b = document.getElementById("copy");
@@ -143,8 +181,40 @@
     var ok = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy address"; }, 1600); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText("aside@filiposakkq.dev").then(ok, function () { b.textContent = "aside@filiposakkq.dev"; }); else b.textContent = "aside@filiposakkq.dev";
   });
+  var esc = function (t) { return String(t || "").replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  AsideAPI.live().then(function (live) {
+    if (!live) return;
+    /* the wall: approved entries from the server (the first translation stays as the headliner above) */
+    AsideAPI.call("showcase").then(function (j) {
+      if (!j.ok) return;
+      var items = j.items.filter(function (i) { return i.id !== "being-a-dik-cs"; });
+      var cards = items.map(function (i) {
+        return '<a class="entry spot" href="' + esc(i.link) + '" target="_blank" rel="noopener"><span class="lg">' + esc(i.lang) + "</span><b>" + esc(i.game) + "</b><span>by " + esc(i.translator) + (i.lines ? " · " + esc(i.lines) + " lines" : "") + "</span>" + (i.blurb ? "<p>" + esc(i.blurb) + "</p>" : "") + "</a>";
+      });
+      var free = 3 - (cards.length % 3);
+      for (var k = 0; k < free; k++) cards.push('<a class="slot" href="#send"><div><span class="plus">+</span><b>Your translation here</b><span>Send it below</span></div></a>');
+      document.getElementById("wall").innerHTML = cards.join("");
+    });
+    /* the form instead of the e-mail */
+    var form = document.getElementById("sform"); form.hidden = false; document.getElementById("mail-row").hidden = true;
+    document.querySelector("#send .how div:last-child span").textContent = "The game, the language and a link to your translation, in the form below.";
+    var token = function () { return ""; };
+    AsideAPI.human(document.getElementById("s-ts")).then(function (t) { token = t; });
+    var v = function (id) { return document.getElementById("s-" + id).value.trim(); };
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var err = document.getElementById("s-err"), need = [["game", v("game")], ["lang", v("lang")], ["translator", v("translator")], ["email", /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email"))], ["link", /^https?:\/\/\S+\.\S+/.test(v("link"))]];
+      form.querySelectorAll(".f").forEach(function (f) { f.classList.remove("bad"); });
+      var missing = need.filter(function (n) { return !n[1]; });
+      if (missing.length) { missing.forEach(function (n) { document.getElementById("s-" + n[0]).closest(".f").classList.add("bad"); }); err.textContent = "Please fill in the marked fields (the link must start with https://)."; document.getElementById("s-" + missing[0][0]).focus(); return; }
+      var btn = form.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Sending…"; err.textContent = "";
+      AsideAPI.call("showcase", { game: v("game"), lang: v("lang"), translator: v("translator"), email: v("email"), link: v("link"), lines: v("lines"), blurb: v("blurb"), website: v("website"), turnstile: token() }).then(function (j) {
+        if (!j.ok) { btn.disabled = false; btn.textContent = "Send for review"; err.textContent = AsideAPI.why(j); return; }
+        form.innerHTML = '<p class="ok"><b>Thank you!</b> Your translation is waiting for a quick review. Once approved it appears on this wall.</p>';
+      }, function () { btn.disabled = false; btn.textContent = "Send for review"; err.textContent = AsideAPI.why(null); });
+    });
+  });
 })();
 </script>
-<script src="site.js"></script>
 </body>
 </html>
