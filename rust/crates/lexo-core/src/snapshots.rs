@@ -18,7 +18,7 @@ use zip::write::SimpleFileOptions;
 use zip::{CompressionMethod, ZipArchive, ZipWriter};
 
 pub const DIR_NAME: &str = "snapshots";
-const SKIP_DIRS: [&str; 5] = ["_progress_data", ".lexo", "__pycache__", ".git", "backups"];
+const SKIP_DIRS: [&str; 6] = ["_progress_data", ".aside", ".lexo", "__pycache__", ".git", "backups"];
 pub const MAX_BYTES: u64 = 400 * 1024 * 1024;
 
 /// What a snapshot was made for (the keys of the name) and the label shown to the user.

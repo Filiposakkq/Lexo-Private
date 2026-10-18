@@ -20,7 +20,7 @@
    "sha1": "448c9cb04cb1a5e06d8db27c336f10ad7dcf5cc7",
    "text": "define mc = Character(\"Mia\")\ndefault title = \"The Great Adventure\"\ndefault names = [\n    \"Indented data line here\",\n]\ninit python:\n    notify(\"Item added to the inventory\")\n    notify(\"Quest updated for the player\")\n    notify(\"You found a hidden room\")\n    popup(\"Another message appears\")\n    obj.append(\"Not a function of the game\")\n\nlabel start:\n    scene bg\n    show text \"Welcome to the game\" at truecenter\n    mc \"Hello, how are you?\"\n    mc \"This line has a translation block.\"\n    mc \"A line that has no block at all, honestly.\"\n    \"Narration without a block.\"\n    $ renpy.notify(\"Saved the game\")\n    $ name = renpy.input(\"What is your name?\")\n    $ message = \"You have new mail\"\n    menu:\n        \"Go left\":\n            jump left\n        \"Go right\" if flag:\n            jump right\n    $ x = \"snake_case_id\"\n    $ path = \"images/bg.png\"\n    $ col = \"#ff00ff\"\n    $ tag = \"{i}Styled{/i} text here\"\n    $ lone = \"Hello\"\n    $ lower = \"nothing\"\n    $ dup = \"You have new mail\"\n    $ t2 = 'Single quoted sentence here'\n\nscreen hud():\n    text \"Screen text is skipped\"\n    $ renpy.notify(\"Python in a screen\")\n\nimage bg = \"bg.png\"\ntranslate czech strings:\n    old \"never read here\"\n    new \"x\"\n"
   },
-  "root/game/tl/czech/.lexo/ignored.rpy": {
+  "root/game/tl/czech/.aside/ignored.rpy": {
    "sha1": "12013aac5f8e8c11b058047b203ec1f5c78c72e3",
    "text": "old \"skipped folder\"\n"
   },

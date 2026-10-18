@@ -119,7 +119,7 @@ def extract_rpa(archive, dest, only=None, overwrite=False, max_file=DEFAULT_MAX_
 
 
 # ---------------------------------------------------------------- workspace for a built game
-LINK_SKIP_ROOT = {"_progress_data", ".lexo"}        # data of translation tools lying next to the game: never part of a workspace
+LINK_SKIP_ROOT = {"_progress_data", ".aside", ".lexo"}        # data of translation tools lying next to the game: never part of a workspace
 LINK_SKIP_DIRS = {"cache", "saves", "tl"}            # Ren'Py rewrites these; they are created fresh in the workspace
 COPY_SUFFIXES = {".rpy", ".rpyc", ".rpymc", ".rpyb", ".pyc", ".pyo"}   # files the engine may rewrite in place: copied, never linked
 

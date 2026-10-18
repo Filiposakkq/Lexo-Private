@@ -35,7 +35,7 @@ pub struct Open {
     pub project: Project,
     pub store: Store,
     pub history: History,
-    /// Shared data: `<translation folder>/.lexo`.
+    /// Shared data: `<translation folder>/.aside`.
     pub data_dir: PathBuf,
     /// Local data: backups, snapshots, lock, derived files (`datadir.rs`).
     pub local_dir: PathBuf,

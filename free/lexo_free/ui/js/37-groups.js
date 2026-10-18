@@ -62,7 +62,7 @@ export async function groupsDialog(done) {
     return false;
   } }, T('Save the groups'));
   const p = data.proposal;
-  info.textContent = locked ? T('This project has several sections (seasons) in lexo.json; edit the file by hand to change them.')
+  info.textContent = locked ? T('This project has several sections (seasons) in aside.json; edit the file by hand to change them.')
     : p.groups.length ? T('Suggested from the file names: {label} {list} ({matched} of {total} files).', { label: words[p.label] || p.label, list: formatGroups(p.groups), matched: p.matched, total: p.total })
       : T('No numbered groups (ep1, chapter2, part3, day4, update5…) were found in the file names; write them yourself if the game has them.');
   if (locked) { apply.disabled = true; sel.disabled = true; list.disabled = true; seriesBox.disabled = true; folderBox.disabled = true; }

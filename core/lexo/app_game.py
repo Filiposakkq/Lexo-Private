@@ -25,7 +25,7 @@ class GamePart:
         game = self._game_dir()
         if game is None:
             return ""
-        skip = {"tl", "cache", "saves", ".lexo", "_progress_data"}
+        skip = {"tl", "cache", "saves", ".aside", ".lexo", "_progress_data"}
         scripts = [p for p in sorted(game.rglob("*.rpy")) if not skip & set(p.relative_to(game).parts[:-1])]
         named = [p for p in scripts if p.name.lower() == "gui.rpy"]
         for path in sorted(named, key=lambda p: len(p.relative_to(game).parts))[:1]:

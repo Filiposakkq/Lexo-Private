@@ -1004,7 +1004,7 @@
   "effect": "write",
   "kind": "json",
   "needs_project": true,
-  "doc": "Define the groups of the project (written to lexo.json).",
+  "doc": "Define the groups of the project (written to aside.json).",
   "params": [
    {
     "name": "label",

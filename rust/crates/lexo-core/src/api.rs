@@ -633,7 +633,7 @@ fn table() -> &'static Vec<Operation> {
                 "groups/apply",
                 p,
                 "write",
-                "Define the groups of the project (written to lexo.json).",
+                "Define the groups of the project (written to aside.json).",
                 vec![a("label"), a("groups"), s("series"), a("folders")],
                 crate::app_assign::op_groups_apply,
             )

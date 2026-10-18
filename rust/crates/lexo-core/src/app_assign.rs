@@ -114,7 +114,7 @@ impl App {
         }))
     }
 
-    /// Define the groups of the project (one section) and write them to lexo.json. Files keep their assignments; assignments to a group that no longer exists stay in the
+    /// Define the groups of the project (one section) and write them to aside.json. Files keep their assignments; assignments to a group that no longer exists stay in the
     /// data but are not counted until the group is back.
     pub fn groups_apply(&mut self, label: &Value, groups: &Value, series: &str, folders: &Value) -> Res<Value> {
         self.need_project()?;
@@ -151,7 +151,7 @@ impl App {
             return Err(bad_groups());
         }
         if self.o()?.store.layout.sections.len() > 1 {
-            return Err(app_err(msg("This project has several sections (seasons) in lexo.json; edit the file by hand to change them.", &[])));
+            return Err(app_err(msg("This project has several sections (seasons) in aside.json; edit the file by hand to change them.", &[])));
         }
         let clock = &*self.clock;
         let o = self.open.as_mut().unwrap();

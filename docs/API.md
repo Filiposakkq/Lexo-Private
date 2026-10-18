@@ -50,7 +50,7 @@ a script or the Rust port calls the operation by name. Errors come back as `{"ok
 | `glossary/import-preview` | POST `/api/glossary/import-preview` | read | `path` (str) | Preview importing character names from a game file. |
 | `glossary/occurrences` | GET `/api/glossary/occurrences` | read | `code` (str), `missing` (flag) | Where a speaker code (or a missing name) occurs. |
 | `glossary/set` | POST `/api/glossary/set` | write | `items` (list) | Set glossary items. |
-| `groups/apply` | POST `/api/groups/apply` | write | `label` (any), `groups` (any), `series` (str), `folders` (any) | Define the groups of the project (written to lexo.json). |
+| `groups/apply` | POST `/api/groups/apply` | write | `label` (any), `groups` (any), `series` (str), `folders` (any) | Define the groups of the project (written to aside.json). |
 | `groups/suggest` | GET `/api/groups/suggest` | read | - | The groups the project has now and the groups its file names suggest. |
 | `ignore/list` | GET `/api/ignore/list` | read | - | The findings the translator told the app to ignore. |
 | `ignore/set` | POST `/api/ignore/set` | write | `items` (list), `on` (flag, default true), `note` (str) | Ignore (or stop ignoring) findings on lines. |

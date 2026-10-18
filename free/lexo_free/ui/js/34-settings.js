@@ -25,7 +25,7 @@ export async function viewSettings() {
       ...field(T('Interface language'), langSelect, T('The page reloads when you change it.')))),
     h('fieldset', null, h('legend', { 'data-k': 'project' }, T('Project')), h('div', { class: 'form' },
       ...field(T('Translation folder'), h('div', { class: 'row nowrap' }, projectInput, h('button', { class: 'btn', onclick: pickProject }, T('Browse…')), h('button', { class: 'btn', onclick: () => openProject(projectInput.value) }, T('Open'))),
-        T('Remembered between runs. The shared project data (CSV files) is in the subfolder .lexo of the translation folder; backups, snapshots and progress.json are in the local project data of the application.')),
+        T('Remembered between runs. The shared project data (CSV files) is in the subfolder .aside of the translation folder; backups, snapshots and progress.json are in the local project data of the application.')),
       ...field(T('Skipped files'), h('input', { type: 'text', id: 'set_skip', value: s.skip_files.join(', ') }), T('File names separated by commas (in all subfolders). A change takes effect after “Refresh files”.')))),
     h('fieldset', null, h('legend', { 'data-k': 'editor' }, T('Editor (opens a file at a line)')), h('div', { class: 'form' },
       ...field(T('Editor'), h('select', { id: 'set_editor', value: s.editor.preferred }, [['auto', T('Automatic (VS Code, otherwise Notepad++)')], ['vscode', 'Visual Studio Code'], ['notepadpp', 'Notepad++'], ['custom', T('Custom command')], ['system', T('Default program (no jump to the line)')]].map(([k, l]) => h('option', { value: k }, l)))),

@@ -19,7 +19,7 @@ from .messages import msg
 
 DIR_NAME = "snapshots"
 NAME_RE = re.compile(r"^snap-\d{8}-\d{6}(?:-\d+)?-(auto|bulk|manual|restore)\.zip$")
-SKIP_DIRS = {"_progress_data", ".lexo", "__pycache__", ".git", "backups"}
+SKIP_DIRS = {"_progress_data", ".aside", ".lexo", "__pycache__", ".git", "backups"}
 MAX_BYTES = 400 * 1024 * 1024
 REASONS = {"auto": msg("automatic"), "bulk": msg("before a bulk change"), "manual": msg("created by hand"), "restore": msg("before a restore")}
 

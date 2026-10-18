@@ -2,7 +2,7 @@
 
     py rust/tools/diff_ops_real_games.py <folder holding games> [--exe path\\to\\lexo-golden.exe] [--scratch folder] [--lang czech] [--games name,name] [--keep]
 
-For every `<folder>/*/game/tl/<lang>` the program makes TWO copies in the scratch folder (the translation with its `.lexo` data, and the scripts of the game without the big files), opens
+For every `<folder>/*/game/tl/<lang>` the program makes TWO copies in the scratch folder (the translation with its `.aside` data, and the scripts of the game without the big files), opens
 one with the Python Core and one with the Rust Core, asks both the same list of read operations (made from what the Python Core answers: the files, a sample of lines of every file)
 and compares the normalised answers. The originals are only read. The scratch folder should be on a fast drive; it is removed at the end (`--keep` leaves it).
 
@@ -38,7 +38,7 @@ FIXED = [
 
 
 def copy_game(game, lang, dst):
-    """<dst>/game/tl/<lang> (everything, with `.lexo`) and the scripts of the game around it. Returns the folder to open."""
+    """<dst>/game/tl/<lang> (everything, with `.aside`) and the scripts of the game around it. Returns the folder to open."""
     src_game = Path(game) / "game"
     for dirpath, dirs, files in os.walk(src_game):
         dirs[:] = [d for d in dirs if d.lower() not in SKIP_DIRS]

@@ -61,8 +61,8 @@ class TempCase(unittest.TestCase):
         self.use_layout(EIGHT_EPISODES)
 
     def use_layout(self, sections, labels=None, language="cs"):
-        """Write the project layout file (lexo.json) of the temp project; None = no file (no groups)."""
-        path = self.root / ".lexo" / layout.FILE_NAME
+        """Write the project layout file (aside.json) of the temp project; None = no file (no groups)."""
+        path = self.root / ".aside" / layout.FILE_NAME
         lay = layout.Layout(sections or (), labels, language)
         layout.use(lay)                      # tests that use Store/bulk directly never open a project
         if sections is None:
@@ -73,7 +73,7 @@ class TempCase(unittest.TestCase):
 
     def local_dir(self):
         """The local data folder (backups, snapshots, lock, derived files) of the temp project."""
-        shared = self.root / ".lexo"
+        shared = self.root / ".aside"
         shared.mkdir(exist_ok=True)
         return datadir.local_dir(shared, self.root)
 

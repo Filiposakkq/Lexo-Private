@@ -1,8 +1,8 @@
-"""Compares what the Rust Core reads from real data folders (`.lexo`: the CSV files of the store, history.csv, the event log) with what the Python Core reads.
+"""Compares what the Rust Core reads from real data folders (`.aside`: the CSV files of the store, history.csv, the event log) with what the Python Core reads.
 
     py rust/tools/diff_data_real_folders.py <folder holding games> [--exe path\\to\\lexo-golden.exe] [--today 2026-10-17]
 
-Every folder named `.lexo` under `<folder>/*/game/` is read by both (nothing is written: the store is only loaded, the event files only read) and the answers are compared:
+Every folder named `.aside` under `<folder>/*/game/` is read by both (nothing is written: the store is only loaded, the event files only read) and the answers are compared:
 the store, the rows and points of history.csv, the completion estimate and goals for `today`, and the replay of the events.
 """
 import argparse
@@ -26,7 +26,7 @@ def python_answer(folder, today):
     folder = Path(folder)
     lay = layout.Layout()
     try:
-        lay = layout.parse(json.loads((folder / "lexo.json").read_text(encoding="utf-8-sig")))
+        lay = layout.parse(json.loads((folder / "aside.json").read_text(encoding="utf-8-sig")))
     except (OSError, ValueError):
         pass
     layout.use(lay)
@@ -66,7 +66,7 @@ def main():
     ap.add_argument("--exe", default=os.environ.get("LEXO_GOLDEN_EXE", "lexo-golden"))
     ap.add_argument("--today", default="2026-10-17")
     a = ap.parse_args()
-    folders = sorted(glob.glob(os.path.join(a.games, "*", "game", "**", ".lexo"), recursive=True))
+    folders = sorted(glob.glob(os.path.join(a.games, "*", "game", "**", ".aside"), recursive=True))
     print(len(folders), "data folders")
     out = subprocess.run([a.exe, "--dump-data", a.today, *folders], capture_output=True, check=True).stdout.decode("utf-8")
     rows = dict(line.split("\t", 1) for line in out.splitlines() if "\t" in line)

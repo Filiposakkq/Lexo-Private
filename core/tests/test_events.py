@@ -18,7 +18,7 @@ class EventLogTests(TempCase):
     def setUp(self):
         super().setUp()
         self.basic_project()
-        self.events_dir = self.root / ".lexo" / "events"
+        self.events_dir = self.root / ".aside" / "events"
 
     def lines(self, app):
         path = app.store.events.path
@@ -39,7 +39,7 @@ class EventLogTests(TempCase):
         self.assertEqual(app.store.events.path.parent.resolve(), self.events_dir.resolve())
 
     def test_the_first_open_writes_the_existing_state_as_events(self):
-        d = self.root / ".lexo"
+        d = self.root / ".aside"
         d.mkdir(exist_ok=True)
         (d / "assignments.csv").write_text("file;group\nscript.rpy;episode 1\n", encoding="utf-8")
         app = self.new_app()
@@ -51,7 +51,7 @@ class EventLogTests(TempCase):
         self.other(event("assign", ["script.rpy"], "ep:3"))
         again = self.new_app()
         self.assertEqual(again.store.assign["script.rpy"], "ep:3")
-        self.assertIn("episode 3", (self.root / ".lexo" / "assignments.csv").read_text(encoding="utf-8-sig"))
+        self.assertIn("episode 3", (self.root / ".aside" / "assignments.csv").read_text(encoding="utf-8-sig"))
         self.assertTrue(any("changes by other authors" in render(n) or "change by another author" in render(n) for n in again.notices))
         self.assertEqual(self.new_app().store.assign["script.rpy"], "ep:3")                 # nothing new the third time
 
@@ -80,7 +80,7 @@ class EventLogTests(TempCase):
 
     def test_an_edit_of_the_csv_by_hand_becomes_events(self):
         app = self.new_app()
-        csv = self.root / ".lexo" / "assignments.csv"
+        csv = self.root / ".aside" / "assignments.csv"
         csv.write_text("file;group\nscript.rpy;episode 2\n", encoding="utf-8")
         app2 = self.new_app()
         self.assertEqual(app2.store.assign["script.rpy"], "ep:2")

@@ -73,7 +73,7 @@ class GlossaryPart:
         """All files of the game that define characters: the files named characters*.rpy (BaDIK keeps them there) and, when there are none,
         every other script that has a `define x = Character(...)` line (most games put them in script.rpy or a definitions file).
         The translation folder is usually <game>/game/tl/<lang>, so the game folder is searched upwards."""
-        skip = ("tl", "cache", "saves", "_progress_data", ".lexo", ".git")
+        skip = ("tl", "cache", "saves", "_progress_data", ".aside", ".lexo", ".git")
         base = self._game_dir()
         for base in ([base] if base is not None and base.is_dir() else []):
             named, scripts = [], []

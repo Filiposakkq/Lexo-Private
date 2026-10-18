@@ -61,7 +61,7 @@ impl App {
     /// The text of the game's gui definitions: `game/gui.rpy`, else a file called `gui.rpy` elsewhere in the game, else the first script that has `define gui.` lines.
     fn gui_text(&self) -> String {
         let Some(game) = self.game_dir() else { return String::new() };
-        let skip = ["tl", "cache", "saves", ".lexo", "_progress_data"];
+        let skip = ["tl", "cache", "saves", ".aside", ".lexo", "_progress_data"];
         let mut scripts = rglob_suffix(&game, &[".rpy"]);
         scripts.retain(|p| {
             let rel = p.strip_prefix(&game).unwrap_or(p);

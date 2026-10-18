@@ -1,6 +1,6 @@
 """Where the data of a project lives (docs/DATA-LAYOUT.md).
 
-  <translation folder>/.lexo/                 shared, small, text files that a team can put in git (CSV, JSON)
+  <translation folder>/.aside/                shared, small, text files that a team can put in git (CSV, JSON)
   <config folder>/projects/<project id>/      local data: backups, snapshots, the lock, text history, derived progress files
 
 The shared folder holds a one-line file `project-id`; the local folder is named after it, so the local data follows the project when the
@@ -13,8 +13,25 @@ from pathlib import Path
 from .config import config_dir
 from .util import atomic_write_text
 
-SHARED_NAME = ".lexo"
+SHARED_NAME = ".aside"
+LEGACY_SHARED_NAME = ".lexo"            # the name before the application was called Aside
+LEGACY_LAYOUT_NAME = "lexo.json"
 ID_FILE = "project-id"
+
+
+def adopt_legacy(root):
+    """A project folder from the time when the application was called Lexo: rename `.lexo` to `.aside` and `lexo.json` to `aside.json` (once; nothing is
+    changed when the new folder exists already or the folder cannot be renamed)."""
+    root = Path(root)
+    old, new = root / LEGACY_SHARED_NAME, root / SHARED_NAME
+    try:
+        if old.is_dir() and not new.exists():
+            old.rename(new)
+        legacy = new / LEGACY_LAYOUT_NAME
+        if legacy.is_file() and not (new / "aside.json").exists():
+            legacy.rename(new / "aside.json")
+    except OSError:
+        pass
 
 def project_id(shared):
     """The id stored in the shared folder; created on first use. Returns '' when the folder cannot be written."""

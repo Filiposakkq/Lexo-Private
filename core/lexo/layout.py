@@ -4,7 +4,7 @@ A *group* is a numbered unit the translator wants statistics for (an episode, a 
 *section* is a set of groups (a season, a part). Both are optional: a project without a layout file has
 no groups, and every file counts as "unassigned" in the overview.
 
-The layout is read from `<project data folder>/lexo.json`:
+The layout is read from `<project data folder>/aside.json`:
 
     {"version": 1,
      "language": "cs",
@@ -28,7 +28,7 @@ from pathlib import Path
 from . import lang
 from .util import atomic_write_text
 
-FILE_NAME = "lexo.json"
+FILE_NAME = "aside.json"
 DEFAULT_LABELS = {"section": "Season", "group": "Episode"}
 
 
@@ -264,7 +264,7 @@ def propose(names):
 
 
 def save_groups(data_dir, label, sections, series="", folders=()):
-    """Write the groups into lexo.json (other keys, such as `language`, stay). `sections`: [{"n": 1, "groups": [1, 2, 3]}].
+    """Write the groups into aside.json (other keys, such as `language`, stay). `sections`: [{"n": 1, "groups": [1, 2, 3]}].
     Returns the new Layout; raises LayoutError for numbers that cannot be used."""
     path = Path(data_dir) / FILE_NAME
     raw = {}

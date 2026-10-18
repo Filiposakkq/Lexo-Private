@@ -1,7 +1,7 @@
 //! Port of `core/lexo/layout.py`: how a project's files are grouped (sections > groups), and the guessing of groups from file names.
 //!
 //! Ported here: the layout itself (`parse`, `to_json`), `propose`, `folder_number`, `series_number` and the helpers behind them.
-//! Not yet: `load` and `save_groups` (they read and write `lexo.json`, which come with the data files, M3), and the process-wide "current layout"
+//! Not yet: `load` and `save_groups` (they read and write `aside.json`, which come with the data files, M3), and the process-wide "current layout"
 //! of the Python module: the functions that need the label of the group take it as a parameter.
 use fancy_regex::Regex as FancyRegex;
 use regex::Regex;
@@ -9,7 +9,7 @@ use serde_json::{json, Map, Value};
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
 
-pub const FILE_NAME: &str = "lexo.json";
+pub const FILE_NAME: &str = "aside.json";
 const DEFAULT_LABELS: [(&str, &str); 2] = [("section", "Season"), ("group", "Episode")];
 
 #[derive(Clone, Debug, PartialEq)]
@@ -83,13 +83,13 @@ impl std::fmt::Display for LayoutError {
 }
 
 impl Layout {
-    /// The layout of a project without a `lexo.json` (Python: `Layout()`).
+    /// The layout of a project without a `aside.json` (Python: `Layout()`).
     pub fn empty() -> Layout {
         Layout::new(Vec::new(), BTreeMap::new(), "", "", Vec::new())
     }
 }
 
-/// Read `lexo.json` of a project: the layout and a note for the user (`None`, or a plain text when the file is broken or names a language without a pack).
+/// Read `aside.json` of a project: the layout and a note for the user (`None`, or a plain text when the file is broken or names a language without a pack).
 pub fn load(data_dir: &std::path::Path, packs: &crate::lang::Packs) -> (Layout, Option<String>) {
     let path = data_dir.join(FILE_NAME);
     if !path.is_file() {
@@ -111,7 +111,7 @@ pub fn load(data_dir: &std::path::Path, packs: &crate::lang::Packs) -> (Layout, 
     }
 }
 
-/// Write the groups into `lexo.json` (other keys, such as `language`, stay). `sections` = `(n, groups)`. Returns the new layout; fails for numbers that cannot be used,
+/// Write the groups into `aside.json` (other keys, such as `language`, stay). `sections` = `(n, groups)`. Returns the new layout; fails for numbers that cannot be used,
 /// before anything is written.
 pub fn save_groups(
     data_dir: &std::path::Path,

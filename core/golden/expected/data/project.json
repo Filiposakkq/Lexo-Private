@@ -4,23 +4,23 @@
    "sha1": "90bea5cd2f3a2f3e731dad38a864df33100535ca",
    "text": "no scripts\n"
   },
-  "root/game/tl/czech/.lexo/approved.csv": {
+  "root/game/tl/czech/.aside/approved.csv": {
    "sha1": "162b43404c77ae67b074982d0b7b99045f8f0b98",
    "text": "﻿file;block;original\r\na.rpy;strings;Maybe\r\na.rpy;translate czech a_2;Bye\r\n"
   },
-  "root/game/tl/czech/.lexo/assignments.csv": {
+  "root/game/tl/czech/.aside/assignments.csv": {
    "sha1": "1f596d968b97beceb739971ee50673495f351588",
    "text": "﻿file;group\r\n"
   },
-  "root/game/tl/czech/.lexo/ignored_folder.rpy": {
+  "root/game/tl/czech/.aside/ignored_folder.rpy": {
    "sha1": "7de2a8423b8094599b973b602772d5ff9a713c16",
    "text": "translate czech x_1:\n\n    # \"Hidden\"\n    \"Skryte\"\n"
   },
-  "root/game/tl/czech/.lexo/line_marks.csv": {
+  "root/game/tl/czech/.aside/line_marks.csv": {
    "sha1": "61049c1d9e1d440013192edc7e0f9bda00152f56",
    "text": "﻿file;block;original;state;hash;note;date\r\na.rpy;strings;Yes;fix;e6b262e775e3;check it;2026-10-02\r\na.rpy;translate czech a_1;Hello;ok;5bda927208c5;;2026-10-01\r\na.rpy;translate czech a_2;Bye;ok;0;;\r\na.rpy;translate czech a_3;[name], the {i}end{/i}.;ok;000000000000;;2026-10-01\r\n"
   },
-  "root/game/tl/czech/.lexo/proofread.csv": {
+  "root/game/tl/czech/.aside/proofread.csv": {
    "sha1": "256180853e56b707478b04b4b4a4793997c62d7d",
    "text": "﻿file;proofread;translated_manual\r\na.rpy;1;\r\nc_renamed.rpy;;50%\r\ncrlf_bom.rpy;;50%\r\nnothing.rpy;7;7\r\n"
   },
@@ -60,7 +60,7 @@
    "sha1": "9905590a808e11c67b9eed16039a4d7c3a147913",
    "text": "translate german a_1:\n\n    # mc \"Hi\"\n    mc \"Hallo\"\n"
   },
-  "root3/game/tl/czech/.lexo/x.txt": {
+  "root3/game/tl/czech/.aside/x.txt": {
    "sha1": "11f6ad8ec52a2984abaafd7c3b516503785c2072",
    "text": "x"
   },
@@ -116,12 +116,12 @@
   },
   {
    "answer": {
-    "message": "There are no .rpy files in the folder: <TMP>/root3/game/tl/czech/.lexo",
+    "message": "There are no .rpy files in the folder: <TMP>/root3/game/tl/czech/.aside",
     "ok": false
    },
    "op": "project.check_dir",
    "params": {
-    "path": "root3/game/tl/czech/.lexo"
+    "path": "root3/game/tl/czech/.aside"
    }
   },
   {
@@ -188,7 +188,7 @@
    "op": "store.open",
    "params": {
     "local": "root/local",
-    "shared": "root/game/tl/czech/.lexo"
+    "shared": "root/game/tl/czech/.aside"
    }
   },
   {

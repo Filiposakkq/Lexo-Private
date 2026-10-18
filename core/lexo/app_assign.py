@@ -56,7 +56,7 @@ class AssignPart:
                 "words": list(layout.GROUP_WORDS)}
 
     def groups_apply(self, label, groups, series="", folders=()):
-        """Define the groups of the project (one section) and write them to lexo.json. Files keep their assignments; assignments to a group that
+        """Define the groups of the project (one section) and write them to aside.json. Files keep their assignments; assignments to a group that
         no longer exists stay in the data but are not counted until the group is back."""
         self._need_project()
         label = str(label or "").strip()
@@ -72,7 +72,7 @@ class AssignPart:
         except (TypeError, ValueError) as e:
             raise AppError(msg("The groups must be positive whole numbers, for example 1–8.")) from e
         if len(layout.current().sections) > 1:
-            raise AppError(msg("This project has several sections (seasons) in lexo.json; edit the file by hand to change them."))
+            raise AppError(msg("This project has several sections (seasons) in aside.json; edit the file by hand to change them."))
         with self.lock:
             try:
                 lay = layout.save_groups(self.data_dir, label, [{"n": 1, "groups": nums}], str(series or ""), folders)

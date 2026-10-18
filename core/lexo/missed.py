@@ -19,7 +19,7 @@ from pathlib import Path
 
 from .util import atomic_write_text
 
-SKIP_DIRS = {"tl", "cache", "saves", ".lexo", "_progress_data", ".git", "__pycache__"}
+SKIP_DIRS = {"tl", "cache", "saves", ".aside", ".lexo", "_progress_data", ".git", "__pycache__"}
 STRING = r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\''
 LITERAL_RE = re.compile(r'"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\'')
 # a dialogue line (`who "text"`, `"text"`, with an optional `with`/`id` tail) and a menu choice (`"text" if cond:`)
@@ -104,7 +104,7 @@ def known_texts(tl_dir):
     comments); and the places `(file, line)` that its blocks point to (the `# game/script.rpy:22` comments of Ren'Py's generator)."""
     strings, dialogue, places = set(), set(), set()
     for path in Path(tl_dir).rglob("*.rpy"):
-        if "_progress_data" in path.parts or ".lexo" in path.parts:
+        if "_progress_data" in path.parts or ".aside" in path.parts or ".lexo" in path.parts:
             continue
         try:
             text = path.read_text(encoding="utf-8-sig", errors="replace")

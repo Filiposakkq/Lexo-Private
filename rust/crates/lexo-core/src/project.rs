@@ -13,8 +13,8 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 /// Shared project data (datadir.rs).
-pub const DATA_DIR_NAME: &str = ".lexo";
-pub const IGNORED_DIRS: [&str; 5] = [DATA_DIR_NAME, "_progress_data", ".git", "__pycache__", "node_modules"];
+pub const DATA_DIR_NAME: &str = ".aside";
+pub const IGNORED_DIRS: [&str; 6] = [DATA_DIR_NAME, ".lexo", "_progress_data", ".git", "__pycache__", "node_modules"];
 
 /// One row per file: name, translated (including the manual override), remaining, total, proofread, the automatic translated count.
 #[derive(Clone, Debug, PartialEq)]

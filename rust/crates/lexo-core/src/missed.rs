@@ -14,7 +14,7 @@ use std::collections::{BTreeSet, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
-const SKIP_DIRS: [&str; 7] = ["tl", "cache", "saves", ".lexo", "_progress_data", ".git", "__pycache__"];
+const SKIP_DIRS: [&str; 8] = ["tl", "cache", "saves", ".aside", ".lexo", "_progress_data", ".git", "__pycache__"];
 const STRING: &str = r#""(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'"#;
 /// Words that start a Ren'Py statement: a line beginning with one of them is not a dialogue line, whatever follows.
 const NOT_A_SPEAKER: [&str; 32] = [
@@ -268,7 +268,7 @@ pub fn known_texts(tl_dir: &Path) -> Known {
     rpy_below(tl_dir, &mut files);
     for path in files {
         let parts: Vec<String> = path.components().map(|c| c.as_os_str().to_string_lossy().into_owned()).collect();
-        if parts.iter().any(|x| x == "_progress_data" || x == ".lexo") {
+        if parts.iter().any(|x| x == "_progress_data" || x == ".aside" || x == ".lexo") {
             continue;
         }
         let Some(lines) = read_lines(&path, true) else { continue };
