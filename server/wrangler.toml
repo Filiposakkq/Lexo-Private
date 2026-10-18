@@ -14,6 +14,6 @@ MAIL_FROM = "Aside <licence@aside.filiposakkq.dev>"
 [[d1_databases]]
 binding = "DB"
 database_name = "aside-licence"
-# `wrangler d1 create aside-licence` prints the real id; put it here before the first deploy
-database_id = "00000000-0000-0000-0000-000000000000"
+# the id of the database aside-licence (created in the Cloudflare dashboard; it is not a secret)
+database_id = "1f56b572-ba05-41c7-bb8d-e53df88f982b"
 migrations_dir = "migrations"
