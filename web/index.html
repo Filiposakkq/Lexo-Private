@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aside for Ren'Py</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Aside is a translation manager for Ren'Py games. Translate, proofread and check .rpy translation files without breaking tags and variables. Free, local, Windows first.">
-<meta name="theme-color" content="#0F0F14">
-<meta property="og:title" content="Aside: translate Ren'Py games without breaking them">
-<meta property="og:description" content="A translation manager for Ren'Py: checks for tags, variables and line fit, scene preview, choice menus, history. Free, local, no account.">
+<meta name="description" content="Aside is a translation manager for Ren'Py games. Translate the whole game, check every tag and variable, see the scene and the choices. Free, local, no account. Windows.">
+<meta name="theme-color" content="#FFF6F6">
+<meta property="og:title" content="Aside: translate the whole Ren'Py game, break nothing">
+<meta property="og:description" content="A translation manager for Ren'Py: checks for tags, variables and line fit, scene preview, choice menus, progress. Free, local, no account.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="og.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -16,538 +16,305 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="site.css">
 <style>
-/* Layout concept: the page is a visual novel. The hero is a live dialogue box, section labels are Ren'Py labels,
-   and the final call to action is a choice menu. Dark first, like the app and the brand sheet. */
-:root {
-  --ink: #0F0F14;          /* page */
-  --ink-2: #15141B;        /* bands */
-  --ink-3: #1C1A24;        /* raised */
-  --ink-4: #26232F;        /* controls */
-  --line: rgba(234, 230, 240, .09);
-  --line-2: rgba(234, 230, 240, .16);
-  --fg: #EEEBF2;
-  --fg-2: #BDB8C3;
-  --fg-3: #8B8594;
-  --hot: #FF315C;
-  --ember: #FF7043;
-  --hot-text: #FF6B86;     /* accent as text on the page */
-  --hot-soft: rgba(255, 49, 92, .12);
-  --ok: #5AD6A0;
-  --ok-soft: rgba(90, 214, 160, .12);
-  --warn: #F4B84E;
-  --warn-soft: rgba(244, 184, 78, .13);
-  --bad: #FF5C7C;
-  --bad-soft: rgba(255, 92, 124, .13);
-  --code-tag: #6FC3FF;
-  --code-var: #F4B84E;
-  --scene-a: #2A1B3D; --scene-b: #5B2A4A; --scene-c: #E2725B;
-  --box: rgba(12, 11, 18, .82);
-  --shadow: 0 30px 80px -30px rgba(0, 0, 0, .7);
-  --grad: linear-gradient(135deg, var(--hot), var(--ember));
-
-  --f-display: "Manrope", "Segoe UI", system-ui, sans-serif;
-  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
-  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-
-  --s-1: clamp(2.5rem, 1.6rem + 4.2vw, 4.6rem);   /* hero */
-  --s-2: clamp(1.9rem, 1.4rem + 2.2vw, 2.9rem);   /* section */
-  --s-3: clamp(1.15rem, 1.05rem + .4vw, 1.35rem); /* card title */
-  --s-body: 1.0625rem;
-  --s-small: .875rem;
-  --wrap: 1180px;
-  --r: 14px;
-  color-scheme: dark;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --ink: #F7F5F8; --ink-2: #EFECF2; --ink-3: #FFFFFF; --ink-4: #E6E2EA;
-    --line: rgba(20, 16, 28, .1); --line-2: rgba(20, 16, 28, .18);
-    --fg: #16141B; --fg-2: #4C4655; --fg-3: #77707F;
-    --hot: #F0244F; --ember: #F25E2C; --hot-text: #D21843; --hot-soft: rgba(240, 36, 79, .09);
-    --ok: #158A5A; --ok-soft: rgba(21, 138, 90, .1); --warn: #A86A00; --warn-soft: rgba(168, 106, 0, .1);
-    --bad: #D21843; --bad-soft: rgba(210, 24, 67, .09);
-    --code-tag: #1667B5; --code-var: #9A5B00;
-    --shadow: 0 30px 70px -35px rgba(40, 20, 50, .35);
-    color-scheme: light;
-  }
-}
-:root[data-theme="light"] {
-  --ink: #F7F5F8; --ink-2: #EFECF2; --ink-3: #FFFFFF; --ink-4: #E6E2EA;
-  --line: rgba(20, 16, 28, .1); --line-2: rgba(20, 16, 28, .18);
-  --fg: #16141B; --fg-2: #4C4655; --fg-3: #77707F;
-  --hot: #F0244F; --ember: #F25E2C; --hot-text: #D21843; --hot-soft: rgba(240, 36, 79, .09);
-  --ok: #158A5A; --ok-soft: rgba(21, 138, 90, .1); --warn: #A86A00; --warn-soft: rgba(168, 106, 0, .1);
-  --bad: #D21843; --bad-soft: rgba(210, 24, 67, .09);
-  --code-tag: #1667B5; --code-var: #9A5B00;
-  --shadow: 0 30px 70px -35px rgba(40, 20, 50, .35);
-  color-scheme: light;
-}
-
-*, *::before, *::after { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--ink); color: var(--fg);
-  font: 400 var(--s-body)/1.6 var(--f-body);
-  -webkit-font-smoothing: antialiased; overflow-x: hidden;
-}
-body::before {
-  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60;
-  background: var(--ink);
-}
-img { max-width: 100%; display: block; }
-a { color: inherit; }
-h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.025em; }
-h2 { font-size: var(--s-2); font-weight: 800; line-height: 1.08; }
-h3 { font-size: var(--s-3); font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
-p { margin: 0; }
-code, .mono { font-family: var(--f-mono); font-size: .88em; }
-:focus-visible { outline: 2px solid var(--hot); outline-offset: 3px; border-radius: 6px; }
-.skip { position: absolute; left: -999px; top: 8px; z-index: 100; background: var(--ink-3); padding: 8px 14px; border-radius: 8px; }
-.skip:focus { left: 16px; }
-
-.wrap {
-  width: 100%; max-width: calc(var(--wrap) + 64px); margin-inline: auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-@media (min-width: 720px) { .wrap { padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); } }
+/* Layout concept: a product page on blush paper. The app itself (dark, framed) is the hero image; the sections walk
+   from "what it feels like" to "try it" to "what it costs", and end with a Ren'Py-style choice menu. */
 section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
-.band { background: var(--ink-2); border-block: 1px solid var(--line); }
-
-/* Ren'Py label as the section eyebrow */
-.label {
-  display: inline-flex; align-items: center; gap: .5ch; margin-bottom: 1.1rem;
-  font: 500 .8125rem/1 var(--f-mono); color: var(--fg-3); letter-spacing: .01em;
-}
-.label b { color: var(--hot-text); font-weight: 600; }
-.lead { color: var(--fg-2); font-size: 1.125rem; max-width: 62ch; margin-top: 1rem; }
-.sec-head { max-width: 760px; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.25rem); }
-.grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-
-/* buttons */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
-  min-height: 46px; padding: 0 1.15rem; border-radius: 999px; border: 1px solid var(--line-2);
-  font: 600 .9688rem/1 var(--f-body); text-decoration: none; color: var(--fg); background: transparent;
-  cursor: pointer; transition: transform .15s ease, background-color .15s ease, border-color .15s ease;
-}
-.btn:hover { border-color: var(--fg-3); }
-.btn:active { transform: translateY(1px); }
-.btn-hot { background: var(--grad); border-color: transparent; color: #fff; box-shadow: 0 10px 30px -12px var(--hot); }
-.btn-hot:hover { filter: brightness(1.06); border-color: transparent; }
-.btn-sm { min-height: 38px; padding: 0 .9rem; font-size: .875rem; }
-.btn svg { width: 18px; height: 18px; flex: none; }
-
-/* header */
-.top {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
-  background: color-mix(in srgb, var(--ink) 82%, transparent);
-  backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
-  border-bottom: 1px solid transparent; transition: border-color .2s;
-}
-.top.scrolled { border-bottom-color: var(--line); }
-.top .wrap { display: flex; align-items: center; gap: 1rem; height: 66px; }
-.brand { display: inline-flex; align-items: center; gap: .6rem; text-decoration: none; font: 800 1.45rem/1 var(--f-display); letter-spacing: -.05em; }
-.brand svg { width: 34px; height: 34px; }
-.brand small { font: 500 .6875rem/1 var(--f-mono); letter-spacing: .02em; color: var(--fg-3); padding: .3rem .45rem; border: 1px solid var(--line-2); border-radius: 6px; margin-left: .2rem; }
-.nav { display: flex; gap: .2rem; margin-left: auto; }
-.nav a { text-decoration: none; color: var(--fg-2); font-size: .9375rem; font-weight: 500; padding: .5rem .7rem; border-radius: 8px; }
-.nav a:hover, .nav a.on { color: var(--fg); background: var(--ink-3); }
-.top-cta { display: flex; gap: .5rem; align-items: center; }
-.menu-btn { display: none; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line-2); background: transparent; color: var(--fg); cursor: pointer; align-items: center; justify-content: center; }
-.menu-btn svg { width: 20px; height: 20px; }
-@media (max-width: 960px) {
-  .nav, .top-cta .kofi-top { display: none; }
-  .menu-btn { display: inline-flex; }
-  .top-cta { margin-left: auto; }
-}
-.sheet {
-  position: fixed; inset: 0; z-index: 70; background: var(--ink);
-  padding: calc(env(safe-area-inset-top, 0px) + 14px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(16px, env(safe-area-inset-left, 0px));
-  display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto;
-}
-.sheet-head { display: flex; justify-content: space-between; align-items: center; }
-.sheet nav { display: grid; }
-.sheet nav a { font: 700 1.6rem/1 var(--f-display); letter-spacing: -.03em; text-decoration: none; padding: .95rem 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
-.sheet nav a span { font: 500 .8rem/1 var(--f-mono); color: var(--fg-3); letter-spacing: 0; }
-.sheet .btns { display: grid; gap: .6rem; margin-top: auto; }
+.band { background: var(--bg-2); }
+.sec-head { max-width: 760px; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.2rem); }
+.sec-head.c { margin-inline: auto; text-align: center; }
+.lead { color: var(--text); font-size: 1.125rem; max-width: 60ch; margin-top: 1rem; }
+.sec-head.c .lead { margin-inline: auto; }
 
 /* hero */
-.hero { padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem) clamp(3.5rem, 2rem + 5vw, 6rem); position: relative; overflow: hidden; }
-.hero::before {
-  content: ""; position: absolute; inset: -30% -10% auto 40%; height: 120%; pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--hot) 22%, transparent), transparent 70%);
-  filter: blur(20px); opacity: .7;
-}
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: clamp(2rem, 1rem + 4vw, 4.5rem); align-items: center; position: relative; }
-@media (max-width: 980px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
-.pill { display: inline-flex; align-items: center; gap: .55rem; padding: .4rem .8rem .4rem .5rem; border-radius: 999px; background: var(--ink-3); border: 1px solid var(--line); font-size: .8125rem; color: var(--fg-2); }
-.pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px var(--ok-soft); }
-.hero h1 { font-size: var(--s-1); font-weight: 800; line-height: .98; letter-spacing: -.045em; margin-top: 1.4rem; }
-.hero h1 .strike { position: relative; white-space: nowrap; }
-.hero h1 .strike::after {
-  content: ""; position: absolute; left: -2%; right: -2%; bottom: .08em; height: .12em; border-radius: 4px;
-  background: var(--grad); transform-origin: left; animation: draw .9s .5s cubic-bezier(.6,0,.2,1) both;
-}
-@keyframes draw { from { transform: scaleX(0); } }
-.hero .lead { font-size: clamp(1.05rem, 1rem + .3vw, 1.2rem); margin-top: 1.4rem; }
+.hero { position: relative; overflow: hidden; padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) clamp(4rem, 2.5rem + 5vw, 6.5rem); }
+.hero::before { content: ""; position: absolute; width: 900px; height: 900px; right: -300px; top: -380px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 112, 67, .22), rgba(240, 36, 79, .12) 45%, transparent 70%); pointer-events: none; }
+.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5; background-image: radial-gradient(rgba(130, 20, 45, .14) 1px, transparent 1.2px); background-size: 22px 22px; mask-image: linear-gradient(180deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); }
+.hero .wrap { position: relative; z-index: 1; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(2rem, 1rem + 4vw, 4rem); align-items: center; }
+@media (max-width: 1000px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
+.hero h1 { font-size: var(--s-1); font-weight: 800; line-height: .98; letter-spacing: -.05em; }
+.hero h1 em { font-style: normal; position: relative; display: inline-block; z-index: 0; }
+.hero h1 em::after { content: ""; position: absolute; left: -.06em; right: -.06em; bottom: .02em; height: .32em; background: var(--red-soft); z-index: -1; border-radius: 4px; transform-origin: left; animation: mark .8s .4s cubic-bezier(.6, 0, .2, 1) both; }
+@keyframes mark { from { transform: scaleX(0); } }
+.hero .lead { font-size: clamp(1.06rem, 1rem + .35vw, 1.22rem); margin-top: 1.4rem; }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 2rem; }
-.hero-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; margin-top: 2rem; color: var(--fg-3); font-size: .875rem; }
-.hero-meta span { display: inline-flex; align-items: center; gap: .45rem; }
-.hero-meta svg { width: 16px; height: 16px; color: var(--ok); }
-.origin-line { margin-top: 1.4rem; font-size: .9375rem; color: var(--fg-3); }
-.origin-line a { color: var(--fg-2); text-underline-offset: 3px; }
+.trust { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; margin-top: 2rem; font-size: .9rem; color: var(--muted); }
+.trust span { display: inline-flex; align-items: center; gap: .45rem; }
+.trust svg { width: 17px; height: 17px; color: var(--ok); }
 
-/* live demo: scene + inspector */
-.demo { position: relative; border-radius: 20px; background: var(--ink-3); border: 1px solid var(--line-2); box-shadow: var(--shadow); overflow: hidden; min-width: 0; }
-.demo-bar { display: flex; align-items: center; gap: .6rem; padding: .7rem .9rem; border-bottom: 1px solid var(--line); font: 500 .75rem/1 var(--f-mono); color: var(--fg-3); }
-.demo-bar .file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.demo-bar .live { margin-left: auto; display: inline-flex; align-items: center; gap: .4rem; color: var(--hot-text); flex: none; }
-.demo-bar .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); animation: pulse 1.8s infinite; }
-@keyframes pulse { 50% { opacity: .3; } }
-.scene {
-  position: relative; aspect-ratio: 16 / 9; overflow: hidden; isolation: isolate;
-  background:
-    radial-gradient(60% 50% at 78% 30%, rgba(255, 196, 140, .55), transparent 70%),
-    radial-gradient(80% 70% at 20% 100%, rgba(255, 92, 124, .35), transparent 70%),
-    linear-gradient(170deg, var(--scene-a) 0%, var(--scene-b) 55%, var(--scene-c) 120%);
+.stage { position: relative; padding: 1.5rem 0 2rem; min-width: 0; }
+.window { border-radius: 14px; overflow: hidden; background: #10131A; box-shadow: var(--shadow); border: 1px solid rgba(60, 10, 25, .25); transform: perspective(1600px) rotateY(-7deg) rotateX(2deg); transform-origin: left center; transition: transform .6s ease; }
+.stage:hover .window { transform: perspective(1600px) rotateY(-2deg) rotateX(0); }
+@media (max-width: 1000px) { .window, .stage:hover .window { transform: none; } }
+.chrome { display: flex; align-items: center; gap: .45rem; padding: .6rem .85rem; background: #181B24; font: 500 .74rem/1 var(--f-mono); color: #8A90A0; }
+.chrome i { width: 10px; height: 10px; border-radius: 50%; display: block; flex: none; }
+.chrome i:nth-child(1) { background: #FF5F57; } .chrome i:nth-child(2) { background: #FEBC2E; } .chrome i:nth-child(3) { background: #28C840; }
+.chrome span { margin-left: .6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.window img { width: 100%; height: auto; aspect-ratio: 1440 / 816; }
+.callout { position: absolute; display: flex; align-items: center; gap: .6rem; padding: .65rem .85rem; border-radius: 14px; background: var(--card); box-shadow: var(--shadow-s), 0 18px 40px -20px rgba(90, 10, 35, .45); border: 1px solid var(--line); font-size: .86rem; color: var(--ink); white-space: nowrap; animation: float 6s ease-in-out infinite; }
+.callout b { font: 800 1rem/1 var(--f-display); }
+.callout small { display: block; color: var(--muted); font-size: .74rem; margin-top: .15rem; }
+.callout .dot { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; font-weight: 800; }
+.callout .dot.ok { background: var(--ok-soft); color: var(--ok); }
+.callout .dot.bad { background: var(--bad-soft); color: var(--bad); }
+.callout .dot.red { background: var(--grad); color: #fff; }
+.c1 { left: -4%; top: 4%; }
+.c2 { right: -3%; top: 40%; animation-delay: -2s; }
+.c3 { left: 8%; bottom: -2%; animation-delay: -4s; }
+@keyframes float { 50% { transform: translateY(-8px); } }
+@media (max-width: 640px) { .callout { font-size: .76rem; padding: .5rem .65rem; } .callout b { font-size: .86rem; } .callout .dot { width: 24px; height: 24px; } .c1 { left: 0; top: 0; } .c2 { right: 0; } .c3 { left: 4%; } .callout small { display: none; } }
+
+/* games row */
+.games-row { padding-block: 1.6rem; border-block: 1px solid var(--line); background: var(--card); }
+.games-row .wrap { display: flex; align-items: center; gap: 1rem 1.5rem; flex-wrap: wrap; }
+.games-row p { font: 700 .9rem/1.3 var(--f-display); color: var(--ink); flex: none; }
+.games-row p span { display: block; font: 500 .78rem/1.3 var(--f-body); color: var(--muted); }
+.gchips { display: flex; flex-wrap: wrap; gap: .4rem; flex: 1; min-width: 0; }
+.gchips span { font-size: .84rem; padding: .4rem .7rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); color: var(--text); white-space: nowrap; }
+.gchips span b { font: 600 .72rem/1 var(--f-mono); color: var(--muted); margin-left: .35rem; }
+@media (max-width: 700px) { .games-row .wrap { flex-direction: column; align-items: flex-start; } .gchips { flex: none; width: 100%; } }
+
+/* before / after */
+.ba { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; }
+@media (max-width: 820px) { .ba { grid-template-columns: minmax(0, 1fr); } }
+.ba-card { border-radius: var(--r); padding: clamp(1.4rem, 1rem + 1.5vw, 2rem); }
+.ba-card.before { border: 1.5px dashed var(--line-2); }
+.ba-card.after { background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.ba-card.after::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--grad); }
+.ba-card h3 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.ba-card h3 small { font: 600 .72rem/1 var(--f-display); padding: .32rem .55rem; border-radius: 999px; background: var(--bg-2); color: var(--muted); }
+.ba-card.after h3 small { background: var(--red-soft); color: var(--red-text); }
+.ba-list { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; gap: .85rem; }
+.ba-list li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: .7rem; font-size: .98rem; }
+.ba-list li svg { width: 22px; height: 22px; margin-top: .05rem; }
+.before .ba-list li { color: var(--muted); }
+.before .ba-list svg { color: #C08A96; }
+.after .ba-list svg { color: var(--ok); }
+
+/* feature tour */
+.tour { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: clamp(1.5rem, 1rem + 2.5vw, 3rem); align-items: start; }
+@media (max-width: 960px) { .tour { grid-template-columns: minmax(0, 1fr); } }
+.tour-list { display: grid; gap: .45rem; }
+.tour-item { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: .9rem; text-align: left; padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid transparent; background: transparent; cursor: pointer; font: inherit; color: inherit; transition: background-color .2s, border-color .2s, box-shadow .2s; }
+.tour-item:hover { background: rgba(255, 255, 255, .6); }
+.tour-item[aria-selected="true"] { background: var(--card); border-color: var(--line); box-shadow: var(--shadow-s); }
+.tour-item .ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--red-tint); color: var(--red-text); transition: background .2s, color .2s; }
+.tour-item[aria-selected="true"] .ic { background: var(--grad); color: #fff; }
+.tour-item .ic svg { width: 21px; height: 21px; }
+.tour-item h3 { font-size: 1.06rem; }
+.tour-item p { font-size: .92rem; color: var(--text); margin-top: .25rem; display: none; }
+.tour-item[aria-selected="true"] p { display: block; }
+@media (max-width: 960px) {
+  .tour-list { display: flex; overflow-x: auto; gap: .4rem; padding-bottom: .4rem; scrollbar-width: none; }
+  .tour-list::-webkit-scrollbar { display: none; }
+  .tour-item { flex: none; padding: .45rem .9rem .45rem .45rem; border-radius: 999px; display: flex; align-items: center; gap: .55rem; border-color: var(--line); background: var(--card); }
+  .tour-item .ic { width: 30px; height: 30px; border-radius: 50%; }
+  .tour-item .ic svg { width: 16px; height: 16px; }
+  .tour-item h3 { font-size: .9rem; white-space: nowrap; }
+  .tour-item[aria-selected="true"] p { display: none; }
 }
-.scene .win { position: absolute; right: 9%; top: 9%; width: 26%; aspect-ratio: 3/4; border: 3px solid rgba(20, 10, 30, .55); border-radius: 4px; background: linear-gradient(180deg, rgba(255, 220, 170, .5), rgba(255, 150, 120, .25)); }
+.tour-panel { min-width: 0; }
+.tour-text-m { display: none; margin-bottom: 1rem; color: var(--text); font-size: .98rem; }
+@media (max-width: 960px) { .tour-text-m { display: block; } }
+.panel-frame { border-radius: 16px; overflow: hidden; background: #10131A; box-shadow: var(--shadow); border: 1px solid rgba(60, 10, 25, .25); }
+.panel-frame img { width: 100%; height: auto; aspect-ratio: 1440 / 816; }
+.panel-note { margin-top: .9rem; font-size: .88rem; color: var(--muted); }
+.mock { aspect-ratio: 1440 / 816; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4%; padding: 5% 4%; background: #10131A; color: #DDE1EA; font-size: clamp(.58rem, .42rem + .5vw, .82rem); }
+.mock .col { display: grid; gap: .8em; align-content: start; min-width: 0; }
+.mock .cap { font: 600 .9em/1.2 var(--f-mono); letter-spacing: .04em; text-transform: uppercase; color: #8A90A0; display: flex; justify-content: space-between; align-items: center; gap: .5em; flex-wrap: wrap; }
+.mock .cap b { font-weight: 600; padding: .2em .55em; border-radius: 99px; letter-spacing: 0; text-transform: none; }
+.mock .cap b.ok { background: rgba(90, 214, 160, .15); color: #6FE0AE; }
+.mock .cap b.part { background: rgba(244, 184, 78, .15); color: #F4C46E; }
+.sc { position: relative; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: radial-gradient(60% 50% at 75% 30%, rgba(255, 200, 150, .7), transparent 70%), linear-gradient(170deg, #2A1B3D, #6B2C4A 60%, #E2725B 120%); }
+.sc.layer { background: linear-gradient(170deg, #1C2A3D, #2C4A5B 60%, #5B8A8E 120%); }
+.sc .fig { position: absolute; bottom: 0; left: 38%; width: 24%; height: 78%; border-radius: 45% 45% 10% 10% / 30% 30% 5% 5%; background: linear-gradient(180deg, #F2B9A0, #C9798A); }
+.sc .ghost { position: absolute; bottom: 0; left: 38%; width: 24%; height: 78%; border-radius: 45% 45% 10% 10% / 30% 30% 5% 5%; border: 2px dashed rgba(255, 255, 255, .55); }
+.sc .box { position: absolute; left: 4%; right: 4%; bottom: 5%; height: 26%; background: rgba(10, 10, 16, .78); border-radius: 5px; padding: 3% 4%; font-size: .95em; line-height: 1.35; color: #F2EEF6; }
+.sc .tagn { position: absolute; left: 7%; bottom: 27%; background: var(--grad); color: #fff; font: 700 .85em/1 var(--f-display); padding: .3em .6em; border-radius: 4px; }
+.sc .note { position: absolute; top: 6%; left: 5%; right: 5%; background: rgba(10, 10, 16, .72); color: #F4C46E; padding: .4em .6em; border-radius: 4px; font-size: .85em; line-height: 1.3; }
+.mock p { color: #A9AFBD; line-height: 1.45; font-size: .95em; }
+.mmock { aspect-ratio: 1440 / 816; background: #10131A; color: #DDE1EA; padding: 4.5% 5.5%; display: grid; gap: .7em; align-content: start; font-size: clamp(.62rem, .48rem + .55vw, .9rem); }
+.mmock .cap { font: 600 .82em/1.2 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: #8A90A0; }
+.mmock .q { color: #A9AFBD; }
+.mmock .q b { color: #fff; font-weight: 600; }
+.mmock .o { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 4%; padding: .75em 1em; border-radius: 8px; background: #181B24; border: 1px solid rgba(255, 255, 255, .07); align-items: center; }
+.mmock .o span:first-child { color: #8A90A0; }
+.mmock .o span:nth-child(2) { color: #F2EEF6; }
+.mmock .o em { font: 500 .78em/1 var(--f-mono); font-style: normal; color: #6FB7FF; }
+.mmock .o.shared { border-color: rgba(244, 184, 78, .45); }
+.mmock .after { padding-left: 1em; border-left: 2px solid rgba(255, 255, 255, .12); color: #A9AFBD; font-size: .92em; line-height: 1.5; }
+.mmock small { color: #F4C46E; }
+
+/* playground */
+.play { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); border-radius: 24px; overflow: hidden; background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); }
+@media (max-width: 900px) { .play { grid-template-columns: minmax(0, 1fr); } }
+.scene { position: relative; aspect-ratio: 16 / 10; overflow: hidden; isolation: isolate; background: radial-gradient(60% 50% at 78% 30%, rgba(255, 196, 140, .6), transparent 70%), radial-gradient(80% 70% at 20% 100%, rgba(255, 92, 124, .4), transparent 70%), linear-gradient(170deg, #2A1B3D 0%, #5B2A4A 55%, #E2725B 120%); }
+@media (min-width: 901px) { .scene { aspect-ratio: auto; min-height: 420px; } }
+.scene .win { position: absolute; right: 9%; top: 10%; width: 24%; aspect-ratio: 3/4; border: 3px solid rgba(20, 10, 30, .55); border-radius: 4px; background: linear-gradient(180deg, rgba(255, 220, 170, .5), rgba(255, 150, 120, .25)); }
 .scene .win::before, .scene .win::after { content: ""; position: absolute; background: rgba(20, 10, 30, .55); }
 .scene .win::before { left: 50%; top: 0; bottom: 0; width: 3px; transform: translateX(-50%); }
 .scene .win::after { top: 50%; left: 0; right: 0; height: 3px; }
-.scene .lamp { position: absolute; left: 14%; bottom: 34%; width: 13%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255, 230, 170, .95), rgba(255, 170, 90, .25) 45%, transparent 70%); animation: flicker 4s ease-in-out infinite; }
+.scene .lamp { position: absolute; left: 14%; top: 22%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255, 230, 170, .95), rgba(255, 170, 90, .25) 45%, transparent 70%); animation: flicker 4s ease-in-out infinite; }
 @keyframes flicker { 40% { opacity: .85; } 45% { opacity: 1; } 70% { opacity: .92; } }
 .scene .floor { position: absolute; inset: auto 0 0 0; height: 32%; background: linear-gradient(180deg, rgba(20, 10, 30, .25), rgba(10, 6, 16, .7)); }
-.scene .sil { position: absolute; left: 50%; bottom: 0; width: 22%; height: 72%; transform: translateX(-60%); background: radial-gradient(50% 18% at 50% 14%, rgba(16, 8, 22, .82) 98%, transparent 100%), radial-gradient(80% 60% at 50% 100%, rgba(16, 8, 22, .82) 98%, transparent 100%); }
-.vn-box {
-  position: absolute; left: 3.5%; right: 3.5%; bottom: 4.5%; height: 31%;
-  background: var(--box); border-radius: 10px; border: 1px solid rgba(255, 255, 255, .12);
-  padding: 1.3em 1.2em .6em; color: #F4F1F7; font: 500 clamp(.72rem, .5rem + .9vw, 1rem)/1.45 var(--f-body);
-  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-}
+.vn-box { position: absolute; left: 4%; right: 4%; bottom: 5%; height: 30%; background: rgba(12, 11, 18, .82); border-radius: 10px; border: 1px solid rgba(255, 255, 255, .12); padding: 1.3em 1.2em .6em; color: #F4F1F7; font: 500 clamp(.74rem, .5rem + .9vw, 1rem)/1.45 var(--f-body); }
 .vn-name { position: absolute; left: 1em; top: 0; transform: translateY(-55%); padding: .25em .85em; border-radius: 6px; background: var(--grad); color: #fff; font: 700 .9em/1.3 var(--f-display); }
 .vn-text { height: 100%; overflow: hidden; }
 .vn-text .v { color: #FFD68A; }
 .vn-ctc { position: absolute; right: 1em; bottom: .7em; width: 0; height: 0; border-left: .38em solid transparent; border-right: .38em solid transparent; border-top: .5em solid #fff; animation: bob 1.2s ease-in-out infinite; }
 @keyframes bob { 50% { transform: translateY(3px); } }
-.vn-box.over { border-color: var(--warn); box-shadow: inset 0 -14px 14px -10px rgba(244, 184, 78, .6); }
-.rp-error {
-  position: absolute; inset: 0; z-index: 3; background: #E8E8E8; color: #111; padding: 4.5% 5%;
-  font: 500 clamp(.6rem, .45rem + .6vw, .82rem)/1.5 var(--f-mono); display: flex; flex-direction: column; gap: .7em;
-}
-.rp-error h4 { margin: 0; font: 700 1.25em/1.2 var(--f-body); color: #111; }
+.vn-box.over { border-color: #F4B84E; box-shadow: inset 0 -14px 14px -10px rgba(244, 184, 78, .6); }
+.rp-error { position: absolute; inset: 0; z-index: 3; background: #E8E8E8; color: #111; padding: 5%; font: 500 clamp(.6rem, .45rem + .6vw, .82rem)/1.5 var(--f-mono); display: flex; flex-direction: column; gap: .7em; }
+.rp-error h4 { font: 700 1.25em/1.2 var(--f-body); color: #111; letter-spacing: 0; }
 .rp-error .trace { background: #fff; border: 1px solid #ccc; padding: .7em .9em; color: #333; overflow: hidden; }
 .rp-error .trace b { color: #B00020; font-weight: 600; }
 .rp-error .btnrow { display: flex; gap: .5em; margin-top: auto; flex-wrap: wrap; }
 .rp-error .btnrow span { background: #fff; border: 1px solid #bbb; padding: .3em .7em; border-radius: 3px; font: 500 .95em/1.2 var(--f-body); }
-.inspect { padding: 1rem; display: grid; gap: .8rem; }
-.fieldlab { display: flex; justify-content: space-between; align-items: baseline; font: 600 .6875rem/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3); margin-bottom: .4rem; }
-.fieldlab em { font-style: normal; text-transform: none; letter-spacing: 0; font-weight: 500; }
-.orig { font: 400 .875rem/1.55 var(--f-mono); color: var(--fg-2); padding: .65rem .8rem; border-radius: 10px; background: var(--ink-2); border: 1px solid var(--line); overflow-wrap: anywhere; }
+.inspect { padding: clamp(1.1rem, .9rem + 1vw, 1.6rem); display: grid; gap: .9rem; align-content: start; }
+.fieldlab { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; font: 700 .72rem/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .45rem; }
+.fieldlab em { font: 500 .74rem/1 var(--f-mono); font-style: normal; text-transform: none; letter-spacing: 0; }
+.orig { font: 400 .875rem/1.55 var(--f-mono); color: var(--text); padding: .7rem .85rem; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); overflow-wrap: anywhere; }
 .t-tag { color: var(--code-tag); }
 .t-var { color: var(--code-var); }
-#tr {
-  width: 100%; min-height: 4.4rem; resize: vertical; display: block;
-  font: 400 .875rem/1.55 var(--f-mono); color: var(--fg); background: var(--ink); border: 1px solid var(--line-2);
-  border-radius: 10px; padding: .65rem .8rem; outline: none; transition: border-color .15s;
-}
-#tr:focus { border-color: var(--hot); box-shadow: 0 0 0 3px var(--hot-soft); }
+#tr { width: 100%; min-height: 5rem; resize: vertical; display: block; font: 400 .875rem/1.55 var(--f-mono); color: var(--ink); background: var(--card); border: 1.5px solid var(--line-2); border-radius: 12px; padding: .7rem .85rem; outline: none; transition: border-color .15s, box-shadow .15s; }
+#tr:focus { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint); }
 .checks { display: flex; flex-wrap: wrap; gap: .4rem; }
-.chk { display: inline-flex; align-items: center; gap: .35rem; padding: .32rem .6rem; border-radius: 999px; font: 500 .75rem/1.2 var(--f-mono); border: 1px solid transparent; transition: background-color .2s, color .2s; }
-.chk::before { content: "✓"; font-weight: 700; }
+.chk { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .65rem; border-radius: 999px; font: 600 .76rem/1.2 var(--f-display); transition: background-color .2s, color .2s; }
+.chk::before { content: "✓"; font-weight: 800; }
 .chk.ok { background: var(--ok-soft); color: var(--ok); }
-.chk.bad { background: var(--bad-soft); color: var(--bad); border-color: color-mix(in srgb, var(--bad) 35%, transparent); }
+.chk.bad { background: var(--bad-soft); color: var(--bad); }
 .chk.bad::before { content: "✗"; }
 .chk.warn { background: var(--warn-soft); color: var(--warn); }
 .chk.warn::before { content: "!"; }
-.why { font-size: .8125rem; color: var(--fg-3); min-height: 1.3em; }
-.why b { color: var(--fg); font-weight: 600; }
-.tries { display: flex; flex-wrap: wrap; gap: .4rem; }
-.try { font: 500 .78rem/1 var(--f-body); padding: .5rem .7rem; border-radius: 8px; border: 1px dashed var(--line-2); background: transparent; color: var(--fg-2); cursor: pointer; min-height: 34px; }
-.try:hover { color: var(--fg); border-color: var(--fg-3); border-style: solid; }
-.try.reset { margin-left: auto; }
+.why { font-size: .9rem; color: var(--muted); min-height: 2.8em; }
+.why b { color: var(--ink); }
+.tries { display: flex; flex-wrap: wrap; gap: .45rem; }
+.try { font: 700 .82rem/1 var(--f-display); padding: .6rem .85rem; border-radius: 999px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; min-height: 38px; }
+.try:hover { border-color: var(--red); color: var(--red-text); }
+.try.reset { background: transparent; border-style: dashed; }
 
-/* proof numbers */
-.proof { border-block: 1px solid var(--line); }
-.proof .wrap { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.stat { padding: 1.7rem 1.2rem; border-left: 1px solid var(--line); }
-.stat:first-child { border-left: 0; padding-left: 0; }
-.stat b { display: block; font: 800 clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem)/1 var(--f-display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.stat span { display: block; margin-top: .5rem; color: var(--fg-3); font-size: .875rem; line-height: 1.4; max-width: 24ch; }
-@media (max-width: 820px) {
-  .proof .wrap { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .stat { padding: 1.3rem .9rem; }
-  .stat:nth-child(odd) { border-left: 0; padding-left: 0; }
-  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
-}
+/* included */
+.incl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2rem; }
+@media (max-width: 900px) { .incl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .incl { grid-template-columns: minmax(0, 1fr); } }
+.incl div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: .7rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.incl svg { width: 20px; height: 20px; color: var(--red); margin-top: .15rem; }
+.incl b { display: block; color: var(--ink); font: 700 .98rem/1.35 var(--f-display); }
+.incl span { font-size: .9rem; color: var(--muted); }
 
-/* screenshots */
-.shots-tabs { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
-.tab { font: 600 .9rem/1 var(--f-body); padding: .65rem 1rem; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--fg-2); cursor: pointer; min-height: 40px; }
-.tab[aria-selected="true"] { background: var(--fg); color: var(--ink); border-color: var(--fg); }
-.shot-frame { border-radius: 16px; border: 1px solid var(--line-2); overflow: hidden; background: #10131A; box-shadow: var(--shadow); }
-.shot-chrome { display: flex; align-items: center; gap: .45rem; padding: .65rem .9rem; background: #181B24; border-bottom: 1px solid rgba(255, 255, 255, .06); font: 500 .75rem/1 var(--f-mono); color: #8A90A0; }
-.shot-chrome i { width: 10px; height: 10px; border-radius: 50%; background: #2B303C; display: block; }
-.shot-chrome span { margin-left: .5rem; }
-.shot-img { aspect-ratio: 1440 / 816; width: 100%; height: auto; }
-.shot-cap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; margin-top: 1rem; color: var(--fg-2); font-size: .95rem; }
-.shot-cap small { color: var(--fg-3); font-size: .8rem; text-align: right; }
-@media (max-width: 640px) { .shot-cap { grid-template-columns: minmax(0, 1fr); } .shot-cap small { text-align: left; } }
+/* zero band */
+.zero { background: var(--wine); color: #F6E9EC; position: relative; overflow: hidden; }
+.zero::before { content: ""; position: absolute; width: 700px; height: 700px; left: -200px; bottom: -420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(240, 36, 79, .45), transparent 70%); }
+.zero .wrap { position: relative; }
+.zero h2 { color: #fff; }
+.zero .lead { color: #E3C9D0; }
+.zeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2.6rem; }
+@media (max-width: 760px) { .zeros { grid-template-columns: minmax(0, 1fr); } }
+.zeros div { padding: 1.5rem; border-radius: var(--r); background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); }
+.zeros b { display: block; font: 800 clamp(2.6rem, 2rem + 2vw, 3.6rem)/1 var(--f-display); letter-spacing: -.05em; }
+.zeros b span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.zeros h3 { color: #fff; margin-top: .8rem; font-size: 1.08rem; }
+.zeros p { color: #D9BEC6; font-size: .93rem; margin-top: .35rem; }
+.zero .opt { margin-top: 1.6rem; font-size: .92rem; color: #D9BEC6; }
+.zero .opt a { color: #fff; font-weight: 600; }
 
-/* problem / features */
-.pains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; margin-bottom: clamp(3rem, 2rem + 3vw, 5rem); }
-.pain { background: var(--ink); padding: 1.6rem; display: grid; gap: .7rem; align-content: start; }
-.pain .q { font: 500 .78rem/1.4 var(--f-mono); color: var(--hot-text); }
-.pain p { color: var(--fg-2); font-size: .97rem; }
-@media (max-width: 860px) { .pains { grid-template-columns: minmax(0, 1fr); } }
+/* pricing */
+.plans { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; max-width: 980px; margin-inline: auto; }
+@media (max-width: 820px) { .plans { grid-template-columns: minmax(0, 1fr); } }
+.plan { border-radius: 24px; padding: clamp(1.5rem, 1.1rem + 1.5vw, 2.2rem); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-s); display: flex; flex-direction: column; gap: 1.1rem; position: relative; overflow: hidden; }
+.plan.pro { background: linear-gradient(160deg, var(--wine-2), var(--wine)); color: #F2DDE2; border-color: transparent; box-shadow: var(--shadow); }
+.plan.pro::before { content: ""; position: absolute; width: 380px; height: 380px; right: -140px; top: -170px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 112, 67, .5), transparent 70%); }
+.plan > * { position: relative; }
+.plan .name { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.plan .name h3 { font-size: 1.4rem; }
+.plan.pro h3 { color: #fff; }
+.plan .badge { font: 700 .72rem/1 var(--f-display); padding: .4rem .65rem; border-radius: 999px; background: var(--ok-soft); color: var(--ok); }
+.plan.pro .badge { background: var(--grad); color: #fff; }
+.price { font: 800 3rem/1 var(--f-display); letter-spacing: -.05em; color: var(--ink); }
+.price small { font: 500 .95rem/1.3 var(--f-body); letter-spacing: 0; color: var(--muted); margin-left: .4rem; }
+.plan.pro .price { color: #fff; font-size: 2.2rem; }
+.plan.pro .price small { color: #E3C9D0; }
+.plan > p { font-size: .96rem; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; font-size: .95rem; }
+.plan li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: .6rem; align-items: start; }
+.plan li svg { width: 18px; height: 18px; color: var(--ok); margin-top: .18rem; }
+.plan.pro li svg { color: #FF9A7A; }
+.plan li em { font: 600 .74rem/1.6 var(--f-mono); font-style: normal; color: var(--warn); white-space: nowrap; }
+.plan.pro li em { color: #FFC2CF; }
+.plan .btn { margin-top: auto; }
+.soon-row { max-width: 980px; margin: 1.4rem auto 0; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: center; font-size: .9rem; color: var(--muted); }
+.soon-row span { padding: .4rem .75rem; border-radius: 999px; border: 1px dashed var(--line-2); color: var(--text); }
+.lic { max-width: 980px; margin: 2.4rem auto 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 820px) { .lic { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lic div { padding-top: .9rem; border-top: 2px solid var(--red-soft); }
+.lic b { display: block; font: 700 .98rem/1.3 var(--f-display); color: var(--ink); }
+.lic span { font-size: .87rem; color: var(--muted); }
 
-.feat-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; }
-.feat { grid-column: span 4; padding: 1.5rem; border-radius: var(--r); background: var(--ink-2); border: 1px solid var(--line); display: grid; gap: .6rem; align-content: start; min-width: 0; }
-.feat p { color: var(--fg-2); font-size: .95rem; }
-.feat .ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--hot-soft); color: var(--hot-text); margin-bottom: .3rem; }
-.feat .ico svg { width: 21px; height: 21px; }
-.feat.big { grid-column: span 7; grid-row: span 2; }
-.feat.tall { grid-column: span 5; grid-row: span 2; }
-.feat.big pre { margin: .6rem 0 0; padding: 1rem 1.1rem; border-radius: 10px; background: var(--ink); border: 1px solid var(--line); overflow-x: auto; font: 400 .8125rem/1.7 var(--f-mono); color: var(--fg-2); }
-.feat.big pre .c { color: var(--fg-3); }
-.feat.big pre .k { color: var(--hot-text); }
-.feat.big pre .ok { color: var(--ok); }
-.feat.big pre .bad { color: var(--bad); }
-.codes { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .4rem; }
-.codes span { font: 500 .72rem/1 var(--f-mono); padding: .4rem .55rem; border-radius: 6px; background: var(--ink); border: 1px solid var(--line); color: var(--fg-2); }
-.menu-mini { margin-top: .6rem; display: grid; gap: .45rem; }
-.menu-mini .q { font-size: .85rem; color: var(--fg-3); }
-.menu-mini div.o { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .6rem; font-size: .84rem; padding: .55rem .75rem; border-radius: 8px; background: var(--ink); border: 1px solid var(--line); }
-.menu-mini div.o span:last-child { color: var(--fg); }
-.menu-mini div.o span:first-child { color: var(--fg-3); }
-.menu-mini div.o.warn { border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
-.menu-mini small { color: var(--warn); font-size: .76rem; }
-@media (max-width: 980px) {
-  .feat, .feat.big, .feat.tall { grid-column: span 6; grid-row: auto; }
-  .feat.big { grid-column: span 12; }
-}
-@media (max-width: 640px) { .feat, .feat.big, .feat.tall { grid-column: span 12; } }
-
-/* how it works */
-.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; counter-reset: s; position: relative; }
-.step { padding: 0 1.4rem 0 0; position: relative; display: grid; gap: .6rem; align-content: start; }
-.step::before { counter-increment: s; content: counter(s); font: 800 1rem/1 var(--f-display); width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); border: 1px solid var(--line-2); color: var(--fg); position: relative; z-index: 1; margin-bottom: .6rem; }
-.step:first-child::before { background: var(--grad); color: #fff; border-color: transparent; }
-.step::after { content: ""; position: absolute; top: 21px; left: 42px; right: 0; height: 1px; background: linear-gradient(90deg, var(--line-2), transparent); }
-.step:last-child::after { display: none; }
-.step p { color: var(--fg-2); font-size: .95rem; }
-.step .note { font: 500 .72rem/1.2 var(--f-mono); color: var(--warn); }
-@media (max-width: 860px) {
-  .steps { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; }
-  .step { padding: 0 0 0 60px; }
-  .step::before { position: absolute; left: 0; top: 0; margin: 0; }
-  .step::after { left: 21px; top: 46px; bottom: -1.6rem; right: auto; width: 1px; height: auto; background: var(--line-2); }
-}
-
-/* privacy */
-.priv-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 1rem + 3vw, 4rem); align-items: start; }
-@media (max-width: 900px) { .priv-grid { grid-template-columns: minmax(0, 1fr); } }
-.never { display: grid; gap: 0; border-top: 1px solid var(--line); }
-.never li { list-style: none; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: .8rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
-.never li svg { width: 20px; height: 20px; color: var(--ok); margin-top: .2rem; }
-.never li b { display: block; font-weight: 600; }
-.never li span { color: var(--fg-2); font-size: .95rem; }
-.never { padding: 0; margin: 0; }
-.flows { border-radius: var(--r); border: 1px solid var(--line); background: var(--ink); overflow: hidden; }
-.flows h3 { font-size: 1rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 1rem; }
-.flows h3 small { font: 500 .72rem/1.6 var(--f-mono); color: var(--fg-3); letter-spacing: 0; }
-.flow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .3rem 1rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); }
-.flow:last-child { border-bottom: 0; }
-.flow b { font-weight: 600; font-size: .95rem; }
-.flow em { font-style: normal; font: 500 .7rem/1.6 var(--f-mono); padding: .1rem .5rem; border-radius: 999px; background: var(--ink-3); color: var(--fg-3); align-self: start; white-space: nowrap; }
-.flow p { grid-column: 1 / -1; color: var(--fg-3); font-size: .875rem; }
-.flow.zero { background: var(--ok-soft); }
-.flow.zero em { background: transparent; color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent); }
-
-/* games */
-.games-head { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.6rem; }
-.filter { display: flex; gap: .35rem; flex-wrap: wrap; }
-.games { border-top: 1px solid var(--line); }
-.game { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 2fr) minmax(0, .9fr); gap: 1.4rem; align-items: center; padding: 1.05rem 0; border-bottom: 1px solid var(--line); }
-.game[hidden] { display: none; }
-.game h3 { font-size: 1.02rem; }
-.game .ver { font: 500 .75rem/1.4 var(--f-mono); color: var(--fg-3); margin-top: .2rem; }
-.bar { position: relative; height: 10px; border-radius: 99px; background: var(--ink-3); overflow: hidden; }
-.bar i { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: var(--grad); width: var(--w); transform-origin: left; transition: transform .8s cubic-bezier(.3,0,.2,1); }
-.game.layered .bar i { background: repeating-linear-gradient(135deg, var(--ember) 0 6px, color-mix(in srgb, var(--ember) 55%, transparent) 6px 12px); }
-.game .nums { display: flex; gap: 1rem; margin-top: .5rem; font-size: .8125rem; color: var(--fg-3); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
-.game .nums b { color: var(--fg); font-weight: 600; }
-.game .kind { font: 500 .72rem/1.3 var(--f-mono); justify-self: end; text-align: right; color: var(--fg-3); }
-.game .kind b { display: block; color: var(--ok); font-weight: 500; }
-.game.layered .kind b { color: var(--warn); }
-.game p.n { grid-column: 1 / -1; color: var(--fg-3); font-size: .875rem; margin-top: -.4rem; }
-@media (max-width: 760px) {
-  .game { grid-template-columns: minmax(0, 1fr) auto; gap: .6rem 1rem; }
-  .game .barcol { grid-column: 1 / -1; grid-row: 2; }
-  .game .kind { grid-row: 1; grid-column: 2; }
-  .game p.n { margin-top: 0; }
-}
-.legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1.2rem; color: var(--fg-3); font-size: .82rem; }
-.legend span { display: inline-flex; align-items: center; gap: .5rem; }
-.legend i { width: 22px; height: 8px; border-radius: 9px; background: var(--grad); display: inline-block; }
-.legend i.l { background: repeating-linear-gradient(135deg, var(--ember) 0 6px, color-mix(in srgb, var(--ember) 55%, transparent) 6px 12px); }
-
-/* origin */
-.origin { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: center; }
-@media (max-width: 900px) { .origin { grid-template-columns: minmax(0, 1fr); } }
-.origin p { color: var(--fg-2); margin-top: 1rem; max-width: 60ch; }
-.origin .quote { font: 700 clamp(1.25rem, 1.05rem + .8vw, 1.65rem)/1.3 var(--f-display); letter-spacing: -.02em; color: var(--fg); margin-top: 1.6rem; padding-left: 1.1rem; border-left: 3px solid var(--hot); max-width: 34ch; }
-.card-dik { border-radius: 18px; padding: 1.6rem; background: linear-gradient(160deg, var(--ink-3), var(--ink-2)); border: 1px solid var(--line-2); box-shadow: var(--shadow); }
-.card-dik .t { font: 500 .72rem/1 var(--f-mono); color: var(--fg-3); text-transform: uppercase; letter-spacing: .1em; }
-.card-dik h3 { font-size: 1.6rem; margin-top: .5rem; }
-.card-dik dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem .8rem; margin: 1.4rem 0 0; }
-.card-dik dt { font-size: .75rem; color: var(--fg-3); }
-.card-dik dd { margin: .15rem 0 0; font: 700 1.1rem/1.2 var(--f-display); font-variant-numeric: tabular-nums; }
-.card-dik a { display: inline-block; margin-top: 1.4rem; font-size: .9rem; color: var(--hot-text); text-underline-offset: 3px; }
-
-/* pro */
-.pro { position: relative; overflow: hidden; }
-.pro::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 50% at 85% 0%, var(--hot-soft), transparent 70%), radial-gradient(40% 40% at 0% 100%, color-mix(in srgb, var(--ember) 9%, transparent), transparent 70%); }
-.pro .wrap { position: relative; }
-.pro-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-@media (max-width: 900px) { .pro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 600px) { .pro-grid { grid-template-columns: minmax(0, 1fr); } }
-.pcard { padding: 1.4rem; border-radius: var(--r); background: color-mix(in srgb, var(--ink-3) 85%, transparent); border: 1px solid var(--line); display: grid; gap: .55rem; align-content: start; }
-.pcard p { color: var(--fg-2); font-size: .94rem; }
-.tagline { justify-self: start; font: 600 .68rem/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; padding: .35rem .55rem; border-radius: 6px; }
-.tagline.free { background: var(--ok-soft); color: var(--ok); }
-.tagline.pro-only { background: var(--hot-soft); color: var(--hot-text); }
-.tagline.soon { background: var(--ink-4); color: var(--fg-3); }
-.pcard.wide { grid-column: span 2; background: transparent; border-style: dashed; }
-@media (max-width: 600px) { .pcard.wide { grid-column: auto; } }
-
-.taste { margin-top: 1rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 1.5rem 2rem; align-items: center; padding: 1.5rem; border-radius: var(--r); background: var(--ink); border: 1px solid var(--line-2); }
-@media (max-width: 820px) { .taste { grid-template-columns: minmax(0, 1fr); } }
-.taste p { color: var(--fg-2); font-size: .94rem; margin-top: .5rem; }
-.meter-row { display: flex; justify-content: space-between; font: 500 .8rem/1 var(--f-mono); color: var(--fg-3); margin-bottom: .55rem; font-variant-numeric: tabular-nums; }
-.meter { position: relative; height: 34px; border-radius: 9px; background: var(--ink-3); overflow: hidden; border: 1px solid var(--line); }
-.meter .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--grad); transition: width .08s linear; }
-.meter .limit { position: absolute; top: -4px; bottom: -4px; left: 16.666%; width: 2px; background: var(--fg); }
-.meter .limit::after { content: "Free: 20"; position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font: 600 .7rem/1 var(--f-mono); color: var(--fg); white-space: nowrap; mix-blend-mode: normal; }
-.taste-ctl { display: flex; gap: .5rem; margin-top: .9rem; flex-wrap: wrap; align-items: center; }
-.taste-msg { font-size: .85rem; color: var(--fg-3); }
-
-.cmp-wrap { margin-top: clamp(2.5rem, 2rem + 2vw, 4rem); overflow-x: auto; border-radius: var(--r); border: 1px solid var(--line); background: var(--ink); }
-table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size: .94rem; }
-.cmp th, .cmp td { padding: .8rem 1.1rem; text-align: left; border-bottom: 1px solid var(--line); }
-.cmp thead th { font: 700 .95rem/1.2 var(--f-display); position: sticky; top: 0; background: var(--ink); }
-.cmp thead th:not(:first-child), .cmp td:not(:first-child) { text-align: center; width: 22%; }
-.cmp thead th.p { color: var(--hot-text); }
-.cmp td:first-child { color: var(--fg-2); }
-.cmp .grp td { font: 600 .7rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--fg-3); background: var(--ink-2); padding-block: .6rem; }
-.cmp .y { color: var(--ok); font-weight: 700; }
-.cmp .n { color: var(--fg-3); }
-.cmp .lim { font: 500 .8rem/1 var(--f-mono); color: var(--warn); }
-.cmp .un { font: 600 .8rem/1 var(--f-mono); color: var(--fg); }
-.cmp tr:last-child td { border-bottom: 0; }
-.licence { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 1.4rem; }
-.licence div { padding-top: 1rem; border-top: 1px solid var(--line-2); }
-.licence b { display: block; font: 700 1rem/1.3 var(--f-display); }
-.licence span { font-size: .875rem; color: var(--fg-3); }
-@media (max-width: 820px) { .licence { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* docs teaser */
+.docs-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 960px) { .docs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .docs-grid { grid-template-columns: minmax(0, 1fr); } }
+.doc-card { display: grid; gap: .45rem; align-content: start; padding: 1.3rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); text-decoration: none; transition: transform .2s, box-shadow .2s, border-color .2s; }
+.doc-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-s); border-color: var(--red-soft); }
+.doc-card .n { font: 700 .74rem/1 var(--f-display); color: var(--red-text); }
+.doc-card h3 { font-size: 1.05rem; }
+.doc-card p { font-size: .9rem; color: var(--muted); }
+.docs-more { margin-top: 1.6rem; display: flex; justify-content: center; }
 
 /* status */
-.status-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(2rem, 1rem + 4vw, 5rem); align-items: start; }
-@media (max-width: 900px) { .status-grid { grid-template-columns: minmax(0, 1fr); } }
-.ring-box { display: flex; gap: 1.4rem; align-items: center; margin-top: 2rem; }
-.ring { width: 132px; height: 132px; flex: none; position: relative; }
-.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.ring .track { fill: none; stroke: var(--ink-4); stroke-width: 10; }
-.ring .arc { fill: none; stroke: url(#rg); stroke-width: 10; stroke-linecap: round; }
-.ring .lbl { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-.ring .lbl b { font: 800 1.9rem/1 var(--f-display); letter-spacing: -.04em; }
-.ring .lbl span { font-size: .72rem; color: var(--fg-3); margin-top: .2rem; }
-.ring-box p { color: var(--fg-2); font-size: .95rem; }
-.facts { margin-top: 1.6rem; display: grid; gap: .55rem; font-size: .9rem; }
-.facts div { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .55rem; border-bottom: 1px dashed var(--line); color: var(--fg-3); }
-.facts b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
-.tl { list-style: none; margin: 0; padding: 0; position: relative; }
-.tl::before { content: ""; position: absolute; left: 9px; top: 8px; bottom: 8px; width: 2px; background: var(--line-2); }
-.tl li { position: relative; padding: 0 0 1.4rem 2.2rem; }
-.tl li:last-child { padding-bottom: 0; }
-.tl li::before { content: ""; position: absolute; left: 2px; top: .3rem; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); border: 2px solid var(--line-2); }
-.tl li.done::before { background: var(--ok); border-color: var(--ok); box-shadow: inset 0 0 0 3px var(--ink-2); }
-.tl li.now::before { background: var(--hot); border-color: var(--hot); box-shadow: 0 0 0 5px var(--hot-soft); animation: pulse 1.8s infinite; }
-.tl .st { font: 600 .68rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--fg-3); }
-.tl li.done .st { color: var(--ok); }
-.tl li.now .st { color: var(--hot-text); }
-.tl h3 { font-size: 1.02rem; margin-top: .35rem; }
-.tl p { color: var(--fg-3); font-size: .9rem; margin-top: .25rem; }
-
-/* support */
-.kofi { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 1.5rem 2rem; align-items: center; padding: clamp(1.5rem, 1rem + 2vw, 2.4rem); border-radius: 20px; background: var(--ink-3); border: 1px solid var(--line-2); }
-.kofi .cup { width: 64px; height: 64px; border-radius: 16px; background: var(--grad); display: grid; place-items: center; color: #fff; }
-.kofi .cup svg { width: 32px; height: 32px; }
-.kofi h3 { font-size: 1.4rem; }
-.kofi p { color: var(--fg-2); margin-top: .5rem; max-width: 62ch; }
-.kofi .sm { display: inline-flex; align-items: center; gap: .5rem; margin-top: .8rem; font: 500 .78rem/1.4 var(--f-mono); color: var(--fg-3); }
-@media (max-width: 820px) { .kofi { grid-template-columns: minmax(0, 1fr); } }
+.road { border-radius: 24px; background: var(--card); border: 1px solid var(--line); padding: clamp(1.4rem, 1rem + 2vw, 2.4rem); box-shadow: var(--shadow-s); }
+.road-top { display: flex; justify-content: space-between; align-items: end; gap: 1rem 1.5rem; flex-wrap: wrap; }
+.road-top .big { font: 800 clamp(2.4rem, 2rem + 1.5vw, 3.2rem)/1 var(--f-display); letter-spacing: -.05em; color: var(--ink); }
+.road-top .big small { font: 600 1rem/1 var(--f-display); letter-spacing: 0; color: var(--muted); margin-left: .4rem; }
+.road-top p { color: var(--muted); max-width: 46ch; font-size: .95rem; }
+.track { position: relative; height: 12px; border-radius: 99px; background: var(--bg-2); margin-top: 1.6rem; overflow: hidden; }
+.track i { position: absolute; inset: 0 auto 0 0; width: 91%; border-radius: 99px; background: var(--grad); }
+.miles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem; margin-top: 1.8rem; }
+@media (max-width: 820px) { .miles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.miles div { display: grid; gap: .35rem; align-content: start; }
+.miles .st { justify-self: start; font: 700 .7rem/1 var(--f-display); letter-spacing: .04em; padding: .35rem .6rem; border-radius: 999px; background: var(--ok-soft); color: var(--ok); }
+.miles .st.now { background: var(--red-soft); color: var(--red-text); }
+.miles .st.next { background: var(--bg-2); color: var(--muted); }
+.miles h3 { font-size: 1rem; }
+.miles p { font-size: .88rem; color: var(--muted); }
 
 /* faq */
-.faq-top { display: flex; gap: .8rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.4rem; }
-.search { position: relative; flex: 1 1 260px; max-width: 420px; }
-.search svg { position: absolute; left: .85rem; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--fg-3); }
-#faq-q { width: 100%; min-height: 46px; padding: 0 1rem 0 2.6rem; border-radius: 999px; border: 1px solid var(--line-2); background: var(--ink-2); color: var(--fg); font: 400 1rem var(--f-body); outline: none; }
-#faq-q:focus { border-color: var(--hot); box-shadow: 0 0 0 3px var(--hot-soft); }
-.faq { border-top: 1px solid var(--line); max-width: 880px; }
-.faq details { border-bottom: 1px solid var(--line); }
-.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 1rem; padding: 1.15rem 0; font: 700 1.06rem/1.35 var(--f-display); letter-spacing: -.01em; }
+.faq-grid { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); gap: clamp(1.5rem, 1rem + 3vw, 4rem); align-items: start; }
+@media (max-width: 900px) { .faq-grid { grid-template-columns: minmax(0, 1fr); } }
+.faq-grid .side p { color: var(--muted); margin-top: 1rem; }
+.faq-grid .side a { color: var(--red-text); font-weight: 600; text-underline-offset: 3px; }
+.faq details { border-radius: 16px; background: var(--card); border: 1px solid var(--line); margin-bottom: .6rem; transition: box-shadow .2s; }
+.faq details[open] { box-shadow: var(--shadow-s); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.05rem 1.2rem; font: 700 1.02rem/1.35 var(--f-display); color: var(--ink); }
 .faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: "+"; font: 400 1.5rem/1 var(--f-body); color: var(--fg-3); transition: transform .2s; flex: none; }
-.faq details[open] summary::after { transform: rotate(45deg); color: var(--hot-text); }
-.faq .a { padding: 0 0 1.25rem; color: var(--fg-2); max-width: 70ch; }
-.faq .a p + p { margin-top: .6rem; }
-.faq-none { color: var(--fg-3); padding: 1.2rem 0; }
+.faq summary::after { content: ""; width: 28px; height: 28px; flex: none; border-radius: 50%; background: var(--red-tint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 6v12M6 12h12' stroke='%23C8123E' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 14px no-repeat; transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq .a { padding: 0 1.2rem 1.15rem; color: var(--text); max-width: 68ch; font-size: .98rem; }
 
-/* choice menu CTA */
-.choice-sec { text-align: center; position: relative; overflow: hidden; }
-.choice-sec::before { content: ""; position: absolute; inset: 20% 10% -20%; background: radial-gradient(closest-side, var(--hot-soft), transparent); pointer-events: none; }
-.choice-sec .wrap { position: relative; }
-.choice-sec h2 { max-width: 18ch; margin-inline: auto; }
-.choice-sec .lead { margin-inline: auto; }
+/* final choice menu */
+.final { background: var(--wine); color: #F2DDE2; text-align: center; position: relative; overflow: hidden; }
+.final::before { content: ""; position: absolute; inset: auto -20% -60% -20%; height: 120%; background: radial-gradient(closest-side, rgba(240, 36, 79, .5), transparent 70%); }
+.final .wrap { position: relative; }
+.final h2 { color: #fff; max-width: 16ch; margin-inline: auto; }
+.final .lead { color: #E3C9D0; margin-inline: auto; }
 .choices { display: grid; gap: .7rem; max-width: 560px; margin: 2.4rem auto 0; }
-.choice {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 58px;
-  padding: .9rem 1.3rem; border-radius: 12px; text-decoration: none; text-align: left;
-  background: color-mix(in srgb, var(--ink-3) 90%, transparent); border: 1px solid var(--line-2);
-  font: 600 1.02rem/1.3 var(--f-body); transition: transform .15s, border-color .15s, background-color .15s;
-}
-.choice:hover { transform: translateX(4px); border-color: var(--hot); background: var(--ink-3); }
-.choice small { font: 500 .72rem/1.3 var(--f-mono); color: var(--fg-3); text-align: right; }
-.choice.hot { background: var(--grad); color: #fff; border-color: transparent; }
-.choice.hot small { color: rgba(255, 255, 255, .85); }
-.smart { margin-top: 1.6rem; font-size: .85rem; color: var(--fg-3); }
-.smart a { color: var(--fg-2); }
+.choice { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 60px; padding: .9rem 1.3rem; border-radius: 14px; text-decoration: none; text-align: left; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .16); color: #fff; font: 700 1.04rem/1.3 var(--f-display); transition: transform .15s, background-color .15s, border-color .15s; }
+.choice:hover { transform: translateX(5px); background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .4); }
+.choice small { font: 500 .78rem/1.3 var(--f-body); color: #D9BEC6; text-align: right; }
+.choice.hot { background: var(--grad); border-color: transparent; }
+.choice.hot small { color: rgba(255, 255, 255, .9); }
+.final .smart { margin-top: 1.8rem; font-size: .88rem; color: #CFAFB8; max-width: 60ch; margin-inline: auto; }
 
-footer { border-top: 1px solid var(--line); padding-block: 2.6rem calc(2.6rem + env(safe-area-inset-bottom, 0px)); }
-.foot { display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; align-items: start; }
-.foot p { color: var(--fg-3); font-size: .85rem; max-width: 46ch; margin-top: .8rem; }
-.foot nav { display: flex; gap: .4rem 1.4rem; flex-wrap: wrap; }
-.foot nav a { color: var(--fg-2); text-decoration: none; font-size: .9rem; }
-.foot nav a:hover { color: var(--fg); }
-
-.toTop { position: fixed; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--ink-3); color: var(--fg); display: grid; place-items: center; cursor: pointer; z-index: 40; box-shadow: var(--shadow); }
+.toTop { position: fixed; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); display: grid; place-items: center; cursor: pointer; z-index: 40; box-shadow: var(--shadow-s); }
 .toTop svg { width: 18px; height: 18px; }
-
-.lightbox { position: fixed; inset: 0; z-index: 80; background: rgba(6, 5, 10, .92); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); cursor: zoom-out; }
+.lightbox { position: fixed; inset: 0; z-index: 80; background: rgba(30, 6, 14, .92); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); cursor: zoom-out; }
 .lightbox img { max-height: 92vh; border-radius: 10px; }
 .zoom { cursor: zoom-in; }
-
 .reveal { transition: opacity .6s ease, transform .6s ease; }
-.js .reveal.pre { opacity: .001; transform: translateY(14px); }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-  html { scroll-behavior: auto; }
-  .js .reveal.pre { opacity: 1; transform: none; }
-}
+.js .reveal.pre { opacity: .001; transform: translateY(16px); }
+@media (prefers-reduced-motion: reduce) { .js .reveal.pre { opacity: 1; transform: none; } .window { transform: none !important; } }
 </style>
 </head>
 <body>
@@ -556,34 +323,31 @@ footer { border-top: 1px solid var(--line); padding-block: 2.6rem calc(2.6rem + 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="brandg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF315C"/><stop offset="1" stop-color="#FF7043"/></linearGradient>
-    <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF315C"/><stop offset="1" stop-color="#FF7043"/></linearGradient>
     <symbol id="logo" viewBox="80 80 900 870">
       <path d="M238.4 292.5 Q272.1 192.2 376.6 175 L797.6 105.9 Q960 79.3 949.7 243.6 L915.1 798 Q905.9 944.7 760.8 921.6 L185.9 830.1 Q64 810.7 103.4 693.6 Z" fill="url(#brandg)"/>
       <path d="M187.5 756.6 L452.6 318.8 Q470.8 288.6 506.1 288.6 L567.3 288.6 Q602.5 288.6 618.2 320.2 L834.2 756.6 L675.4 756.6 L524.9 453.2 L363.8 756.6 Z" fill="#fff"/>
       <path d="M466.1 633.1 L614.3 633.1 L675.4 756.6 L552 756.6 Z" fill="#fff" fill-opacity=".62"/>
     </symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z" fill="currentColor"/></symbol>
-    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-win" viewBox="0 0 24 24"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z" fill="currentColor"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" fill="currentColor"/></symbol>
   </defs>
 </svg>
 
 <header class="top" id="top">
   <div class="wrap">
-    <a class="brand" href="#main" aria-label="Aside, home">
-      <svg aria-hidden="true"><use href="#logo"/></svg>aside
-    </a>
+    <a class="brand" href="#main" aria-label="Aside, home"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
     <nav class="nav" aria-label="Main">
-      <a href="#features">Features</a>
-      <a href="#how">How it works</a>
-      <a href="#privacy">Privacy</a>
-      <a href="#pro">Pro</a>
-      <a href="#status">Status</a>
+      <a href="#tour">Features</a>
+      <a href="#try">Try it</a>
+      <a href="#pricing">Pricing</a>
+      <a href="docs.html">Docs</a>
       <a href="#faq">FAQ</a>
     </nav>
     <div class="top-cta">
-      <a class="btn btn-sm kofi-top" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--hot-text)"><use href="#i-heart"/></svg>Ko-fi</a>
+      <a class="btn btn-sm hide-m" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--red)"><use href="#i-heart"/></svg>Ko-fi</a>
       <a class="btn btn-sm btn-hot" href="#get">Get Aside</a>
       <button class="menu-btn" id="menu-open" aria-label="Open menu" aria-expanded="false" aria-controls="sheet">
         <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -595,73 +359,140 @@ footer { border-top: 1px solid var(--line); padding-block: 2.6rem calc(2.6rem + 
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Menu">
   <div class="sheet-head">
     <span class="brand"><svg aria-hidden="true"><use href="#logo"/></svg>aside</span>
-    <button class="menu-btn" id="menu-close" aria-label="Close menu" style="display:inline-flex">
-      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    </button>
+    <button class="menu-btn" id="menu-close" aria-label="Close menu" style="display:inline-flex"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
   </div>
   <nav aria-label="Menu">
-    <a href="#features">Features <span>label features</span></a>
-    <a href="#how">How it works <span>label how</span></a>
-    <a href="#privacy">Privacy <span>label privacy</span></a>
-    <a href="#games">Tested games <span>label games</span></a>
-    <a href="#pro">Pro <span>label pro</span></a>
-    <a href="#status">Status <span>label status</span></a>
-    <a href="#faq">FAQ <span>label faq</span></a>
+    <a href="#tour">Features <svg><use href="#i-arrow"/></svg></a>
+    <a href="#try">Try it <svg><use href="#i-arrow"/></svg></a>
+    <a href="#pricing">Pricing <svg><use href="#i-arrow"/></svg></a>
+    <a href="#status">Status <svg><use href="#i-arrow"/></svg></a>
+    <a href="docs.html">Docs <svg><use href="#i-arrow"/></svg></a>
+    <a href="#faq">FAQ <svg><use href="#i-arrow"/></svg></a>
   </nav>
   <div class="btns">
     <a class="btn btn-hot" href="#get">Get Aside</a>
-    <a class="btn" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--hot-text)"><use href="#i-heart"/></svg>Support on Ko-fi</a>
+    <a class="btn" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--red)"><use href="#i-heart"/></svg>Support on Ko-fi</a>
   </div>
 </div>
 
 <main id="main">
 
-<!-- HERO -->
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="pill"><span class="dot"></span>Desktop app for Windows · in final testing</span>
-      <h1>Translate Ren'Py games <span class="strike">without</span> breaking&nbsp;them.</h1>
-      <p class="lead">Aside is a translation manager for Ren'Py. Edit, proofread and check your <code>.rpy</code> translation files while every tag, variable and line length is watched for you. Your game folder is never touched.</p>
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>The translation manager for Ren'Py</span>
+      <h1>Translate the whole game. <em>Break nothing.</em></h1>
+      <p class="lead">Aside opens a Ren'Py game's translation and walks you through it, line by line. It checks every tag, variable and line length as you type, shows the scene and the choices behind each line, and keeps count of what is done.</p>
       <div class="hero-ctas">
-        <a class="btn btn-hot" href="#get">Get Aside <svg><use href="#i-arrow"/></svg></a>
-        <a class="btn" href="#features">See what it does</a>
+        <a class="btn btn-hot" href="#get">Get Aside free <svg><use href="#i-arrow"/></svg></a>
+        <a class="btn" href="#try">Try to break a line</a>
       </div>
-      <div class="hero-meta">
+      <div class="trust">
         <span><svg><use href="#i-check"/></svg>Free translating workflow</span>
-        <span><svg><use href="#i-check"/></svg>No account, no telemetry</span>
-        <span><svg><use href="#i-check"/></svg>Tried on 8 real games</span>
+        <span><svg><use href="#i-check"/></svg>Runs offline, no account</span>
+        <span><svg><use href="#i-check"/></svg>Never writes into your game</span>
       </div>
-      <p class="origin-line">Born while translating <a href="#origin">Being a DIK</a> into Czech.</p>
     </div>
+    <div class="stage">
+      <div class="window">
+        <div class="chrome"><i></i><i></i><i></i><span>Aside · demo project · Lines</span></div>
+        <img class="zoom" src="img/app-lines.webp" width="1440" height="816" alt="Aside, the Lines tab: a table of lines with their state, and below it the original and the translation side by side.">
+      </div>
+      <div class="callout c1"><span class="dot ok">✓</span><div><b>35 of 36</b> lines translated<small>Episode 1 · 97 %</small></div></div>
+      <div class="callout c2"><span class="dot bad">✗</span><div><b>{/b}</b> is not closed<small>ep1_arrival.rpy · line 23</small></div></div>
+      <div class="callout c3"><span class="dot red">↗</span><div><b>Continue</b> where you stopped<small>ep1_arrival.rpy:5</small></div></div>
+    </div>
+  </div>
+</section>
 
-    <div class="demo" id="demo">
-      <div class="demo-bar"><span class="file">game/tl/czech/ep1_arrival.rpy · line 5</span><span class="live">live check</span></div>
+<div class="games-row">
+  <div class="wrap">
+    <p>Tried on 8 real games<span>from archive to translation</span></p>
+    <div class="gchips">
+      <span>Being a DIK<b>45k</b></span><span>Eternum<b>73k</b></span><span>A Wife and Mother<b>37k</b></span><span>Milfy City<b>47k</b></span><span>Midnight Paradise<b>67k</b></span><span>LoSeSb<b>360k</b></span><span>Four Elements Trainer<b>170k</b></span><span>Our Red String<b>152k</b></span>
+    </div>
+  </div>
+</div>
+
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Why Aside</span>
+      <h2>A translation is thousands of tiny chances to crash a game.</h2>
+      <p class="lead">One unclosed <code>{i}</code>, one mistyped <code>[name]</code>, one line too long for the box. Aside catches them while you write, not after a player reports them.</p>
+    </div>
+    <div class="ba">
+      <div class="ba-card before">
+        <h3>In a text editor <small>the usual way</small></h3>
+        <ul class="ba-list">
+          <li><svg><use href="#i-x"/></svg>You find a broken tag when the game throws an exception.</li>
+          <li><svg><use href="#i-x"/></svg>You guess who says a line and what is on screen.</li>
+          <li><svg><use href="#i-x"/></svg>A choice is a lone string, cut off from what follows it.</li>
+          <li><svg><use href="#i-x"/></svg>Progress lives in a spreadsheet you forget to update.</li>
+          <li><svg><use href="#i-x"/></svg>Texts the generator skipped stay in English.</li>
+        </ul>
+      </div>
+      <div class="ba-card after">
+        <h3>In Aside <small>the calm way</small></h3>
+        <ul class="ba-list">
+          <li><svg><use href="#i-check"/></svg>Every line is checked against its original as you type.</li>
+          <li><svg><use href="#i-check"/></svg>The speaker, the scene and the lines around it sit next to the text.</li>
+          <li><svg><use href="#i-check"/></svg>The Menu tab shows the question, every option and what follows it.</li>
+          <li><svg><use href="#i-check"/></svg>Progress per line, file and episode, a weekly goal, a finish estimate.</li>
+          <li><svg><use href="#i-check"/></svg>Missed texts are found and added once you approve them.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tour" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>A quick tour</span>
+      <h2>Everything a line needs, in one window.</h2>
+    </div>
+    <div class="tour">
+      <div class="tour-list" role="tablist" aria-label="Features">
+        <button class="tour-item" role="tab" aria-selected="true" data-p="editor"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><h3>The editor</h3><p>Original and translation side by side, buttons for tags and pauses, saved straight into the <code>.rpy</code> file with <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="check"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6l-8-3Zm-3.5 9 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h3>Checks</h3><p>Errors that would crash the game and warnings that look suspicious, for the whole project in one list, each with a jump to its line.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="scene"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m3 16 5-5 4 4 3-3 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><h3>Scene preview</h3><p>The picture behind the line, with the game's font. Full-screen renders and scenes are fully supported; layered images are not drawn yet.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="menu"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7m6-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h3>Choice menus</h3><p>The question, every option with its translation and condition, and the first lines after each choice, read from the game script.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="overview"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h3>Progress</h3><p>What is left to translate and proofread, per file and per episode, chapter or folder, with a weekly goal.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="glossary"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h11a3 3 0 0 1 3 3v12H7a3 3 0 0 1-3-3zM18 8h2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h6M8 13h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><div><h3>Glossary</h3><p>Character names imported from the game and your own terms, checked in every line so a name never changes halfway.</p></div></button>
+      </div>
+      <div class="tour-panel">
+        <p class="tour-text-m" id="tour-text-m"></p>
+        <div class="panel-frame" id="panel"></div>
+        <p class="panel-note" id="panel-note"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="try">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Try it here</span>
+      <h2>Go on, try to break this line.</h2>
+      <p class="lead">Edit the Czech translation. The checks run as you type, the same way they run on every line in Aside, and the scene shows what the player would get.</p>
+    </div>
+    <div class="play">
       <div class="scene" aria-hidden="true">
         <div class="win"></div><div class="lamp"></div><div class="floor"></div>
-        <div class="vn-box" id="vn-box">
-          <span class="vn-name">Mira</span>
-          <div class="vn-text" id="vn-text"></div>
-          <span class="vn-ctc"></span>
-        </div>
+        <div class="vn-box" id="vn-box"><span class="vn-name">Mira</span><div class="vn-text" id="vn-text"></div><span class="vn-ctc"></span></div>
         <div class="rp-error" id="rp-error" hidden>
           <h4>An exception has occurred.</h4>
           <div class="trace" id="rp-trace"></div>
-          <div>Your players would see this screen instead of the scene.</div>
+          <div>Your players would see this instead of the scene.</div>
           <div class="btnrow"><span>Rollback</span><span>Ignore</span><span>Open Traceback</span><span>Quit</span></div>
         </div>
       </div>
       <div class="inspect">
-        <div>
-          <div class="fieldlab">Original <em>old</em></div>
-          <div class="orig" id="orig"></div>
-        </div>
-        <div>
-          <div class="fieldlab"><label for="tr">Translation <em style="text-transform:none">new · edit me</em></label><em id="len">0 chars</em></div>
-          <textarea id="tr" spellcheck="false" rows="2"></textarea>
-        </div>
+        <div><div class="fieldlab">Original <em>ep1_arrival.rpy · line 5</em></div><div class="orig" id="orig"></div></div>
+        <div><div class="fieldlab"><label for="tr">Your translation</label><em id="len"></em></div><textarea id="tr" spellcheck="false" rows="3"></textarea></div>
         <div class="checks" id="checks" aria-live="polite"></div>
-        <p class="why" id="why"></p>
+        <p class="why" id="why-txt"></p>
         <div class="tries">
           <button class="try" data-try="tag">Delete the {/i}</button>
           <button class="try" data-try="var">Misspell the variable</button>
@@ -673,375 +504,156 @@ footer { border-top: 1px solid var(--line); padding-block: 2.6rem calc(2.6rem + 
   </div>
 </section>
 
-<!-- PROOF -->
-<div class="proof">
-  <div class="wrap">
-    <div class="stat"><b data-count="8">8</b><span>real Ren'Py games taken from archive to translation</span></div>
-    <div class="stat"><b>1.4 M</b><span>lines of real translations read by the new engine exactly as by the old one</span></div>
-    <div class="stat"><b data-count="80">80</b><span>operations under the hood, each checked against recorded answers</span></div>
-    <div class="stat"><b>0</b><span>bytes written into your game folder. Ever.</span></div>
-  </div>
-</div>
-
-<!-- SCREENSHOTS -->
-<section id="see">
+<section id="included" class="band">
   <div class="wrap">
     <div class="sec-head">
-      <span class="label"><b>label</b> see_it:</span>
-      <h2>The real app, not a mock-up.</h2>
-      <p class="lead">Screenshots of the working app on a made-up demo project. The interface can still change before the first release.</p>
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>All included, free</span>
+      <h2>The whole translating workflow costs nothing.</h2>
+      <p class="lead">No trial, no account, no ads. These stay free.</p>
     </div>
-    <div class="shots-tabs" role="tablist" aria-label="Screenshots">
-      <button class="tab" role="tab" aria-selected="true" data-shot="0">Editor</button>
-      <button class="tab" role="tab" aria-selected="false" data-shot="1">Checks</button>
-      <button class="tab" role="tab" aria-selected="false" data-shot="2">Overview</button>
-      <button class="tab" role="tab" aria-selected="false" data-shot="3">Glossary</button>
+    <div class="incl">
+      <div><svg><use href="#i-check"/></svg><p><b>Editor, filters and search</b><span>Whole-word search, filters by state, undo</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Quick translating and proofreading</b><span>Scene and editor together, "result 3 of 16"</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>All the checks</b><span>Tags, variables, numbers, length, box fit</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Find and replace</b><span>Across the whole project, in plain text</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>History and diff</b><span>Every version of every line</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Backups and snapshots</b><span>Before every write, restorable</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Scene preview and choice menus</b><span>Read from the game's own scripts</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Glossary and spelling hints</b><span>Hints from your project's own words</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Missed texts</b><span>Strings the generator skipped (experimental)</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Groups and progress</b><span>Episodes, chapters or folders found for you</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Machine translation of a line</b><span>DeepL, LibreTranslate or OpenAI-compatible, your key</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Language packs</b><span>Czech first; neutral rules for any language</span></p></div>
     </div>
-    <figure class="shot-frame" style="margin:0">
-      <div class="shot-chrome"><i></i><i></i><i></i><span id="shot-title">Aside · Lines</span></div>
-      <img class="shot-img zoom" id="shot-img" src="img/app-lines.webp" width="1440" height="816" alt="The Lines tab of Aside: a table of lines with filters, and below it the original and the translation side by side.">
-    </figure>
-    <div class="shot-cap"><p id="shot-cap">The editor: original on the left, your translation on the right, buttons for tags and pauses, saved straight into the file.</p><small>Demo project, made-up dialogue. Tap to enlarge.</small></div>
   </div>
 </section>
 
-<!-- FEATURES -->
-<section id="features" class="band">
+<section class="zero" id="privacy">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="label"><b>label</b> features:</span>
-      <h2>Translating a visual novel is easy to start and hard to finish.</h2>
+    <span class="kicker on-dark"><i><svg><use href="#i-spark"/></svg></i>Your work stays yours</span>
+    <h2>Three zeros we are proud of.</h2>
+    <p class="lead">Aside is a desktop app. Your game, your translation and your notes stay on your computer.</p>
+    <div class="zeros">
+      <div><b><span>0</span></b><h3>bytes written into your game</h3><p>Game folders are only read. Aside writes translation files, after a backup, and its own small data folder.</p></div>
+      <div><b><span>0</span></b><h3>telemetry, analytics, crash reports</h3><p>Nothing about your projects is ever sent to us. No file names, no texts, no settings.</p></div>
+      <div><b><span>0</span></b><h3>accounts to make</h3><p>Install and open a game. Pro asks only for a licence key, never for a login.</p></div>
     </div>
-    <div class="pains">
-      <div class="pain"><span class="q">"Why does chapter 3 crash?"</span><h3>One missing <code>{/i}</code> breaks a scene.</h3><p>Tags, <code>[variables]</code> and brackets live inside the text. Aside compares every translation with its original and tells you before a player sees it.</p></div>
-      <div class="pain"><span class="q">"Did anyone proofread file 41?"</span><h3>You lose track of what is done.</h3><p>Thousands of lines, many sessions, maybe several people. Aside keeps a proofreading state per line, file and group, with history and a diff.</p></div>
-      <div class="pain"><span class="q">"Why is this menu still English?"</span><h3>The generator misses texts.</h3><p>Strings in <code>show text</code>, input prompts and titles in variables stay untranslated. Aside finds what the generator skipped and lets you review it.</p></div>
-    </div>
-
-    <div class="sec-head" style="margin-bottom:1.6rem">
-      <h2>The whole translating workflow. <span class="grad-text">Free.</span></h2>
-    </div>
-    <div class="feat-grid">
-      <article class="feat big">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6l-8-3Z M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <h3>Checks that know Ren'Py</h3>
-        <p>Every line is compared with its original: text tags, variables, brackets, length, and whether it still fits the dialogue box when drawn with the game's own font. Language packs add the rules of your language, like typographic quotes or repeated words.</p>
-<pre><span class="c"># game/tl/czech/ep1_arrival.rpy</span>
-<span class="k">translate</span> czech ep1_arrival_5c1e2a:
-    <span class="c"># mira "{i}Hey!{/i} Welcome back, [player_name]."</span>
-    mira "{i}Hej!{/i} Vítej zpátky, [player_name]."  <span class="ok">✓ tags ✓ vars ✓ fits</span>
-    <span class="c"># mira "Did you bring the {b}letter{/b}?"</span>
-    mira "Přinesl jsi ten {b}dopis?"            <span class="bad">✗ {/b} missing</span></pre>
-        <div class="codes"><span>tags</span><span>variables</span><span>brackets</span><span>length</span><span>box fit</span><span>glossary terms</span><span>quotes</span><span>repeated words</span><span>spelling hints</span></div>
-      </article>
-      <article class="feat tall">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7m6-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <h3>Choices at a glance</h3>
-        <p>The Menu tab shows the question, every option with its translation and condition, and the first lines after each choice, read from the game script.</p>
-        <div class="menu-mini" aria-label="Example of a choice menu">
-          <span class="q">Mira: "So, are you staying?"</span>
-          <div class="o"><span>Stay the night</span><span>Zůstat přes noc</span></div>
-          <div class="o"><span>Walk home</span><span>Jít domů</span></div>
-          <div class="o warn"><span>Ask about the letter</span><span>Zeptat se na dopis</span></div>
-          <small>Same text as a menu in ep1_garden.rpy, check it reads the same.</small>
-        </div>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m3 16 5-5 4 4 3-3 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
-        <h3>Scene preview</h3>
-        <p>The background and the pictures shown over it, with the game's fonts, next to the line you translate. Works best on games built from whole-scene pictures.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M3.5 12a8.5 8.5 0 1 0 2.5-6M3 4v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <h3>History and diff</h3>
-        <p>Every version of every line and the difference between them. Undo is one click away, backups are made before every write.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h14v6H5zM5 14h6v6H5zm10 0h4v6h-4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
-        <h3>Quick modes</h3>
-        <p>Film layouts for fast translating and proofreading. With a search active you get "result 3 of 16", arrow keys for next and previous, whole-word search and filters.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h11a3 3 0 0 1 3 3v12H7a3 3 0 0 1-3-3zM18 8h2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h6M8 13h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-        <h3>Glossary and spelling hints</h3>
-        <p>Character names are imported from the game, terms are checked in every line. Spelling hints come from your project's own vocabulary, so any language works.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
-        <h3>Prepare any built game</h3>
-        <p>Unpacks <code>.rpa</code> archives, decompiles scripts and lets the game's own engine generate the translation files. No SDK to install.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4.2-4.2M11 8v3m0 3h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-        <h3>Missed texts</h3>
-        <p>Finds strings the generator never saw (<code>show text</code>, input prompts, titles in variables) and adds the ones you approve to <code>extra_strings.rpy</code>.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h7M7.5 3v2m2.5 0c-.8 4-3.4 7-6 8.5M6 9c1 2 3 3.6 5 4.5M13 21l4-10 4 10m-6.8-3h5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <h3>Machine translation, your key</h3>
-        <p>Translate a single line with DeepL, LibreTranslate or any OpenAI-compatible service. Off until you turn it on; the text goes straight to the service you chose.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <h3>Proofreading and progress</h3>
-        <p>A proofreading state for every line, progress per episode, chapter or folder, a weekly goal and an estimate of when you will finish.</p>
-      </article>
-      <article class="feat">
-        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 12h17M12 3.5c2.5 2.4 3.6 5.2 3.6 8.5s-1.1 6.1-3.6 8.5c-2.5-2.4-3.6-5.2-3.6-8.5S9.5 5.9 12 3.5Z" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>
-        <h3>Language packs</h3>
-        <p>The rules of your language are data: its letters, plural rules and typical words. Czech is the first pack; without one the neutral rules apply.</p>
-      </article>
-    </div>
+    <p class="opt">Machine translation is off until you turn it on, and then talks straight to the service you chose. <a href="docs.html#data">What leaves your computer →</a></p>
   </div>
 </section>
 
-<!-- HOW -->
-<section id="how">
+<section id="pricing">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="label"><b>label</b> how_it_works:</span>
-      <h2>From a built game to a checked translation.</h2>
+    <div class="sec-head c">
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Pricing</span>
+      <h2>Free to translate. Pro to go faster.</h2>
+      <p class="lead">Pro is for long games and release work. Try its speed features on your own project before you pay.</p>
     </div>
-    <div class="steps">
-      <div class="step"><h3>Prepare</h3><p>Point Aside at a game. It unpacks the archives, decompiles the scripts and lets the game's own engine write the translation files into <code>game/tl/</code>.</p><span class="note">The window for this comes with the next update</span></div>
-      <div class="step"><h3>Translate</h3><p>Line by line or in the quick film layouts, with the scene, the choices, the glossary and the history next to the text.</p></div>
-      <div class="step"><h3>Check</h3><p>Tags, variables, length and box fit on every line. Proofreading state and per-group progress show what is really finished.</p></div>
-      <div class="step"><h3>Ship</h3><p>Your translation is plain <code>.rpy</code> files in the game's <code>tl</code> folder, ready to zip and share. Pro can publish your progress to your site.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- PRIVACY -->
-<section id="privacy" class="band">
-  <div class="wrap priv-grid">
-    <div>
-      <span class="label"><b>label</b> privacy:</span>
-      <h2>Your game and your translation stay on your computer.</h2>
-      <p class="lead">Aside is a local desktop app. There is no account and nothing to sign in to.</p>
-      <ul class="never" style="margin-top:2rem">
-        <li><svg><use href="#i-check"/></svg><div><b>Game folders are read-only</b><span>Aside writes only translation files and its own small data files. It never deletes a folder it does not own.</span></div></li>
-        <li><svg><use href="#i-check"/></svg><div><b>Every write is atomic, with a backup first</b><span>A crash or a full disk cannot leave a half-written file. Snapshots let you go back.</span></div></li>
-        <li><svg><use href="#i-check"/></svg><div><b>Plain files you can read</b><span>Shared project state lives in a small <code>.aside</code> folder next to your translation, bulky data in your app data folder.</span></div></li>
-      </ul>
-    </div>
-    <div class="flows">
-      <h3>Everything that leaves your computer <small>written from the code</small></h3>
-      <div class="flow zero"><b>Telemetry, analytics, crash reports</b><em>none</em><p>Not built and not planned. No update check either.</p></div>
-      <div class="flow zero"><b>Your texts, file names, glossary, settings</b><em>never sent to us</em><p>Nothing about your projects goes to the Aside server.</p></div>
-      <div class="flow"><b>Machine translation</b><em>only if you turn it on</em><p>The line you translate, sent straight to the service you chose, with your own key. Needs your consent in Settings.</p></div>
-      <div class="flow"><b>Licence check</b><em>Pro only</em><p>The licence key, a random device id and the computer name you typed. No paths, no hardware ids.</p></div>
-      <div class="flow"><b>Publishing progress</b><em>Pro, if you set it up</em><p>Percentages pushed with your own git to a repository you chose.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- GAMES -->
-<section id="games">
-  <div class="wrap">
-    <div class="games-head">
-      <div class="sec-head" style="margin:0">
-        <span class="label"><b>label</b> tested_games:</span>
-        <h2>Tried on 8 real games, not demos.</h2>
-        <p class="lead">Each game was unpacked, decompiled, given translation files by its own engine and opened in Aside. The game folders were only read.</p>
+    <div class="plans">
+      <div class="plan">
+        <div class="name"><h3>Aside</h3><span class="badge">Free forever</span></div>
+        <div class="price">0<small>no strings</small></div>
+        <p>Everything you need to translate, check and finish a game.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Editor, quick modes, find and replace</li>
+          <li><svg><use href="#i-check"/></svg>All checks, glossary, spelling hints</li>
+          <li><svg><use href="#i-check"/></svg>Scene preview, choice menus, history</li>
+          <li><svg><use href="#i-check"/></svg>Progress, groups, missed texts</li>
+          <li><svg><use href="#i-check"/></svg>A taste of the Pro speed features<em>20 lines a run</em></li>
+        </ul>
+        <a class="btn" href="#get">Get Aside</a>
       </div>
-      <div class="filter" role="group" aria-label="Filter games">
-        <button class="tab" aria-pressed="true" aria-selected="true" data-f="all">All 8</button>
-        <button class="tab" aria-pressed="false" aria-selected="false" data-f="whole">Whole-scene · 5</button>
-        <button class="tab" aria-pressed="false" aria-selected="false" data-f="layered">Layered · 3</button>
+      <div class="plan pro">
+        <div class="name"><h3>Aside Pro</h3><span class="badge">One-off licence</span></div>
+        <div class="price">Price soon<small>one payment, no subscription</small></div>
+        <p>Everything in Free, plus the speed layer that takes the boring hours away.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Batch machine translation with glossary and context<em>unlimited</em></li>
+          <li><svg><use href="#i-check"/></svg>Safe bulk fixes with a preview of every change<em>unlimited</em></li>
+          <li><svg><use href="#i-check"/></svg>Group suggestions for hundreds of files<em>unlimited</em></li>
+          <li><svg><use href="#i-check"/></svg>Regex batches that keep tags and variables safe</li>
+          <li><svg><use href="#i-check"/></svg>Publish your progress to your site or Patreon</li>
+        </ul>
+        <a class="btn btn-hot" href="#get">Be first to know</a>
       </div>
     </div>
-    <div class="games" id="games-list"></div>
-    <div class="legend">
-      <span><i></i>Whole-scene pictures: the scene preview works well</span>
-      <span><i class="l"></i>Layered images: background shown, layers not drawn yet</span>
-      <span>Bars are to scale, by translation lines</span>
-    </div>
-  </div>
-</section>
-
-<!-- ORIGIN -->
-<section id="origin" class="band">
-  <div class="wrap origin">
-    <div>
-      <span class="label"><b>label</b> origin:</span>
-      <h2>It started with one translation.</h2>
-      <p>Aside was not a product idea. It began as a tool for the Czech translation of <em>Being a DIK</em>: a fast editor, checks that catch broken tags, and a way to see what is proofread and what is not.</p>
-      <p>Then it was rebuilt for any Ren'Py game, tried on seven more, and ported to a fast desktop app with a Rust core. Every feature on this page exists because a real translation needed it.</p>
-      <p class="quote">Built by one translator who got tired of fixing tags by hand.</p>
-    </div>
-    <div class="card-dik">
-      <span class="t">The first test game</span>
-      <h3>Being a DIK</h3>
-      <dl>
-        <div><dt>Version</dt><dd>0.8.3</dd></div>
-        <div><dt>Ren'Py</dt><dd>7.4.10</dd></div>
-        <div><dt>Episodes</dt><dd>8</dd></div>
-        <div><dt>Lines</dt><dd>45 291</dd></div>
-        <div><dt>Files</dt><dd>72</dd></div>
-        <div><dt>Archives</dt><dd>3</dd></div>
-      </dl>
-      <a href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">The Czech translation of Being a DIK →</a>
-    </div>
-  </div>
-</section>
-
-<!-- PRO -->
-<section id="pro" class="pro">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="label"><b>label</b> pro:</span>
-      <h2>Aside Pro takes the boring hours off big projects.</h2>
-      <p class="lead">Everything you need to translate is free. Pro is the speed layer for long games, release work and teams. One payment, no subscription.</p>
-    </div>
-    <div class="pro-grid">
-      <div class="pcard"><span class="tagline free">Try it free · 20 lines a run</span><h3>Batch machine translation</h3><p>Send a whole file through your engine with your glossary and the surrounding lines as context. Review, don't retype.</p></div>
-      <div class="pcard"><span class="tagline free">Try it free · 20 a run</span><h3>Safe bulk fixes</h3><p>Fix speaker names, spacing and typos across the project, aware of tags and variables, with a preview of every change.</p></div>
-      <div class="pcard"><span class="tagline free">Try it free · 5 a run</span><h3>Group suggestions</h3><p>Hundreds of script files? Aside proposes which ones belong to which episode, chapter or day.</p></div>
-      <div class="pcard"><span class="tagline pro-only">Pro</span><h3>Regex batches</h3><p>Big clean-ups in one pass, with the same protection for tags and variables as the safe fixes.</p></div>
-      <div class="pcard"><span class="tagline pro-only">Pro</span><h3>Publish your progress</h3><p>A live progress page on your site or Patreon, pushed from your project with your own git.</p></div>
-      <div class="pcard"><span class="tagline soon">In the works</span><h3>Carry over to a new game version</h3><p>The game updated and lines moved? Old translations are matched to changed and shifted originals and marked for a check.</p></div>
-      <div class="pcard wide" style="grid-column:1/-1"><span class="tagline soon">Later</span><h3>And more on the way</h3><p>Fuzzy translation memory, a style check for formal and informal address, character profiles for machine translation, a release builder and teamwork.</p></div>
-    </div>
-
-    <div class="taste">
-      <div>
-        <h3>Taste before you pay</h3>
-        <p>Free runs the Pro speed features on a small batch, so you see them work on your own project. Pro lifts the limit. This is an illustration, not the app.</p>
-      </div>
-      <div>
-        <div class="meter-row"><span>Batch translation</span><span id="m-count">0 / 120 lines</span></div>
-        <div class="meter" aria-hidden="true"><div class="fill" id="m-fill"></div><div class="limit"></div></div>
-        <div class="taste-ctl">
-          <button class="btn btn-sm" id="m-free">Run as Free</button>
-          <button class="btn btn-sm btn-hot" id="m-pro">Run as Pro</button>
-          <span class="taste-msg" id="m-msg" aria-live="polite"></span>
-        </div>
-      </div>
-    </div>
-
-    <div class="cmp-wrap">
-      <table class="cmp">
-        <thead><tr><th scope="col">Feature</th><th scope="col">Free</th><th scope="col" class="p">Pro</th></tr></thead>
-        <tbody>
-          <tr><td>Editor, filters, search, undo, backups</td><td class="y">✓</td><td class="y">✓</td></tr>
-          <tr><td>All checks, glossary, spelling hints</td><td class="y">✓</td><td class="y">✓</td></tr>
-          <tr><td>Find and replace, history and diff</td><td class="y">✓</td><td class="y">✓</td></tr>
-          <tr><td>Scene preview, choice menus, quick modes</td><td class="y">✓</td><td class="y">✓</td></tr>
-          <tr><td>Prepare a built game, missed texts</td><td class="y">✓</td><td class="y">✓</td></tr>
-          <tr><td>Machine translation of one line (your key)</td><td class="y">✓</td><td class="y">✓</td></tr>
-          <tr><td>Approve identical lines, language packs</td><td class="y">✓</td><td class="y">✓</td></tr>
-          <tr class="grp"><td colspan="3">Speed layer</td></tr>
-          <tr><td>Batch machine translation</td><td class="lim">20 / run</td><td class="un">Unlimited</td></tr>
-          <tr><td>Safe bulk fixes</td><td class="lim">20 / run</td><td class="un">Unlimited</td></tr>
-          <tr><td>Group suggestions</td><td class="lim">5 / run</td><td class="un">Unlimited</td></tr>
-          <tr><td>Regex batches</td><td class="n">–</td><td class="y">✓</td></tr>
-          <tr><td>Publish progress to your site</td><td class="n">–</td><td class="y">✓</td></tr>
-          <tr class="grp"><td colspan="3">Price</td></tr>
-          <tr><td>Licence</td><td class="un">0</td><td class="un">One-off, price soon</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="licence">
-      <div><b>One payment</b><span>Per major version. No subscription.</span></div>
-      <div><b>Two computers</b><span>Free a computer yourself when you change it.</span></div>
+    <div class="soon-row">Coming to Pro: <span>Carry a translation to a new game version</span><span>Fuzzy translation memory</span><span>Style check</span><span>Release builder</span><span>Teamwork</span></div>
+    <div class="lic">
+      <div><b>Two computers</b><span>Free one yourself when you switch.</span></div>
       <div><b>Works offline</b><span>Checks in now and then, with a grace period.</span></div>
+      <div><b>Per major version</b><span>Pay once for the whole version.</span></div>
       <div><b>Never locks your work</b><span>If a licence lapses, only Pro switches off.</span></div>
     </div>
   </div>
 </section>
 
-<!-- STATUS -->
-<section id="status" class="band">
-  <div class="wrap status-grid">
-    <div>
-      <span class="label"><b>label</b> status:</span>
-      <h2>Where Aside is right now.</h2>
-      <p class="lead">The app was rebuilt as a single fast desktop program with a Rust core, checked step by step against the original so that nothing changes under your hands.</p>
-      <div class="ring-box">
-        <div class="ring" role="img" aria-label="10 of 11 milestones done">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="arc" id="ring-arc" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="28.56"/></svg>
-          <div class="lbl"><b>10/11</b><span>milestones</span></div>
-        </div>
-        <p>Port done and verified. The installer is being finished and tested.</p>
-      </div>
-      <div class="facts">
-        <div>Recorded test cases matching<b>749 / 749</b></div>
-        <div>Interface self-test in the app window<b>139 / 139</b></div>
-        <div>Read calls compared on 8 real games<b>8 968, 0 differences</b></div>
-        <div>Install<b>per user, no admin</b></div>
-      </div>
-    </div>
-    <ol class="tl">
-      <li class="done"><span class="st">Done</span><h3>The original app</h3><p>Generalised from one game and one language to most Ren'Py games. English interface, Czech as the first language pack.</p></li>
-      <li class="done"><span class="st">Done</span><h3>Core rebuilt in Rust</h3><p>Parser, archives, checks, data files, project, game tools and all 80 operations. Every recorded case matches.</p></li>
-      <li class="done"><span class="st">Done</span><h3>The desktop app</h3><p>One window, the same interface inside, no local web server and no Python.</p></li>
-      <li class="done"><span class="st">Done</span><h3>Checked on 8 real games</h3><p>The old and the new core gave the same answers to every read call.</p></li>
-      <li class="done"><span class="st">Done</span><h3>Pro in Rust</h3><p>The five Pro features as a separate program next to the app, giving the same answers as before.</p></li>
-      <li class="now"><span class="st">Now</span><h3>Installer and switch-over</h3><p>The installer is built and tested automatically. Code signing, updates and the licence server are being finished.</p></li>
-      <li><span class="st">Next</span><h3>First public release</h3><p>A game picker and the "prepare a game" window, a refreshed interface, and the first Windows build for everyone.</p></li>
-    </ol>
-  </div>
-</section>
-
-<!-- SUPPORT -->
-<section id="support" style="padding-bottom:0">
-  <div class="wrap">
-    <div class="kofi">
-      <div class="cup"><svg><use href="#i-heart"/></svg></div>
-      <div>
-        <h3>Help the first builds stop scaring Windows.</h3>
-        <p>Aside is a one-person project and Free stays free. A code-signing certificate costs more than I can spend right now, so the first builds will show a SmartScreen warning. If Aside saves you time, a coffee on Ko-fi goes there first.</p>
-        <span class="sm">ko-fi.com/filiposakkq</span>
-      </div>
-      <a class="btn btn-hot" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg><use href="#i-heart"/></svg>Support on Ko-fi</a>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ -->
-<section id="faq">
+<section id="docs" class="band">
   <div class="wrap">
     <div class="sec-head">
-      <span class="label"><b>label</b> faq:</span>
-      <h2>Questions, answered.</h2>
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Documentation</span>
+      <h2>Short guides for your first evening.</h2>
     </div>
-    <div class="faq-top">
-      <div class="search">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <input id="faq-q" type="search" placeholder="Search the questions" aria-label="Search the questions" autocomplete="off">
-      </div>
+    <div class="docs-grid">
+      <a class="doc-card" href="docs.html#start"><span class="n">Start here</span><h3>Install and open a game</h3><p>From the installer to your first saved line.</p></a>
+      <a class="doc-card" href="docs.html#checks"><span class="n">Reference</span><h3>Every check explained</h3><p>What each error and warning means and how to fix it.</p></a>
+      <a class="doc-card" href="docs.html#keys"><span class="n">Speed</span><h3>Keyboard shortcuts</h3><p>Translate a whole scene without the mouse.</p></a>
+      <a class="doc-card" href="docs.html#data"><span class="n">Safety</span><h3>Your data and backups</h3><p>What Aside writes, where, and how to go back.</p></a>
     </div>
-    <div class="faq" id="faq-list">
-      <details><summary>Is Free really free? What is the catch?</summary><div class="a"><p>The whole translating workflow is free: editor, checks, glossary, history, scene preview, choice menus, game preparation. No account, no ads, no upload. Pro sells time savers for big projects. If a feature is something every translator needs, it stays in Free.</p></div></details>
-      <details><summary>Does Aside change my game?</summary><div class="a"><p>No. Game folders are read-only for Aside. It edits translation files in your translation folder, after a backup, and everything can be undone.</p></div></details>
-      <details><summary>Which games and Ren'Py versions work?</summary><div class="a"><p>It was tried on 8 real games made with Ren'Py 7.4 and 8, with and without a <code>tl</code> folder and with <code>.rpa</code> archives, from 9 to 687 script files. Most Ren'Py games should open; games with unusual structures may need a look.</p></div></details>
-      <details><summary>Is it only for Czech?</summary><div class="a"><p>No. The interface is English and Czech is the first language pack. A pack is just data (letters, plural rules, typical words), so adding a language does not need a new app. Without a pack the neutral rules apply.</p></div></details>
-      <details><summary>Do I need the Ren'Py SDK?</summary><div class="a"><p>No. Aside unpacks archives itself and lets the game's own engine generate the translation files. The SDK is only used if you want to run Ren'Py's lint from inside Aside.</p></div></details>
-      <details><summary>Does it need the internet?</summary><div class="a"><p>No. Everything runs locally. Machine translation is optional, uses your own key and needs your consent. The Pro licence checks in now and then and keeps working offline for a grace period.</p></div></details>
-      <details><summary>Can I translate a game that is not mine?</summary><div class="a"><p>Aside works on your own copy of a game and writes only translation files. Whether you may publish a translation is up to the game's author, so ask them first.</p></div></details>
-      <details><summary>What will Pro cost and how does the licence work?</summary><div class="a"><p>One payment per major version, no subscription. The price is not set yet. A licence works on two computers and you can free one yourself. If a licence ever lapses, only Pro switches off; your projects and Free keep working.</p></div></details>
-      <details><summary>Can a team work on one project?</summary><div class="a"><p>Project state is stored in plain files with one log per author, merged when the project is opened or refreshed, so a shared folder is a natural start. Proper team features (assignments, roles, merging edits) are planned for Pro.</p></div></details>
-      <details><summary>Why will Windows warn me about the installer?</summary><div class="a"><p>The first builds are not code-signed yet. SmartScreen shows "Windows protected your PC"; choose <b>More info</b> and then <b>Run anyway</b>. Every file will be published with a SHA-256 checksum so you can verify it.</p></div></details>
-      <details><summary>Windows only?</summary><div class="a"><p>Windows comes first. The app is built with Tauri, so other systems are possible later, but nothing is promised yet.</p></div></details>
-      <details><summary>Is Aside open source?</summary><div class="a"><p>Not decided yet. The source is private for now. Whether the free part becomes open source or stays closed freeware is decided before the first public release. Pro stays closed either way, and Free stays free to use in both cases.</p></div></details>
-      <details><summary>Is it affiliated with Ren'Py?</summary><div class="a"><p>No. Aside is an independent tool for projects made with Ren'Py.</p></div></details>
-    </div>
-    <p class="faq-none" id="faq-none" hidden>No question matches. Ask the author on <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>.</p>
+    <div class="docs-more"><a class="btn" href="docs.html">Open the documentation <svg><use href="#i-arrow"/></svg></a></div>
   </div>
 </section>
 
-<!-- GET (choice menu) -->
-<section id="get" class="choice-sec band">
+<section id="status">
   <div class="wrap">
-    <span class="label"><b>menu:</b></span>
-    <h2>The first Windows build is almost here.</h2>
-    <p class="lead">Aside is in final testing as a single desktop app. Follow along and be there on day one.</p>
-    <div class="choices">
-      <a class="choice hot" href="https://filiposakkq.dev" target="_blank" rel="noopener">"Tell me when it's out." <small>follow the author</small></a>
-      <a class="choice" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">"I want to help it happen." <small>Ko-fi</small></a>
-      <a class="choice" href="#features">"Show me the features again." <small>jump back</small></a>
+    <div class="sec-head">
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Status</span>
+      <h2>Almost ready for its first release.</h2>
     </div>
-    <p class="smart">The first builds will not be code-signed, so Windows SmartScreen will warn you. <a href="#faq" data-open-faq="Why will Windows">Why?</a></p>
+    <div class="road">
+      <div class="road-top">
+        <div class="big">10 of 11<small>milestones done</small></div>
+        <p>Aside was rebuilt as one fast desktop app with a Rust core and checked against the original on 8 real games: 8 968 read calls, no difference.</p>
+      </div>
+      <div class="track" role="img" aria-label="10 of 11 milestones done"><i></i></div>
+      <div class="miles">
+        <div><span class="st">Done</span><h3>Fast new core</h3><p>All 80 operations rebuilt in Rust; 749 of 749 recorded cases match.</p></div>
+        <div><span class="st">Done</span><h3>Desktop app</h3><p>One window, no Python, no local web server, the same interface.</p></div>
+        <div><span class="st now">Now</span><h3>Installer</h3><p>Per-user install without admin rights. Signing and updates are being finished.</p></div>
+        <div><span class="st next">Next</span><h3>First public build</h3><p>A game picker, the "prepare a game" window, and Windows downloads.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="band">
+  <div class="wrap faq-grid">
+    <div class="side">
+      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>FAQ</span>
+      <h2>Good questions.</h2>
+      <p>Something else? The <a href="docs.html">documentation</a> goes deeper, or ask the author on <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>.</p>
+    </div>
+    <div class="faq">
+      <details><summary>Does Aside change my game?</summary><div class="a">No. Game folders are only read. Aside edits the translation files in <code>game/tl/&lt;language&gt;</code>, always after a backup, and keeps its own data in a small <code>.aside</code> folder next to them.</div></details>
+      <details><summary>Which games work?</summary><div class="a">Ren'Py 7.4 and 8 games, with or without a <code>tl</code> folder and with <code>.rpa</code> archives. It was tried on 8 real games with 9 to 687 script files. The scene preview is best on games made of full-screen renders.</div></details>
+      <details><summary>Is it only for Czech?</summary><div class="a">No. Any language works. The interface is in English, and language packs add the rules of a language (Czech is the first). Without a pack the neutral rules apply.</div></details>
+      <details><summary>Do I need the Ren'Py SDK?</summary><div class="a">No. Aside unpacks archives itself and uses the game's own engine to generate translation files. The SDK is only needed if you want to run Ren'Py's lint from Aside.</div></details>
+      <details><summary>What is the catch with Free?</summary><div class="a">There is none. The whole translating workflow is free. Pro sells time savers for big projects, and you can try them on 20 lines at a time.</div></details>
+      <details><summary>Why will Windows warn me about the installer?</summary><div class="a">The first builds are not code-signed yet, so SmartScreen shows "Windows protected your PC". Choose <b>More info</b>, then <b>Run anyway</b>. Each file comes with a SHA-256 checksum.</div></details>
+    </div>
+  </div>
+</section>
+
+<section id="get" class="final">
+  <div class="wrap">
+    <span class="kicker on-dark"><i><svg><use href="#i-spark"/></svg></i>menu:</span>
+    <h2>Your translation is waiting. What do you do?</h2>
+    <p class="lead">The first Windows build is in final testing. Make your choice.</p>
+    <div class="choices">
+      <a class="choice hot" href="https://filiposakkq.dev" target="_blank" rel="noopener">"Tell me the day it's out." <small>follow the author</small></a>
+      <a class="choice" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">"I want to help it happen." <small>a coffee on Ko-fi</small></a>
+      <a class="choice" href="docs.html">"Let me read the docs first." <small>documentation</small></a>
+    </div>
+    <p class="smart">Aside is made by one translator. Ko-fi support goes first to a code-signing certificate, so Windows stops warning about the installer.</p>
   </div>
 </section>
 
@@ -1051,16 +663,11 @@ footer { border-top: 1px solid var(--line); padding-block: 2.6rem calc(2.6rem + 
   <div class="wrap foot">
     <div>
       <a class="brand" href="#main"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
-      <p>Translation manager for Ren'Py. Aside is an independent tool and is not affiliated with or endorsed by Ren'Py.</p>
+      <p>Translation manager for Ren'Py, born from the Czech translation of <a href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">Being a DIK</a>. Aside is an independent tool, not affiliated with Ren'Py.</p>
     </div>
     <nav aria-label="Footer">
-      <a href="#features">Features</a>
-      <a href="#privacy">Privacy</a>
-      <a href="#pro">Pro</a>
-      <a href="#status">Status</a>
-      <a href="#faq">FAQ</a>
-      <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a>
-      <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>
+      <a href="#tour">Features</a><a href="#pricing">Pricing</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
+      <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>
     </nav>
   </div>
 </footer>
@@ -1076,163 +683,122 @@ footer { border-top: 1px solid var(--line); padding-block: 2.6rem calc(2.6rem + 
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 
-  /* ---------- header, menu, back to top ---------- */
+  /* header, menu, back to top */
   var top = $("#top"), toTop = $("#toTop");
-  function onScroll() {
-    var y = window.scrollY || 0;
-    top.classList.toggle("scrolled", y > 8);
-    toTop.hidden = y < 900;
-  }
+  function onScroll() { var y = window.scrollY || 0; top.classList.toggle("scrolled", y > 8); toTop.hidden = y < 900; }
   window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
   toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
-
   var sheet = $("#sheet"), openBtn = $("#menu-open");
-  function setSheet(open) {
-    sheet.hidden = !open; openBtn.setAttribute("aria-expanded", String(open));
-    document.body.style.overflow = open ? "hidden" : "";
-    if (open) $("#menu-close").focus();
-  }
+  function setSheet(open) { sheet.hidden = !open; openBtn.setAttribute("aria-expanded", String(open)); document.body.style.overflow = open ? "hidden" : ""; if (open) $("#menu-close").focus(); }
   openBtn.addEventListener("click", function () { setSheet(true); });
   $("#menu-close").addEventListener("click", function () { setSheet(false); });
   $$("#sheet a").forEach(function (a) { a.addEventListener("click", function () { setSheet(false); }); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") { setSheet(false); $("#lightbox").hidden = true; } });
-
-  // active nav link
-  var navLinks = $$(".nav a");
+  var navLinks = $$(".nav a[href^='#']");
   if ("IntersectionObserver" in window) {
     var secObs = new IntersectionObserver(function (ents) {
-      ents.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        navLinks.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id); });
-      });
+      ents.forEach(function (en) { if (en.isIntersecting) navLinks.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id); }); });
     }, { rootMargin: "-45% 0px -50% 0px" });
     navLinks.forEach(function (a) { var s = $(a.getAttribute("href")); if (s) secObs.observe(s); });
   }
 
-  /* ---------- live check demo ---------- */
+  /* lightbox */
+  var lb = $("#lightbox");
+  document.addEventListener("click", function (e) { var t = e.target; if (t.classList && t.classList.contains("zoom")) { $("#lb-img").src = t.src; $("#lb-img").alt = t.alt; lb.hidden = false; } });
+  lb.addEventListener("click", function () { lb.hidden = true; });
+
+  /* feature tour */
+  var SCENE = '<div class="mock"><div class="col"><div class="cap">Full-screen render <b class="ok">supported</b></div><div class="sc"><div class="fig"></div><span class="tagn">Mira</span><div class="box">Lampa na tebe čekala.</div></div><p>The background and every picture shown over it, in place, with the game\'s own font.</p></div>' +
+    '<div class="col"><div class="cap">Layered image <b class="part">partly</b></div><div class="sc layer"><div class="ghost"></div><div class="note">Characters built from layers are not drawn yet.</div><span class="tagn">Mira</span><div class="box">Lampa na tebe čekala.</div></div><p>The background is shown with a note. Drawing the layers is planned.</p></div></div>';
+  var MENU = '<div class="mmock"><div class="cap">Menu · ep1_arrival.rpy:88</div><div class="q">Mira: <b>"So, are you staying?"</b></div>' +
+    '<div class="o"><span>Stay the night</span><span>Zůstat přes noc</span><em>if trust &gt; 2</em></div>' +
+    '<div class="o"><span>Walk home</span><span>Jít domů</span><em></em></div>' +
+    '<div class="after">mira "Then take the lamp with you."<br>mira "Tak si vezmi tu lampu s sebou."</div>' +
+    '<div class="o shared"><span>Ask about the letter</span><span>Zeptat se na dopis</span><em>ep1_garden:41</em></div>' +
+    '<small>This text is shared with a menu in ep1_garden.rpy; Ren\'Py keeps one translation for both.</small></div>';
+  var PANELS = {
+    editor: { html: '<img class="zoom" src="img/app-lines.webp" width="1440" height="816" alt="The Lines tab with the editor.">', note: "Demo project with made-up dialogue. Tap the picture to enlarge it." },
+    check: { html: '<img class="zoom" src="img/app-check.webp" width="1440" height="816" alt="The Check tab with errors and warnings.">', note: "Errors would crash the game or break the script; warnings may be intended. Nothing is rewritten without you." },
+    scene: { html: SCENE, note: "Games made of full-screen renders and scenes preview fully (5 of the 8 tested games). Games that build pictures from layers show the background and say what is missing." },
+    menu: { html: MENU, note: "Read from the decompiled .rpy scripts; jumps and menus built in Python are not followed." },
+    overview: { html: '<img class="zoom" src="img/app-overview.webp" width="1440" height="816" alt="The Overview tab with progress.">', note: "Groups are found from file names (episode, chapter, day, script2…) or from folders." },
+    glossary: { html: '<img class="zoom" src="img/app-glossary.webp" width="1440" height="816" alt="The Glossary tab.">', note: "Names are imported from the game's Character definitions." }
+  };
+  var items = $$(".tour-item");
+  function show(btn) {
+    var k = btn.getAttribute("data-p");
+    items.forEach(function (b) { b.setAttribute("aria-selected", String(b === btn)); });
+    $("#panel").innerHTML = PANELS[k].html; $("#panel-note").textContent = PANELS[k].note;
+    $("#tour-text-m").innerHTML = btn.querySelector("p").innerHTML;
+  }
+  items.forEach(function (b) { b.addEventListener("click", function () { show(b); if (window.innerWidth <= 960) b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }); });
+  show(items[0]);
+
+  /* playground: live check */
   var ORIG = "{i}Hey!{/i} Welcome back, [player_name]. The lamp has been waiting for you.";
   var TR = "{i}Hej!{/i} Vítej zpátky, [player_name]. Lampa na tebe čekala.";
+  var LONG = "{i}Hej!{/i} Vítej zpátky, [player_name]. Lampa na tebe čekala celou tu dlouhou zimu, každý večer svítila do okna a já jsem se pořád ptala sama sebe, jestli se vůbec někdy vrátíš, nebo jestli na nás v tom velkém městě úplně zapomeneš.";
   var VARS = { player_name: "Alex" };
   var PAIRED = /^(i|b|u|s|plain|color|size|font|a|alpha|k|outlinecolor|cps|rb|rt)$/;
   var tr = $("#tr"), vnText = $("#vn-text"), vnBox = $("#vn-box"), err = $("#rp-error"), trace = $("#rp-trace");
-
-  function hl(s) {
-    return esc(s).replace(/(\{[^{}]*\})/g, '<span class="t-tag">$1</span>').replace(/(\[[^\[\]]*\])/g, '<span class="t-var">$1</span>');
-  }
-  $("#orig").innerHTML = hl(ORIG);
-
-  function tags(s) {
-    var out = [], re = /\{(\/?)([a-zA-Z]+)(=[^}]*)?\}/g, m;
-    s = s.replace(/\{\{/g, "  ");
-    while ((m = re.exec(s))) out.push({ close: m[1] === "/", name: m[2].toLowerCase(), raw: m[0] });
-    return out;
-  }
-  function vars(s) {
-    var out = [], re = /\[([^\[\]]+)\]/g, m;
-    s = s.replace(/\[\[/g, "  ");
-    while ((m = re.exec(s))) out.push(m[1].trim());
-    return out;
-  }
-  function count(list) { var c = {}; list.forEach(function (k) { c[k] = (c[k] || 0) + 1; }); return c; }
-  function sameCount(a, b) {
-    var ca = count(a), cb = count(b), k;
-    for (k in ca) if (ca[k] !== cb[k]) return false;
-    for (k in cb) if (ca[k] !== cb[k]) return false;
-    return true;
-  }
-  function balance(s) {
-    var stack = [], t = tags(s), i;
-    for (i = 0; i < t.length; i++) {
-      if (!PAIRED.test(t[i].name)) continue;
-      if (!t[i].close) stack.push(t[i].name);
-      else if (stack[stack.length - 1] === t[i].name) stack.pop();
-      else return { bad: "close", name: t[i].name };
-    }
-    return stack.length ? { bad: "open", name: stack[stack.length - 1] } : null;
-  }
-  function brackets(s) { var o = (s.match(/\(/g) || []).length, c = (s.match(/\)/g) || []).length; return o - c; }
-
+  $("#orig").innerHTML = esc(ORIG).replace(/(\{[^{}]*\})/g, '<span class="t-tag">$1</span>').replace(/(\[[^\[\]]*\])/g, '<span class="t-var">$1</span>');
+  function tags(s) { var out = [], re = /\{(\/?)([a-zA-Z]+)(=[^}]*)?\}/g, m; s = s.replace(/\{\{/g, "  "); while ((m = re.exec(s))) out.push({ close: m[1] === "/", name: m[2].toLowerCase(), raw: m[0].toLowerCase() }); return out; }
+  function vars(s) { var out = [], re = /\[([^\[\]]+)\]/g, m; s = s.replace(/\[\[/g, "  "); while ((m = re.exec(s))) out.push(m[1].trim()); return out; }
+  function sameCount(a, b) { var c = {}, k; a.forEach(function (x) { c[x] = (c[x] || 0) + 1; }); b.forEach(function (x) { c[x] = (c[x] || 0) - 1; }); for (k in c) if (c[k]) return false; return true; }
+  function balance(s) { var st = [], t = tags(s), i; for (i = 0; i < t.length; i++) { if (!PAIRED.test(t[i].name)) continue; if (!t[i].close) st.push(t[i].name); else if (st[st.length - 1] === t[i].name) st.pop(); else return { bad: "close", name: t[i].name }; } return st.length ? { bad: "open", name: st[st.length - 1] } : null; }
+  function brackets(s) { return (s.match(/\(/g) || []).length - (s.match(/\)/g) || []).length; }
   function render(s) {
-    var html = "", re = /(\{\/?[a-zA-Z]+(?:=[^}]*)?\})|(\[[^\[\]]+\])/g, last = 0, m;
+    var html = "", re = /(\{\/?[a-zA-Z]+(?:=[^}]*)?\})|(\[[^\[\]]+\])/g, last = 0, m, map = { i: "em", b: "strong", u: "u", s: "s" };
     while ((m = re.exec(s))) {
       html += esc(s.slice(last, m.index));
-      if (m[1]) {
-        var t = m[1].match(/\{(\/?)([a-zA-Z]+)/), nm = t[2].toLowerCase();
-        if (/^(i|b|u|s)$/.test(nm)) html += t[1] ? "</" + (nm === "i" ? "em" : nm === "b" ? "strong" : nm) + ">" : "<" + (nm === "i" ? "em" : nm === "b" ? "strong" : nm) + ">";
-      } else {
-        var v = m[2].slice(1, -1).trim();
-        html += '<span class="v">' + esc(VARS[v] || v) + "</span>";
-      }
+      if (m[1]) { var t = m[1].match(/\{(\/?)([a-zA-Z]+)/), nm = t[2].toLowerCase(); if (map[nm]) html += "<" + t[1] + map[nm] + ">"; }
+      else { var v = m[2].slice(1, -1).trim(); html += '<span class="v">' + esc(VARS[v] || v) + "</span>"; }
       last = re.lastIndex;
     }
     return html + esc(s.slice(last));
   }
-
   var meas = document.createElement("canvas").getContext("2d");
   function plain(s) { return s.replace(/\{[^{}]*\}/g, "").replace(/\[([^\[\]]+)\]/g, function (_, v) { return VARS[v.trim()] || v; }); }
   function lineCount(text) {
-    var cs = getComputedStyle(vnText), w = vnText.clientWidth;
-    if (!w) return 1;
+    var cs = getComputedStyle(vnText), w = vnText.clientWidth; if (!w) return 1;
     meas.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
-    var words = text.split(/\s+/), lines = 1, cur = "";
-    words.forEach(function (wd) {
-      var test = cur ? cur + " " + wd : wd;
-      if (meas.measureText(test).width > w && cur) { lines++; cur = wd; } else cur = test;
-    });
+    var lines = 1, cur = "";
+    text.split(/\s+/).forEach(function (wd) { var t = cur ? cur + " " + wd : wd; if (meas.measureText(t).width > w && cur) { lines++; cur = wd; } else cur = t; });
     return lines;
   }
-  function boxLines() {
-    var cs = getComputedStyle(vnText), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.45;
-    return Math.max(1, Math.floor((vnText.clientHeight + 2) / lh));
-  }
-
-  function chip(label, state) { return '<span class="chk ' + state + '">' + label + "</span>"; }
-
+  function boxLines() { var cs = getComputedStyle(vnText), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.45; return Math.max(1, Math.floor((vnText.clientHeight + 2) / lh)); }
+  function chip(l, s) { return '<span class="chk ' + s + '">' + l + "</span>"; }
   function check() {
-    var s = tr.value;
-    $("#len").textContent = s.length + " chars · original " + ORIG.length;
-    var ot = tags(ORIG).map(function (t) { return t.raw.toLowerCase(); }), tt = tags(s).map(function (t) { return t.raw.toLowerCase(); });
-    var ov = vars(ORIG), tv = vars(s);
-    var bal = balance(s), tagsOk = sameCount(ot, tt) && !bal;
-    var varsOk = sameCount(ov, tv);
-    var brOk = brackets(s) === brackets(ORIG);
+    var s = tr.value, empty = !s.trim();
+    $("#len").textContent = s.length + " / " + ORIG.length + " chars";
+    var ot = tags(ORIG).map(function (t) { return t.raw; }), tt = tags(s).map(function (t) { return t.raw; });
+    var ov = vars(ORIG), tv = vars(s), bal = balance(s);
+    var tagsOk = sameCount(ot, tt) && !bal, varsOk = sameCount(ov, tv), brOk = brackets(s) === brackets(ORIG);
     var lines = lineCount(plain(s)), cap = boxLines(), fits = lines <= cap;
-    var ratio = s.length / ORIG.length, lenWarn = ratio > 1.6 || (s.trim().length > 0 && ratio < .3);
-    var empty = !s.trim();
-
-    var html = "";
-    html += chip(tagsOk ? "tags match" : "tags", tagsOk ? "ok" : "bad");
-    html += chip(varsOk ? "variables match" : "variables", varsOk ? "ok" : "bad");
-    html += chip("brackets", brOk ? "ok" : "bad");
-    html += chip(fits ? "fits the box" : "overflows the box", fits ? "ok" : "warn");
-    html += chip(lenWarn ? "length " + Math.round(ratio * 100) + "%" : "length", lenWarn ? "warn" : "ok");
-    $("#checks").innerHTML = empty ? chip("untranslated", "warn") : html;
-
-    var why = "";
+    var ratio = s.length / ORIG.length, lenWarn = ratio > 1.6 || (!empty && ratio < .3);
     var unknown = tv.filter(function (v) { return ov.indexOf(v) < 0; });
+    $("#checks").innerHTML = empty ? chip("untranslated", "warn") :
+      chip(tagsOk ? "tags match" : "tags", tagsOk ? "ok" : "bad") + chip(varsOk ? "variables match" : "variables", varsOk ? "ok" : "bad") +
+      chip("brackets", brOk ? "ok" : "bad") + chip(fits ? "fits the box" : "too long for the box", fits ? "ok" : "warn") + chip(lenWarn ? "length " + Math.round(ratio * 100) + " %" : "length", lenWarn ? "warn" : "ok");
+    var why;
     if (empty) why = "An empty line falls back to the original text in the game.";
-    else if (bal && bal.bad === "open") why = "<b>{" + esc(bal.name) + "}</b> is opened but never closed. Ren'Py stops the game on this line.";
+    else if (bal && bal.bad === "open") why = "<b>{" + esc(bal.name) + "}</b> is opened but never closed. The game stops on this line.";
     else if (bal) why = "<b>{/" + esc(bal.name) + "}</b> closes a tag that is not open.";
-    else if (!tagsOk) why = "The text tags differ from the original: " + esc(ot.join(" ") || "none") + " vs " + esc(tt.join(" ") || "none") + ".";
+    else if (!tagsOk) why = "The text tags differ from the original.";
     else if (unknown.length) why = "<b>[" + esc(unknown[0]) + "]</b> is not a variable of the original. The game would crash.";
-    else if (!varsOk) why = "A variable of the original is missing from the translation.";
+    else if (!varsOk) why = "A variable of the original is missing.";
     else if (!brOk) why = "The brackets do not pair up like in the original.";
-    else if (!fits) why = "The line needs " + lines + " lines but the dialogue box holds " + cap + ". Measured with the box font.";
+    else if (!fits) why = "This needs " + lines + " lines, the dialogue box holds " + cap + ". Measured with the box font.";
     else if (lenWarn) why = "Much " + (ratio > 1 ? "longer" : "shorter") + " than the original. Worth a second look.";
-    else why = "All good. Aside runs this on every line of the game, all the time.";
-    $("#why").innerHTML = why;
-
-    // the scene: crash screen, or the rendered text
-    var crash = null;
-    if (bal && bal.bad === "open") crash = 'File "game/tl/czech/ep1_arrival.rpy", line 5, in script\n    mira "' + esc(s) + '"\n<b>Exception: The {' + esc(bal.name) + "} text tag was never closed.</b>";
-    else if (bal) crash = 'File "game/tl/czech/ep1_arrival.rpy", line 5, in script\n<b>Exception: Closing tag {/' + esc(bal.name) + "} does not match an open tag.</b>";
-    else if (unknown.length) crash = 'File "game/tl/czech/ep1_arrival.rpy", line 5, in script\n    mira "' + esc(s) + "\"\n<b>NameError: name '" + esc(unknown[0]) + "' is not defined</b>";
-    err.hidden = !crash;
-    if (crash) trace.innerHTML = crash.replace(/\n/g, "<br>");
-    vnText.innerHTML = render(empty ? ORIG : s);
-    vnBox.classList.toggle("over", !fits);
+    else why = "All good. Now try one of the buttons below.";
+    $("#why-txt").innerHTML = why;
+    var head = 'File "game/tl/czech/ep1_arrival.rpy", line 5, in script\n', crash = null;
+    if (bal && bal.bad === "open") crash = head + '    mira "' + esc(s) + '"\n<b>Exception: The {' + esc(bal.name) + "} text tag was never closed.</b>";
+    else if (bal) crash = head + "<b>Exception: Closing tag {/" + esc(bal.name) + "} does not match an open tag.</b>";
+    else if (unknown.length) crash = head + '    mira "' + esc(s) + "\"\n<b>NameError: name '" + esc(unknown[0]) + "' is not defined</b>";
+    err.hidden = !crash; if (crash) trace.innerHTML = crash.replace(/\n/g, "<br>");
+    vnText.innerHTML = render(empty ? ORIG : s); vnBox.classList.toggle("over", !fits);
   }
-  var LONG = "{i}Hej!{/i} Vítej zpátky, [player_name]. Lampa na tebe čekala celou tu dlouhou zimu, každý večer svítila do okna a já jsem se pořád ptala sama sebe, jestli se vůbec někdy vrátíš, nebo jestli na nás v tom velkém městě úplně zapomeneš.";
   $$(".try").forEach(function (b) {
     b.addEventListener("click", function () {
       var k = b.getAttribute("data-try");
@@ -1243,101 +809,15 @@ footer { border-top: 1px solid var(--line); padding-block: 2.6rem calc(2.6rem + 
       check();
     });
   });
-  tr.value = TR;
-  tr.addEventListener("input", check);
-  window.addEventListener("resize", check);
+  tr.value = TR; tr.addEventListener("input", check); window.addEventListener("resize", check);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
   check();
 
-  /* ---------- count-up numbers ---------- */
-  $$("[data-count]").forEach(function (el) {
-    var end = +el.getAttribute("data-count"), t0 = null;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    function step(t) { if (!t0) t0 = t; var p = Math.min(1, (t - t0) / 900); el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); }
-    requestAnimationFrame(step);
-  });
-
-  /* ---------- screenshots ---------- */
-  var SHOTS = [
-    { src: "img/app-lines.webp", t: "Lines", cap: "The editor: original on the left, your translation on the right, buttons for tags and pauses, saved straight into the file.", alt: "The Lines tab: a table of lines with filters, and the original and the translation side by side." },
-    { src: "img/app-check.webp", t: "Check", cap: "Checks: every finding of the project in one list, errors and warnings, with the original and the translation side by side.", alt: "The Check tab with a list of problems found in the translation." },
-    { src: "img/app-overview.webp", t: "Overview", cap: "Overview: what is left to translate and proofread, the check results, a weekly goal and progress by group.", alt: "The Overview tab with progress per episode and a weekly goal." },
-    { src: "img/app-glossary.webp", t: "Glossary", cap: "Glossary: character names imported from the game and your terms, checked in every line.", alt: "The Glossary tab with characters and terms." }
-  ];
-  var shotImg = $("#shot-img");
-  $$(".shots-tabs .tab").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var s = SHOTS[+b.getAttribute("data-shot")];
-      $$(".shots-tabs .tab").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); });
-      shotImg.src = s.src; shotImg.alt = s.alt; $("#shot-cap").textContent = s.cap; $("#shot-title").textContent = "Aside · " + s.t;
-    });
-  });
-  var lb = $("#lightbox");
-  shotImg.addEventListener("click", function () { $("#lb-img").src = shotImg.src; $("#lb-img").alt = shotImg.alt; lb.hidden = false; });
-  lb.addEventListener("click", function () { lb.hidden = true; });
-
-  /* ---------- games ---------- */
-  var GAMES = [
-    ["Being a DIK", "v0.8.3 · Ren'Py 7.4", 45291, 72, "8 episodes", 0, "Where it began. Scripts in 3 archives, 379 compiled files."],
-    ["Eternum", "v0.9.5 · Ren'Py 8", 73463, 16, "9 episodes", 0, "Input prompts were found as missed texts."],
-    ["A Wife and Mother", "v0.152 · Ren'Py 8", 37247, 9, "4 episodes", 0, "Found 80 characters, even with unusual spacing in their definitions."],
-    ["Milfy City", "v1.0e · Ren'Py 7.4", 46615, 440, "by folder", 0, "956 compiled scripts in one archive, organised by folder."],
-    ["Midnight Paradise", "v1.1b · Ren'Py 8", 67123, 169, "by folder", 0, "Ships a Russian translation inside; Aside keeps it out of the way."],
-    ["LoSeSb", "v26.8.0d · Ren'Py 8", 359753, 687, "by folder", 1, "The biggest: 6 archives with DLCs, opens in 13.6 s, 998 layered images."],
-    ["Four Elements Trainer", "v1.2.2b · Ren'Py 7", 170129, 150, "by folder", 1, "About 6 600 composed images and its own GUI."],
-    ["Our Red String", "v15.2.3 · Ren'Py 8", 151633, 51, "12 chapters", 1, "About 500 layered images. Chapters found from the file names."]
-  ];
-  var max = 359753, fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); };
-  $("#games-list").innerHTML = GAMES.map(function (g) {
-    return '<div class="game ' + (g[5] ? "layered" : "whole") + '"><div><h3>' + esc(g[0]) + '</h3><div class="ver">' + esc(g[1]) + "</div></div>" +
-      '<div class="barcol"><div class="bar"><i style="--w:' + (g[2] / max * 100).toFixed(2) + '%"></i></div><div class="nums"><span><b>' + fmt(g[2]) + "</b> lines</span><span><b>" + g[3] + "</b> files</span><span>groups: <b>" + esc(g[4]) + "</b></span></div></div>" +
-      '<div class="kind"><b>' + (g[5] ? "Layered images" : "Whole-scene") + "</b>" + (g[5] ? "preview: partly" : "preview: works") + "</div>" +
-      '<p class="n">' + esc(g[6]) + "</p></div>";
-  }).join("");
-  $$(".filter .tab").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var f = b.getAttribute("data-f");
-      $$(".filter .tab").forEach(function (x) { var on = x === b; x.setAttribute("aria-pressed", String(on)); x.setAttribute("aria-selected", String(on)); });
-      $$(".game").forEach(function (g) { g.hidden = f !== "all" && !g.classList.contains(f); });
-    });
-  });
-
-  /* ---------- taste meter ---------- */
-  var mFill = $("#m-fill"), mCount = $("#m-count"), mMsg = $("#m-msg"), timer = null;
-  function run(limit) {
-    clearInterval(timer); var n = 0;
-    mMsg.textContent = "";
-    timer = setInterval(function () {
-      n += limit === 20 ? 1 : 3;
-      if (n >= limit) { n = limit; clearInterval(timer); mMsg.textContent = limit === 20 ? "Free stops at 20 lines. Click again for the next 20, or go Pro." : "All 120 lines in one run."; }
-      mFill.style.width = (n / 120 * 100) + "%"; mCount.textContent = n + " / 120 lines";
-    }, 40);
-  }
-  $("#m-free").addEventListener("click", function () { run(20); });
-  $("#m-pro").addEventListener("click", function () { run(120); });
-
-  /* ---------- FAQ search ---------- */
-  var q = $("#faq-q"), items = $$("#faq-list details");
-  q.addEventListener("input", function () {
-    var v = q.value.trim().toLowerCase(), any = false;
-    items.forEach(function (d) { var hit = !v || d.textContent.toLowerCase().indexOf(v) >= 0; d.hidden = !hit; if (hit) any = true; d.open = !!v && hit && v.length > 2; });
-    $("#faq-none").hidden = any;
-  });
-  $$("[data-open-faq]").forEach(function (a) {
-    a.addEventListener("click", function () {
-      var key = a.getAttribute("data-open-faq");
-      items.forEach(function (d) { if (d.querySelector("summary").textContent.indexOf(key) === 0) d.open = true; });
-    });
-  });
-
-  /* ---------- gentle reveal (content is visible without JS and before it runs) ---------- */
+  /* reveal on scroll; everything is visible before this runs and without JS */
   if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    var targets = $$(".feat, .pain, .step, .pcard, .game, .tl li, .kofi, .flows");
-    var vh = window.innerHeight;
+    var targets = $$(".ba-card, .incl div, .zeros div, .plan, .doc-card, .miles div, .faq details"), vh = window.innerHeight;
     targets.forEach(function (el) { if (el.getBoundingClientRect().top > vh) el.classList.add("reveal", "pre"); });
-    var ro = new IntersectionObserver(function (ents) {
-      ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.remove("pre"); ro.unobserve(en.target); } });
-    }, { rootMargin: "0px 0px -8% 0px" });
+    var ro = new IntersectionObserver(function (ents) { ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.remove("pre"); ro.unobserve(en.target); } }); }, { rootMargin: "0px 0px -6% 0px" });
     targets.forEach(function (el) { if (el.classList.contains("pre")) ro.observe(el); });
   }
 })();

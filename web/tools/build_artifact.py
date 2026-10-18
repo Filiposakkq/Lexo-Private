@@ -1,11 +1,13 @@
-"""Build one self-contained page from web/index.html (for a preview link such as a claude.ai artifact).
+"""Build a preview copy of the site (for a claude.ai artifact) into a folder.
 
-Images are inlined as data: URIs; the document wrapper, the favicon and the social tags are dropped.
-Usage: python web/tools/build_artifact.py OUT.html
+index.html becomes a fragment without the document wrapper, with site.css and the images inlined;
+docs.html, site.css and favicon.svg are copied next to it as they are.
+Usage: python web/tools/build_artifact.py OUT_DIR
 """
 import base64
 import pathlib
 import re
+import shutil
 import sys
 
 WEB = pathlib.Path(__file__).resolve().parent.parent
@@ -18,6 +20,8 @@ def data_uri(rel):
 
 
 def main(out):
+    out = pathlib.Path(out)
+    out.mkdir(parents=True, exist_ok=True)
     html = (WEB / "index.html").read_text(encoding="utf-8")
     head = re.search(r"<head>(.*?)</head>", html, re.S).group(1)
     body = re.search(r"<body>(.*?)</body>", html, re.S).group(1)
@@ -25,10 +29,14 @@ def main(out):
         line for line in head.splitlines()
         if not re.search(r'<meta (charset|name="viewport"|name="description"|name="theme-color"|property=)|rel="(icon|apple-touch-icon)"', line)
     )
+    css = (WEB / "site.css").read_text(encoding="utf-8")
+    head = head.replace('<link rel="stylesheet" href="site.css">', "<style>\n" + css + "</style>")
     page = head.strip() + "\n" + body
-    page = re.sub(r'"(img/[\w.-]+\.(?:webp|png))"', lambda m: '"%s"' % data_uri(m.group(1)), page)
-    pathlib.Path(out).write_text(page, encoding="utf-8")
-    print("wrote", out, len(page) // 1024, "KB")
+    page = re.sub(r"(img/[\w.-]+\.(?:webp|png))", lambda m: data_uri(m.group(1)), page)
+    (out / "index.html").write_text(page, encoding="utf-8")
+    for name in ("docs.html", "site.css", "favicon.svg"):
+        shutil.copy(WEB / name, out / name)
+    print("wrote", out, (out / "index.html").stat().st_size // 1024, "KB")
 
 
 if __name__ == "__main__":
