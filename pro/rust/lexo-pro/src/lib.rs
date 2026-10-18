@@ -103,6 +103,7 @@ impl Provider for LexoProProvider {
                 payload["branch"].as_str().unwrap_or(""),
             )
             .map_err(publish::Failure::into_error),
+            ("licence", "status") => Ok(licence::status().to_json()),
             ("publish.web", other) => Err(plain(format!("publish.web has no method {other}."))),
             _ => Err(plain(format!("The Pro pack has no feature {feature}."))),
         }
