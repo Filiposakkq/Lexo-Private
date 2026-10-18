@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["crates/lexo-core", "crates/lexo-golden", "crates/lexo-server"]
+members = ["crates/lexo-core", "crates/lexo-golden", "crates/lexo-server", "crates/lexo-app"]
+# the application needs the WebView and the C++ tools of the system: it is built on purpose (`-p lexo-app`), not by a plain `cargo build`
+default-members = ["crates/lexo-core", "crates/lexo-golden", "crates/lexo-server"]
 
 [workspace.package]
 version = "0.0.0"
