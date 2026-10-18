@@ -28,6 +28,22 @@ Because the border is plain JSON it does not matter how the pack runs:
 
 Switching from the first to the second changes only the transport inside `ExtensionHost`; no feature code changes. **"Sidecar" is just that: a second program next to the app, started and stopped by the app.** The user does not run it by hand.
 
+## The Rust pack and its sidecar (built)
+The pack exists twice: `pro/lexo_pro` (Python, used by the Python application) and `pro/rust/lexo-pro` (Rust, for the Tauri application). Both give the same answers; `pro/golden/pack.json` holds 110 payloads with the answers of the Python pack and the Rust tests compare against it (`py pro/tests/golden_pro.py` rewrites it; a Python test fails when it is out of date).
+
+The Rust pack is a **program**, `lexo-pro-sidecar` (`pro/rust/lexo-pro`). The application finds it through the variable `LEXO_PRO_SIDECAR` or in a `pack/` folder next to the application, starts it and speaks one JSON line per request on its standard input and output (`SidecarProvider` in `core/lexo`'s Rust port, `rust/crates/lexo-core/src/extensions.rs`):
+
+| request | answer |
+|---|---|
+| `{"id": 1, "method": "hello"}` | `{"id": 1, "ok": true, "result": {"api": 1, "version": "0.2.0"}}` |
+| `{"id": 2, "method": "offers"}` | the features it offers now, each with its limit (`null` = none) |
+| `{"id": 3, "method": "ui_strings", "code": "cs"}` | the texts of the messages the pack writes, in that language |
+| `{"id": 4, "method": "call", "feature": "fixes.safe", "m": "plan", "payload": {...}}` | `{"id": 4, "ok": true, "result": {...}}` |
+
+An error is `{"id": N, "ok": false, "error": <text or {"$m": ...}>}`. A pack that cannot be started is a note in the settings, never an error; `LEXO_NO_PRO` leaves it out (what a Free installation looks like).
+
+Not built yet: the **licence check** itself (the pack is "licensed" in a development build, `LEXO_PRO_DEMO=1` shows the demo limits) and a network client for the batch machine translation.
+
 ## Limits, the free taste, and who enforces them
 The limit of a feature (for example 20 lines per action) is **not a number in Free**. The pack says what it offers (`offers()` returns `{"limit": 20}` or `{"limit": None}`), and the host passes it on; the pack also **enforces** it inside its own code, so editing Free does not remove it.
 

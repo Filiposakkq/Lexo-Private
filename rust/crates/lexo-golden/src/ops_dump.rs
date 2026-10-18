@@ -27,6 +27,7 @@ pub fn read_ops() -> Vec<(&'static str, Value)> {
 }
 
 pub fn dump_ops(tl: &Path, scratch: &Path) -> Value {
+    std::env::set_var("LEXO_NO_PRO", "1");
     let cfg = scratch.join("cfg");
     let mut config = Config::new(Some(&cfg.join("config.json")));
     config.load();
@@ -54,6 +55,7 @@ pub fn dump_ops(tl: &Path, scratch: &Path) -> Value {
 /// `lexo-golden --run-ops <translation folder (a COPY)> <scratch folder> <ops.json>`: run a list of `[operation, parameters]` on the project and give `[{answer} | {error}]` for each.
 /// The list is made by the Python side of the comparison (`rust/tools/diff_ops_real_games.py`), so both Cores are asked exactly the same.
 pub fn run_ops(tl: &Path, scratch: &Path, ops: &Value) -> Value {
+    std::env::set_var("LEXO_NO_PRO", "1"); // the Python side of the comparison runs without the pack too
     let cfg = scratch.join("cfg");
     let mut config = Config::new(Some(&cfg.join("config.json")));
     config.load();

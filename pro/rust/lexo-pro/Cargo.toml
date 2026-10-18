@@ -1,0 +1,17 @@
+[package]
+name = "lexo-pro"
+description = "The Lexo Pro pack in Rust (private, never part of the public repository): the library with the Pro features and the sidecar program that the application starts (docs/PRO-DESIGN.md)"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "lexo-pro-sidecar"
+path = "src/main.rs"
+
+[dependencies]
+lexo-core = { path = "../../../rust/crates/lexo-core" }
+fancy-regex = "0.14"
+regex = "1"
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }

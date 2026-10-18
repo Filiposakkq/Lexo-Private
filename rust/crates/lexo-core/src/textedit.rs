@@ -9,7 +9,8 @@ use fancy_regex::Regex as FancyRegex;
 use regex::Regex;
 use std::sync::OnceLock;
 
-const LETTER: &str = r"[^\W\d_]";
+/// A letter (a word character that is neither a digit nor an underscore), as a pattern.
+pub const LETTER: &str = r"[^\W\d_]";
 pub const MODES: [&str; 4] = ["plain", "word", "stem", "regex"];
 
 pub(crate) fn token_re() -> &'static Regex {
@@ -70,31 +71,47 @@ impl Replacer {
 
     /// `(new text, count)`; the pattern is applied outside protected parts when `protect` is set.
     pub fn apply(&self, text: &str, protect: bool) -> (String, usize) {
-        let hay = if protect { mask(text) } else { text.to_string() };
-        // positions of the masked text are mapped back to the text by character index (the two differ in byte length)
-        let mut char_at_byte = vec![0usize; hay.len() + 1];
-        for (ci, (bi, c)) in hay.char_indices().enumerate() {
-            for k in 0..c.len_utf8() {
-                char_at_byte[bi + k] = ci;
-            }
-            char_at_byte[bi + c.len_utf8()] = ci + 1;
-        }
-        let mut byte_at_char: Vec<usize> = text.char_indices().map(|(b, _)| b).collect();
-        byte_at_char.push(text.len());
-        let (mut out, mut last, mut n) = (String::new(), 0usize, 0usize);
-        for m in self.pat.find_iter(&hay).map_while(Result::ok) {
-            if m.start() == m.end() || m.as_str().contains('\0') {
-                continue;
-            }
-            let (s, e) = (byte_at_char[char_at_byte[m.start()]], byte_at_char[char_at_byte[m.end()]]);
-            out.push_str(&text[last..s]);
-            out.push_str(&self.replacement(m.as_str()));
-            last = e;
-            n += 1;
-        }
-        out.push_str(&text[last..]);
-        (out, n)
+        sub_pattern(&self.pat, text, protect, 0, &mut |c| Ok(self.replacement(c.get(0).map_or("", |m| m.as_str())))).unwrap_or_else(|_| (text.to_string(), 0))
     }
+}
+
+/// Apply `pattern` outside protected parts (tags, variables, escapes) of `text`; `repl` makes the new text of one match (or says why it cannot). Empty matches and matches that
+/// reach into a protected part are skipped; `limit` (0 = none) stops after that many replacements. Returns (new text, count).
+pub fn sub_pattern(
+    pattern: &FancyRegex,
+    text: &str,
+    protect: bool,
+    limit: usize,
+    repl: &mut dyn FnMut(&fancy_regex::Captures) -> Result<String, String>,
+) -> Result<(String, usize), String> {
+    let hay = if protect { mask(text) } else { text.to_string() };
+    // positions of the masked text are mapped back to the text by character index (the two differ in byte length)
+    let mut char_at_byte = vec![0usize; hay.len() + 1];
+    for (ci, (bi, c)) in hay.char_indices().enumerate() {
+        for k in 0..c.len_utf8() {
+            char_at_byte[bi + k] = ci;
+        }
+        char_at_byte[bi + c.len_utf8()] = ci + 1;
+    }
+    let mut byte_at_char: Vec<usize> = text.char_indices().map(|(b, _)| b).collect();
+    byte_at_char.push(text.len());
+    let (mut out, mut last, mut n) = (String::new(), 0usize, 0usize);
+    for caps in pattern.captures_iter(&hay).map_while(Result::ok) {
+        let Some(m) = caps.get(0) else { continue };
+        if m.start() == m.end() || m.as_str().contains('\0') {
+            continue;
+        }
+        let (s, e) = (byte_at_char[char_at_byte[m.start()]], byte_at_char[char_at_byte[m.end()]]);
+        out.push_str(&text[last..s]);
+        out.push_str(&repl(&caps)?);
+        last = e;
+        n += 1;
+        if limit > 0 && n >= limit {
+            break;
+        }
+    }
+    out.push_str(&text[last..]);
+    Ok((out, n))
 }
 
 /// A replacer for the search, or the message that says why it cannot be made.

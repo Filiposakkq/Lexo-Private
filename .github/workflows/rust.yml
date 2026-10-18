@@ -3,11 +3,11 @@ name: Rust port
 
 on:
   pull_request:
-    paths: ["rust/**", "core/golden/**", "free/lexo_free/ui/**", ".github/workflows/rust.yml"]
+    paths: ["rust/**", "pro/**", "core/golden/**", "free/lexo_free/ui/**", ".github/workflows/rust.yml"]
   push:
     # a run on main saves the build cache that the pull requests restore (a branch sees only its own caches and those of main)
     branches: [main]
-    paths: ["rust/**", "core/golden/**", "free/lexo_free/ui/**", ".github/workflows/rust.yml"]
+    paths: ["rust/**", "pro/**", "core/golden/**", "free/lexo_free/ui/**", ".github/workflows/rust.yml"]
   workflow_dispatch:
 
 permissions:
@@ -82,3 +82,24 @@ jobs:
           if (-not $p.WaitForExit(240000)) { Stop-Process -Id $p.Id -Force; Get-Content selftest.out; throw "the self-test did not finish" }
           Get-Content selftest.out
           if ((Get-Content selftest.out -Raw) -notmatch "139/139") { throw "the self-test did not pass" }
+
+  pro:
+    # The Pro pack in Rust (private): the same answers as the Python pack (pro/golden/pack.json), the sidecar protocol and publishing against local git repositories.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: pro/rust
+    steps:
+      - uses: actions/checkout@v5
+      - name: Toolchain (stable, with rustfmt and clippy)
+        run: rustup toolchain install stable --profile minimal -c rustfmt -c clippy --no-self-update
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: pro/rust
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked
