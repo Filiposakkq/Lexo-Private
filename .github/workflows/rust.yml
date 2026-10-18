@@ -3,7 +3,7 @@ name: Rust port
 
 on:
   pull_request:
-    paths: ["rust/**", "core/golden/**", ".github/workflows/rust.yml"]
+    paths: ["rust/**", "core/golden/**", "free/lexo_free/ui/**", ".github/workflows/rust.yml"]
   workflow_dispatch:
 
 permissions:
@@ -28,3 +28,20 @@ jobs:
       - run: cargo test --locked
       - name: Golden report (the groups that are ported pass, the others are "todo")
         run: cargo run -q --locked -p lexo-golden
+
+  ui-selftest:
+    # The UI self-test of Free (139 checks) against the Rust server: the same test as free.yml runs against the Python one.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install playwright
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --no-self-update
+      - name: Build the server
+        working-directory: rust
+        run: cargo build --locked -p lexo-server
+      - name: UI self-test in Edge against the Rust server
+        run: python rust/tools/run_ui_selftest.py --exe rust/target/debug/lexo-server.exe
