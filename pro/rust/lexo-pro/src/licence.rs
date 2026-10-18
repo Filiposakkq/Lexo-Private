@@ -163,10 +163,52 @@ fn now() -> i64 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64)
 }
 
+/// The text of the reason that is shown when the server has cancelled the licence.
+pub const CANCELLED: &str = "this licence was cancelled";
+
+/// The marker of a licence that the server cancelled: `licence.revoked` next to the licence file holds the id of that licence. It makes the pack stop at once when the server says
+/// "cancelled" (the pack asks at its start and every few hours), instead of waiting for the end of the check interval. A new activation removes it.
+fn revoked_marker() -> PathBuf {
+    licence_path().with_extension("revoked")
+}
+
+pub fn mark_revoked(id: &str) {
+    let path = revoked_marker();
+    if let Some(dir) = path.parent() {
+        let _ = std::fs::create_dir_all(dir);
+    }
+    let _ = std::fs::write(path, id);
+}
+
+pub fn clear_revoked() {
+    let _ = std::fs::remove_file(revoked_marker());
+}
+
+/// The payload of a licence file text, not checked (only for reading the id and the time of issue of a file this pack stored itself).
+fn payload_of(text: &str) -> Option<Value> {
+    let outer: Value = serde_json::from_str(text).ok()?;
+    serde_json::from_slice(&URL_SAFE_NO_PAD.decode(outer["payload"].as_str()?).ok()?).ok()
+}
+
+pub fn file_id(text: &str) -> Option<String> {
+    payload_of(text)?["id"].as_str().map(String::from)
+}
+
+pub fn file_issued(text: &str) -> Option<i64> {
+    payload_of(text)?["issued"].as_i64()
+}
+
 /// The state of the licence of this machine now.
 pub fn status() -> Status {
     match std::fs::read_to_string(licence_path()) {
-        Ok(text) => evaluate(&text, now(), &device_id(), public_key().as_ref()),
+        Ok(text) => {
+            let status = evaluate(&text, now(), &device_id(), public_key().as_ref());
+            let cancelled = std::fs::read_to_string(revoked_marker()).ok().is_some_and(|m| file_id(&text).is_some_and(|id| id == m.trim()));
+            if cancelled && matches!(status, Status::Licensed { .. } | Status::Grace { .. }) {
+                return Status::Refused(CANCELLED);
+            }
+            status
+        }
         Err(_) => Status::Demo,
     }
 }

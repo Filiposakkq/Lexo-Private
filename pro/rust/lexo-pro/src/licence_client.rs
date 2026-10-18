@@ -45,6 +45,11 @@ fn raw(http: Http, path: &str, body: &Value) -> Result<(u16, Value), ExtensionEr
 /// One call of the server: the answer when it said `ok`, otherwise an error for the user.
 fn call(http: Http, path: &str, body: &Value) -> Result<Value, ExtensionError> {
     let (status, answer) = raw(http, path, body)?;
+    check(status, answer)
+}
+
+/// The answer when the server said `ok`, otherwise the error for the user.
+fn check(status: u16, answer: Value) -> Result<Value, ExtensionError> {
     if status == 200 && answer["ok"] == json!(true) {
         return Ok(answer);
     }
@@ -73,6 +78,7 @@ fn store(file: &Value) -> Result<Status, ExtensionError> {
     std::fs::write(&tmp, &text)
         .and_then(|_| std::fs::rename(&tmp, &path))
         .map_err(|e| error(msg("The licence file could not be saved: {reason}", &[("reason", json!(e.to_string()))])))?;
+    licence::clear_revoked(); // a file the server has just made means that the licence is valid (again)
     Ok(status)
 }
 
@@ -97,7 +103,14 @@ pub fn activate(key: &str, http: Http) -> Result<Value, ExtensionError> {
 /// The regular check: a renewed file (the clock of the interval starts again).
 pub fn refresh(http: Http) -> Result<Value, ExtensionError> {
     let file = current()?;
-    let answer = call(http, "/v1/refresh", &json!({"licence": file, "device": licence::device_id()}))?;
+    let (status, answer) = raw(http, "/v1/refresh", &json!({"licence": file, "device": licence::device_id()}))?;
+    if answer["error"] == json!("revoked") {
+        // the server cancelled this licence: the pack stops now, not at the end of the check interval
+        if let Some(id) = licence::file_id(&file.to_string()) {
+            licence::mark_revoked(&id);
+        }
+    }
+    let answer = check(status, answer)?;
     Ok(store(&answer["licence"])?.to_json())
 }
 
@@ -113,17 +126,18 @@ pub fn deactivate(http: Http) -> Result<Value, ExtensionError> {
         });
     }
     let _ = std::fs::remove_file(licence::licence_path());
+    licence::clear_revoked();
     Ok(licence::status().to_json())
 }
 
-/// At the start of the pack: when the check is due soon (or overdue) and there is a connection, renew the file quietly. Never blocks the application; errors are not reported.
-pub fn refresh_when_due(http: Http) {
-    let due = match licence::status() {
-        Status::Licensed { days_to_check, .. } => days_to_check <= 3,
-        Status::Grace { .. } => true,
-        _ => false,
-    };
-    if due {
+/// A file older than this is checked with the server again (at the start of the pack and then every hour it is looked at).
+pub const STALE_AFTER: i64 = 6 * 3600;
+
+/// When the file is older than `STALE_AFTER` and there is a connection, ask the server and renew it quietly. That is how a cancelled licence stops within hours (and a restored one starts
+/// again) instead of at the end of the check interval. Never blocks the application; errors are not reported. Without a licence file nothing is sent.
+pub fn refresh_if_stale(http: Http) {
+    let Some(issued) = std::fs::read_to_string(licence::licence_path()).ok().and_then(|t| licence::file_issued(&t)) else { return };
+    if now() - issued >= STALE_AFTER {
         let _ = refresh(http);
     }
 }
