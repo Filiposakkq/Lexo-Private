@@ -13,4 +13,6 @@ export interface Env {
   /** To mail the licence key to the buyer (Resend); without it the key is shown only in the admin page. */
   RESEND_API_KEY?: string;
   MAIL_FROM?: string;
+  /** Where the replies of the buyers go (the Reply-To of the e-mail). */
+  REPLY_TO?: string;
 }
