@@ -46,3 +46,7 @@ The admin page is `https://api.aside.filiposakkq.dev/admin`: type the admin toke
 - The activation client in the application (Settings, Licence) and the regular check in the Pro pack.
 - The download of the premium pack (encrypted per licence, with a watermark) and the update channel.
 - Upgrade discounts for a new major version.
+
+## Automatic deployment
+
+`.github/workflows/server-deploy.yml` deploys the Worker after a merge to `main` that changes `server/`, once the typecheck and the tests pass. It needs two secrets in GitHub (Settings, Secrets and variables, Actions): `CLOUDFLARE_API_TOKEN` (create it in the Cloudflare dashboard: My Profile, API Tokens, Create Token, the template "Edit Cloudflare Workers"; limit it to this account) and `CLOUDFLARE_ACCOUNT_ID`. Without the token the deploy step is skipped. The secrets of the Worker itself stay in Cloudflare. Database changes (`migrations/`) are not applied by the deploy: run the new SQL in the D1 console (or `wrangler d1 migrations apply`) before merging code that needs it.
