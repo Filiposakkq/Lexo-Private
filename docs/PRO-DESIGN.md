@@ -84,7 +84,7 @@ What it does not prevent: a licensed person who is determined to patch the progr
 - **2 devices** per licence: **yes**.
 - **One-off payment: decided.** A one-off licence for the current major version (1.x, updates and fixes included), a paid upgrade for the next major version. Why: no running cost per user (the user brings their own machine translation key, nothing is hosted), the target users are hobby translators who dislike subscriptions, and a leaked licence can still be revoked by the online check, since a revocation needs no expiry date. A yearly licence would make sense only if the product grew a running cost (hosted translation, a team server); the code would not change, only the contents of the licence file (what it covers and until when).
 
-## The licence server (proposal, built in roadmap step 6)
+## The licence server (built in `server/`: Worker, D1 schema, admin page, tests; see `server/README.md`. Not deployed yet; the payment provider and the activation client in the application are still open)
 A small service on Cloudflare. Nothing of it is in the public repository (it lives in a private folder, e.g. `server/`). Deployment, the payment account and the domain are the owner's; the code, the database schema and the tests are written here.
 
 **Parts**

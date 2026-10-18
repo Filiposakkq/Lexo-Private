@@ -1,0 +1,23 @@
+{
+  "name": "aside-licence-server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The licence server of Aside (Cloudflare Worker + D1). Private, never part of the public repository.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "crosscheck": "node scripts/cross-check.mjs",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.4",
+    "@cloudflare/workers-types": "^5.20261018.1",
+    "@vitest/runner": "^4.1.12",
+    "@vitest/snapshot": "^4.1.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.151.1"
+  }
+}
