@@ -24,7 +24,12 @@ def main(out):
     out.mkdir(parents=True, exist_ok=True)
     html = (WEB / "index.html").read_text(encoding="utf-8")
     head = re.search(r"<head>(.*?)</head>", html, re.S).group(1)
-    body = re.search(r"<body>(.*?)</body>", html, re.S).group(1)
+    m = re.search(r"<body([^>]*)>(.*?)</body>", html, re.S)
+    body = m.group(2)
+    # the artifact wraps the page in its own <body>, so attributes of ours are set by a script instead
+    attrs = re.findall(r"([\w-]+)", m.group(1))
+    if attrs:
+        body = "<script>" + "".join('document.body.setAttribute("%s","");' % a for a in attrs) + "</script>" + body
     head = "\n".join(
         line for line in head.splitlines()
         if not re.search(r'<meta (charset|name="viewport"|name="description"|name="theme-color"|property=)|rel="(icon|apple-touch-icon)"', line)

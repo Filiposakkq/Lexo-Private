@@ -382,7 +382,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 @media (prefers-reduced-motion: reduce) { .js .reveal.pre { opacity: 1; transform: none; } .window { transform: none !important; } }
 </style>
 </head>
-<body>
+<body data-home data-own-counters>
 <a class="skip" href="#main">Skip to content</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -416,35 +416,10 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <div class="top-cta">
       <a class="btn btn-sm hide-m" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--red)"><use href="#i-heart"/></svg>Ko-fi</a>
       <a class="btn btn-sm btn-hot" href="beta.html">Join the beta</a>
-      <button class="menu-btn" id="menu-open" aria-label="Open menu" aria-expanded="false" aria-controls="sheet">
-        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
     </div>
   </div>
 </header>
 
-<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Menu">
-  <div class="sheet-head">
-    <span class="brand"><svg aria-hidden="true"><use href="#logo"/></svg>aside</span>
-    <button class="menu-btn" id="menu-close" aria-label="Close menu" style="display:inline-flex"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-  </div>
-  <nav aria-label="Menu">
-    <a href="#tour">Features <svg><use href="#i-arrow"/></svg></a>
-    <a href="#try">Try it <svg><use href="#i-arrow"/></svg></a>
-    <a href="#pricing">Pricing <svg><use href="#i-arrow"/></svg></a>
-    <a href="compare.html">Compare <svg><use href="#i-arrow"/></svg></a>
-    <a href="beta.html">Join the beta <svg><use href="#i-arrow"/></svg></a>
-    <a href="roadmap.html">Roadmap <svg><use href="#i-arrow"/></svg></a>
-    <a href="releases.html">Releases <svg><use href="#i-arrow"/></svg></a>
-    <a href="blog.html">Blog <svg><use href="#i-arrow"/></svg></a>
-    <a href="docs.html">Docs <svg><use href="#i-arrow"/></svg></a>
-    <a href="#faq">FAQ <svg><use href="#i-arrow"/></svg></a>
-  </nav>
-  <div class="btns">
-    <a class="btn btn-hot" href="#get">Get Aside</a>
-    <a class="btn" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--red)"><use href="#i-heart"/></svg>Support on Ko-fi</a>
-  </div>
-</div>
 
 <main id="main">
 
@@ -808,7 +783,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
   </div>
 </footer>
 
-<button class="toTop" id="toTop" aria-label="Back to top" hidden><svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div class="lightbox" id="lightbox" hidden><img id="lb-img" alt=""></div>
 
 <script src="data.js"></script>
@@ -822,17 +796,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 
-  /* header, menu, back to top */
-  var top = $("#top"), toTop = $("#toTop");
-  function onScroll() { var y = window.scrollY || 0; top.classList.toggle("scrolled", y > 8); toTop.hidden = y < 900; }
-  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
-  toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
-  var sheet = $("#sheet"), openBtn = $("#menu-open");
-  function setSheet(open) { sheet.hidden = !open; openBtn.setAttribute("aria-expanded", String(open)); document.body.style.overflow = open ? "hidden" : ""; if (open) $("#menu-close").focus(); }
-  openBtn.addEventListener("click", function () { setSheet(true); });
-  $("#menu-close").addEventListener("click", function () { setSheet(false); });
-  $$("#sheet a").forEach(function (a) { a.addEventListener("click", function () { setSheet(false); }); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { setSheet(false); $("#lightbox").hidden = true; } });
   var navLinks = $$(".nav a[href^='#']");
   if ("IntersectionObserver" in window) {
     var secObs = new IntersectionObserver(function (ents) {
@@ -841,6 +804,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     navLinks.forEach(function (a) { var s = $(a.getAttribute("href")); if (s) secObs.observe(s); });
   }
 
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("#lightbox").hidden = true; });
   /* lightbox */
   var lb = $("#lightbox");
   document.addEventListener("click", function (e) { var t = e.target; if (t.classList && t.classList.contains("zoom")) { $("#lb-img").src = t.src; $("#lb-img").alt = t.alt; lb.hidden = false; } });
@@ -974,10 +938,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 
   /* live touches: spotlight on cards, tilt of the hero window, counters, the status bar, the playground types itself once */
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  document.addEventListener("pointermove", function (e) {
-    var c = e.target.closest && e.target.closest(".spot"); if (!c) return;
-    var r = c.getBoundingClientRect(); c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px");
-  });
   var stage = $(".stage"), win = $(".window");
   if (stage && !reduce && matchMedia("(hover: hover) and (min-width: 1001px)").matches) {
     stage.addEventListener("pointermove", function (e) { var r = stage.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; win.style.transform = "perspective(1600px) rotateY(" + (x * 10 - 3) + "deg) rotateX(" + (-y * 6) + "deg)"; });
@@ -1022,5 +982,6 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
   }
 })();
 </script>
+<script src="site.js"></script>
 </body>
 </html>

@@ -117,9 +117,31 @@
 .say { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .9rem; align-items: start; padding: 1rem 1.1rem; border-radius: 14px; background: rgba(12, 11, 18, .7); border: 1px solid rgba(255, 255, 255, .1); position: relative; margin-top: .4rem; }
 .say .who { position: absolute; left: 1rem; top: 0; transform: translateY(-55%); padding: .2rem .7rem; border-radius: 6px; background: var(--grad); color: #fff; font: 800 .78rem/1.3 var(--f-display); }
 .say p { grid-column: 1 / -1; color: #F2DDE2; font-size: .95rem; padding-top: .4rem; }
+.f > label.toggle-ex { text-transform: none; letter-spacing: 0; font: 500 .94rem/1.4 var(--f-body); color: var(--text); }
 .toggle-ex { display: inline-flex; align-items: center; gap: .55rem; font-size: .9rem; color: var(--text); cursor: pointer; margin-top: .2rem; }
 .toggle-ex input { width: 18px; height: 18px; accent-color: var(--red); }
 .draft { font-size: .8rem; color: var(--muted); }
+
+/* phones: the application opens over the whole screen, with its own header and the buttons always at hand */
+.m-head { display: none; }
+@media (max-width: 760px) {
+  #apply.open { position: fixed; inset: 0; z-index: 90; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-block: 0; background: var(--bg); border: 0; }
+  .m-head { display: flex; position: sticky; top: 0; z-index: 3; align-items: center; gap: .8rem; padding: calc(env(safe-area-inset-top, 0px) + .65rem) max(16px, env(safe-area-inset-right, 0px)) .7rem max(16px, env(safe-area-inset-left, 0px)); background: rgba(18, 7, 10, .96); border-bottom: 1px solid var(--line); }
+  .m-head .t { flex: 1; min-width: 0; }
+  .m-head b { display: block; font: 800 1rem/1.25 var(--f-display); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .m-head span { font-size: .8rem; color: var(--muted); }
+  .m-head .x { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+  .m-head .x svg { width: 20px; height: 20px; }
+  .m-head .m-prog { position: absolute; left: 0; bottom: -1px; height: 3px; width: 0; background: var(--grad); box-shadow: 0 0 10px var(--red); transition: width .4s cubic-bezier(.3, 0, .2, 1); }
+  #apply.open .rail, #apply.open .bar { display: none; }
+  #apply .panel { border-radius: 0; border: 0; box-shadow: none; background: transparent; padding: 1.1rem 0 0; }
+  #apply .step h3 { font-size: 1.25rem; }
+  #apply .step .nav-row { position: sticky; bottom: 0; z-index: 2; margin: .4rem calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0; padding: 1.4rem max(16px, env(safe-area-inset-right, 0px)) calc(.8rem + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: linear-gradient(180deg, transparent, var(--bg) 35%); flex-wrap: nowrap; }
+  #apply .step .nav-row .btn { flex: 1; }
+  #apply .draft { display: none; }
+  .chip span { min-height: 44px; padding: .55rem .95rem; }
+  .ag { padding: 1rem; }
+}
 </style>
 </head>
 <body>
@@ -195,7 +217,8 @@
   </div>
 </section>
 
-<section class="sec band" id="apply" hidden>
+<section class="sec band" id="apply" hidden aria-label="Application">
+  <div class="m-head"><div class="t"><b id="m-title">Application</b><span id="m-step"></span></div><button type="button" class="x" id="m-close" aria-label="Close the application (your answers are kept)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><i class="m-prog" id="m-prog"></i></div>
   <div class="wrap wizard">
     <div class="rail" id="rail"></div>
     <div>
@@ -272,6 +295,11 @@
   };
   var route = null, step = 0, data = {};
   var form = document.getElementById("form"), rail = document.getElementById("rail"), bar = document.getElementById("bar"), apply = document.getElementById("apply");
+  var phone = function () { return matchMedia("(max-width: 760px)").matches; };
+  function toTopOfForm() { if (phone()) apply.scrollTo({ top: 0, behavior: "smooth" }); else form.scrollIntoView({ block: "start", behavior: "smooth" }); }
+  function closeApp() { apply.classList.remove("open"); document.body.style.overflow = ""; if (phone()) { apply.hidden = true; document.querySelectorAll(".route").forEach(function (b) { b.setAttribute("aria-pressed", "false"); }); var r = document.querySelector('.route[data-route="' + route + '"]'); if (r) r.focus(); } }
+  document.getElementById("m-close").addEventListener("click", closeApp);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && apply.classList.contains("open") && phone()) closeApp(); });
   var save = function () { try { localStorage.setItem("aside-beta-" + route, JSON.stringify({ step: step, data: data })); } catch (e) {} };
   var load = function (r) { try { return JSON.parse(localStorage.getItem("aside-beta-" + r) || "null"); } catch (e) { return null; } };
   var forget = function () { try { localStorage.removeItem("aside-beta-" + route); } catch (e) {} };
@@ -299,6 +327,9 @@
     var all = steps().map(function (s) { return s.t; }).concat(["Review and send"]);
     rail.innerHTML = '<span class="rt">' + ROUTES[route].who + " · " + ROUTES[route].name + "</span>" + all.map(function (t, i) { return '<div class="rstep' + (i < step ? " ok" : i === step ? " now" : "") + '"><i>' + (i < step ? "✓" : i + 1) + "</i><span>" + t + "</span></div>"; }).join("");
     bar.style.width = (step / all.length * 100) + "%";
+    document.getElementById("m-prog").style.width = bar.style.width;
+    document.getElementById("m-title").textContent = ROUTES[route].who + " · " + ROUTES[route].name;
+    document.getElementById("m-step").textContent = step < steps().length ? "Step " + (step + 1) + " of " + all.length + " · " + all[step] : "Last step · " + all[all.length - 1];
   }
   function collect() {
     if (step >= steps().length) return;
@@ -359,10 +390,11 @@
         '<div class="nav-row"><button type="button" class="btn" id="back">Back</button><button type="button" class="btn" id="sent">I sent it</button></div></div>';
       document.getElementById("copy-addr").onclick = function (e) { copy(MAIL, e.target, "Copy address"); };
       document.getElementById("copy-app").onclick = function (e) { copy("To: " + MAIL + "\nSubject: " + ROUTES[route].subject + "\n\n" + body(), e.target, "Copy application"); };
-      document.getElementById("back").onclick = function () { step--; save(); draw(); };
+      document.getElementById("back").onclick = function () { step--; save(); draw(); toTopOfForm(); };
       document.getElementById("sent").onclick = function () {
         forget(); bar.style.width = "100%"; rail.querySelectorAll(".rstep").forEach(function (r) { r.className = "rstep ok"; r.querySelector("i").textContent = "✓"; });
-        form.innerHTML = '<div class="done-card"><div class="big"><svg><use href="#i-check"/></svg></div><h3>Thank you, ' + esc(data.nick) + '.</h3><p>Your application is on its way. Every application is read, and you will get an answer at ' + esc(data.email) + ' within 14 days, yes or no.</p></div>';
+        form.innerHTML = '<div class="done-card"><div class="big"><svg><use href="#i-check"/></svg></div><h3>Thank you, ' + esc(data.nick) + '.</h3><p>Your application is on its way. Every application is read, and you will get an answer at ' + esc(data.email) + ' within 14 days, yes or no.</p><button type="button" class="btn" id="done-close">Close</button></div>';
+        document.getElementById("done-close").onclick = function () { if (phone()) closeApp(); else apply.hidden = true; window.scrollTo({ top: 0, behavior: "smooth" }); };
       };
       return;
     }
@@ -374,10 +406,10 @@
     s.f.forEach(function (f) { var x = f[4] || {}; if (x.min) { var ta = document.getElementById("f-" + f[0]), c = document.getElementById("c-" + f[0]); var u = function () { c.textContent = ta.value.trim().length + " / " + x.min + "+"; }; ta.addEventListener("input", u); u(); } });
     var ex = document.getElementById("f-exception");
     if (ex) ex.addEventListener("change", function () { collect(); s.f.forEach(function (f) { var b = form.querySelector('[data-id="' + f[0] + '"]'); if (b) b.hidden = !shown(f); }); });
-    var b = document.getElementById("back"); if (b) b.onclick = function () { collect(); step--; save(); draw(); };
+    var b = document.getElementById("back"); if (b) b.onclick = function () { collect(); step--; save(); draw(); toTopOfForm(); };
     var sw = document.getElementById("switch"); if (sw) sw.onclick = function () { collect(); choose(route === "test" ? "licence" : "test"); };
   }
-  form.addEventListener("submit", function (e) { e.preventDefault(); collect(); if (!validate()) return; step++; save(); draw(); form.scrollIntoView({ block: "start", behavior: "smooth" }); });
+  form.addEventListener("submit", function (e) { e.preventDefault(); collect(); if (!validate()) return; step++; save(); draw(); toTopOfForm(); });
   form.addEventListener("input", function () { clearTimeout(form._t); form._t = setTimeout(collect, 400); });
   function choose(r) {
     if (route !== r) {
@@ -387,9 +419,10 @@
       else { step = 0; data = keep; }
     }
     document.querySelectorAll(".route").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-route") === r)); });
-    apply.hidden = false; draw();
+    apply.hidden = false; apply.classList.add("open"); draw();
+    if (phone()) { document.body.style.overflow = "hidden"; apply.scrollTop = 0; var first = form.querySelector("input, select, textarea"); }
   }
-  document.querySelectorAll(".route").forEach(function (b) { b.addEventListener("click", function () { choose(b.getAttribute("data-route")); apply.scrollIntoView({ behavior: "smooth" }); }); });
+  document.querySelectorAll(".route").forEach(function (b) { b.addEventListener("click", function () { choose(b.getAttribute("data-route")); if (!phone()) apply.scrollIntoView({ behavior: "smooth" }); }); });
   var h = location.hash.replace("#", "");
   if (h === "test" || h === "licence") choose(h);
 })();
