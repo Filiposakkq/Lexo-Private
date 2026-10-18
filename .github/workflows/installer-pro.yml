@@ -1,0 +1,62 @@
+name: Installer Pro
+
+# The installer with the Pro pack: the same application plus `pack/lexo-pro-sidecar.exe` next to the program (private; the Free installer knows nothing about it). Like the Free
+# installer it takes a release build, so it runs only when its inputs change, on main (cache for the pull requests) and on request.
+on:
+  pull_request:
+    paths: ["rust/**", "pro/**", "free/lexo_free/ui/**", "core/lexo/packs/**", ".github/workflows/installer-pro.yml"]
+  push:
+    branches: [main]
+    paths: ["rust/**", "pro/**", "free/lexo_free/ui/**", "core/lexo/packs/**", ".github/workflows/installer-pro.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installer-pro:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --no-self-update
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            rust
+            pro/rust
+          key: installer-pro
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Build the Pro pack (release)
+        working-directory: pro/rust
+        run: cargo build --release --locked -p lexo-pro --bin lexo-pro-sidecar
+      - name: Build the installer with the pack as a resource
+        working-directory: rust/crates/lexo-app
+        run: npx --yes @tauri-apps/cli@2 build --bundles nsis --config ../../../pro/installer/tauri.pro.conf.json -- --locked
+      - name: Install silently and run the self-test of the installed application
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem rust/target/release/bundle/nsis/*.exe | Select-Object -First 1
+          Write-Host "installer: $($setup.Name) $([math]::Round($setup.Length/1MB,1)) MB"
+          $dir = Join-Path $env:RUNNER_TEMP "aside-pro-installed"
+          Start-Process -FilePath $setup.FullName -ArgumentList "/S", "/D=$dir" -PassThru -Wait | Out-Null
+          Get-ChildItem $dir -Recurse | Select-Object -ExpandProperty FullName
+          $exe = Get-ChildItem $dir -Filter *.exe | Where-Object { $_.Name -notmatch "uninstall" } | Select-Object -First 1
+          foreach ($need in "ui\index.html", "packs\cs\pack.json", "pack\lexo-pro-sidecar.exe") { if (-not (Test-Path (Join-Path $dir $need))) { throw "the installer did not install $need" } }
+          # hide the folders of the repository, so that the installed copy cannot fall back to them
+          Rename-Item free/lexo_free/ui ui_hidden
+          Rename-Item core/lexo/packs packs_hidden
+          $env:LEXO_SELFTEST = "1"
+          $p = Start-Process -FilePath $exe.FullName -RedirectStandardOutput selftest.out -PassThru
+          if (-not $p.WaitForExit(240000)) { Stop-Process -Id $p.Id -Force; Get-Content selftest.out; throw "the self-test did not finish" }
+          Get-Content selftest.out
+          # 140 checks: the 139 of the application and the one that needs the Pro pack to be found
+          if ((Get-Content selftest.out -Raw) -notmatch "140/140") { throw "the self-test of the installed application with the Pro pack did not pass" }
+          Move-Item $setup.FullName (Join-Path $setup.DirectoryName ($setup.Name -replace "^Aside_", "Aside-Pro_"))
+      - uses: actions/upload-artifact@v6
+        with:
+          name: aside-pro-installer
+          path: rust/target/release/bundle/nsis/Aside-Pro_*.exe
+          retention-days: 14
