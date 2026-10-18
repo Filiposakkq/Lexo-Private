@@ -35,7 +35,7 @@ Every e-mail goes from `Aside <aside@filiposakkq.dev>` with replies to the same 
 The website deploys itself through GitHub Actions (`.github/workflows/web-deploy.yml`) with the same two GitHub secrets as the licence server (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`). The Cloudflare project is not connected to the repository; GitHub only uses the token.
 
 **1. Cloudflare: database and token**
-1. Workers and Pages, D1, Create database, name `aside-web`. Copy its **Database ID** into `database_id` in `worker/wrangler.toml` (not a secret).
+1. Workers and Pages, D1, Create database, name `aside-web`. Copy its **Database ID** into `database_id` in `worker/wrangler.toml` (not a secret). Done: `10e68128-…`.
 2. My Profile, API Tokens: edit the token the licence server uses and add the permission **Account, D1, Edit** (the deploy creates the tables).
 
 **2. GitHub: the first deploy**

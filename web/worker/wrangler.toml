@@ -31,7 +31,7 @@ ACCESS_AUD = ""
 binding = "DB"
 database_name = "aside-web"
 # the id printed by `npx wrangler d1 create aside-web` (not a secret)
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "10e68128-84af-46f1-ae09-caa3255dc13b"
 migrations_dir = "migrations"
 
 [triggers]
