@@ -211,6 +211,9 @@ impl Dispatcher {
             let n = session.companions.lock().unwrap().iter().filter(|(_, t)| t.elapsed() < Duration::from_secs(12)).count();
             return Reply::json(200, &json!({"ok": true, "companions": n}));
         }
+        if r == "licence" {
+            return self.licence("status", json!({}));
+        }
         let Some(op) = api::route("GET", r) else { return Reply::error(404, msg("Unknown address.", &[])) };
         let params: Map<String, Value> = q.iter().map(|(k, v)| (k.clone(), json!(v))).collect();
         let (name, binary) = (op.name, op.kind == "binary");
@@ -264,6 +267,7 @@ impl Dispatcher {
             "window/fullscreen" => {
                 Reply::json(200, &if session.shell.toggle_fullscreen() { json!({"ok": true}) } else { json!({"ok": false, "fallback": true}) })
             }
+            "licence/activate" | "licence/refresh" | "licence/deactivate" => self.licence(r.strip_prefix("licence/").unwrap_or(""), Value::Object(d)),
             "focus" => {
                 if !self.backend.run(|app| app.ready()).unwrap_or(false) {
                     return Reply::error(400, msg("No project is open.", &[]));
@@ -272,6 +276,23 @@ impl Dispatcher {
             }
             _ => Reply::error(404, msg("Unknown address.", &[])),
         }
+    }
+
+    /// The licence of the Pro pack (state, key, regular check, freeing this computer); without the pack the state is `none`. These calls are not in the contract of Core: they belong to the
+    /// application around it, like the folder dialog.
+    fn licence(&self, method: &str, payload: Value) -> Reply {
+        let method = method.to_string();
+        let result = self.backend.run(move |app| -> Result<Answer, ApiError> {
+            if !app.ext.present() {
+                return Ok(Answer::Json(json!({"ok": true, "state": "none"})));
+            }
+            let mut answer = app.ext.licence(&method, &payload).map_err(|e| ApiError::App(e.0))?;
+            if let Some(o) = answer.as_object_mut() {
+                o.insert("ok".into(), json!(true));
+            }
+            Ok(Answer::Json(answer))
+        });
+        self.result(result)
     }
 
     fn project_pick(&self) -> Reply {

@@ -60,7 +60,7 @@ What this protects and what it does not (honest): the taste features are on ever
 
 
 ## Entering a licence (what happens, step by step)
-Not built yet; this is the design.
+Built: the key box and the state in Settings, Licence (`38-pro.js`), the routes `/api/licence`, `/api/licence/activate`, `/refresh`, `/deactivate` (application, not part of the Core contract) and `pro/rust/lexo-pro/src/licence_client.rs`; the pack renews the file quietly at its start when the check is due within 3 days. Not built: the download of the premium pack (steps 3 and the encryption); until then the sidecar of the Pro installer holds all features and the signed file unlocks them.
 1. The user types the **licence key** in Free (Settings -> Licence). Free contains only this small *activation client*: it sends the key to the licence server over HTTPS. It holds no secret and no feature.
 2. The server checks the key and answers with (a) a **signed licence file** (who, which features, valid until, a device id if we bind one) and (b) the **address of the premium pack** to download, also signed.
 3. Free downloads the premium pack and verifies its **signature** with the public key built into Free; a wrong or swapped pack is not loaded. It stores the licence file next to the packs.
