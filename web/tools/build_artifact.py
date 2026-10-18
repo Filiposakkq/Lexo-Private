@@ -1,7 +1,7 @@
 """Build a preview copy of the site (for a claude.ai artifact) into a folder.
 
 index.html becomes a fragment without the document wrapper, with site.css and the images inlined;
-docs.html, site.css and favicon.svg are copied next to it as they are.
+docs.html, releases.html, site.css and favicon.svg are copied next to it as they are.
 Usage: python web/tools/build_artifact.py OUT_DIR
 """
 import base64
@@ -34,7 +34,7 @@ def main(out):
     page = head.strip() + "\n" + body
     page = re.sub(r"(img/[\w.-]+\.(?:webp|png))", lambda m: data_uri(m.group(1)), page)
     (out / "index.html").write_text(page, encoding="utf-8")
-    for name in ("docs.html", "site.css", "favicon.svg"):
+    for name in ("docs.html", "releases.html", "site.css", "favicon.svg"):
         shutil.copy(WEB / name, out / name)
     print("wrote", out, (out / "index.html").stat().st_size // 1024, "KB")
 

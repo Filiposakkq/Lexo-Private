@@ -1,6 +1,6 @@
 # Aside website
 
-A static one-page site for Aside (no build step): `index.html` is the landing page, `docs.html` the documentation, `site.css` their shared styles; `img/` the screenshots of the app (a made-up demo project), `og.png` the social preview, `icon-*.png` and `favicon.svg` the icons (rendered from `free/assets/brand`).
+A static one-page site for Aside (no build step): `index.html` is the landing page, `releases.html` the releases with the changelog and statistics, `docs.html` the documentation, `site.css` their shared styles; `img/` the screenshots of the app (a made-up demo project), `og.png` the social preview, `icon-*.png` and `favicon.svg` the icons (rendered from `free/assets/brand`).
 
 Open `index.html` in a browser, or serve the folder with any static server.
 `python web/tools/build_artifact.py OUT_DIR` makes a preview copy (index with styles and images inlined, docs next to it).

@@ -6,7 +6,7 @@
 <title>Aside for Ren'Py</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Aside is a translation manager for Ren'Py games. Translate the whole game, check every tag and variable, see the scene and the choices. Free, local, no account. Windows.">
-<meta name="theme-color" content="#FFF6F6">
+<meta name="theme-color" content="#12070A">
 <meta property="og:title" content="Aside: translate the whole Ren'Py game, break nothing">
 <meta property="og:description" content="A translation manager for Ren'Py: checks for tags, variables and line fit, scene preview, choice menus, progress. Free, local, no account.">
 <meta property="og:type" content="website">
@@ -29,14 +29,18 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 
 /* hero */
 .hero { position: relative; overflow: hidden; padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) clamp(4rem, 2.5rem + 5vw, 6.5rem); }
-.hero::before { content: ""; position: absolute; width: 900px; height: 900px; right: -300px; top: -380px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 112, 67, .22), rgba(240, 36, 79, .12) 45%, transparent 70%); pointer-events: none; }
-.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5; background-image: radial-gradient(rgba(130, 20, 45, .14) 1px, transparent 1.2px); background-size: 22px 22px; mask-image: linear-gradient(180deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); }
+.hero::before { display: none; content: ""; position: absolute; width: 900px; height: 900px; right: -300px; top: -380px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 112, 67, .22), rgba(240, 36, 79, .12) 45%, transparent 70%); pointer-events: none; }
+.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5; background-image: radial-gradient(rgba(255, 120, 150, .13) 1px, transparent 1.2px); background-size: 22px 22px; mask-image: linear-gradient(180deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); }
 .hero .wrap { position: relative; z-index: 1; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(2rem, 1rem + 4vw, 4rem); align-items: center; }
 @media (max-width: 1000px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
+.hero h1, .hero .lead, .hero-ctas, .trust, .hero .kicker { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
+.hero .lead { animation-delay: .12s; } .hero-ctas { animation-delay: .22s; } .trust { animation-delay: .32s; } .stage { animation: rise 1s .2s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
 .hero h1 { font-size: var(--s-1); font-weight: 800; line-height: .98; letter-spacing: -.05em; }
 .hero h1 em { font-style: normal; position: relative; display: inline-block; z-index: 0; }
-.hero h1 em::after { content: ""; position: absolute; left: -.06em; right: -.06em; bottom: .02em; height: .32em; background: var(--red-soft); z-index: -1; border-radius: 4px; transform-origin: left; animation: mark .8s .4s cubic-bezier(.6, 0, .2, 1) both; }
+.hero h1 em { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: .06em; }
+.hero h1 em::after { content: ""; position: absolute; left: -.04em; right: -.04em; bottom: .02em; height: .1em; background: var(--grad); box-shadow: 0 0 22px var(--red); z-index: -1; border-radius: 4px; transform-origin: left; animation: mark .8s .4s cubic-bezier(.6, 0, .2, 1) both; }
 @keyframes mark { from { transform: scaleX(0); } }
 .hero .lead { font-size: clamp(1.06rem, 1rem + .35vw, 1.22rem); margin-top: 1.4rem; }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 2rem; }
@@ -66,21 +70,23 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 @keyframes float { 50% { transform: translateY(-8px); } }
 @media (max-width: 640px) { .callout { font-size: .76rem; padding: .5rem .65rem; } .callout b { font-size: .86rem; } .callout .dot { width: 24px; height: 24px; } .c1 { left: 0; top: 0; } .c2 { right: 0; } .c3 { left: 4%; } .callout small { display: none; } }
 
-/* games row */
-.games-row { padding-block: 1.6rem; border-block: 1px solid var(--line); background: var(--card); }
-.games-row .wrap { display: flex; align-items: center; gap: 1rem 1.5rem; flex-wrap: wrap; }
-.games-row p { font: 700 .9rem/1.3 var(--f-display); color: var(--ink); flex: none; }
-.games-row p span { display: block; font: 500 .78rem/1.3 var(--f-body); color: var(--muted); }
-.gchips { display: flex; flex-wrap: wrap; gap: .4rem; flex: 1; min-width: 0; }
-.gchips span { font-size: .84rem; padding: .4rem .7rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); color: var(--text); white-space: nowrap; }
-.gchips span b { font: 600 .72rem/1 var(--f-mono); color: var(--muted); margin-left: .35rem; }
-@media (max-width: 700px) { .games-row .wrap { flex-direction: column; align-items: flex-start; } .gchips { flex: none; width: 100%; } }
+/* games row: a slow marquee */
+.games-row { padding-block: 1.4rem 1.6rem; border-block: 1px solid var(--line); background: var(--bg-2); overflow: hidden; }
+.gr-head p { font: 700 .82rem/1.3 var(--f-display); color: var(--muted); text-transform: uppercase; letter-spacing: .14em; text-align: center; margin-bottom: 1rem; }
+.marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.mq-track { display: flex; gap: .6rem; width: max-content; animation: mq 40s linear infinite; }
+.marquee:hover .mq-track { animation-play-state: paused; }
+@keyframes mq { to { transform: translateX(-50%); } }
+.mq-track span { font: 700 1rem/1 var(--f-display); padding: .7rem 1.1rem; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink); white-space: nowrap; }
+.mq-track span.dup { display: none; }
+.mq-track span b { font: 500 .74rem/1 var(--f-mono); color: var(--red-text); margin-left: .5rem; }
+@media (prefers-reduced-motion: reduce) { .mq-track { flex-wrap: wrap; width: auto; justify-content: center; padding-inline: 16px; } .mq-track span[aria-hidden] { display: none; } }
 
 /* before / after */
 .ba { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; }
 @media (max-width: 820px) { .ba { grid-template-columns: minmax(0, 1fr); } }
 .ba-card { border-radius: var(--r); padding: clamp(1.4rem, 1rem + 1.5vw, 2rem); }
-.ba-card.before { border: 1.5px dashed var(--line-2); }
+.ba-card.before { border: 1.5px dashed var(--line-2); background: rgba(0, 0, 0, .15); }
 .ba-card.after { background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); position: relative; overflow: hidden; }
 .ba-card.after::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--grad); }
 .ba-card h3 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
@@ -90,7 +96,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 .ba-list li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: .7rem; font-size: .98rem; }
 .ba-list li svg { width: 22px; height: 22px; margin-top: .05rem; }
 .before .ba-list li { color: var(--muted); }
-.before .ba-list svg { color: #C08A96; }
+.before .ba-list svg { color: var(--muted); }
 .after .ba-list svg { color: var(--ok); }
 
 /* feature tour */
@@ -98,7 +104,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 @media (max-width: 960px) { .tour { grid-template-columns: minmax(0, 1fr); } }
 .tour-list { display: grid; gap: .45rem; }
 .tour-item { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: .9rem; text-align: left; padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid transparent; background: transparent; cursor: pointer; font: inherit; color: inherit; transition: background-color .2s, border-color .2s, box-shadow .2s; }
-.tour-item:hover { background: rgba(255, 255, 255, .6); }
+.tour-item:hover { background: var(--red-tint); }
 .tour-item[aria-selected="true"] { background: var(--card); border-color: var(--line); box-shadow: var(--shadow-s); }
 .tour-item .ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--red-tint); color: var(--red-text); transition: background .2s, color .2s; }
 .tour-item[aria-selected="true"] .ic { background: var(--grad); color: #fff; }
@@ -195,11 +201,37 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 .try:hover { border-color: var(--red); color: var(--red-text); }
 .try.reset { background: transparent; border-style: dashed; }
 
+/* numbers */
+.nums { padding-block: 0 clamp(4rem, 3rem + 4vw, 6rem); }
+.nums-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 900px) { .nums-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.nums-grid > div { padding: 1.4rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); }
+.nums-grid b { display: block; font: 800 clamp(2rem, 1.6rem + 1.5vw, 2.8rem)/1 var(--f-display); letter-spacing: -.04em; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nums-grid span { display: block; margin-top: .6rem; font-size: .9rem; color: var(--muted); }
+.nums-more { text-align: center; margin-top: 1.4rem; }
+.nums-more a { color: var(--red-text); font-weight: 700; text-underline-offset: 3px; }
+
+/* free vs pro table */
+.cmp-wrap { max-width: 980px; margin: 2.4rem auto 0; overflow-x: auto; border-radius: var(--r); border: 1px solid var(--line); background: var(--card); }
+table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size: .94rem; }
+.cmp th, .cmp td { padding: .8rem 1.1rem; text-align: left; border-bottom: 1px solid var(--line); }
+.cmp thead th { font: 800 1rem/1.2 var(--f-display); color: var(--ink); background: var(--card-2); }
+.cmp thead th:not(:first-child), .cmp td:not(:first-child) { text-align: center; width: 22%; }
+.cmp thead th.p { color: var(--red-text); }
+.cmp td:first-child { color: var(--text); }
+.cmp tbody tr:hover td { background: var(--red-tint); }
+.cmp .grp td { font: 800 .7rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); background: var(--bg-2); padding-block: .65rem; }
+.cmp .y { color: var(--ok); font-weight: 800; }
+.cmp .n { color: var(--muted); }
+.cmp .lim { font: 500 .8rem/1 var(--f-mono); color: var(--warn); }
+.cmp .un { font: 600 .8rem/1 var(--f-mono); color: var(--ink); }
+.cmp tr:last-child td { border-bottom: 0; }
+
 /* included */
 .incl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2rem; }
 @media (max-width: 900px) { .incl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .incl { grid-template-columns: minmax(0, 1fr); } }
-.incl div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: .7rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.incl > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: .7rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
 .incl svg { width: 20px; height: 20px; color: var(--red); margin-top: .15rem; }
 .incl b { display: block; color: var(--ink); font: 700 .98rem/1.35 var(--f-display); }
 .incl span { font-size: .9rem; color: var(--muted); }
@@ -212,7 +244,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 .zero .lead { color: #E3C9D0; }
 .zeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2.6rem; }
 @media (max-width: 760px) { .zeros { grid-template-columns: minmax(0, 1fr); } }
-.zeros div { padding: 1.5rem; border-radius: var(--r); background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); }
+.zeros > div { padding: 1.5rem; border-radius: var(--r); background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); }
 .zeros b { display: block; font: 800 clamp(2.6rem, 2rem + 2vw, 3.6rem)/1 var(--f-display); letter-spacing: -.05em; }
 .zeros b span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .zeros h3 { color: #fff; margin-top: .8rem; font-size: 1.08rem; }
@@ -269,11 +301,12 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 .road-top .big { font: 800 clamp(2.4rem, 2rem + 1.5vw, 3.2rem)/1 var(--f-display); letter-spacing: -.05em; color: var(--ink); }
 .road-top .big small { font: 600 1rem/1 var(--f-display); letter-spacing: 0; color: var(--muted); margin-left: .4rem; }
 .road-top p { color: var(--muted); max-width: 46ch; font-size: .95rem; }
-.track { position: relative; height: 12px; border-radius: 99px; background: var(--bg-2); margin-top: 1.6rem; overflow: hidden; }
-.track i { position: absolute; inset: 0 auto 0 0; width: 91%; border-radius: 99px; background: var(--grad); }
+.track.pre i { transform: scaleX(0); }
+.track { position: relative; height: 12px; border-radius: 99px; background: var(--bg); margin-top: 1.6rem; overflow: hidden; }
+.track i { position: absolute; inset: 0 auto 0 0; width: 91%; transform-origin: left; transition: transform 1.4s cubic-bezier(.3, 0, .2, 1); box-shadow: 0 0 18px var(--red); border-radius: 99px; background: var(--grad); }
 .miles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem; margin-top: 1.8rem; }
 @media (max-width: 820px) { .miles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.miles div { display: grid; gap: .35rem; align-content: start; }
+.miles > div { display: grid; gap: .35rem; align-content: start; }
 .miles .st { justify-self: start; font: 700 .7rem/1 var(--f-display); letter-spacing: .04em; padding: .35rem .6rem; border-radius: 999px; background: var(--ok-soft); color: var(--ok); }
 .miles .st.now { background: var(--red-soft); color: var(--red-text); }
 .miles .st.next { background: var(--bg-2); color: var(--muted); }
@@ -343,6 +376,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
       <a href="#tour">Features</a>
       <a href="#try">Try it</a>
       <a href="#pricing">Pricing</a>
+      <a href="releases.html">Releases</a>
       <a href="docs.html">Docs</a>
       <a href="#faq">FAQ</a>
     </nav>
@@ -365,7 +399,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
     <a href="#tour">Features <svg><use href="#i-arrow"/></svg></a>
     <a href="#try">Try it <svg><use href="#i-arrow"/></svg></a>
     <a href="#pricing">Pricing <svg><use href="#i-arrow"/></svg></a>
-    <a href="#status">Status <svg><use href="#i-arrow"/></svg></a>
+    <a href="releases.html">Releases <svg><use href="#i-arrow"/></svg></a>
     <a href="docs.html">Docs <svg><use href="#i-arrow"/></svg></a>
     <a href="#faq">FAQ <svg><use href="#i-arrow"/></svg></a>
   </nav>
@@ -378,9 +412,11 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 <main id="main">
 
 <section class="hero">
+  <div class="blob" style="width:520px;height:520px;right:-120px;top:-160px;background:#FF315C"></div>
+  <div class="blob" style="width:380px;height:380px;right:30%;top:40%;background:#FF7043;opacity:.25;animation-delay:-6s"></div>
   <div class="wrap hero-grid">
     <div>
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>The translation manager for Ren'Py</span>
+      <span class="kicker">The translation manager for Ren'Py</span>
       <h1>Translate the whole game. <em>Break nothing.</em></h1>
       <p class="lead">Aside opens a Ren'Py game's translation and walks you through it, line by line. It checks every tag, variable and line length as you type, shows the scene and the choices behind each line, and keeps count of what is done.</p>
       <div class="hero-ctas">
@@ -406,18 +442,14 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 </section>
 
 <div class="games-row">
-  <div class="wrap">
-    <p>Tried on 8 real games<span>from archive to translation</span></p>
-    <div class="gchips">
-      <span>Being a DIK<b>45k</b></span><span>Eternum<b>73k</b></span><span>A Wife and Mother<b>37k</b></span><span>Milfy City<b>47k</b></span><span>Midnight Paradise<b>67k</b></span><span>LoSeSb<b>360k</b></span><span>Four Elements Trainer<b>170k</b></span><span>Our Red String<b>152k</b></span>
-    </div>
-  </div>
+  <div class="wrap gr-head"><p>Tried on 8 real Ren'Py games, from archive to translation</p></div>
+  <div class="marquee" aria-label="Tested games"><div class="mq-track"><span>Being a DIK<b>45k lines</b></span><span>Eternum<b>73k</b></span><span>A Wife and Mother<b>37k</b></span><span>Milfy City<b>47k</b></span><span>Midnight Paradise<b>67k</b></span><span>LoSeSb<b>360k</b></span><span>Four Elements Trainer<b>170k</b></span><span>Our Red String<b>152k</b></span><span class="dup" aria-hidden="true"></span><span aria-hidden="true">Being a DIK<b>45k lines</b></span><span aria-hidden="true">Eternum<b>73k</b></span><span aria-hidden="true">A Wife and Mother<b>37k</b></span><span aria-hidden="true">Milfy City<b>47k</b></span><span aria-hidden="true">Midnight Paradise<b>67k</b></span><span aria-hidden="true">LoSeSb<b>360k</b></span><span aria-hidden="true">Four Elements Trainer<b>170k</b></span><span aria-hidden="true">Our Red String<b>152k</b></span></div></div>
 </div>
 
 <section id="why">
   <div class="wrap">
     <div class="sec-head c">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Why Aside</span>
+      <span class="kicker">Why Aside</span>
       <h2>A translation is thousands of tiny chances to crash a game.</h2>
       <p class="lead">One unclosed <code>{i}</code>, one mistyped <code>[name]</code>, one line too long for the box. Aside catches them while you write, not after a player reports them.</p>
     </div>
@@ -432,7 +464,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
           <li><svg><use href="#i-x"/></svg>Texts the generator skipped stay in English.</li>
         </ul>
       </div>
-      <div class="ba-card after">
+      <div class="ba-card after spot">
         <h3>In Aside <small>the calm way</small></h3>
         <ul class="ba-list">
           <li><svg><use href="#i-check"/></svg>Every line is checked against its original as you type.</li>
@@ -449,7 +481,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 <section id="tour" class="band">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>A quick tour</span>
+      <span class="kicker">A quick tour</span>
       <h2>Everything a line needs, in one window.</h2>
     </div>
     <div class="tour">
@@ -473,7 +505,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 <section id="try">
   <div class="wrap">
     <div class="sec-head c">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Try it here</span>
+      <span class="kicker">Try it here</span>
       <h2>Go on, try to break this line.</h2>
       <p class="lead">Edit the Czech translation. The checks run as you type, the same way they run on every line in Aside, and the scene shows what the player would get.</p>
     </div>
@@ -504,10 +536,22 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
   </div>
 </section>
 
+<section class="nums" id="numbers">
+  <div class="wrap">
+    <div class="nums-grid">
+      <div class="spot"><b class="counter" data-to="1400000" data-fmt="M">1.4 M</b><span>lines of real translations read identically by the old and the new engine</span></div>
+      <div class="spot"><b class="counter" data-to="8968">8 968</b><span>read calls compared on 8 games, with 0 differences</span></div>
+      <div class="spot"><b class="counter" data-to="749">749</b><span>recorded test cases, every one matching</span></div>
+      <div class="spot"><b class="counter" data-to="724">724</b><span>automated tests guarding every build</span></div>
+    </div>
+    <p class="nums-more"><a href="releases.html#stats">More statistics →</a></p>
+  </div>
+</section>
+
 <section id="included" class="band">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>All included, free</span>
+      <span class="kicker">All included, free</span>
       <h2>The whole translating workflow costs nothing.</h2>
       <p class="lead">No trial, no account, no ads. These stay free.</p>
     </div>
@@ -530,13 +574,13 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 
 <section class="zero" id="privacy">
   <div class="wrap">
-    <span class="kicker on-dark"><i><svg><use href="#i-spark"/></svg></i>Your work stays yours</span>
+    <span class="kicker on-dark">Your work stays yours</span>
     <h2>Three zeros we are proud of.</h2>
     <p class="lead">Aside is a desktop app. Your game, your translation and your notes stay on your computer.</p>
     <div class="zeros">
-      <div><b><span>0</span></b><h3>bytes written into your game</h3><p>Game folders are only read. Aside writes translation files, after a backup, and its own small data folder.</p></div>
-      <div><b><span>0</span></b><h3>telemetry, analytics, crash reports</h3><p>Nothing about your projects is ever sent to us. No file names, no texts, no settings.</p></div>
-      <div><b><span>0</span></b><h3>accounts to make</h3><p>Install and open a game. Pro asks only for a licence key, never for a login.</p></div>
+      <div class="spot"><b><span>0</span></b><h3>bytes written into your game</h3><p>Game folders are only read. Aside writes translation files, after a backup, and its own small data folder.</p></div>
+      <div class="spot"><b><span>0</span></b><h3>telemetry, analytics, crash reports</h3><p>Nothing about your projects is ever sent to us. No file names, no texts, no settings.</p></div>
+      <div class="spot"><b><span>0</span></b><h3>accounts to make</h3><p>Install and open a game. Pro asks only for a licence key, never for a login.</p></div>
     </div>
     <p class="opt">Machine translation is off until you turn it on, and then talks straight to the service you chose. <a href="docs.html#data">What leaves your computer →</a></p>
   </div>
@@ -545,12 +589,12 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 <section id="pricing">
   <div class="wrap">
     <div class="sec-head c">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Pricing</span>
+      <span class="kicker">Pricing</span>
       <h2>Free to translate. Pro to go faster.</h2>
       <p class="lead">Pro is for long games and release work. Try its speed features on your own project before you pay.</p>
     </div>
     <div class="plans">
-      <div class="plan">
+      <div class="plan spot">
         <div class="name"><h3>Aside</h3><span class="badge">Free forever</span></div>
         <div class="price">0<small>no strings</small></div>
         <p>Everything you need to translate, check and finish a game.</p>
@@ -563,7 +607,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
         </ul>
         <a class="btn" href="#get">Get Aside</a>
       </div>
-      <div class="plan pro">
+      <div class="plan pro spot">
         <div class="name"><h3>Aside Pro</h3><span class="badge">One-off licence</span></div>
         <div class="price">Price soon<small>one payment, no subscription</small></div>
         <p>Everything in Free, plus the speed layer that takes the boring hours away.</p>
@@ -577,7 +621,33 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
         <a class="btn btn-hot" href="#get">Be first to know</a>
       </div>
     </div>
-    <div class="soon-row">Coming to Pro: <span>Carry a translation to a new game version</span><span>Fuzzy translation memory</span><span>Style check</span><span>Release builder</span><span>Teamwork</span></div>
+    <div class="cmp-wrap">
+      <table class="cmp">
+        <thead><tr><th scope="col">Feature</th><th scope="col">Free</th><th scope="col" class="p">Pro</th></tr></thead>
+        <tbody>
+          <tr><td>Editor, filters, search, undo, backups</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Quick translating and proofreading</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>All checks, glossary, spelling hints</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Find and replace, history and diff</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Scene preview, choice menus</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Groups, progress, missed texts</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Machine translation of one line (your key)</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Approve identical lines, language packs</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr class="grp"><td colspan="3">Speed layer</td></tr>
+          <tr><td>Batch machine translation</td><td class="lim">20 / run</td><td class="un">Unlimited</td></tr>
+          <tr><td>Safe bulk fixes</td><td class="lim">20 / run</td><td class="un">Unlimited</td></tr>
+          <tr><td>Group suggestions</td><td class="lim">5 / run</td><td class="un">Unlimited</td></tr>
+          <tr><td>Regex batches</td><td class="n">–</td><td class="y">✓</td></tr>
+          <tr><td>Publish progress to your site</td><td class="n">–</td><td class="y">✓</td></tr>
+          <tr class="grp"><td colspan="3">Coming to Pro</td></tr>
+          <tr><td>Carry a translation to a new game version</td><td class="n">–</td><td class="un">Soon</td></tr>
+          <tr><td>Fuzzy translation memory, style check</td><td class="n">–</td><td class="un">Planned</td></tr>
+          <tr><td>Release builder, teamwork</td><td class="n">–</td><td class="un">Planned</td></tr>
+          <tr class="grp"><td colspan="3">Price</td></tr>
+          <tr><td>Licence</td><td class="un">0</td><td class="un">One-off, price soon</td></tr>
+        </tbody>
+      </table>
+    </div>
     <div class="lic">
       <div><b>Two computers</b><span>Free one yourself when you switch.</span></div>
       <div><b>Works offline</b><span>Checks in now and then, with a grace period.</span></div>
@@ -590,14 +660,14 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 <section id="docs" class="band">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Documentation</span>
+      <span class="kicker">Documentation</span>
       <h2>Short guides for your first evening.</h2>
     </div>
     <div class="docs-grid">
-      <a class="doc-card" href="docs.html#start"><span class="n">Start here</span><h3>Install and open a game</h3><p>From the installer to your first saved line.</p></a>
-      <a class="doc-card" href="docs.html#checks"><span class="n">Reference</span><h3>Every check explained</h3><p>What each error and warning means and how to fix it.</p></a>
-      <a class="doc-card" href="docs.html#keys"><span class="n">Speed</span><h3>Keyboard shortcuts</h3><p>Translate a whole scene without the mouse.</p></a>
-      <a class="doc-card" href="docs.html#data"><span class="n">Safety</span><h3>Your data and backups</h3><p>What Aside writes, where, and how to go back.</p></a>
+      <a class="doc-card spot" href="docs.html#start"><span class="n">Start here</span><h3>Install and open a game</h3><p>From the installer to your first saved line.</p></a>
+      <a class="doc-card spot" href="docs.html#checks"><span class="n">Reference</span><h3>Every check explained</h3><p>What each error and warning means and how to fix it.</p></a>
+      <a class="doc-card spot" href="docs.html#keys"><span class="n">Speed</span><h3>Keyboard shortcuts</h3><p>Translate a whole scene without the mouse.</p></a>
+      <a class="doc-card spot" href="docs.html#data"><span class="n">Safety</span><h3>Your data and backups</h3><p>What Aside writes, where, and how to go back.</p></a>
     </div>
     <div class="docs-more"><a class="btn" href="docs.html">Open the documentation <svg><use href="#i-arrow"/></svg></a></div>
   </div>
@@ -606,7 +676,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 <section id="status">
   <div class="wrap">
     <div class="sec-head">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>Status</span>
+      <span class="kicker">Status</span>
       <h2>Almost ready for its first release.</h2>
     </div>
     <div class="road">
@@ -628,7 +698,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 <section id="faq" class="band">
   <div class="wrap faq-grid">
     <div class="side">
-      <span class="kicker"><i><svg><use href="#i-spark"/></svg></i>FAQ</span>
+      <span class="kicker">FAQ</span>
       <h2>Good questions.</h2>
       <p>Something else? The <a href="docs.html">documentation</a> goes deeper, or ask the author on <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>.</p>
     </div>
@@ -645,7 +715,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 
 <section id="get" class="final">
   <div class="wrap">
-    <span class="kicker on-dark"><i><svg><use href="#i-spark"/></svg></i>menu:</span>
+    <span class="kicker on-dark">menu:</span>
     <h2>Your translation is waiting. What do you do?</h2>
     <p class="lead">The first Windows build is in final testing. Make your choice.</p>
     <div class="choices">
@@ -666,7 +736,7 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
       <p>Translation manager for Ren'Py, born from the Czech translation of <a href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">Being a DIK</a>. Aside is an independent tool, not affiliated with Ren'Py.</p>
     </div>
     <nav aria-label="Footer">
-      <a href="#tour">Features</a><a href="#pricing">Pricing</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
+      <a href="#tour">Features</a><a href="#pricing">Pricing</a><a href="releases.html">Releases</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
       <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq.dev</a>
     </nav>
   </div>
@@ -813,9 +883,51 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
   check();
 
+
+  /* live touches: spotlight on cards, tilt of the hero window, counters, the status bar, the playground types itself once */
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.addEventListener("pointermove", function (e) {
+    var c = e.target.closest && e.target.closest(".spot"); if (!c) return;
+    var r = c.getBoundingClientRect(); c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+  var stage = $(".stage"), win = $(".window");
+  if (stage && !reduce && matchMedia("(hover: hover) and (min-width: 1001px)").matches) {
+    stage.addEventListener("pointermove", function (e) { var r = stage.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; win.style.transform = "perspective(1600px) rotateY(" + (x * 10 - 3) + "deg) rotateX(" + (-y * 6) + "deg)"; });
+    stage.addEventListener("pointerleave", function () { win.style.transform = ""; });
+  }
+  function fmt(n, f) { return f === "M" ? (n / 1e6).toFixed(1) + " M" : String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202F"); }
+  function countUp(el) {
+    var to = +el.getAttribute("data-to"), f = el.getAttribute("data-fmt"), t0 = null;
+    function step(t) { if (!t0) t0 = t; var p = Math.min(1, (t - t0) / 1400); el.textContent = fmt(to * (1 - Math.pow(1 - p, 4)), f); if (p < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  var trackEl = $(".track");
+  var typed = false;
+  function typeDemo() {
+    if (typed || reduce) return; typed = true;
+    var full = TR, i = 0; tr.value = "";
+    var iv = setInterval(function () { i += 2; tr.value = full.slice(0, i); check(); if (i >= full.length) clearInterval(iv); }, 45);
+  }
+  if ("IntersectionObserver" in window && !reduce) {
+    if (trackEl && trackEl.getBoundingClientRect().top > window.innerHeight) trackEl.classList.add("pre");
+    var lo = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var t = en.target;
+        if (t.classList.contains("counter")) countUp(t);
+        if (t === trackEl) t.classList.remove("pre");
+        if (t.id === "try") typeDemo();
+        lo.unobserve(t);
+      });
+    }, { threshold: .35 });
+    $$(".counter").forEach(function (el) { lo.observe(el); });
+    if (trackEl) lo.observe(trackEl);
+    lo.observe($("#try"));
+  }
+
   /* reveal on scroll; everything is visible before this runs and without JS */
   if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    var targets = $$(".ba-card, .incl div, .zeros div, .plan, .doc-card, .miles div, .faq details"), vh = window.innerHeight;
+    var targets = $$(".ba-card, .incl > div, .zeros > div, .plan, .doc-card, .miles > div, .faq details, .nums-grid > div"), vh = window.innerHeight;
     targets.forEach(function (el) { if (el.getBoundingClientRect().top > vh) el.classList.add("reveal", "pre"); });
     var ro = new IntersectionObserver(function (ents) { ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.remove("pre"); ro.unobserve(en.target); } }); }, { rootMargin: "0px 0px -6% 0px" });
     targets.forEach(function (el) { if (el.classList.contains("pre")) ro.observe(el); });

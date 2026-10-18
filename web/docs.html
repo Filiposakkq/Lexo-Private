@@ -6,7 +6,7 @@
 <title>Aside Documentation</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="How to use Aside, the translation manager for Ren'Py: install, open a game, translate, checks, shortcuts, scene preview, data and backups, Pro.">
-<meta name="theme-color" content="#FFF6F6">
+<meta name="theme-color" content="#12070A">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +25,7 @@
 .toc-m { display: none; }
 @media (max-width: 900px) {
   .toc { display: none; }
-  .toc-m { margin-bottom: 1.2rem; display: block; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 20; margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: .6rem max(16px, env(safe-area-inset-left, 0px)); background: rgba(255, 246, 246, .94); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .toc-m { margin-bottom: 1.2rem; display: block; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 20; margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: .6rem max(16px, env(safe-area-inset-left, 0px)); background: rgba(18, 7, 10, .92); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
   .toc-m select { width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); font: 600 .95rem var(--f-display); padding: 0 .8rem; }
 }
 .content { max-width: 760px; min-width: 0; }
@@ -43,9 +43,9 @@
 .content a { color: var(--red-text); text-underline-offset: 3px; }
 .box { margin-top: 1.1rem; padding: 1rem 1.1rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: .7rem; font-size: .96rem; }
 .box svg { width: 22px; height: 22px; color: var(--red); margin-top: .1rem; }
-.box.warn { background: var(--warn-soft); border-color: rgba(156, 94, 0, .2); }
+.box.warn { background: var(--warn-soft); border-color: rgba(244, 184, 78, .25); }
 .box.warn svg { color: var(--warn); }
-.box.ok { background: var(--ok-soft); border-color: rgba(15, 138, 87, .2); }
+.box.ok { background: var(--ok-soft); border-color: rgba(79, 214, 156, .25); }
 .box.ok svg { color: var(--ok); }
 .box p { margin: 0; }
 .tbl { margin-top: 1rem; overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
@@ -88,6 +88,7 @@ pre .c { color: #B98C98; }
     <nav class="nav" aria-label="Main">
       <a href="./#tour">Features</a>
       <a href="./#pricing">Pricing</a>
+      <a href="releases.html">Releases</a>
       <a href="docs.html" class="on">Docs</a>
       <a href="./#faq">FAQ</a>
     </nav>
@@ -125,7 +126,7 @@ pre .c { color: #B98C98; }
     <div class="toc-m"><label class="skip" for="toc-sel">Jump to a section</label><select id="toc-sel" aria-label="Jump to a section"></select></div>
 
     <div class="intro">
-      <span class="kicker"><i><svg viewBox="0 0 24 24" style="width:12px;height:12px"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" fill="#fff"/></svg></i>Documentation</span>
+      <span class="kicker">Documentation</span>
       <h1>How to use Aside</h1>
       <p>Everything you need for your first translation, and a reference to come back to. Aside is in final testing, so a few screens can still change before the first release.</p>
     </div>
@@ -340,7 +341,7 @@ MyGame/
       <a class="brand" href="./"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
       <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
     </div>
-    <nav aria-label="Footer"><a href="./">Home</a><a href="./#pricing">Pricing</a><a href="./#faq">FAQ</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="./#pricing">Pricing</a><a href="releases.html">Releases</a><a href="./#faq">FAQ</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
   </div>
 </footer>
 
