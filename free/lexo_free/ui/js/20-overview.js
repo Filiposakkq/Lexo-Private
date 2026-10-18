@@ -42,7 +42,7 @@ export async function viewOverview() {
   root.append(estimatePanel(o.estimate));
 
   const left = h('div'), right = h('div');
-  if (!o.groups_defined) left.append(h('div', { class: 'panel' }, h('div', { class: 'panel-body' }, h('b', null, T('No groups yet')), h('p', { class: 'muted' }, T('Episodes, chapters or parts give you statistics for each of them. Lexo can guess them from the file names.')), h('button', { class: 'btn', onclick: () => groupsDialog(() => render()) }, T('Set up groups…')))));
+  if (!o.groups_defined) left.append(h('div', { class: 'panel' }, h('div', { class: 'panel-body' }, h('b', null, T('No groups yet')), h('p', { class: 'muted' }, T('Episodes, chapters or parts give you statistics for each of them. Aside can guess them from the file names.')), h('button', { class: 'btn', onclick: () => groupsDialog(() => render()) }, T('Set up groups…')))));
   for (const s of o.seasons) left.append(seasonPanel(s, o.episodes));
   const ug = (label, g) => g.translation.total ? h('li', null, h('span', null, label, h('span', { class: 'muted' }, ' · ' + tn(g.files, '{n} file', '{n} files'))), h('span', { class: 'num' }, `${fmtN(g.translation.done)} / ${fmtN(g.translation.total)} (${fmtPct(g.translation.percent)})`)) : null;
   left.append(h('div', { class: 'panel' }, h('h3', null, T('Outside episodes')),

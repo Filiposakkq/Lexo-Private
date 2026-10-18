@@ -1,5 +1,5 @@
 import { locale, N_ } from './05-i18n.js';
-/* Lexo – UI. Vanilla JS, no build step. All data is inserted with textContent
+/* Aside – UI. Vanilla JS, no build step. All data is inserted with textContent
    (the h() helper), never innerHTML, so file contents can never inject markup. */
 
 export const TOKEN = document.querySelector('meta[name=token]').content;

@@ -1,6 +1,6 @@
 //! Port of `core/lexo/config.py`: application settings, stored in one JSON file that does not depend on the working directory.
 //!
-//! Windows: `%APPDATA%\Lexo\config.json`; other: `~/.config/lexo/config.json`; the folder can be overridden with the `LEXO_CONFIG_DIR` environment variable
+//! Windows: `%APPDATA%\Aside\config.json` (the old name was `Lexo`, see `take_over_folder`); other: `~/.config/aside/config.json`; the folder can be overridden with the `LEXO_CONFIG_DIR` environment variable
 //! (used by the tests). The file never contains secrets: git authenticates through the user's own git credentials.
 use crate::clock::Clock;
 use crate::fsutil::{atomic_write_text, WriteFailed};
@@ -32,18 +32,62 @@ pub fn defaults() -> Value {
     })
 }
 
+/// The folder of the settings and local data called `name` (`%APPDATA%\<name>` on Windows, `~/.config/<name in lower case>` elsewhere).
+fn dir_named(name: &str) -> PathBuf {
+    let home = || std::env::var_os("USERPROFILE").or_else(|| std::env::var_os("HOME")).map(PathBuf::from).unwrap_or_default();
+    if cfg!(windows) {
+        match std::env::var_os("APPDATA").filter(|e| !e.is_empty()) {
+            Some(base) => PathBuf::from(base).join(name),
+            None => home().join(name),
+        }
+    } else {
+        std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from).unwrap_or_else(|| home().join(".config")).join(name.to_lowercase())
+    }
+}
+
 pub fn config_dir() -> PathBuf {
     if let Some(env) = std::env::var_os("LEXO_CONFIG_DIR").filter(|e| !e.is_empty()) {
         return PathBuf::from(env);
     }
-    let home = || std::env::var_os("USERPROFILE").or_else(|| std::env::var_os("HOME")).map(PathBuf::from).unwrap_or_default();
-    if cfg!(windows) {
-        match std::env::var_os("APPDATA").filter(|e| !e.is_empty()) {
-            Some(base) => PathBuf::from(base).join("Lexo"),
-            None => home().join("Lexo"),
+    dir_named("Aside")
+}
+
+fn copy_tree(from: &Path, to: &Path) -> std::io::Result<()> {
+    std::fs::create_dir_all(to)?;
+    for entry in std::fs::read_dir(from)? {
+        let entry = entry?;
+        let target = to.join(entry.file_name());
+        if entry.file_type()?.is_dir() {
+            copy_tree(&entry.path(), &target)?;
+        } else {
+            std::fs::copy(entry.path(), target)?;
         }
-    } else {
-        std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from).unwrap_or_else(|| home().join(".config")).join("lexo")
+    }
+    Ok(())
+}
+
+/// The application was called Lexo before it was called Aside: the first start of Aside takes over the settings and data of the old folder (a copy, the old folder stays for the old
+/// application). Copies when `old` exists and `new` does not; returns whether it did. The copy is made next to `new` and renamed, so a failure leaves no half a folder.
+pub fn take_over_folder(old: &Path, new: &Path) -> std::io::Result<bool> {
+    if new.exists() || !old.is_dir() {
+        return Ok(false);
+    }
+    let tmp = new.with_extension("copying");
+    let _ = std::fs::remove_dir_all(&tmp);
+    if let Err(e) = copy_tree(old, &tmp).and_then(|_| std::fs::rename(&tmp, new)) {
+        let _ = std::fs::remove_dir_all(&tmp);
+        return Err(e);
+    }
+    Ok(true)
+}
+
+/// Called once at the start of the application (not when `LEXO_CONFIG_DIR` chooses the folder).
+pub fn take_over_legacy_config() {
+    if std::env::var_os("LEXO_CONFIG_DIR").is_some_and(|e| !e.is_empty()) {
+        return;
+    }
+    if let Err(e) = take_over_folder(&dir_named("Lexo"), &dir_named("Aside")) {
+        eprintln!("The settings of Lexo could not be taken over: {e}");
     }
 }
 
@@ -161,5 +205,30 @@ impl Config {
             mt.insert("api_key".into(), json!(""));
         }
         d
+    }
+}
+
+#[cfg(test)]
+mod take_over_tests {
+    use super::take_over_folder;
+
+    #[test]
+    fn the_new_folder_takes_a_copy_of_the_old_one_only_once() {
+        let tmp = std::env::temp_dir().join(format!("aside-takeover-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&tmp);
+        let (old, new) = (tmp.join("Lexo"), tmp.join("Aside"));
+        // nothing to take over
+        assert!(!take_over_folder(&old, &new).unwrap() && !new.exists());
+        std::fs::create_dir_all(old.join("projects/p1/backups")).unwrap();
+        std::fs::write(old.join("config.json"), "{\"author\": \"A\"}").unwrap();
+        std::fs::write(old.join("projects/p1/backups/x.rpy"), "x").unwrap();
+        assert!(take_over_folder(&old, &new).unwrap());
+        assert_eq!(std::fs::read_to_string(new.join("config.json")).unwrap(), "{\"author\": \"A\"}");
+        assert!(new.join("projects/p1/backups/x.rpy").is_file() && old.join("config.json").is_file(), "a copy, the old folder stays");
+        // an existing new folder is never touched
+        std::fs::write(new.join("config.json"), "{}").unwrap();
+        assert!(!take_over_folder(&old, &new).unwrap());
+        assert_eq!(std::fs::read_to_string(new.join("config.json")).unwrap(), "{}");
+        let _ = std::fs::remove_dir_all(&tmp);
     }
 }
