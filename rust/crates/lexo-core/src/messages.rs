@@ -104,6 +104,8 @@ pub fn render(value: &Value) -> Value {
 pub enum Text {
     Msg(Box<Message>),
     Plain(String),
+    /// A message that arrived as JSON (`{"$m": ...}`), from a program outside this one (the Pro pack).
+    Wire(Value),
 }
 
 impl Text {
@@ -115,6 +117,7 @@ impl Text {
         match self {
             Text::Msg(m) => m.text(),
             Text::Plain(s) => s.clone(),
+            Text::Wire(v) => py_str(&render(v)),
         }
     }
 
@@ -122,6 +125,7 @@ impl Text {
         match self {
             Text::Msg(m) => m.wire(),
             Text::Plain(s) => Value::String(s.clone()),
+            Text::Wire(v) => v.clone(),
         }
     }
 }

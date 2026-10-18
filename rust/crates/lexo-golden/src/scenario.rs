@@ -57,6 +57,7 @@ fn rpy_files(dir: &Path, root: &Path, out: &mut Vec<(String, PathBuf)>) {
 
 /// Run one scenario and give its normalised record: `{"project", "steps", "files_after"}`.
 pub fn run_scenario(golden: &Path, name: &str) -> Result<Value, String> {
+    std::env::set_var("LEXO_NO_PRO", "1"); // the golden answers are those of Core without the Pro pack, whatever program lies next to this one
     let path = golden.join("scenarios").join(format!("{name}.json"));
     let spec: Value = serde_json::from_str(&std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?).map_err(|e| e.to_string())?;
     let tmp = temp_dir("lexo-golden-");

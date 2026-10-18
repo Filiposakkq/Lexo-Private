@@ -19,7 +19,7 @@ def substitute(p):
     try:
         pat = re.compile(find, (0 if case else re.IGNORECASE) | re.UNICODE)
         re.compile(pat.pattern).sub(replace, "test")                # reject bad group references early
-    except re.error as e:
+    except (re.error, IndexError) as e:                              # IndexError: an unknown group name in the replacement (\g<name>)
         raise ExtensionError(msg("Invalid regular expression: {e}", e=e)) from e
 
     def rx(m):

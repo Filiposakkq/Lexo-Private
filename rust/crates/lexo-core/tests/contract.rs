@@ -94,6 +94,7 @@ fn fixture(tmp: &Path) -> PathBuf {
 
 #[test]
 fn every_operation_answers_in_the_recorded_shape() {
+    std::env::set_var("LEXO_NO_PRO", "1");
     let tmp = std::env::temp_dir().join(format!("lexo-contract-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&tmp);
     std::fs::create_dir_all(&tmp).unwrap();

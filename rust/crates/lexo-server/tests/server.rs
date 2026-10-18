@@ -23,6 +23,7 @@ fn request(port: u16, method: &str, path: &str, headers: &[(&str, &str)], body: 
 
 #[test]
 fn the_server_serves_the_ui_and_the_operations() {
+    std::env::set_var("LEXO_NO_PRO", "1");
     let tmp = std::env::temp_dir().join(format!("lexo-server-test-{}", std::process::id()));
     let tl = tmp.join("g/game/tl/czech");
     std::fs::create_dir_all(&tl).unwrap();
