@@ -189,3 +189,62 @@ describe("the e-mail with the key", () => {
     }
   });
 });
+
+describe("the admin tools", () => {
+  it("changes the number of devices of one licence", async () => {
+    const { id, key } = await licence({ max_devices: 1 });
+    await call("/v1/activate", { body: { key, device: device(1) } });
+    expect((await call("/v1/activate", { body: { key, device: device(2) } })).status).toBe(409);
+    expect((await admin(`licence/${id}/max_devices`, { n: 3 })).status).toBe(200);
+    expect((await call("/v1/activate", { body: { key, device: device(2) } })).status).toBe(200);
+    expect((await admin(`licence/${id}/max_devices`, { n: 0 })).status).toBe(400);
+    expect((await admin(`licence/${id}/max_devices`, { n: 99 })).status).toBe(400);
+  });
+
+  it("edits the e-mail and the note, and erases the personal data (also in the log)", async () => {
+    const { id } = await licence({ email: "first@example.com", note: "n1" });
+    expect((await admin(`licence/${id}/update`, { email: "second@example.com", note: "n2" })).status).toBe(200);
+    expect((await admin(`licence/${id}`)).json.licence).toMatchObject({ email: "second@example.com", note: "n2" });
+    expect((await admin(`licence/${id}/update`, { email: "not an address", note: "" })).status).toBe(400);
+    await E.DB.prepare("INSERT INTO events (at, licence_id, kind, detail) VALUES (1, ?, 'key-mailed', 'second@example.com')").bind(id).run();
+    expect((await admin(`licence/${id}/erase`, {})).status).toBe(200);
+    const d = await admin(`licence/${id}`);
+    expect(d.json.licence).toMatchObject({ email: "", note: "" });
+    expect(JSON.stringify(d.json.events)).not.toContain("example.com");
+    expect(d.json.events.map((e: Json) => e.kind)).toContain("erased");
+  });
+
+  it("issues many licences at once, each with a key that works", async () => {
+    const r = await admin("issue_bulk", { count: 3, note: "testers", max_devices: 1, check_days: 30 });
+    expect(r.status).toBe(200);
+    expect(r.json.licences).toHaveLength(3);
+    expect(new Set(r.json.licences.map((l: Json) => l.key)).size).toBe(3);
+    const first = r.json.licences[0];
+    const act = await call("/v1/activate", { body: { key: first.key, device: device(1) } });
+    expect(await verifyFile(E.LICENCE_PUBLIC_KEY, act.json.licence)).toMatchObject({ id: first.id, check_days: 30 });
+    expect((await admin("issue_bulk", { count: 0 })).status).toBe(400);
+    expect((await admin("issue_bulk", { count: 101 })).status).toBe(400);
+  });
+
+  it("exports the licences as CSV without keys and without spreadsheet formulas", async () => {
+    await licence({ email: "=cmd|calc@example.com", note: 'has "quotes", and a comma' });
+    const r = await exports.default.fetch(new Request("https://licence.test/admin/api/export", { headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } }));
+    expect(r.status).toBe(200);
+    expect(r.headers.get("content-type")).toContain("text/csv");
+    const text = await r.text();
+    expect(text.split("\r\n")[0]).toBe("id,email,major,features,check_days,max_devices,state,created,devices,last_seen,order_ref,note");
+    expect(text).toContain("\"'=cmd|calc@example.com\"");
+    expect(text).toContain('"has ""quotes"", and a comma"');
+    expect(text).not.toContain("ASIDE-");
+    expect((await call("/admin/api/export", { method: "GET" })).status).toBe(401);
+  });
+
+  it("can show only the refused attempts", async () => {
+    await call("/v1/activate", { body: { key: "ASIDE-ZZZZZ-ZZZZZ-ZZZZZ-ZZZZZ", device: device(1) } });
+    const r = await admin("overview?events=refused");
+    expect(r.json.events.length).toBeGreaterThan(0);
+    expect(r.json.events.every((e: Json) => e.kind === "refused")).toBe(true);
+    // a bad kind falls back to the recent activity
+    expect((await admin("overview?events=%27%3B--")).status).toBe(200);
+  });
+});
