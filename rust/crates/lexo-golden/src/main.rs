@@ -62,6 +62,12 @@ fn main() {
         println!("{}", lexo_golden::data::game_json(std::path::Path::new(&args[1]), tl));
         return;
     }
+    if args.first().map(String::as_str) == Some("--run-ops") && args.len() > 3 {
+        // `--run-ops <translation folder (a COPY)> <scratch folder> <ops.json>`: run a list of operations, one JSON line with the answers
+        let ops: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&args[3]).expect("the operations")).expect("JSON");
+        println!("{}", lexo_golden::ops_dump::run_ops(std::path::Path::new(&args[1]), std::path::Path::new(&args[2]), &ops));
+        return;
+    }
     if args.first().map(String::as_str) == Some("--dump-ops") && args.len() > 2 {
         // `--dump-ops <translation folder (a COPY)> <scratch folder>`: the answers of the read operations of the application
         println!("{}", lexo_golden::ops_dump::dump_ops(std::path::Path::new(&args[1]), std::path::Path::new(&args[2])));
