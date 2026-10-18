@@ -38,6 +38,18 @@ sub: Roadmap
 .tray b { color: #fff; font: 800 1.05rem/1.3 var(--f-display); }
 .tray .acts { display: flex; gap: .5rem; flex-wrap: wrap; }
 .tray p { font-size: .86rem; }
+.tray.empty { position: static; }
+.idea { margin-top: 1.2rem; font-size: .92rem; color: var(--muted); }
+.idea a { color: var(--red-text); font-weight: 700; }
+@media (max-width: 760px) {
+  /* phones: a small bar above the bottom bar, only once there is something to send */
+  .tray { position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); right: calc(72px + env(safe-area-inset-right, 0px)); bottom: calc(78px + env(safe-area-inset-bottom, 0px)); margin: 0; padding: .55rem .55rem .55rem .9rem; border-radius: 16px; flex-wrap: nowrap; gap: .6rem; }
+  .tray.empty { display: none; }
+  .tray p, .tray .acts .btn-ghost-dark { display: none; }
+  .tray b { font-size: .92rem; white-space: nowrap; }
+  .tray .acts .btn { min-height: 42px; padding: 0 1.1rem; white-space: nowrap; }
+  .tray .long { display: none; }
+}
 ---body---
 <section class="page-hero">
   <div class="blob" style="width:480px;height:480px;right:-140px;top:-180px;background:#FF315C"></div>
@@ -52,10 +64,11 @@ sub: Roadmap
   <div class="wrap">
     <div class="top3" id="top3"></div>
     <div class="board" id="board" style="margin-top:1.4rem"></div>
-    <div class="tray" id="tray">
+    <div class="tray empty" id="tray">
       <div><b id="tray-n">No votes yet</b><p id="tray-t">Tap the hearts on the cards you want most.</p></div>
-      <div class="acts"><a class="btn btn-hot" id="send-votes" href="mailto:aside@filiposakkq.dev">Send my votes</a><a class="btn btn-ghost-dark" href="mailto:aside@filiposakkq.dev?subject=Aside%20idea">Suggest an idea</a></div>
+      <div class="acts"><a class="btn btn-hot" id="send-votes" href="mailto:aside@filiposakkq.dev">Send<span class="long"> my votes</span></a><a class="btn btn-ghost-dark" href="mailto:aside@filiposakkq.dev?subject=Aside%20idea">Suggest an idea</a></div>
     </div>
+    <p class="idea">Missing something? <a href="mailto:aside@filiposakkq.dev?subject=Aside%20idea">Suggest an idea</a></p>
   </div>
 </section>
 ---script---
@@ -84,6 +97,7 @@ sub: Roadmap
   }
   function tray() {
     var list = Object.keys(voted).filter(function (k) { return voted[k]; });
+    document.getElementById("tray").classList.toggle("empty", !list.length);
     document.getElementById("tray-n").textContent = list.length ? list.length + (list.length === 1 ? " vote" : " votes") + " ready to send" : "No votes yet";
     document.getElementById("tray-t").textContent = list.length ? list.slice(0, 3).join(" · ") + (list.length > 3 ? " …" : "") : "Tap the hearts on the cards you want most, then send them.";
     document.getElementById("send-votes").href = "mailto:" + D.contact + "?subject=" + encodeURIComponent("Aside roadmap votes") + "&body=" + encodeURIComponent("I want these most:\n- " + (list.join("\n- ") || "(nothing yet)") + "\n\nWhy:\n");
