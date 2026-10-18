@@ -3,7 +3,7 @@
   "productName": "Aside",
   "mainBinaryName": "Aside",
   "version": "1.7.0",
-  "identifier": "cz.aside.app",
+  "identifier": "dev.filiposakkq.aside",
   "build": {
     "frontendDist": "../../../free/lexo_free/ui"
   },
