@@ -59,7 +59,7 @@ sub: Developers
     <div class="badge-stage">
       <div class="badge-show spot">
         <div class="shine"></div>
-        <img id="badge-img" src="badge/translation-ready-dark.svg" width="220" height="48" alt="Translation ready, checked with Aside">
+        <img id="badge-img" src="assets/badge/translation-ready-dark.svg" width="220" height="48" alt="Translation ready, checked with Aside">
         <div class="variants" role="group" aria-label="Badge style">
           <button aria-pressed="true" data-v="dark">Dark</button>
           <button aria-pressed="false" data-v="light">Light</button>
@@ -131,7 +131,7 @@ show text <span class="ok">_(</span>"Three days later..."<span class="ok">)</spa
   var BASE = "https://aside.filiposakkq.dev/";
   var v = "dark", f = "html";
   var img = document.getElementById("badge-img"), code = document.getElementById("embed-code");
-  function src() { return "badge/translation-ready-" + v + ".svg"; }
+  function src() { return "assets/badge/translation-ready-" + v + ".svg"; }
   function render() {
     var url = BASE + src(), alt = "Translation ready, checked with Aside";
     code.textContent = f === "html" ? '<a href="' + BASE + 'developers.html"><img src="' + url + '" alt="' + alt + '"></a>' :

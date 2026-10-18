@@ -10,13 +10,13 @@
 <meta property="og:title" content="Aside: translate the whole Ren'Py game, break nothing">
 <meta property="og:description" content="A translation manager for Ren'Py: checks for tags, variables and line fit, scene preview, choice menus, progress. Free, local, no account.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="og.png">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:image" content="assets/og.png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="assets/site.css">
 <style>
 /* Layout concept: a product page on blush paper. The app itself (dark, framed) is the hero image; the sections walk
    from "what it feels like" to "try it" to "what it costs", and end with a Ren'Py-style choice menu. */
@@ -444,7 +444,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <div class="stage">
       <div class="window">
         <div class="chrome"><i></i><i></i><i></i><span>Aside · demo project · Lines</span></div>
-        <img class="zoom" src="img/app-lines.webp" width="1440" height="816" alt="Aside, the Lines tab: a table of lines with their state, and below it the original and the translation side by side.">
+        <img class="zoom" src="assets/img/app-lines.webp" width="1440" height="816" alt="Aside, the Lines tab: a table of lines with their state, and below it the original and the translation side by side.">
       </div>
       <div class="callout c1"><span class="dot ok">✓</span><div><b>35 of 36</b> lines translated<small>Episode 1 · 97 %</small></div></div>
       <div class="callout c2"><span class="dot bad">✗</span><div><b>{/b}</b> is not closed<small>ep1_arrival.rpy · line 23</small></div></div>
@@ -785,7 +785,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 
 <div class="lightbox" id="lightbox" hidden><img id="lb-img" alt=""></div>
 
-<script src="data.js"></script>
+<script src="assets/data.js"></script>
 <script>
 (function () {
   "use strict";
@@ -820,12 +820,12 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     '<div class="o shared"><span>Ask about the letter</span><span>Zeptat se na dopis</span><em>ep1_garden:41</em></div>' +
     '<small>This text is shared with a menu in ep1_garden.rpy; Ren\'Py keeps one translation for both.</small></div>';
   var PANELS = {
-    editor: { html: '<img class="zoom" src="img/app-lines.webp" width="1440" height="816" alt="The Lines tab with the editor.">', note: "Demo project with made-up dialogue. Tap the picture to enlarge it." },
-    check: { html: '<img class="zoom" src="img/app-check.webp" width="1440" height="816" alt="The Check tab with errors and warnings.">', note: "Errors would crash the game or break the script; warnings may be intended. Nothing is rewritten without you." },
+    editor: { html: '<img class="zoom" src="assets/img/app-lines.webp" width="1440" height="816" alt="The Lines tab with the editor.">', note: "Demo project with made-up dialogue. Tap the picture to enlarge it." },
+    check: { html: '<img class="zoom" src="assets/img/app-check.webp" width="1440" height="816" alt="The Check tab with errors and warnings.">', note: "Errors would crash the game or break the script; warnings may be intended. Nothing is rewritten without you." },
     scene: { html: SCENE, note: "Games made of full-screen renders and scenes preview fully (5 of the 8 tested games). Games that build pictures from layers show the background and say what is missing." },
     menu: { html: MENU, note: "Read from the decompiled .rpy scripts; jumps and menus built in Python are not followed." },
-    overview: { html: '<img class="zoom" src="img/app-overview.webp" width="1440" height="816" alt="The Overview tab with progress.">', note: "Groups are found from file names (episode, chapter, day, script2…) or from folders." },
-    glossary: { html: '<img class="zoom" src="img/app-glossary.webp" width="1440" height="816" alt="The Glossary tab.">', note: "Names are imported from the game's Character definitions." }
+    overview: { html: '<img class="zoom" src="assets/img/app-overview.webp" width="1440" height="816" alt="The Overview tab with progress.">', note: "Groups are found from file names (episode, chapter, day, script2…) or from folders." },
+    glossary: { html: '<img class="zoom" src="assets/img/app-glossary.webp" width="1440" height="816" alt="The Glossary tab.">', note: "Names are imported from the game's Character definitions." }
   };
   var items = $$(".tour-item");
   function show(btn) {
@@ -982,7 +982,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
   }
 })();
 </script>
-<script src="site.js"></script>
+<script src="assets/site.js"></script>
 <script>
 /* with the server: the places of the beta round as they are now */
 AsideAPI.config().then(function (c) {

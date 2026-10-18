@@ -1,6 +1,0 @@
-# Files of web/ that are not pages of the website (read by wrangler when it uploads web/ as the assets of the Worker)
-worker
-pages
-tools
-README.md
-.assetsignore

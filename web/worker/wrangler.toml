@@ -1,4 +1,4 @@
-# The website of Aside and its small server: one Cloudflare Worker that serves the pages of web/ and answers /api and /admin.
+# The website of Aside and its small server: one Cloudflare Worker that serves the files of web/public/ and answers /api and /admin.
 # Separate from the licence server (server/): its own database, its own secrets, its own deploy.
 # Secrets are NOT here; add them in the Cloudflare dashboard (Workers, aside-web, Settings, Variables and Secrets, type Secret)
 # or with `npx wrangler secret put <NAME>` (README.md, "Set up"). A deploy never removes them.
@@ -9,8 +9,8 @@ main = "src/index.ts"
 compatibility_date = "2026-10-01"
 
 [assets]
-# the pages are the files of web/; web/.assetsignore keeps the server, the page sources and the tools out
-directory = "../"
+# the website is exactly the folder web/public/ (pages and assets); nothing else of the repository is uploaded
+directory = "../public"
 binding = "ASSETS"
 run_worker_first = ["/api/*", "/admin", "/admin/*"]
 not_found_handling = "404-page"

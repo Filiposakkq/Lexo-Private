@@ -1,15 +1,17 @@
-"""Assemble the sub-pages from the shared header and footer.
+"""Assemble the generated pages of the website from their templates.
 
-Each page source in web/pages/<name>.html starts with a front matter block:
+Each template web/templates/<name>.html starts with a front matter block:
     title: ... / desc: ... / sub: ... / ---css--- ... / ---body--- ... / ---script--- ...
-and becomes web/<name>.html. Run it after changing web/pages/_head.html, _foot.html or a page.
+and becomes web/public/<name>.html with the shared header (templates/_head.html) and footer (templates/_foot.html).
+Run it after changing anything in web/templates/.
 Usage: python web/tools/build_pages.py
 """
 import pathlib
 import re
 
 WEB = pathlib.Path(__file__).resolve().parent.parent
-PAGES = WEB / "pages"
+PAGES = WEB / "templates"
+OUT = WEB / "public"
 
 
 def main():
@@ -24,7 +26,7 @@ def main():
         page = head.replace("{{TITLE}}", fields["title"]).replace("{{DESC}}", fields["desc"]).replace("{{SUB}}", fields["sub"]).replace("{{CSS}}", css.strip())
         page = page.replace('<a href="%s.html">' % src.stem, '<a href="%s.html" class="on">' % src.stem)
         page += body.strip() + "\n" + foot.replace("{{SCRIPT}}", ("<script>\n" + script.strip() + "\n</script>") if script.strip() else "")
-        (WEB / src.name).write_text(page, encoding="utf-8")
+        (OUT / src.name).write_text(page, encoding="utf-8")
         print("wrote", src.name)
 
 

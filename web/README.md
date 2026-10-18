@@ -4,16 +4,29 @@ Everything of the website lives in this folder: the pages, and the small server 
 
 ## What is where
 
-| Path | What |
+```
+web/
+├── public/              the website, exactly as visitors get it (this folder is what gets deployed)
+│   ├── index.html       home page            ┐
+│   ├── docs.html        documentation        │ written by hand
+│   ├── releases.html    releases, changelog  │
+│   ├── 404.html         "page not found"     ┘
+│   ├── beta.html, roadmap.html, … made from templates/ (do not edit, see below)
+│   └── assets/          site.css, site.js, data.js, img/, badge/, icons, og.png
+├── templates/           sources of the generated pages (+ _head.html, _foot.html shared by all of them)
+├── worker/              the server: src/, migrations/ (the database), test/, wrangler.toml
+├── tools/               build_pages.py (templates → public), build_artifact.py (a preview copy)
+└── README.md
+```
+
+| File | What it is for |
 |---|---|
-| `index.html`, `docs.html`, `releases.html`, `404.html` | pages written by hand |
-| `pages/*.html` | sources of the other pages (compare, blog, developers, beta, showcase, roadmap, contact, feedback, report); `python tools/build_pages.py` turns them into `web/<name>.html` with the shared header (`pages/_head.html`) and footer (`pages/_foot.html`). Edit the sources, not the generated files. |
-| `site.css`, `site.js` | shared styles; shared script: the menu with every page, the bottom bar on phones, the reading line, back to top, counters, and `AsideAPI` (the calls to the server, with Turnstile) |
-| `data.js` | the numbers the pages show **when there is no server** (a page opened from disk, a preview): the beta round and the roadmap. With the server the pages read the same things from it, and you change them in the admin. |
-| `img/`, `badge/`, `og.png`, `icon-*.png`, `favicon.svg` | pictures |
-| `worker/` | the server: `src/` (public API, admin API, admin page, mails, daily job), `migrations/` (the database), `test/` |
-| `.assetsignore` | keeps `worker/`, `pages/`, `tools/` and this file off the website |
-| `tools/build_artifact.py` | a preview copy of the site (for a claude.ai artifact) |
+| `public/assets/site.css` | the look of every page (colours, header, menu, forms) |
+| `public/assets/site.js` | the menu with every page, the bottom bar on phones, the reading line, back to top, counters, and `AsideAPI` (the calls to the server, with Turnstile) |
+| `public/assets/data.js` | the numbers the pages show **when there is no server** (a page opened from disk, a preview): the beta round and the roadmap. With the server the pages read them from it and you change them in the admin. |
+| `templates/<name>.html` | one generated page: a few lines of front matter (title, description), its own CSS, its body and its script. `python tools/build_pages.py` writes `public/<name>.html`. |
+
+The rule: **edit `templates/` and run `python tools/build_pages.py`**; edit the four hand-written pages and `assets/` directly. The checks on GitHub fail if a template changed but the page was not rebuilt.
 
 Without the server every form still works by e-mail (it opens the visitor's mail app with the answers filled in); with it the forms send straight from the page.
 
@@ -65,9 +78,9 @@ The overview of the admin warns when e-mail or Turnstile is not set up.
 
 ## After a change
 
-A merge to `main` that changes `web/` deploys by itself. A pull request runs the checks only. To deploy again by hand: Actions, Deploy website, Run workflow (works in the GitHub app).
+A merge to `main` that changes `web/` deploys by itself (the folder `public/` and the server). A pull request runs the checks only. To deploy again by hand: Actions, Deploy website, Run workflow (works in the GitHub app).
 
-The checks also fail when a file in `pages/` changed but `python tools/build_pages.py` was not run; run it and commit the generated pages. New tables (a new file in `worker/migrations/`) are created by the deploy.
+The checks also fail when a template changed but `python tools/build_pages.py` was not run; run it and commit the pages it wrote. New tables (a new file in `worker/migrations/`) are created by the deploy.
 
 The daily job (feedback forms and reminders, clean-up) runs by itself at 08:17 UTC.
 

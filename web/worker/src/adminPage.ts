@@ -3,7 +3,7 @@
 export const ADMIN_PAGE = String.raw`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex"><meta name="theme-color" content="#12070A"><title>Aside admin</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 :root{--bg:#12070A;--bg2:#190A0F;--card:#22101A;--card2:#2B141F;--ink:#FFF1F4;--text:#E8D2D8;--muted:#B38D98;--line:rgba(255,150,172,.12);--line2:rgba(255,150,172,.22);--red:#FF315C;--ember:#FF7043;--redt:#FF6F8C;--tint:rgba(255,49,92,.12);--ok:#4FD69C;--oks:rgba(79,214,156,.13);--warn:#F4B84E;--warns:rgba(244,184,78,.13);--bad:#FF6F8C;--bads:rgba(255,92,124,.14);--blue:#9CD3FF;--blues:rgba(121,195,255,.13);--grad:linear-gradient(135deg,var(--red),var(--ember));--fd:"Manrope","Segoe UI",system-ui,sans-serif;--fb:"Instrument Sans","Segoe UI",system-ui,sans-serif;--fm:"JetBrains Mono",ui-monospace,Consolas,monospace;color-scheme:dark}
