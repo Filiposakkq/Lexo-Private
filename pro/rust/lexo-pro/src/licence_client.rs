@@ -29,6 +29,11 @@ fn refusal(code: &str, answer: &Value) -> ExtensionError {
             "This licence is already used on {max} computers. Free a place in Aside on one of them (Settings, Licence), or write to the seller.",
             &[("max", answer["max"].clone())],
         ),
+        "release_limit" => msg(
+            "You have already freed computers {limit} times in the last {days} days. Write to the seller to free another place.",
+            &[("limit", answer["limit"].clone()), ("days", answer["days"].clone())],
+        ),
+        "not_found" => msg("That computer is not on this licence any more.", &[]),
         "bad_licence" | "not_activated" => msg("The licence file does not fit this computer. Enter your key again.", &[]),
         "bad_request" => msg("The licence server did not understand the request.", &[]),
         other => msg("The licence server refused the request ({code}).", &[("code", json!(other))]),
@@ -92,18 +97,27 @@ fn current() -> Result<Value, ExtensionError> {
 
 /// The key the user typed: takes a place for this computer and stores the licence file.
 pub fn activate(key: &str, http: Http) -> Result<Value, ExtensionError> {
+    activate_named(key, None, http)
+}
+
+/// The same with the name of this computer (kept when given).
+pub fn activate_named(key: &str, name: Option<&str>, http: Http) -> Result<Value, ExtensionError> {
+    if let Some(name) = name {
+        licence::set_device_name(name);
+    }
     let key = key.trim();
     if key.is_empty() {
         return Err(error(msg("Enter your licence key.", &[])));
     }
-    let answer = call(http, "/v1/activate", &json!({"key": key, "device": licence::device_id()}))?;
+    let answer = call(http, "/v1/activate", &json!({"key": key, "device": licence::device_id(), "name": licence::device_name(), "version": crate::VERSION}))?;
     Ok(store(&answer["licence"])?.to_json())
 }
 
 /// The regular check: a renewed file (the clock of the interval starts again).
 pub fn refresh(http: Http) -> Result<Value, ExtensionError> {
     let file = current()?;
-    let (status, answer) = raw(http, "/v1/refresh", &json!({"licence": file, "device": licence::device_id()}))?;
+    let (status, answer) =
+        raw(http, "/v1/refresh", &json!({"licence": file, "device": licence::device_id(), "name": licence::device_name(), "version": crate::VERSION}))?;
     if answer["error"] == json!("revoked") {
         // the server cancelled this licence: the pack stops now, not at the end of the check interval
         if let Some(id) = licence::file_id(&file.to_string()) {
@@ -112,6 +126,25 @@ pub fn refresh(http: Http) -> Result<Value, ExtensionError> {
     }
     let answer = check(status, answer)?;
     Ok(store(&answer["licence"])?.to_json())
+}
+
+/// The computers that hold the licence, how many places there are and how many times the user may still free one.
+pub fn devices(http: Http) -> Result<Value, ExtensionError> {
+    let file = current()?;
+    call(http, "/v1/devices", &json!({"licence": file, "device": licence::device_id()}))
+}
+
+/// Frees the place of another computer (a lost one). Limited by the server.
+pub fn release(target: &str, http: Http) -> Result<Value, ExtensionError> {
+    let file = current()?;
+    call(http, "/v1/release", &json!({"licence": file, "device": licence::device_id(), "target": target}))
+}
+
+/// Gives this computer a name for the list of computers (empty = no name); the server learns it with the next check, which is made now when there is a connection.
+pub fn rename(name: &str, http: Http) -> Result<Value, ExtensionError> {
+    licence::set_device_name(name);
+    let _ = refresh(http);
+    Ok(json!({"name": licence::device_name()}))
 }
 
 /// Frees the place of this computer and removes the file. A file the server does not know any more is removed too; a missing connection keeps it (nothing is lost).

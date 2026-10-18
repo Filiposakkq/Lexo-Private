@@ -163,6 +163,24 @@ fn now() -> i64 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64)
 }
 
+/// The name the user gave to this computer (optional, kept next to the licence file, sent to the server for the list of computers).
+fn name_path() -> PathBuf {
+    licence_path().with_file_name("device.name")
+}
+
+pub fn device_name() -> String {
+    std::fs::read_to_string(name_path()).map(|s| s.trim().chars().take(40).collect()).unwrap_or_default()
+}
+
+pub fn set_device_name(name: &str) {
+    let name: String = name.trim().chars().filter(|c| !c.is_control()).take(40).collect();
+    if name.is_empty() {
+        let _ = std::fs::remove_file(name_path());
+    } else {
+        let _ = std::fs::write(name_path(), name);
+    }
+}
+
 /// The text of the reason that is shown when the server has cancelled the licence.
 pub const CANCELLED: &str = "this licence was cancelled";
 

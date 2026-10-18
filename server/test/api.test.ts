@@ -248,3 +248,56 @@ describe("the admin tools", () => {
     expect((await admin("overview?events=%27%3B--")).status).toBe(200);
   });
 });
+
+describe("devices of a licence", () => {
+  it("keeps the name and the version of a computer and lists them for the licence holder", async () => {
+    const { key } = await licence();
+    const a = await call("/v1/activate", { body: { key, device: device(1), name: "  Notebook\u0001 ", version: "0.3.1" } });
+    await call("/v1/activate", { body: { key, device: device(2), name: "Home PC" } });
+    const list = await call("/v1/devices", { body: { licence: a.json.licence, device: device(1) } });
+    expect(list.status).toBe(200);
+    expect(list.json).toMatchObject({ max: 2, releases_left: 2, release_limit: 2, release_days: 30 });
+    const byId = Object.fromEntries(list.json.devices.map((d: Json) => [d.id, d]));
+    expect(byId[device(1)]).toMatchObject({ name: "Notebook", version: "0.3.1", current: true });
+    expect(byId[device(2)]).toMatchObject({ name: "Home PC", current: false });
+    // a refresh without a name keeps it, a refresh with one changes it
+    await call("/v1/refresh", { body: { licence: a.json.licence, device: device(1), version: "0.4.0" } });
+    await call("/v1/refresh", { body: { licence: a.json.licence, device: device(1), name: "Work laptop" } });
+    const again = await call("/v1/devices", { body: { licence: a.json.licence, device: device(1) } });
+    expect(again.json.devices.find((d: Json) => d.id === device(1))).toMatchObject({ name: "Work laptop", version: "0.4.0" });
+    // a forged file sees nothing
+    const forged = { payload: a.json.licence.payload, sig: "AAAA" };
+    expect((await call("/v1/devices", { body: { licence: forged, device: device(1) } })).status).toBe(403);
+  });
+
+  it("lets the user free another computer twice in 30 days, and the owner without a limit", async () => {
+    const { id, key } = await licence({ max_devices: 3 });
+    const first = await call("/v1/activate", { body: { key, device: device(1) } });
+    for (const n of [2, 3]) await call("/v1/activate", { body: { key, device: device(n) } });
+    const free = (target: string) => call("/v1/release", { body: { licence: first.json.licence, device: device(1), target } });
+    expect((await free(device(2))).json).toMatchObject({ ok: true, releases_left: 1 });
+    expect((await free(device(3))).json).toMatchObject({ ok: true, releases_left: 0 });
+    // nothing is left of the two places, and a third release is refused with the date it will be possible again
+    await call("/v1/activate", { body: { key, device: device(4) } });
+    const refused = await free(device(4));
+    expect(refused.status).toBe(429);
+    expect(refused.json).toMatchObject({ error: "release_limit", limit: 2, days: 30 });
+    expect(refused.json.next).toBeGreaterThan(Date.now() / 1000);
+    // deactivating counts too
+    expect((await call("/v1/deactivate", { body: { licence: first.json.licence, device: device(1) } })).status).toBe(429);
+    // a place that is not held, and a bad request
+    expect((await free(device(9))).status).toBe(404); // not held: reported before the limit is looked at
+    // the owner frees a computer without any limit
+    expect((await admin(`licence/${id}/release`, { device: device(4) })).status).toBe(200);
+    const list = await call("/v1/devices", { body: { licence: first.json.licence, device: device(1) } });
+    expect(list.json.devices.map((d: Json) => d.id)).toEqual([device(1)]);
+    expect(list.json.releases_left).toBe(0);
+  });
+
+  it("refuses to free a place that is not held and a malformed target", async () => {
+    const { key } = await licence();
+    const first = await call("/v1/activate", { body: { key, device: device(1) } });
+    expect((await call("/v1/release", { body: { licence: first.json.licence, device: device(1), target: device(7) } })).status).toBe(404);
+    expect((await call("/v1/release", { body: { licence: first.json.licence, device: device(1), target: "nope" } })).status).toBe(400);
+  });
+});

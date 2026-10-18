@@ -50,3 +50,7 @@ The admin page is `https://api.aside.filiposakkq.dev/admin`: type the admin toke
 ## Automatic deployment
 
 `.github/workflows/server-deploy.yml` deploys the Worker after a merge to `main` that changes `server/`, once the typecheck and the tests pass. It needs two secrets in GitHub (Settings, Secrets and variables, Actions): `CLOUDFLARE_API_TOKEN` (create it in the Cloudflare dashboard: My Profile, API Tokens, Create Token, the template "Edit Cloudflare Workers"; limit it to this account) and `CLOUDFLARE_ACCOUNT_ID`. Without the token the deploy step is skipped. The secrets of the Worker itself stay in Cloudflare. Database changes (`migrations/`) are not applied by the deploy: run the new SQL in the D1 console (or `wrangler d1 migrations apply`) before merging code that needs it.
+
+## Changes of the database (do this BEFORE merging code that needs it)
+
+The deploy does not touch the database. When a change adds a file to `migrations/`, run its SQL in the D1 console (Cloudflare, Storage and databases, D1, `aside-licence`, Console) first, and only then merge the code. Executed so far by hand: `0001_init.sql`, then `0002_devices.sql` (the name and the version of a computer).
