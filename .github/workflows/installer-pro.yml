@@ -1,10 +1,8 @@
 name: Installer Pro
 
 # The installer with the Pro pack: the same application plus `pack/lexo-pro-sidecar.exe` next to the program (private; the Free installer knows nothing about it). Like the Free
-# installer it takes a release build, so it runs only when its inputs change, on main (cache for the pull requests) and on request.
+# installer it takes a release build, so it runs only when its inputs change, on main (cache for the pull requests) and on request (Actions, Installer Pro, Run workflow); not on pull requests, they cost too many minutes.
 on:
-  pull_request:
-    paths: ["rust/**", "pro/**", "free/lexo_free/ui/**", "core/lexo/packs/**", ".github/workflows/installer-pro.yml"]
   push:
     branches: [main]
     paths: ["rust/**", "pro/**", "free/lexo_free/ui/**", "core/lexo/packs/**", ".github/workflows/installer-pro.yml"]
@@ -12,6 +10,11 @@ on:
 
 permissions:
   contents: read
+
+# a new push to a pull request cancels the run of the older push (it would be thrown away anyway)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   installer-pro:
