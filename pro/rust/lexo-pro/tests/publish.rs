@@ -120,7 +120,8 @@ fn a_failed_push_rolls_everything_back() {
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(&hook, std::fs::Permissions::from_mode(0o755)).unwrap(); // git runs a hook only when it is executable
+        // git runs a hook only when it is executable
+        std::fs::set_permissions(&hook, std::fs::Permissions::from_mode(0o755)).unwrap();
     }
     let local_before = git(&f.work, &["rev-parse", "HEAD"]);
     let file_before = std::fs::read(f.work.join("web/progress.json")).unwrap();
