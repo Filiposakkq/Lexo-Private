@@ -10,8 +10,21 @@ license.workspace = true
 name = "lexo-pro-sidecar"
 path = "src/main.rs"
 
+[[bin]]
+name = "lexo-pro-licence"
+path = "src/licence_tool.rs"
+
 [dependencies]
 lexo-core = { path = "../../../rust/crates/lexo-core" }
 fancy-regex = "0.14"
 regex = "1"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+base64 = "0.22"
+ed25519-dalek = "2"
+getrandom = "0.2"
+sha2 = "0.10"
+
+[features]
+# Without a valid licence file the pack behaves as licensed (development and tests). The release build, once the key pair and the server exist, uses `--no-default-features`.
+default = ["dev-unlock"]
+dev-unlock = []
