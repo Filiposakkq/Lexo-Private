@@ -1587,6 +1587,27 @@
   "⧉ Copy": "⧉ Kopírovat",
   "⧉ Copy the translation": "⧉ Kopírovat překlad",
   "⧉ Original": "⧉ Originál",
-  "⧉ Translation": "⧉ Překlad"
+  "⧉ Translation": "⧉ Překlad",
+  "Activate": "Aktivovat",
+  "Check now": "Zkontrolovat nyní",
+  "Licence": "Licence",
+  "Licence activated.": "Licence aktivována.",
+  "Licence checked.": "Licence zkontrolována.",
+  "Licence key": "Licenční klíč",
+  "Licence removed from this computer.": "Licence odebrána z tohoto počítače.",
+  "Licence {id}; the next check with the server is due in {n} days.": "Licence {id}; další kontrola se serverem je za {n} dní.",
+  "Licensed.": "Licencováno.",
+  "No licence is entered: the Pro features that are free to try work with limits.": "Není zadaná žádná licence: Pro funkce, které lze vyzkoušet zdarma, fungují s limity.",
+  "Remove from this computer": "Odebrat z tohoto počítače",
+  "The Pro pack is not installed in this copy of Aside, so there is nothing to license.": "Balíček Pro v této kopii Aside není nainstalovaný, takže není co licencovat.",
+  "The check with the licence server is overdue. Pro keeps working for {n} more days; connect to the internet and press “Check now”.": "Kontrola s licenčním serverem se zpozdila. Pro funguje ještě {n} dní; připoj se k internetu a stiskni „Zkontrolovat nyní“.",
+  "The licence file cannot be used: {reason}": "Licenční soubor nelze použít: {reason}",
+  "The licence has expired because it could not be checked with the server for too long. Pro works with its limits. Press “Check now” when you are online, or enter your key again.": "Licence vypršela, protože se ji příliš dlouho nepodařilo ověřit u serveru. Pro funguje s limity. Až budeš online, stiskni „Zkontrolovat nyní“, nebo zadej klíč znovu.",
+  "the licence belongs to another computer": "licence patří jinému počítači",
+  "the licence covers another major version of the application": "licence platí pro jinou hlavní verzi aplikace",
+  "the licence file comes from a newer version of the licence system": "licenční soubor pochází z novější verze licenčního systému",
+  "the licence file is not readable": "licenční soubor nejde přečíst",
+  "the signature of the licence is wrong": "podpis licence je špatný",
+  "this build cannot verify licences": "tato verze neumí ověřovat licence"
  }
 }

@@ -111,6 +111,14 @@ impl ExtensionHost {
         self.providers.iter().map(|p| p.version()).collect()
     }
 
+    /// The licence calls of the pack (`status`, `activate`, `refresh`, `deactivate`): not a gated feature, so they do not need an offer.
+    pub fn licence(&self, method: &str, payload: &Value) -> Result<Value, ExtensionError> {
+        let Some(p) = self.providers.first() else { return Err(plain("The Pro pack is not installed.".to_string())) };
+        let request: Value = serde_json::from_str(&payload.to_string()).map_err(|e| plain(format!("The request is not plain JSON: {e}")))?;
+        let out = p.call("licence", method, &request)?;
+        serde_json::from_str(&out.to_string()).map_err(|e| plain(format!("The answer is not plain JSON: {e}")))
+    }
+
     pub fn call(&self, feature: &str, method: &str, payload: &Value) -> Result<Value, ExtensionError> {
         let Some((p, _)) = self.offer(feature) else { return Err(plain(format!("{feature} is not available."))) };
         // a provider never gets or returns a live object: everything goes through JSON text

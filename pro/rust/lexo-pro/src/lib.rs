@@ -6,6 +6,7 @@
 pub mod categorize;
 pub mod fix_safe;
 pub mod licence;
+pub mod licence_client;
 pub mod mt_batch;
 pub mod publish;
 pub mod regex_replace;
@@ -43,6 +44,14 @@ impl LexoProProvider {
     /// A provider whose machine translation uses `http` (tests put a fake network here).
     pub fn with_http(http: impl Fn(&str, &[(String, String)], &[u8]) -> Result<(u16, String), MtError> + Send + Sync + 'static) -> LexoProProvider {
         LexoProProvider { http: Some(Box::new(http)) }
+    }
+
+    /// The function for the network: the one of the tests, or the real one.
+    fn http(&self) -> Http<'_> {
+        match &self.http {
+            Some(h) => &**h,
+            None => &lexo_core::net::post,
+        }
     }
 
     fn categorize(&self, p: &Value) -> Result<Value, ExtensionError> {
@@ -86,13 +95,7 @@ impl Provider for LexoProProvider {
             ("fixes.safe", "plan") => Ok(fix_safe::plan(payload)),
             ("fixes.safe", "chain") => Ok(fix_safe::chain(payload)),
             ("mt.batch", "targets") => Ok(mt_batch::targets(payload)),
-            ("mt.batch", "translate") => {
-                let http: Http = match &self.http {
-                    Some(h) => &**h,
-                    None => &lexo_core::net::post,
-                };
-                mt_batch::translate(payload, http)
-            }
+            ("mt.batch", "translate") => mt_batch::translate(payload, self.http()),
             ("replace.regex", "substitute") => regex_replace::substitute(payload),
             ("publish.web", "plan") => publish::plan(&payload["web"], &payload["data"]).map(Value::Object).map_err(publish::Failure::into_error),
             ("publish.web", "publish") => publish::publish(
@@ -104,6 +107,9 @@ impl Provider for LexoProProvider {
             )
             .map_err(publish::Failure::into_error),
             ("licence", "status") => Ok(licence::status().to_json()),
+            ("licence", "activate") => licence_client::activate(payload["key"].as_str().unwrap_or(""), self.http()),
+            ("licence", "refresh") => licence_client::refresh(self.http()),
+            ("licence", "deactivate") => licence_client::deactivate(self.http()),
             ("publish.web", other) => Err(plain(format!("publish.web has no method {other}."))),
             _ => Err(plain(format!("The Pro pack has no feature {feature}."))),
         }

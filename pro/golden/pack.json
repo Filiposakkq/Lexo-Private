@@ -74,7 +74,18 @@
   "The website is not set up – fill in the repository in Settings.": "Web není nastavený – vyplň repozitář v Nastavení.",
   "The written file did not pass the check.": "Zapsaný soubor neprošel kontrolou.",
   "There are other uncommitted changes in the repository ({n}); publishing does not touch them.": "V repozitáři jsou i jiné neuložené změny ({n}); publikování se jich nedotkne.",
-  "There are several episodes in the path ({eps}); the season folder selects episode {ep}.": "V cestě je více epizod ({eps}); složka sezóny vybírá epizodu {ep}."
+  "There are several episodes in the path ({eps}); the season folder selects episode {ep}.": "V cestě je více epizod ({eps}); složka sezóny vybírá epizodu {ep}.",
+  "Enter your licence key.": "Zadej licenční klíč.",
+  "That licence key is not valid. Check it for typing mistakes.": "Tento licenční klíč není platný. Zkontroluj, jestli v něm není překlep.",
+  "The licence file could not be saved: {reason}": "Licenční soubor se nepodařilo uložit: {reason}",
+  "The licence file does not fit this computer. Enter your key again.": "Licenční soubor nesedí k tomuto počítači. Zadej klíč znovu.",
+  "The licence server answered something unexpected ({status}).": "Licenční server odpověděl něco nečekaného ({status}).",
+  "The licence server did not understand the request.": "Licenční server požadavku nerozuměl.",
+  "The licence server refused the request ({code}).": "Licenční server požadavek odmítl ({code}).",
+  "The licence server sent a file that this version of Aside cannot use. Check for an update.": "Licenční server poslal soubor, který tato verze Aside nezvládne. Zkontroluj aktualizace.",
+  "There is no licence on this computer.": "V tomto počítači není žádná licence.",
+  "This licence is already used on {max} computers. Free a place in Aside on one of them (Settings, Licence), or write to the seller.": "Tato licence už je použitá na {max} počítačích. Uvolni místo v Aside na jednom z nich (Nastavení, Licence), nebo napiš prodejci.",
+  "This licence was cancelled. Write to the seller if you think that is a mistake.": "Tato licence byla zrušena. Pokud si myslíš, že je to omyl, napiš prodejci."
  },
  "ui_xx": {},
  "cases": [
