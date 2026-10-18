@@ -1,7 +1,7 @@
 //! Port of `core/lexo/app_mt.py`: machine translation of lines.
 //!
-//! The network is a function of the application (`App::mt_http`): the real HTTP client comes with the application shell (milestone M8); until then the operations that
-//! send text give the error "no connection" unless a function was set.
+//! The network is a function of the application (`App::mt_http`): the programs (`lexo-server`, `lexo-app`) set `net::post`, the tests and the golden runs leave it out (or put a fake) and
+//! then the operations that send text give the error "no connection".
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::App;
 use crate::app_base::{app_err, ApiError, Res};

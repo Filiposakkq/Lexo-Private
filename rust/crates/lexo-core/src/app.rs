@@ -68,7 +68,7 @@ pub struct App {
     pub last_save_error: String,
     /// The Ren'Py lint run in the background.
     pub linter: crate::lint::Linter,
-    /// Sends a request of the machine translation (`None`: this build has no network client yet).
+    /// Sends a request of the machine translation (`None`: no network, as in the tests; the programs set `net::post`).
     pub mt_http: Option<MtHttp>,
 }
 

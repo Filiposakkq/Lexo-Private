@@ -48,6 +48,7 @@ pub mod menus;
 pub mod messages;
 pub mod missed;
 pub mod mt;
+pub mod net;
 pub mod pickle;
 pub mod project;
 pub mod pyfmt;

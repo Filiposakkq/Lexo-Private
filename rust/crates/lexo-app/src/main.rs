@@ -115,6 +115,9 @@ fn main() {
         config.load();
         let user = cfg_dir.as_ref().map_or_else(|| lexo_core::config::config_dir().join("packs"), |d| d.join("packs"));
         let mut app = App::new(config, Packs { bundled: packs, user: Some(user) });
+        if !selftest {
+            app.mt_http = Some(Box::new(lexo_core::net::post)); // the real network (the self-test must not touch it)
+        }
         // the folder given, or the one remembered in the settings
         let remembered = app.config.get("project_dir").and_then(Value::as_str).map(String::from);
         if let Some(path) = project.or(remembered).filter(|p| lexo_core::project::check_project_dir(p).0) {
