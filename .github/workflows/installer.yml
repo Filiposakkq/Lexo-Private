@@ -1,10 +1,8 @@
 name: Installer
 
 # The installer takes a release build of the whole application (about 15 minutes without a cache), so it runs only when something that goes into it changes, on main (which
-# saves the cache for the pull requests) and on request; the rest of the port is checked by "Rust port".
+# saves the cache for the pull requests) and on request (Actions, Installer, Run workflow); not on pull requests, they cost too many minutes; the rest of the port is checked by "Rust port".
 on:
-  pull_request:
-    paths: ["rust/**", "free/lexo_free/ui/**", "core/lexo/packs/**", ".github/workflows/installer.yml"]
   push:
     branches: [main]
     paths: ["rust/**", "free/lexo_free/ui/**", "core/lexo/packs/**", ".github/workflows/installer.yml"]
@@ -12,6 +10,11 @@ on:
 
 permissions:
   contents: read
+
+# a new push to a pull request cancels the run of the older push (it would be thrown away anyway)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   installer:

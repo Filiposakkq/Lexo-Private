@@ -13,12 +13,17 @@ on:
 permissions:
   contents: read
 
+# a new push to a pull request cancels the run of the older push (it would be thrown away anyway)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   rust:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]       # Linux finds path and encoding assumptions early
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["ubuntu-latest", "windows-latest"]') }}       # a pull request: Linux only (finds path and encoding assumptions early); main: also Windows
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -88,7 +93,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["ubuntu-latest", "windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:

@@ -11,6 +11,11 @@ on:
 permissions:
   contents: read
 
+# a new push to a pull request cancels the run of the older push (it would be thrown away anyway)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   server:
     # The Worker in Miniflare with a real D1; and a file signed by the server must be accepted by the Rust verifier of the Pro pack.
