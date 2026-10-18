@@ -58,7 +58,7 @@ fn main() {
                 "major": flag(&args, "--major").and_then(|s| s.parse::<u64>().ok()).unwrap_or(licence::PRODUCT_MAJOR),
                 "device": flag(&args, "--device").unwrap_or_else(|| "any".into()),
                 "issued": now,
-                "check_days": flag(&args, "--days").and_then(|s| s.parse::<i64>().ok()).unwrap_or(30),
+                "check_days": flag(&args, "--days").and_then(|s| s.parse::<i64>().ok()).unwrap_or(14),
             });
             let file = licence::sign(&SigningKey::from_bytes(&seed), &payload);
             let out = flag(&args, "--out").unwrap_or_else(|| "licence.json".into());
