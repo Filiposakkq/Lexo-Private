@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page Not Found · Aside</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#12070A">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+/* Layout concept: the page a Ren'Py game shows when something breaks, with the same buttons, pointing home. */
+.lost { min-height: 100vh; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.err { width: min(720px, 100%); border-radius: 18px; overflow: hidden; border: 1px solid var(--line-2); box-shadow: var(--shadow); }
+.err-top { background: #E8E8E8; color: #111; padding: clamp(1.2rem, 1rem + 2vw, 2rem); display: grid; gap: .9rem; font: 500 .9rem/1.5 var(--f-mono); }
+.err-top h1 { font: 700 1.5rem/1.2 var(--f-body); color: #111; letter-spacing: 0; }
+.trace { background: #fff; border: 1px solid #ccc; padding: .8rem 1rem; color: #333; overflow-x: auto; white-space: pre; }
+.trace b { color: #B00020; font-weight: 600; }
+.err-btns { display: flex; gap: .5rem; flex-wrap: wrap; background: #DADADA; padding: .9rem clamp(1.2rem, 1rem + 2vw, 2rem); }
+.err-btns a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 1rem; background: #fff; border: 1px solid #aaa; border-radius: 4px; color: #111; font: 600 .95rem/1 var(--f-body); text-decoration: none; }
+.err-btns a:hover { border-color: #FF315C; color: #C8123E; }
+.err-btns a.main { background: #FF315C; border-color: #FF315C; color: #fff; }
+.note { text-align: center; margin-top: 1.2rem; color: var(--muted); font-size: .9rem; }
+.note a { color: var(--red-text); }
+</style>
+</head>
+<body>
+<main class="lost">
+  <div>
+    <div class="err" role="alert">
+      <div class="err-top">
+        <h1>An exception has occurred.</h1>
+        <div class="trace" id="trace">While loading the page:
+  File "aside.filiposakkq.dev", line 404, in script
+    jump <span id="path">this_page</span>
+<b>ScriptError: could not find label 'this_page'.</b></div>
+        <div>The page you looked for does not exist, or it moved.</div>
+      </div>
+      <nav class="err-btns" aria-label="Where to go">
+        <a class="main" href="/">Rollback to the home page</a>
+        <a href="/docs.html">Documentation</a>
+        <a href="/roadmap.html">Roadmap</a>
+        <a href="/contact.html">Report it</a>
+      </nav>
+    </div>
+    <p class="note">Aside, a translation manager for Ren'Py · <a href="/">aside.filiposakkq.dev</a></p>
+  </div>
+</main>
+<script>
+(function () {
+  var p = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, "").replace(/[^\w./-]/g, "").slice(0, 60) || "this_page";
+  var label = p.replace(/[./-]+/g, "_");
+  document.getElementById("path").textContent = label;
+  document.querySelector("#trace b").textContent = "ScriptError: could not find label '" + label + "'.";
+})();
+</script>
+</body>
+</html>

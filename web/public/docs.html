@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aside Documentation</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="How to use Aside, the translation manager for Ren'Py: install, open a game, translate, checks, shortcuts, scene preview, data and backups, Pro.">
+<meta name="theme-color" content="#12070A">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+/* Layout concept: a handbook. Sticky contents on the left, one readable column, call-out boxes for the things that bite. */
+.docs { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: clamp(2rem, 1rem + 3vw, 4rem); align-items: start; padding-block: 2.5rem 5rem; }
+@media (max-width: 900px) { .docs { grid-template-columns: minmax(0, 1fr); padding-top: 1.2rem; } }
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 88px); max-height: calc(100vh - 110px); overflow-y: auto; padding-right: .5rem; }
+.toc h4 { font: 700 .72rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 1.3rem 0 .5rem .7rem; }
+.toc h4:first-child { margin-top: 0; }
+.toc a { display: block; text-decoration: none; padding: .42rem .7rem; border-radius: 10px; font-size: .93rem; color: var(--text); }
+.toc a:hover { color: var(--red-text); }
+.toc a.on { background: var(--card); color: var(--red-text); font-weight: 600; box-shadow: var(--shadow-s); }
+.toc-m { display: none; }
+@media (max-width: 900px) {
+  .toc { display: none; }
+  .toc-m { margin-bottom: 1.2rem; display: block; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 20; margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: .6rem max(16px, env(safe-area-inset-left, 0px)); background: rgba(18, 7, 10, .92); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .toc-m select { width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); font: 600 .95rem var(--f-display); padding: 0 .8rem; }
+}
+.content { max-width: 760px; min-width: 0; }
+.intro { padding-bottom: 2rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
+.intro h1 { font-size: clamp(2.2rem, 1.6rem + 2.5vw, 3.2rem); font-weight: 800; letter-spacing: -.045em; line-height: 1.02; }
+.intro p { font-size: 1.12rem; margin-top: 1rem; max-width: 60ch; }
+.content section { padding-block: 2.2rem; border-bottom: 1px solid var(--line); }
+.content h2 { font-size: clamp(1.5rem, 1.3rem + .9vw, 2rem); display: flex; align-items: center; gap: .7rem; }
+.content h2 .n { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--grad); color: #fff; display: grid; place-items: center; font-size: .9rem; letter-spacing: 0; }
+.content h3 { margin-top: 1.6rem; font-size: 1.1rem; }
+.content p, .content li { max-width: 68ch; }
+.content p { margin-top: .8rem; }
+.content ul, .content ol { margin: .8rem 0 0; padding-left: 1.3rem; display: grid; gap: .45rem; }
+.content li::marker { color: var(--red); font-weight: 700; }
+.content a { color: var(--red-text); text-underline-offset: 3px; }
+.box { margin-top: 1.1rem; padding: 1rem 1.1rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: .7rem; font-size: .96rem; }
+.box svg { width: 22px; height: 22px; color: var(--red); margin-top: .1rem; }
+.box.warn { background: var(--warn-soft); border-color: rgba(244, 184, 78, .25); }
+.box.warn svg { color: var(--warn); }
+.box.ok { background: var(--ok-soft); border-color: rgba(79, 214, 156, .25); }
+.box.ok svg { color: var(--ok); }
+.box p { margin: 0; }
+.tbl { margin-top: 1rem; overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+.tbl table { width: 100%; border-collapse: collapse; font-size: .93rem; min-width: 480px; }
+.tbl th, .tbl td { text-align: left; padding: .7rem .9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl th { font: 700 .74rem/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); background: var(--bg); }
+.tbl tr:last-child td { border-bottom: 0; }
+.sev { display: inline-block; font: 700 .7rem/1 var(--f-display); padding: .32rem .5rem; border-radius: 999px; white-space: nowrap; }
+.sev.e { background: var(--bad-soft); color: var(--bad); }
+.sev.w { background: var(--warn-soft); color: var(--warn); }
+pre { margin: 1rem 0 0; padding: 1rem 1.1rem; border-radius: 14px; background: var(--wine); color: #F2DDE2; overflow-x: auto; font: 400 .84rem/1.65 var(--f-mono); }
+pre .c { color: #B98C98; }
+.steps-l { counter-reset: st; list-style: none; padding-left: 0 !important; }
+.steps-l li { counter-increment: st; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: .8rem; }
+.steps-l li::before { content: counter(st); width: 28px; height: 28px; border-radius: 50%; background: var(--red-soft); color: var(--red-text); display: grid; place-items: center; font: 800 .82rem/1 var(--f-display); }
+.next-up { margin-top: 2.5rem; padding: 1.4rem; border-radius: 18px; background: var(--wine); color: #F2DDE2; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.next-up b { color: #fff; font: 800 1.15rem/1.3 var(--f-display); display: block; }
+</style>
+</head>
+<body>
+<a class="skip" href="#doc">Skip to content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF315C"/><stop offset="1" stop-color="#FF7043"/></linearGradient>
+    <symbol id="logo" viewBox="80 80 900 870">
+      <path d="M238.4 292.5 Q272.1 192.2 376.6 175 L797.6 105.9 Q960 79.3 949.7 243.6 L915.1 798 Q905.9 944.7 760.8 921.6 L185.9 830.1 Q64 810.7 103.4 693.6 Z" fill="url(#brandg)"/>
+      <path d="M187.5 756.6 L452.6 318.8 Q470.8 288.6 506.1 288.6 L567.3 288.6 Q602.5 288.6 618.2 320.2 L834.2 756.6 L675.4 756.6 L524.9 453.2 L363.8 756.6 Z" fill="#fff"/>
+      <path d="M466.1 633.1 L614.3 633.1 L675.4 756.6 L552 756.6 Z" fill="#fff" fill-opacity=".62"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8 12 3 3 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Aside, home"><svg aria-hidden="true"><use href="#logo"/></svg>aside<span class="sub">Docs</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="./#tour">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="./#pricing">Pricing</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="releases.html">Releases</a>
+      <a href="blog.html">Blog</a>
+      <a href="docs.html" class="on">Docs</a>
+    </nav>
+    <div class="top-cta">
+      <a class="btn btn-sm btn-hot" href="beta.html">Join the beta</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap docs">
+  <aside class="toc" aria-label="Contents" id="toc">
+    <h4>Getting started</h4>
+    <a href="#start">Install Aside</a>
+    <a href="#open">Open a translation</a>
+    <a href="#prepare">Prepare a built game</a>
+    <h4>Translating</h4>
+    <a href="#translate">Translate and proofread</a>
+    <a href="#keys">Keyboard shortcuts</a>
+    <a href="#checks">The checks</a>
+    <a href="#progress">Groups and progress</a>
+    <a href="#glossary">Glossary</a>
+    <h4>Context</h4>
+    <a href="#scene">Scene preview</a>
+    <a href="#menus">Choice menus</a>
+    <a href="#missed">Missed texts</a>
+    <a href="#mt">Machine translation</a>
+    <h4>Your work</h4>
+    <a href="#data">Data, backups, privacy</a>
+    <a href="#team">Working in a team</a>
+    <a href="#pro">Pro and the licence</a>
+    <a href="#trouble">Troubleshooting</a>
+  </aside>
+
+  <main class="content" id="doc">
+    <div class="toc-m"><label class="skip" for="toc-sel">Jump to a section</label><select id="toc-sel" aria-label="Jump to a section"></select></div>
+
+    <div class="intro">
+      <span class="kicker">Documentation</span>
+      <h1>How to use Aside</h1>
+      <p>Everything you need for your first translation, and a reference to come back to. Aside is in final testing, so a few screens can still change before the first release.</p>
+    </div>
+
+    <section id="start">
+      <h2><span class="n">1</span>Install Aside</h2>
+      <p>Aside is a desktop app for Windows. The installer puts it in your user folder, so it needs no administrator rights and does not touch other users of the computer.</p>
+      <ol class="steps-l">
+        <li><span>Download <code>Aside_&lt;version&gt;_x64-setup.exe</code> and, if you like, compare its SHA-256 checksum with the one published next to it.</span></li>
+        <li><span>Run it. Windows SmartScreen may say "Windows protected your PC": choose <b>More info</b>, then <b>Run anyway</b>.</span></li>
+        <li><span>Start Aside from the Start menu. Your settings live in <code>%APPDATA%\Aside</code>.</span></li>
+      </ol>
+      <div class="box warn"><svg><use href="#i-warn"/></svg><p>The warning appears because the first builds are not code-signed yet. It goes away once Aside has a signing certificate.</p></div>
+    </section>
+
+    <section id="open">
+      <h2><span class="n">2</span>Open a translation</h2>
+      <p>Aside works with the translation files Ren'Py uses: the <code>.rpy</code> files in <code>game/tl/&lt;language&gt;/</code>. Choose the folder of your language, or the game folder itself, and Aside finds the translation inside it.</p>
+<pre><span class="c"># a typical game</span>
+MyGame/
+  game/
+    script.rpy, ep1.rpy ...      <span class="c">← read only</span>
+    tl/
+      czech/                     <span class="c">← your translation, opened in Aside</span>
+        script.rpy, ep1.rpy ...
+        .aside/                  <span class="c">← Aside's small project folder</span></pre>
+      <p>The tabs along the top are the whole app: <b>Overview</b> (how far you are), <b>Files</b>, <b>Lines</b> (the editor), <b>Check</b>, <b>Glossary</b>, <b>Publishing</b> and <b>Settings</b>.</p>
+      <div class="box"><svg><use href="#i-info"/></svg><p>No <code>tl</code> folder yet? The game has to be prepared first, so that Ren'Py writes the translation files. See the next section.</p></div>
+    </section>
+
+    <section id="prepare">
+      <h2><span class="n">3</span>Prepare a built game</h2>
+      <p>A released game usually ships its scripts packed and compiled. To get translation files, Aside goes three steps, all inside a separate workspace folder:</p>
+      <ol class="steps-l">
+        <li><span><b>Unpack</b> the <code>.rpa</code> archives (built in).</span></li>
+        <li><span><b>Decompile</b> the <code>.rpyc</code> scripts with unrpyc, on a copy.</span></li>
+        <li><span><b>Generate</b> <code>game/tl/&lt;language&gt;</code> with the game's own Ren'Py engine, exactly what <code>renpy translate</code> does.</span></li>
+      </ol>
+      <p>The game folder is only read. An existing language folder is never overwritten, and the last step asks before it writes the new one.</p>
+      <div class="box warn"><svg><use href="#i-warn"/></svg><p>The "prepare a game" window comes with the first public release. Until then, a game that already has its translation files opens directly.</p></div>
+    </section>
+
+    <section id="translate">
+      <h2><span class="n">4</span>Translate and proofread</h2>
+      <p>The <b>Lines</b> tab is a table of every line with its file, speaker, state and original. Pick a line and edit its translation below. Filters along the top narrow the table: to translate, translated, for proofreading, to fix, changed after proofreading, proofread.</p>
+      <ul>
+        <li><b>Save</b> with <kbd>Ctrl</kbd>+<kbd>Enter</kbd>. The text goes straight into the <code>.rpy</code> file, and Aside jumps to the next untranslated line.</li>
+        <li><b>Insert</b> buttons add <code>{i}…{/i}</code>, <code>{b}</code>, <code>{w}</code>, <code>{p}</code>, <code>{nw}</code>, <code>\n</code>, an ellipsis or typographic quotes at the cursor.</li>
+        <li><b>Search</b> with <kbd>Ctrl</kbd>+<kbd>F</kbd>; switch on <i>Whole word</i> to skip partial matches. With a search active you see "result 3 of 16" and move with the arrow keys.</li>
+        <li><b>Quick translating</b> and <b>quick proofreading</b> show the scene and the editor together, with only the lines you still need.</li>
+      </ul>
+      <p>Write a new line as <code>\n</code> and a quote inside the text as <code>\"</code>. Keep tags and <code>[variables]</code> as in the original; the checks tell you when they differ.</p>
+    </section>
+
+    <section id="keys">
+      <h2><span class="n">5</span>Keyboard shortcuts</h2>
+      <p>Press <kbd>?</kbd> in the app for this list. Every shortcut can be changed in <b>Settings → Keyboard shortcuts</b>, and every action can be found in the command palette.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Keys</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Enter</kbd></td><td>In the translation field: save to the file and go to the next untranslated line</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>In the translation field: discard the changes</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Command palette: search actions and files</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd> or <kbd>/</kbd></td><td>Search in the current section</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>Undo the last approval, proofreading mark or glossary change</td></tr>
+          <tr><td><kbd>F5</kbd> or <kbd>Ctrl</kbd>+<kbd>R</kbd></td><td>Refresh the files</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd></td><td>Focus mode: hide the top bar and the tabs</td></tr>
+          <tr><td><kbd>F11</kbd></td><td>Full screen</td></tr>
+          <tr><td><kbd>?</kbd></td><td>Show the shortcuts</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="checks">
+      <h2><span class="n">6</span>The checks</h2>
+      <p>Every translation is compared with its original. The <b>Check</b> tab lists all findings of the project, one item per line, and nothing is ever rewritten by itself.</p>
+      <ul>
+        <li><span class="sev e">Error</span> Ren'Py would probably crash, or the structure of the script is broken.</li>
+        <li><span class="sev w">Warning</span> Suspicious, but it may be intended (a translation can drop an italic tag on purpose).</li>
+      </ul>
+      <div class="tbl"><table>
+        <thead><tr><th>Check</th><th>What it catches</th></tr></thead>
+        <tbody>
+          <tr><td><b>Text tags</b></td><td>A tag that is not closed, closed in the wrong order, missing, extra, unknown, or with a different argument than in the original.</td></tr>
+          <tr><td><b>Variables</b></td><td>A <code>[variable]</code> that is not in the original (a typo crashes the game), one that is missing, differs or occurs a different number of times.</td></tr>
+          <tr><td><b>Format marks</b></td><td>Placeholders and <code>%</code> marks that differ from the original.</td></tr>
+          <tr><td><b>Line breaks and escapes</b></td><td>A different number of <code>\n</code>, or a lone backslash that is not a valid escape.</td></tr>
+          <tr><td><b>Numbers</b></td><td>Numbers that differ from the original.</td></tr>
+          <tr><td><b>Spacing and repeats</b></td><td>Double spaces and the same word twice in a row.</td></tr>
+          <tr><td><b>Untranslated parts</b></td><td>English words left in a translated line.</td></tr>
+          <tr><td><b>Glossary terms</b></td><td>A term whose glossary translation does not appear in the line.</td></tr>
+          <tr><td><b>Length</b></td><td>A translation much longer or much shorter than its original.</td></tr>
+          <tr><td><b>Dialogue box fit</b></td><td>Text that probably needs more lines than the box holds, measured with the game's font. Shorten it, or split it with a tag.</td></tr>
+        </tbody>
+      </table></div>
+      <p>A finding you have checked and want to keep can be <b>ignored</b>; it stays ignored until the line changes. Language packs add rules of your language, for example typographic quotes in Czech.</p>
+    </section>
+
+    <section id="progress">
+      <h2><span class="n">7</span>Groups and progress</h2>
+      <p>Every line has a state (to translate, translated, proofread) and the <b>Overview</b> adds them up per file and per group: what is left, how much is proofread, a weekly goal and, after a week of work, an estimate of when you finish.</p>
+      <h3>Groups are found for you</h3>
+      <p>Open <b>Files → Groups…</b> and Aside proposes groups from the file names:</p>
+      <ul>
+        <li>numbers after <i>episode</i>, <i>ep</i>, <i>chapter</i>, <i>part</i>, <i>day</i>, <i>update</i> or <i>act</i> (<code>ep1_cafe.rpy</code>, <code>chapter_03/</code>);</li>
+        <li>a numbered series such as <code>script.rpy</code>, <code>script2.rpy</code>, <code>script3.rpy</code>;</li>
+        <li>one group per folder, for games organised by folder.</li>
+      </ul>
+      <p>The word you choose is used everywhere, so the app says "Chapter 3" instead of "Episode 3". The choice is saved in <code>.aside/aside.json</code>.</p>
+    </section>
+
+    <section id="glossary">
+      <h2><span class="n">8</span>Glossary</h2>
+      <p>The <b>Glossary</b> tab holds the names of characters and the terms of the game with their translations. Character names can be imported from the game's <code>Character(...)</code> definitions. Every line is checked for the terms it contains, so a name or a place never changes halfway through the game.</p>
+      <p>Spelling hints come from your own project: a word that appears rarely and looks like a common one is flagged. That works for any language, without a dictionary.</p>
+    </section>
+
+    <section id="scene">
+      <h2><span class="n">9</span>Scene preview</h2>
+      <p>Next to the line, Aside draws the picture the player sees: it follows the script back to the last <code>scene</code> and adds every picture <code>show</code>n since, at its place, with the text in the game's font.</p>
+      <div class="box ok"><svg><use href="#i-ok"/></svg><p><b>Full-screen renders and scenes: fully supported.</b> Games whose scenes are whole pictures preview well. In the tests, five of eight games had at most 3 lines without a picture in a sample of 250.</p></div>
+      <div class="box warn"><svg><use href="#i-warn"/></svg><p><b>Layered images: not supported yet.</b> Pictures built from parts (<code>layeredimage</code>, composites, conditional images) are recognised and never drawn wrong. A layered character on a background shows the background with a note; a layered scene shows no picture and says why. Drawing layers is planned.</p></div>
+      <p>The preview is an estimate from the script, not a screenshot: jumps, conditions and animations are not followed, and the frames of the text box and name box can look different in the game. When the game's font cannot be found, a substitute is used and the preview tells you.</p>
+    </section>
+
+    <section id="menus">
+      <h2><span class="n">10</span>Choice menus</h2>
+      <p>A choice gets a <b>Menu</b> tab: the question (or the two lines said before the menu), every option with its translation and condition, and the first lines after each option, so you translate a choice knowing where it leads. Lines of dialogue around a menu get the same tab.</p>
+      <p>Ren'Py keeps one translation for a text used in several menus. Aside marks such a choice and links to the place where it is listed.</p>
+      <div class="box"><svg><use href="#i-info"/></svg><p>The menu is read from the <code>.rpy</code> scripts, so the game must be prepared (decompiled). Jumps, <code>call screen</code> and menus built in Python are not followed.</p></div>
+    </section>
+
+    <section id="missed">
+      <h2><span class="n">11</span>Missed texts</h2>
+      <p>The Ren'Py generator does not see every text: <code>show text</code>, input prompts, notifications and titles kept in variables stay in English. <b>Tools → Texts the generator missed…</b> lists them, split into <i>likely</i> and <i>maybe</i>.</p>
+      <ul>
+        <li>Tick the texts the player sees and add them. They go to <code>extra_strings.rpy</code> as lines to translate.</li>
+        <li>Untick or ignore texts the player never sees, such as a build name.</li>
+        <li>If the game shows text through its own function, add the function name, or use <b>Find functions…</b>.</li>
+      </ul>
+      <div class="box warn"><svg><use href="#i-warn"/></svg><p>This feature is experimental. It is a heuristic that can be wrong both ways, so always review the list.</p></div>
+    </section>
+
+    <section id="mt">
+      <h2><span class="n">12</span>Machine translation</h2>
+      <p>Aside can suggest a translation for one line with <b>DeepL</b>, <b>LibreTranslate</b> or any <b>OpenAI-compatible</b> service. You bring your own account and key.</p>
+      <ol class="steps-l">
+        <li><span>Open <b>Settings → Machine translation</b>, pick the service and paste the key.</span></li>
+        <li><span>Give your consent to send text to that service. Without it nothing is sent.</span></li>
+        <li><span>In the editor, ask for a suggestion, then check and edit it like any other line.</span></li>
+      </ol>
+      <p>Tags and variables are protected before the text is sent. The request goes straight from your computer to the service, never through an Aside server. The key is stored only in your settings on this computer.</p>
+    </section>
+
+    <section id="data">
+      <h2><span class="n">13</span>Data, backups and privacy</h2>
+      <p>Aside writes in two places only:</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Where</th><th>What</th></tr></thead>
+        <tbody>
+          <tr><td><code>game/tl/&lt;language&gt;/</code></td><td>Your translation files, edited in place.</td></tr>
+          <tr><td><code>game/tl/&lt;language&gt;/.aside/</code></td><td>Small shared project files: groups, glossary, proofreading marks, one change log per author.</td></tr>
+          <tr><td><code>%APPDATA%\Aside\projects\&lt;id&gt;\</code></td><td>Local data: backups, snapshots, the history of each line, exported progress.</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><b>Every write is atomic and backed up first</b>, so a crash or a full disk cannot leave a half-written file.</li>
+        <li><b>Snapshots</b> let you return the whole translation to an earlier state.</li>
+        <li><b>History</b> keeps every version of every line, with a diff.</li>
+      </ul>
+      <h3>What leaves your computer</h3>
+      <p>No telemetry, no analytics, no crash reports. Nothing about your projects goes to Aside. Data leaves only for machine translation you turned on, the Pro licence check (the key, a random device id and the computer name you typed), and Pro publishing to a repository you chose.</p>
+    </section>
+
+    <section id="team">
+      <h2><span class="n">14</span>Working in a team</h2>
+      <p>Put the translation folder in a shared place (git, Dropbox, Syncthing). Each person's changes of state go to their own log in <code>.aside/events/</code>, and the logs are merged when the project is opened or refreshed, so they never conflict. Split the work by giving each person different files or episodes.</p>
+      <div class="box"><svg><use href="#i-info"/></svg><p>Proper team features (assignments, translator and proofreader roles, merging edits per block, buttons instead of git) are planned for Pro.</p></div>
+    </section>
+
+    <section id="pro">
+      <h2><span class="n">15</span>Pro and the licence</h2>
+      <p>Pro adds batch machine translation, safe bulk fixes, group suggestions, regex batches and publishing your progress. In Free the first three work on a small batch per run (20 lines, or 5 files for group suggestions), so you can try them on your project.</p>
+      <ol class="steps-l">
+        <li><span>Buy a licence. The key comes by e-mail.</span></li>
+        <li><span>Enter it in <b>Settings → Licence</b>. The limits lift at once.</span></li>
+        <li><span>Use it on two computers. To move to a new one, free the old one in the same place.</span></li>
+      </ol>
+      <p>Aside checks the licence online from time to time and keeps working offline for a grace period. If a licence is cancelled, only Pro switches off: your projects and everything in Free keep working.</p>
+    </section>
+
+    <section id="trouble">
+      <h2><span class="n">16</span>Troubleshooting</h2>
+      <h3>Windows says it protected my PC</h3>
+      <p>Choose <b>More info → Run anyway</b>. The first builds are not code-signed.</p>
+      <h3>The game opens, but there are no lines</h3>
+      <p>The game has no translation files yet. Prepare it first, so that <code>game/tl/&lt;language&gt;</code> exists.</p>
+      <h3>The scene preview shows no picture</h3>
+      <p>The scene is probably built from layered images, which are not drawn yet. The note under the preview says so.</p>
+      <h3>The Menu tab is missing</h3>
+      <p>Menus are read from <code>.rpy</code> scripts. A game that has only <code>.rpyc</code> files has to be decompiled first.</p>
+      <h3>Machine translation says consent is missing</h3>
+      <p>Turn on the consent in <b>Settings → Machine translation</b>.</p>
+      <div class="next-up"><div><b>Still stuck?</b>Write to the author, usually answered within a few days.</div><a class="btn btn-hot" href="contact.html">Contact <svg><use href="#i-arrow"/></svg></a></div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="./"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
+      <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
+      <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
+    </div>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="./#pricing">Pricing</a><a href="releases.html">Releases</a><a href="./#faq">FAQ</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a></nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+  var sel = document.getElementById("toc-sel"), top = document.getElementById("top");
+  links.forEach(function (a) { var o = document.createElement("option"); o.value = a.getAttribute("href"); o.textContent = a.textContent; sel.appendChild(o); });
+  sel.addEventListener("change", function () { var t = document.querySelector(sel.value); if (t) t.scrollIntoView({ behavior: "smooth" }); });
+  window.addEventListener("scroll", function () { top.classList.toggle("scrolled", (window.scrollY || 0) > 8); }, { passive: true });
+  if ("IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var id = "#" + en.target.id;
+        links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === id); });
+        sel.value = id;
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    document.querySelectorAll(".content section").forEach(function (s) { obs.observe(s); });
+  }
+})();
+</script>
+<script src="assets/site.js"></script>
+</body>
+</html>

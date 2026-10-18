@@ -1,0 +1,266 @@
+import { env, exports } from "cloudflare:workers";
+import { describe, expect, it } from "vitest";
+import { daily } from "../src/cron.ts";
+import type { Env } from "../src/env.ts";
+import { render } from "../src/mail.ts";
+
+type Json = Record<string, any>;
+const E = env as unknown as Env;
+const DAY = 86400;
+
+async function call(path: string, init: { method?: string; body?: unknown; headers?: Record<string, string> } = {}): Promise<{ status: number; json: Json; res: Response }> {
+  const res = await exports.default.fetch(
+    new Request("https://aside.test" + path, {
+      method: init.method ?? (init.body === undefined ? "GET" : "POST"),
+      // every call comes from another address unless a test says otherwise (the storage is shared by the tests of this file)
+      headers: { "content-type": "application/json", "cf-connecting-ip": "198.51.100." + Math.floor(Math.random() * 250), ...init.headers },
+      body: init.body === undefined ? undefined : typeof init.body === "string" ? init.body : JSON.stringify(init.body),
+      redirect: "manual",
+    }),
+  );
+  const json = (await res.clone().json().catch(() => ({}))) as Json;
+  return { status: res.status, json, res };
+}
+const admin = (path: string, body?: unknown) => call("/admin/api/" + path, { body, headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } });
+
+const tester = (extra: Json = {}) => ({
+  route: "test",
+  fields: {
+    nick: "Mira", email: "mira@example.com", speak: ["English"], win: "Windows 11", ram: "16 GB", exp: "I translate regularly",
+    games: "Eternum, Being a DIK", bug: "When I pressed save twice quickly the app showed an error and the line was not saved, I expected it to save once.",
+    hours: "3–5 h a week", agree: ["a", "b", "c", "d"], ...extra,
+  },
+  answers: [["Nickname", "Mira"], ["Games", "Eternum"]],
+});
+const licensee = (extra: Json = {}) => ({
+  route: "licence",
+  fields: {
+    nick: "Tom", email: "tom@example.com", lang: "Czech", game: "Eternum 0.9", link: "https://example.com/thread", progress: "25–75 %", size: "50k–150k",
+    team: "Just me", tools: "Notepad++", why: "Proofreading seventy thousand lines by hand takes me months, I want the checks.", agree: ["a", "b", "c", "d"], ...extra,
+  },
+  answers: [["Game and version", "Eternum 0.9"]],
+});
+
+describe("beta applications", () => {
+  it("accepts a complete application and counts places only for accepted ones", async () => {
+    const r = await call("/api/apply", { body: tester() });
+    expect(r.status).toBe(200);
+    expect(r.json).toMatchObject({ ok: true, waitlist: false });
+    const cfg = await call("/api/config");
+    expect(cfg.json.program).toMatchObject({ round: "Round 1", open: true, test: { places: 4, taken: 0 }, licence: { places: 3, taken: 0 } });
+    expect((await admin(`application/${r.json.id}/decide`, { state: "accepted" })).json.code).toMatch(/^[a-z2-9]{24}$/);
+    expect((await call("/api/config")).json.program.test.taken).toBe(1);
+  });
+
+  it("refuses missing or too short answers, with the name of the field", async () => {
+    expect((await call("/api/apply", { body: tester({ bug: "it broke" }) })).json).toMatchObject({ error: "missing", field: "bug" });
+    expect((await call("/api/apply", { body: tester({ email: "nope" }) })).json.field).toBe("email");
+    expect((await call("/api/apply", { body: tester({ agree: ["a"] }) })).json.field).toBe("agree");
+    expect((await call("/api/apply", { body: licensee({ link: "" }) })).json.field).toBe("link");
+    expect((await call("/api/apply", { body: { route: "other", fields: {} } })).status).toBe(400);
+  });
+
+  it("an exception replaces the public link with a reason", async () => {
+    expect((await call("/api/apply", { body: licensee({ link: "", exception: true }) })).json.field).toBe("why_ex");
+    const ok = await call("/api/apply", { body: licensee({ link: "", exception: true, why_ex: "A team project that goes public next month with the first episode, 40 % done." }) });
+    expect(ok.status).toBe(200);
+  });
+
+  it("closed rounds refuse, a full round puts people on the waiting list", async () => {
+    await admin("settings", { places_licence: 0 });
+    expect((await call("/api/apply", { body: licensee() })).json.waitlist).toBe(true);
+    await admin("settings", { open: false });
+    expect((await call("/api/apply", { body: licensee() })).json.error).toBe("closed");
+    await admin("settings", { open: true, places_licence: 3 });
+  });
+
+  it("the hidden field silently drops bots, and one address may apply at most five times a day", async () => {
+    const bot = await call("/api/apply", { body: { ...tester({ nick: "Robot" }), website: "spam" } });
+    expect(bot.json.ok).toBe(true);
+    expect(((await admin("applications?state=")).json.items as Json[]).some((a) => a.nick === "Robot")).toBe(false);
+    const same = { "cf-connecting-ip": "203.0.113.9" };
+    for (let i = 0; i < 5; i++) expect((await call("/api/apply", { body: tester(), headers: same })).status).toBe(200);
+    expect((await call("/api/apply", { body: tester(), headers: same })).json.error).toBe("too_many");
+  });
+});
+
+describe("feedback of sponsored licences", () => {
+  it("is asked after 14 days, reminded after 4 more, then the 4-week form; both answers make the licence ready", async () => {
+    const id = (await call("/api/apply", { body: licensee() })).json.id;
+    const code = (await admin(`application/${id}/decide`, { state: "accepted" })).json.code;
+    const app = (await admin(`application/${id}`)).json.item;
+    expect(app.trial_start).toBeGreaterThan(0);
+    const t0 = app.trial_start as number;
+
+    expect((await daily(E, t0 + 13 * DAY)).sent).toBe(0);
+    expect((await daily(E, t0 + 14 * DAY)).sent).toBe(1);
+    expect((await daily(E, t0 + 15 * DAY)).sent).toBe(0);
+    expect((await daily(E, t0 + 18 * DAY)).sent).toBe(1); // the reminder
+    expect((await daily(E, t0 + 19 * DAY)).sent).toBe(0);
+
+    const info = await call(`/api/feedback/${code}`);
+    expect(info.json).toMatchObject({ nick: "Tom", game: "Eternum 0.9", next: "2w" });
+    const answers = [["Used", "Daily"], ["Good", "Checks"], ["Bad", "Nothing"]];
+    expect((await call(`/api/feedback/${code}`, { body: { which: "4w", answers } })).status).toBe(400);
+    expect((await call(`/api/feedback/${code}`, { body: { which: "2w", answers } })).status).toBe(200);
+    expect((await call(`/api/feedback/${code}`, { body: { which: "2w", answers } })).json.error).toBe("already_sent");
+
+    expect((await daily(E, t0 + 28 * DAY)).sent).toBe(1);
+    expect((await call(`/api/feedback/${code}`, { body: { which: "4w", answers } })).status).toBe(200);
+    expect((await admin("overview")).json.counts.ready).toBe(1);
+    expect((await daily(E, t0 + 40 * DAY)).sent).toBe(0);
+  });
+
+  it("an unknown or not accepted code gets nothing", async () => {
+    expect((await call("/api/feedback/abcdefghjkmnpqrstuvw")).status).toBe(404);
+    expect((await call("/api/feedback/x")).status).toBe(404);
+  });
+});
+
+describe("bug reports of testers", () => {
+  it("only an accepted tester can report, with an optional screenshot that only the admin can see", async () => {
+    const id = (await call("/api/apply", { body: tester() })).json.id;
+    const bug = { title: "Save fails twice", steps: "Open a project, edit a line, press Ctrl+Enter twice fast.", severity: "broken", image: "data:image/png;base64,iVBORw0KGgo=" };
+    expect((await call("/api/bug", { body: { ...bug, code: "abcdefghjkmnpqrstuvw" } })).status).toBe(404);
+    const code = (await admin(`application/${id}/decide`, { state: "accepted" })).json.code;
+    const r = await call("/api/bug", { body: { ...bug, code } });
+    expect(r.status).toBe(200);
+    expect((await call(`/api/tester/${code}`)).json.bugs[0]).toMatchObject({ title: "Save fails twice", state: "new" });
+    const img = await call(`/admin/api/bug/${r.json.id}/image`, { headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } });
+    expect(img.res.headers.get("content-type")).toBe("image/png");
+    expect((await call(`/admin/api/bug/${r.json.id}/image`)).status).toBe(401);
+    expect((await call("/api/bug", { body: { ...bug, code, title: "x" } })).json.field).toBe("title");
+    await admin(`bug/${r.json.id}`, { state: "fixed", note: "in 2.0.1" });
+    expect((await call(`/api/tester/${code}`)).json.bugs[0].state).toBe("fixed");
+  });
+});
+
+describe("roadmap votes", () => {
+  const voter = "0123456789abcdef0123456789abcdef";
+  it("counts one vote per browser, can be taken back, adds the votes given by hand, and refuses the Now column", async () => {
+    const items = (await call("/api/roadmap")).json.items as Json[];
+    const item = items.find((i) => i.col === "later")!;
+    expect((await call("/api/vote", { body: { voter, item: item.id } })).json.votes).toBe(1);
+    expect((await call("/api/vote", { body: { voter, item: item.id } })).json.votes).toBe(1);
+    expect((await call(`/api/roadmap?voter=${voter}`)).json.items.find((i: Json) => i.id === item.id).mine).toBe(true);
+    await admin(`roadmap/${item.id}`, { ...item, extra: 5 });
+    expect((await call("/api/roadmap")).json.items.find((i: Json) => i.id === item.id).votes).toBe(6);
+    expect((await call("/api/vote", { body: { voter, item: item.id, on: false } })).json.votes).toBe(5);
+    const now = items.find((i) => i.col === "now")!;
+    expect((await call("/api/vote", { body: { voter, item: now.id } })).status).toBe(404);
+    expect((await call("/api/vote", { body: { voter: "short", item: item.id } })).status).toBe(400);
+  });
+
+  it("the admin adds, moves and deletes cards", async () => {
+    const id = (await admin("roadmap", { title: "Dark mode for the app", col: "ideas", tier: "free" })).json.id;
+    let ideas = ((await call("/api/roadmap")).json.items as Json[]).filter((i) => i.col === "ideas");
+    expect(ideas.at(-1)!.id).toBe(id);
+    await admin(`roadmap/${id}/move`, { dir: -1 });
+    ideas = ((await call("/api/roadmap")).json.items as Json[]).filter((i) => i.col === "ideas");
+    expect(ideas.at(-2)!.id).toBe(id);
+    await admin(`roadmap/${id}/delete`, {});
+    expect(((await call("/api/roadmap")).json.items as Json[]).some((i) => i.id === id)).toBe(false);
+  });
+});
+
+describe("showcase, contact and releases", () => {
+  it("a showcase entry appears on the website only after approval", async () => {
+    expect(((await call("/api/showcase")).json.items as Json[]).map((i) => i.game)).toEqual(["Being a DIK"]);
+    const entry = { game: "Eternum", lang: "Polish", link: "https://example.com/pl", translator: "Ola", email: "ola@example.com" };
+    expect((await call("/api/showcase", { body: { ...entry, link: "nope" } })).json.field).toBe("link");
+    expect((await call("/api/showcase", { body: entry })).status).toBe(200);
+    expect((await call("/api/showcase")).json.items).toHaveLength(1);
+    const pending = ((await admin("showcase")).json.items as Json[]).find((i) => i.state === "pending")!;
+    await admin(`showcase/${pending.id}`, { ...pending, state: "approved" });
+    expect((await call("/api/showcase")).json.items).toHaveLength(2);
+  });
+
+  it("a message is stored, listed for the admin and can be archived", async () => {
+    expect((await call("/api/contact", { body: { name: "Ana", email: "ana@example.com", message: "short" } })).json.field).toBe("message");
+    const r = await call("/api/contact", { body: { name: "Ana", email: "ana@example.com", topic: "Question", message: "Does Aside work with Ren'Py 6?" } });
+    expect(r.status).toBe(200);
+    expect((await admin("overview")).json.counts.messages).toBe(1);
+    // without a mail key a reply is not sent and the message stays new
+    expect((await admin(`message/${r.json.id}/reply`, { text: "Not yet, sorry." })).json.sent).toBe(false);
+    await admin(`message/${r.json.id}`, { state: "archived" });
+    expect((await admin("messages?state=archived")).json.items).toHaveLength(1);
+  });
+
+  it("only published releases are listed, and downloads are counted and redirected", async () => {
+    await admin("release", { version: "2.0.0", date: "2026-11-01", notes: "new: the first public build", url: "https://example.com/Aside_2.0.0_x64-setup.exe", published: true });
+    await admin("release", { version: "2.1.0", date: "2026-12-01", notes: "draft" });
+    expect((await admin("release", { version: "3", url: "http://insecure.example.com" })).json.field).toBe("url");
+    const list = (await call("/api/releases")).json.items as Json[];
+    expect(list.map((r) => r.version)).toEqual(["2.0.0"]);
+    const d = await call("/api/download/latest");
+    expect(d.status).toBe(302);
+    expect(d.res.headers.get("location")).toBe("https://example.com/Aside_2.0.0_x64-setup.exe");
+    expect(((await admin("releases")).json.items as Json[]).find((r) => r.version === "2.0.0")!.downloads).toBe(1);
+  });
+});
+
+describe("the admin", () => {
+  it("needs the token", async () => {
+    expect((await call("/admin/api/overview")).status).toBe(401);
+    expect((await call("/admin/api/overview", { headers: { authorization: "Bearer wrong-token-0123456789" } })).status).toBe(401);
+    expect((await admin("overview")).status).toBe(200);
+    const page = await call("/admin");
+    expect(page.res.headers.get("content-type")).toContain("text/html");
+    expect(await page.res.text()).toContain("Aside admin");
+  });
+
+  it("deleting an application removes its feedback and bug reports", async () => {
+    const id = (await call("/api/apply", { body: tester() })).json.id;
+    const code = (await admin(`application/${id}/decide`, { state: "accepted" })).json.code;
+    await call("/api/bug", { body: { code, title: "Crash on start", steps: "Start the app with a broken project folder." } });
+    await admin(`application/${id}/delete`, {});
+    expect((await admin(`application/${id}`)).status).toBe(404);
+    expect(((await admin("bugs")).json.items as Json[]).some((b) => b.title === "Crash on start")).toBe(false);
+  });
+});
+
+describe("Cloudflare Access", () => {
+  const b64 = (v: string | Uint8Array) => btoa(typeof v === "string" ? v : String.fromCharCode(...v)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  async function jwt(claims: Json, kid = "test-key"): Promise<string> {
+    const key = await crypto.subtle.importKey("jwk", JSON.parse((env as unknown as { TEST_ACCESS_KEY: string }).TEST_ACCESS_KEY), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+    const now = Math.floor(Date.now() / 1000);
+    const head = b64(JSON.stringify({ alg: "RS256", kid, typ: "JWT" }));
+    const body = b64(JSON.stringify({ aud: ["test-aud-0123"], iss: "https://aside-test.cloudflareaccess.com", email: "owner@example.com", iat: now, exp: now + 3600, ...claims }));
+    const sig = new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(head + "." + body)));
+    return head + "." + body + "." + b64(sig);
+  }
+  const viaAccess = async (token: string) => call("/admin/api/overview", { headers: { "cf-access-jwt-assertion": token } });
+
+  it("lets in a request signed by Access for this application", async () => {
+    const r = await viaAccess(await jwt({}));
+    expect(r.status).toBe(200);
+    expect(r.json.via).toBe("access");
+  });
+
+  it("refuses another application, another team, an expired, a tampered or an unknown-key token", async () => {
+    expect((await viaAccess(await jwt({ aud: ["other-app"] }))).status).toBe(401);
+    expect((await viaAccess(await jwt({ iss: "https://evil.cloudflareaccess.com" }))).status).toBe(401);
+    expect((await viaAccess(await jwt({ exp: Math.floor(Date.now() / 1000) - 10 }))).status).toBe(401);
+    expect((await viaAccess(await jwt({}, "other-key"))).status).toBe(401);
+    const good = await jwt({});
+    const [h, , s] = good.split(".");
+    const forged = h + "." + b64(JSON.stringify({ aud: ["test-aud-0123"], iss: "https://aside-test.cloudflareaccess.com", email: "x@y.z", exp: 9999999999 })) + "." + s;
+    expect((await viaAccess(forged)).status).toBe(401);
+  });
+
+  it("without either, says which doors exist", async () => {
+    const r = await call("/admin/api/overview");
+    expect(r.status).toBe(401);
+    expect(r.json).toMatchObject({ access: true, token: true });
+  });
+});
+
+describe("mails", () => {
+  it("escape what people typed", () => {
+    const { html, text } = render({ subject: "Hi <b>", lines: ["<script>x</script>", "• one\n• two", "https://aside.test/report.html#abc"] });
+    expect(html).not.toContain("<script>x");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).toContain('href="https://aside.test/report.html#abc"');
+    expect(text).toContain("• two");
+  });
+});

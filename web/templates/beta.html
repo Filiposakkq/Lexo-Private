@@ -1,0 +1,397 @@
+title: Aside Beta Programs
+desc: A few places before the release: apply to test Aside, or apply for a sponsored Aside Pro licence for an active Ren'Py translation.
+sub: Beta
+---css---
+/* Layout concept: two routes, like the first choice in a visual novel. Pick one, then a short application in steps
+   with a progress rail; the last step reviews everything and sends it as an e-mail. */
+.routes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; margin-top: 2.4rem; }
+@media (max-width: 860px) { .routes { grid-template-columns: minmax(0, 1fr); } }
+.route { position: relative; text-align: left; display: grid; gap: .9rem; align-content: start; padding: clamp(1.4rem, 1rem + 1.5vw, 2rem); border-radius: 24px; border: 1.5px solid var(--line-2); background: var(--card); color: inherit; font: inherit; cursor: pointer; overflow: hidden; transition: transform .25s, border-color .25s, box-shadow .25s; }
+.route:hover { transform: translateY(-4px); border-color: rgba(255, 49, 92, .5); }
+.route[aria-pressed="true"] { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint), var(--shadow); background: linear-gradient(160deg, rgba(255, 49, 92, .14), rgba(255, 112, 67, .04) 60%), var(--card); }
+.route .letter { position: absolute; right: 1.2rem; top: .4rem; font: 800 6rem/1 var(--f-display); color: rgba(255, 150, 172, .06); letter-spacing: -.05em; pointer-events: none; }
+.route[aria-pressed="true"] .letter { color: rgba(255, 49, 92, .16); }
+.route .tagr { justify-self: start; font: 800 .68rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); }
+.route h2 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); }
+.route p { font-size: .97rem; }
+.route .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 520px) { .route .cols { grid-template-columns: minmax(0, 1fr); } }
+.route h4 { font: 800 .72rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: .5rem; }
+.route ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; font-size: .9rem; }
+.route li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: .5rem; }
+.route li svg { width: 16px; height: 16px; margin-top: .2rem; color: var(--ok); }
+.route .ask li svg { color: var(--red-text); }
+.route .go { justify-self: start; display: inline-flex; align-items: center; gap: .5rem; font: 800 .92rem/1 var(--f-display); color: var(--ink); padding: .75rem 1.1rem; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line-2); }
+.route[aria-pressed="true"] .go { background: var(--grad); color: #fff; border-color: transparent; }
+.route .go svg { width: 16px; height: 16px; }
+
+.wizard { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: clamp(1.2rem, 1rem + 2vw, 2.5rem); align-items: start; }
+@media (max-width: 860px) { .wizard { grid-template-columns: minmax(0, 1fr); } }
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 90px); display: grid; gap: .3rem; }
+@media (max-width: 860px) { .rail { position: static; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: .4rem; } }
+.rail .rt { font: 800 .72rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); margin-bottom: .6rem; }
+@media (max-width: 860px) { .rail .rt { display: none; } }
+.rstep { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: .7rem; align-items: center; padding: .55rem .6rem; border-radius: 12px; color: var(--muted); font: 700 .92rem/1.2 var(--f-display); }
+.rstep i { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .85rem; border: 2px solid var(--line-2); transition: background .3s, border-color .3s, color .3s; }
+.rstep.now { color: var(--ink); background: var(--card); }
+.rstep.now i { border-color: var(--red); color: var(--red-text); box-shadow: 0 0 14px rgba(255, 49, 92, .4); }
+.rstep.ok i { background: var(--ok); border-color: var(--ok); color: #12070A; }
+@media (max-width: 860px) { .rstep { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; font-size: .72rem; padding: .4rem .2rem; } }
+.bar { height: 6px; border-radius: 99px; background: var(--card); overflow: hidden; margin-bottom: 1.4rem; }
+.bar i { display: block; height: 100%; width: 0; background: var(--grad); border-radius: 99px; transition: width .45s cubic-bezier(.3, 0, .2, 1); box-shadow: 0 0 12px var(--red); }
+
+.panel { border-radius: 24px; background: var(--card); border: 1px solid var(--line-2); padding: clamp(1.3rem, 1rem + 1.5vw, 2.2rem); box-shadow: var(--shadow); min-width: 0; }
+.step { display: grid; gap: 1.1rem; animation: in .45s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes in { from { opacity: 0; transform: translateX(16px); } }
+.step h3 { font-size: 1.35rem; }
+.step > p { color: var(--muted); font-size: .95rem; margin-top: -.6rem; }
+.fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+@media (max-width: 600px) { .fields { grid-template-columns: minmax(0, 1fr); } }
+.f { display: grid; gap: .4rem; align-content: start; }
+.f.full { grid-column: 1 / -1; }
+.f > label, .f > .lab { font: 700 .76rem/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.f > label b, .f > .lab b { color: var(--red-text); }
+.f input[type=text], .f input[type=email], .f input[type=url], .f select, .f textarea { width: 100%; min-height: 48px; padding: .65rem .85rem; border-radius: 12px; border: 1.5px solid var(--line-2); background: var(--bg); color: var(--ink); font: 400 1rem var(--f-body); outline: none; transition: border-color .15s, box-shadow .15s; }
+.f textarea { min-height: 96px; resize: vertical; }
+.f input:focus, .f select:focus, .f textarea:focus { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint); }
+.f .hint { font-size: .8rem; color: var(--muted); }
+.f.bad input, .f.bad select, .f.bad textarea { border-color: var(--bad); }
+.f .msg { font-size: .8rem; color: var(--bad); min-height: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip span { display: inline-flex; align-items: center; min-height: 40px; padding: .5rem .85rem; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--bg); font: 600 .88rem/1.2 var(--f-display); color: var(--text); cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+.chip input:checked + span { border-color: var(--red); background: var(--red-soft); color: #fff; }
+.chip input:focus-visible + span { outline: 2px solid var(--red); outline-offset: 2px; }
+.f.bad .chips span { border-color: rgba(255, 92, 124, .6); }
+.agree { display: grid; gap: .55rem; }
+.ag { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: .7rem; align-items: start; padding: .85rem 1rem; border-radius: 14px; background: var(--bg); border: 1.5px solid var(--line); cursor: pointer; font-size: .94rem; transition: border-color .15s; }
+.ag input { width: 20px; height: 20px; margin: .1rem 0 0; accent-color: var(--red); }
+.ag:has(input:checked) { border-color: rgba(79, 214, 156, .45); }
+.f.bad .ag:not(:has(input:checked)) { border-color: rgba(255, 92, 124, .6); }
+.nav-row { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; margin-top: .4rem; }
+.count { font: 500 .76rem/1 var(--f-mono); color: var(--muted); text-align: right; }
+
+.review { display: grid; gap: .4rem; border-radius: 16px; background: var(--bg); border: 1px solid var(--line); padding: 1rem 1.1rem; }
+.review div { display: grid; grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: .8rem; font-size: .92rem; padding-block: .35rem; border-bottom: 1px dashed var(--line); }
+.review div:last-child { border-bottom: 0; }
+.review dt { color: var(--muted); }
+.review dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; white-space: pre-wrap; }
+@media (max-width: 520px) { .review div { grid-template-columns: minmax(0, 1fr); gap: .1rem; } }
+.send-box { display: grid; gap: .8rem; padding: 1.1rem 1.2rem; border-radius: 16px; background: linear-gradient(160deg, var(--wine-2), var(--wine)); color: #F2DDE2; }
+.send-box .addr { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font: 600 1rem/1.3 var(--f-mono); color: #fff; }
+.send-box p { font-size: .9rem; }
+.done-card { text-align: center; display: grid; gap: .8rem; justify-items: center; padding: 1.5rem 0; animation: in .5s both; }
+.done-card .big { width: 84px; height: 84px; border-radius: 50%; background: var(--grad); display: grid; place-items: center; box-shadow: 0 0 40px rgba(255, 49, 92, .5); }
+.done-card .big svg { width: 40px; height: 40px; color: #fff; }
+.done-card h3 { font-size: 1.6rem; }
+.done-card p { max-width: 50ch; color: var(--text); }
+
+.seats { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font: 700 .84rem/1.2 var(--f-display); color: var(--text); }
+.seats .dots { display: inline-flex; gap: 5px; }
+.seats .dots i { width: 14px; height: 14px; border-radius: 4px; background: var(--grad); box-shadow: 0 0 10px rgba(255, 49, 92, .45); }
+.seats .dots i.taken { background: var(--card-2); box-shadow: none; border: 1px solid var(--line-2); }
+.seats.full { color: var(--warn); }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+@media (max-width: 860px) { .facts { grid-template-columns: minmax(0, 1fr); } }
+.facts div { padding: 1.1rem 1.2rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.facts b { display: block; font: 800 1rem/1.3 var(--f-display); color: var(--ink); }
+.facts span { font-size: .9rem; color: var(--muted); }
+.journey { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; margin-top: 1rem; }
+@media (max-width: 760px) { .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.journey div { position: relative; padding: 1rem; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+.journey em { font-style: normal; font: 800 .68rem/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--red-text); }
+.journey b { display: block; margin-top: .35rem; font: 800 .95rem/1.3 var(--f-display); color: var(--ink); }
+.journey span { display: block; font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+.say { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .9rem; align-items: start; padding: 1rem 1.1rem; border-radius: 14px; background: rgba(12, 11, 18, .7); border: 1px solid rgba(255, 255, 255, .1); position: relative; margin-top: .4rem; }
+.say .who { position: absolute; left: 1rem; top: 0; transform: translateY(-55%); padding: .2rem .7rem; border-radius: 6px; background: var(--grad); color: #fff; font: 800 .78rem/1.3 var(--f-display); }
+.say p { grid-column: 1 / -1; color: #F2DDE2; font-size: .95rem; padding-top: .4rem; }
+.f > label.toggle-ex { text-transform: none; letter-spacing: 0; font: 500 .94rem/1.4 var(--f-body); color: var(--text); }
+.toggle-ex { display: inline-flex; align-items: center; gap: .55rem; font-size: .9rem; color: var(--text); cursor: pointer; margin-top: .2rem; }
+.toggle-ex input { width: 18px; height: 18px; accent-color: var(--red); }
+.draft { font-size: .8rem; color: var(--muted); }
+
+/* phones: the application opens over the whole screen, with its own header and the buttons always at hand */
+.m-head { display: none; }
+@media (max-width: 760px) {
+  #apply.open { position: fixed; inset: 0; z-index: 90; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-block: 0; background: var(--bg); border: 0; }
+  .m-head { display: flex; position: sticky; top: 0; z-index: 3; align-items: center; gap: .8rem; padding: calc(env(safe-area-inset-top, 0px) + .65rem) max(16px, env(safe-area-inset-right, 0px)) .7rem max(16px, env(safe-area-inset-left, 0px)); background: rgba(18, 7, 10, .96); border-bottom: 1px solid var(--line); }
+  .m-head .t { flex: 1; min-width: 0; }
+  .m-head b { display: block; font: 800 1rem/1.25 var(--f-display); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .m-head span { font-size: .8rem; color: var(--muted); }
+  .m-head .x { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+  .m-head .x svg { width: 20px; height: 20px; }
+  .m-head .m-prog { position: absolute; left: 0; bottom: -1px; height: 3px; width: 0; background: var(--grad); box-shadow: 0 0 10px var(--red); transition: width .4s cubic-bezier(.3, 0, .2, 1); }
+  #apply.open .rail, #apply.open .bar { display: none; }
+  #apply .panel { border-radius: 0; border: 0; box-shadow: none; background: transparent; padding: 1.1rem 0 0; }
+  #apply .step h3 { font-size: 1.25rem; }
+  #apply .step .nav-row { position: sticky; bottom: 0; z-index: 2; margin: .4rem calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0; padding: 1.4rem max(16px, env(safe-area-inset-right, 0px)) calc(.8rem + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: linear-gradient(180deg, transparent, var(--bg) 35%); flex-wrap: nowrap; }
+  #apply .step .nav-row .btn { flex: 1; }
+  #apply .draft { display: none; }
+  .chip span { min-height: 44px; padding: .55rem .95rem; }
+  .ag { padding: 1rem; }
+}
+
+---body---
+<section class="page-hero">
+  <div class="blob" style="width:520px;height:520px;right:-160px;top:-200px;background:#FF315C"></div>
+  <div class="blob" style="width:320px;height:320px;left:-140px;bottom:-140px;background:#FF7043;opacity:.25;animation-delay:-6s"></div>
+  <div class="wrap">
+    <span class="kicker" id="round-kicker">Beta programs</span>
+    <h1>A few seats <span class="grad-text">before the release.</span></h1>
+    <p class="lead">Aside is looking for a small group of people who translate real Ren'Py games. Places are limited in every round and each application is read and picked by hand. You get an answer either way.</p>
+    <div class="routes">
+      <button class="route spot" type="button" data-route="test" aria-pressed="false" aria-controls="apply">
+        <span class="letter">A</span>
+        <span class="tagr">Route A · Testing</span>
+        <h2>Test the builds</h2>
+        <div class="seats" data-seats="test"></div>
+        <p>Every test build first. You try it on your games and report what breaks, clearly enough to fix.</p>
+        <div class="cols">
+          <div><h4>You get</h4><ul><li><svg><use href="#i-check"/></svg>Builds before everyone</li><li><svg><use href="#i-check"/></svg>A direct line to the author</li><li><svg><use href="#i-check"/></svg>A say in what gets fixed first</li></ul></div>
+          <div class="ask"><h4>We look for</h4><ul><li><svg><use href="#i-arrow"/></svg>Clear bug reports with steps</li><li><svg><use href="#i-arrow"/></svg>Windows and a few Ren'Py games</li><li><svg><use href="#i-arrow"/></svg>Discretion: builds stay private</li></ul></div>
+        </div>
+        <span class="go">Apply to test <svg><use href="#i-arrow"/></svg></span>
+      </button>
+      <button class="route spot" type="button" data-route="licence" aria-pressed="false" aria-controls="apply">
+        <span class="letter">B</span>
+        <span class="tagr">Route B · Sponsored licence</span>
+        <h2>Pro for an active project</h2>
+        <div class="seats" data-seats="licence"></div>
+        <p>For translators with a public project in progress. Not a giveaway: a licence in exchange for real use and honest feedback.</p>
+        <div class="cols">
+          <div><h4>You get</h4><ul><li><svg><use href="#i-check"/></svg>30 days of Pro, then a full licence</li><li><svg><use href="#i-check"/></svg>Help setting up your project</li><li><svg><use href="#i-check"/></svg>A spot in the showcase, if you like</li></ul></div>
+          <div class="ask"><h4>We look for</h4><ul><li><svg><use href="#i-arrow"/></svg>A public translation with progress</li><li><svg><use href="#i-arrow"/></svg>Feedback after 2 and 4 weeks</li><li><svg><use href="#i-arrow"/></svg>One licence per game and language</li></ul></div>
+        </div>
+        <span class="go">Apply for a licence <svg><use href="#i-arrow"/></svg></span>
+      </button>
+    </div>
+    <div class="facts">
+      <div><b>Picked by hand</b><span>Every application is read. Places are few, so not every one gets in this round.</span></div>
+      <div><b>An answer within 14 days</b><span>Yes, no or waiting list, always by e-mail.</span></div>
+      <div><b>Exceptions exist</b><span>Doesn't fit a rule but have a good reason? Say so in the application.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec band" id="apply" hidden aria-label="Application">
+  <div class="m-head"><div class="t"><b id="m-title">Application</b><span id="m-step"></span></div><button type="button" class="x" id="m-close" aria-label="Close the application (your answers are kept)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><i class="m-prog" id="m-prog"></i></div>
+  <div class="wrap wizard">
+    <div class="rail" id="rail"></div>
+    <div>
+      <div class="bar"><i id="bar"></i></div>
+      <form class="panel" id="form" novalidate></form>
+    </div>
+  </div>
+</section>
+---script---
+(function () {
+  var D = window.ASIDE_DATA || {}, P = D.program || { round: "Round 1", open: true, test: { places: 4, taken: 0 }, licence: { places: 3, taken: 0 } };
+  var MAIL = D.contact || "aside@filiposakkq.dev";
+  var LANGS = ["Czech", "Slovak", "Polish", "German", "French", "Spanish", "Portuguese (Brazil)", "Italian", "Russian", "Ukrainian", "Turkish", "Indonesian", "Vietnamese", "Japanese", "Chinese", "Korean", "Other"];
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  /* seats from data.js */
+  var left = function (k) { return Math.max(0, P[k].places - P[k].taken); };
+  var LIVE = false;
+  function seats() {
+    document.getElementById("round-kicker").textContent = "Beta programs · " + P.round + (P.closes ? " · closes " + new Date(P.closes).toLocaleDateString() : "");
+    document.querySelectorAll("[data-seats]").forEach(function (el) {
+      var k = el.getAttribute("data-seats"), n = P[k].places, l = left(k), dots = "";
+      for (var i = 0; i < Math.min(n, 12); i++) dots += "<i" + (i >= l ? ' class="taken"' : "") + "></i>";
+      el.classList.toggle("full", !l || !P.open);
+      el.innerHTML = '<span class="dots" aria-hidden="true">' + dots + "</span>" + (!P.open ? "Applications are closed for now" : l ? l + " of " + n + " places left in " + P.round : "Round full · join the waiting list");
+    });
+  }
+  seats();
+  /* with the server: live places, and the application is sent straight from the page */
+  AsideAPI.config().then(function (c) { if (!c) return; LIVE = true; P = c.program; seats(); if (route && step >= steps().length) draw(); });
+
+  /* field: [id, label, type, required, extra]; extra.when / extra.unless: shown only when the checkbox "exception" is on / off */
+  var ROUTES = {
+    test: { name: "Testing", subject: "Aside beta: testing application", who: "Route A", steps: [
+      { t: "About you", say: "Hi! First, who are you and where can I reach you?", f: [
+        ["nick", "Nickname", "text", 1], ["email", "E-mail", "email", 1],
+        ["discord", "Discord name", "text", 0, { hint: "Optional, for faster bug chats" }],
+        ["speak", "Languages you speak", "chips", 1, { opts: ["English", "Czech", "Slovak", "Polish", "German", "Spanish", "French", "Russian", "Other"], multi: 1 }] ] },
+      { t: "Your setup", say: "Test builds behave differently on different computers and games.", f: [
+        ["win", "Windows", "chips", 1, { opts: ["Windows 11", "Windows 10"] }],
+        ["ram", "Memory (RAM)", "chips", 1, { opts: ["4 GB", "8 GB", "16 GB", "32 GB or more"] }],
+        ["exp", "Your experience with Ren'Py translation", "chips", 1, { opts: ["New to it", "Translated one game", "I translate regularly", "I make Ren'Py games"] }],
+        ["games", "Ren'Py games you can test on", "textarea", 1, { min: 15, hint: "Names of games you have, ideally of different sizes" }] ] },
+      { t: "Bug sense", say: "The most useful testers describe problems well. Show me how you would.", f: [
+        ["bug", "Describe the last bug you found in any program", "textarea", 1, { min: 80, hint: "What you did, what happened, what you expected. Any app counts." }],
+        ["hours", "Time you can give", "chips", 1, { opts: ["1–2 h a week", "3–5 h a week", "More"] }],
+        ["agree", "You agree", "agree", 1, { opts: ["I report bugs with the steps that cause them and a screenshot.", "I keep a backup of my translation; test builds can have bugs.", "I don't share test builds or their links.", "I understand places are limited and picked by hand."] }],
+        ["note", "Anything else?", "textarea", 0, { hint: "Exceptions, other tools you use, what you hope Aside fixes" }] ] } ] },
+    licence: { name: "Sponsored licence", subject: "Aside beta: sponsored licence application", who: "Route B", steps: [
+      { t: "About you", say: "Hi! The licence goes to the e-mail you give here.", f: [
+        ["nick", "Nickname", "text", 1], ["email", "E-mail", "email", 1],
+        ["discord", "Discord name", "text", 0, { hint: "Optional" }],
+        ["lang", "You translate into", "select", 1, { opts: LANGS }] ] },
+      { t: "Your project", say: "Sponsored licences go to active, public translations. Show me yours.", f: [
+        ["game", "Game and version", "text", 1, { hint: "e.g. Eternum 0.9" }],
+        ["link", "Link to your translation", "url", 1, { unless: "exception", hint: "Its thread, Patreon, website or release page" }],
+        ["exception", "", "exception", 0],
+        ["why_ex", "Why should your project be an exception?", "textarea", 1, { when: "exception", min: 60, hint: "Not public yet, a team project, a special case: tell me" }],
+        ["progress", "How far you are", "chips", 1, { opts: ["Under 10 %", "10–25 %", "25–75 %", "Over 75 %", "Released, now updating"] }],
+        ["size", "Size of the game", "chips", 1, { opts: ["Under 10k lines", "10k–50k", "50k–150k", "Over 150k", "Not sure"] }],
+        ["team", "Team", "chips", 1, { opts: ["Just me", "2–3 people", "4 or more"] }],
+        ["tools", "Tools you use now", "text", 1, { hint: "e.g. Notepad++, Translator++, renpy-translator" }] ] },
+      { t: "How it works", say: "Here is the deal. A trial first, the full licence after your feedback.", journey: 1, f: [
+        ["why", "What takes you the most time today?", "textarea", 1, { min: 60, hint: "Tell me where Pro would help your project" }],
+        ["agree", "You agree", "agree", 1, { opts: ["I start with 30 days of Pro; the full licence for this major version follows after my feedback.", "I send short feedback after 2 and after 4 weeks.", "I report the bugs I find.", "I understand there are 3 places per round, one per game and language, picked by hand."] }],
+        ["show", "Showcase", "agree", 0, { opts: ["You may list my translation in the Aside showcase."] }] ] } ] }
+  };
+  var route = null, step = 0, data = {};
+  var form = document.getElementById("form"), rail = document.getElementById("rail"), bar = document.getElementById("bar"), apply = document.getElementById("apply");
+  var phone = function () { return matchMedia("(max-width: 760px)").matches; };
+  function toTopOfForm() { if (phone()) apply.scrollTo({ top: 0, behavior: "smooth" }); else form.scrollIntoView({ block: "start", behavior: "smooth" }); }
+  function closeApp() { apply.classList.remove("open"); document.body.style.overflow = ""; if (phone()) { apply.hidden = true; document.querySelectorAll(".route").forEach(function (b) { b.setAttribute("aria-pressed", "false"); }); var r = document.querySelector('.route[data-route="' + route + '"]'); if (r) r.focus(); } }
+  document.getElementById("m-close").addEventListener("click", closeApp);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && apply.classList.contains("open") && phone()) closeApp(); });
+  var save = function () { try { localStorage.setItem("aside-beta-" + route, JSON.stringify({ step: step, data: data })); } catch (e) {} };
+  var load = function (r) { try { return JSON.parse(localStorage.getItem("aside-beta-" + r) || "null"); } catch (e) { return null; } };
+  var forget = function () { try { localStorage.removeItem("aside-beta-" + route); } catch (e) {} };
+  var shown = function (f) { var x = f[4] || {}; return x.when ? !!data[x.when] : x.unless ? !data[x.unless] : true; };
+
+  function field(f) {
+    var id = f[0], lab = f[1], type = f[2], req = f[3], x = f[4] || {}, v = data[id], star = req ? " <b>*</b>" : "";
+    var full = type === "textarea" || type === "agree" || type === "exception" || (type === "chips" && x.opts.length > 4);
+    var h = '<div class="f' + (full ? " full" : "") + '" data-id="' + id + '"' + (shown(f) ? "" : " hidden") + ">";
+    if (type === "exception") return h + '<label class="toggle-ex"><input type="checkbox" id="f-exception"' + (v ? " checked" : "") + '>My project is not public yet, or I don\'t fit the rules: I am asking for an exception</label><span class="msg"></span></div>';
+    if (type === "chips" || type === "agree") h += '<span class="lab" id="lab-' + id + '">' + esc(lab) + star + "</span>"; else h += '<label for="f-' + id + '">' + esc(lab) + star + "</label>";
+    if (type === "text" || type === "email" || type === "url") h += '<input id="f-' + id + '" type="' + type + '" maxlength="160" value="' + esc(v || "") + '"' + (type === "email" ? ' autocomplete="email"' : "") + (type === "url" ? ' placeholder="https://"' : "") + ">";
+    if (type === "textarea") h += '<textarea id="f-' + id + '" maxlength="1200">' + esc(v || "") + "</textarea>" + (x.min ? '<span class="count" id="c-' + id + '"></span>' : "");
+    if (type === "select") h += '<select id="f-' + id + '"><option value="">Choose…</option>' + x.opts.map(function (o) { return "<option" + (v === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>";
+    if (type === "chips") h += '<div class="chips" role="' + (x.multi ? "group" : "radiogroup") + '" aria-labelledby="lab-' + id + '">' + x.opts.map(function (o, i) {
+      var on = x.multi ? (v || []).indexOf(o) >= 0 : v === o;
+      return '<label class="chip"><input type="' + (x.multi ? "checkbox" : "radio") + '" name="' + id + '" id="f-' + id + "-" + i + '" value="' + esc(o) + '"' + (on ? " checked" : "") + "><span>" + esc(o) + "</span></label>"; }).join("") + "</div>";
+    if (type === "agree") h += '<div class="agree" role="group" aria-labelledby="lab-' + id + '">' + x.opts.map(function (o, i) {
+      return '<label class="ag"><input type="checkbox" name="' + id + '" id="f-' + id + "-" + i + '" value="' + esc(o) + '"' + ((v || []).indexOf(o) >= 0 ? " checked" : "") + "><span>" + esc(o) + "</span></label>"; }).join("") + "</div>";
+    if (x.hint) h += '<span class="hint">' + esc(x.hint) + "</span>";
+    return h + '<span class="msg" aria-live="polite"></span></div>';
+  }
+  var steps = function () { return ROUTES[route].steps; };
+  function drawRail() {
+    var all = steps().map(function (s) { return s.t; }).concat(["Review and send"]);
+    rail.innerHTML = '<span class="rt">' + ROUTES[route].who + " · " + ROUTES[route].name + "</span>" + all.map(function (t, i) { return '<div class="rstep' + (i < step ? " ok" : i === step ? " now" : "") + '"><i>' + (i < step ? "✓" : i + 1) + "</i><span>" + t + "</span></div>"; }).join("");
+    bar.style.width = (step / all.length * 100) + "%";
+    document.getElementById("m-prog").style.width = bar.style.width;
+    document.getElementById("m-title").textContent = ROUTES[route].who + " · " + ROUTES[route].name;
+    document.getElementById("m-step").textContent = step < steps().length ? "Step " + (step + 1) + " of " + all.length + " · " + all[step] : "Last step · " + all[all.length - 1];
+  }
+  function collect() {
+    if (step >= steps().length) return;
+    steps()[step].f.forEach(function (f) {
+      var id = f[0], type = f[2];
+      if (type === "exception") { var c = document.getElementById("f-exception"); data[id] = !!(c && c.checked); }
+      else if (type === "chips" && f[4].multi || type === "agree") data[id] = Array.prototype.slice.call(form.querySelectorAll('input[name="' + id + '"]:checked')).map(function (i) { return i.value; });
+      else if (type === "chips") { var r = form.querySelector('input[name="' + id + '"]:checked'); data[id] = r ? r.value : ""; }
+      else { var el = document.getElementById("f-" + id); data[id] = el ? el.value.trim() : ""; }
+    });
+    save();
+  }
+  function validate() {
+    var ok = true, first = null;
+    steps()[step].f.forEach(function (f) {
+      var id = f[0], type = f[2], req = f[3], x = f[4] || {}, v = data[id], msg = "";
+      if (req && shown(f)) {
+        if (type === "agree") { if ((v || []).length < x.opts.length) msg = "Please agree to all of these."; }
+        else if (Array.isArray(v) ? !v.length : !v) msg = type === "chips" ? "Pick one." : "This is required.";
+        else if (type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) msg = "This does not look like an e-mail address.";
+        else if (type === "url" && !/^https?:\/\/\S+\.\S+/.test(v)) msg = "Paste a full link starting with https://";
+        else if (x.min && v.length < x.min) msg = "A bit more, please (" + v.length + " of at least " + x.min + " characters).";
+      }
+      var box = form.querySelector('[data-id="' + id + '"]');
+      box.classList.toggle("bad", !!msg); box.querySelector(".msg").textContent = msg;
+      if (msg) { ok = false; if (!first) first = box; }
+    });
+    if (first) { var inp = first.querySelector("input, select, textarea"); if (inp) inp.focus(); }
+    return ok;
+  }
+  function pairs() {
+    var out = [];
+    steps().forEach(function (s) { s.f.forEach(function (f) {
+      var v = data[f[0]]; if (!shown(f) || !v || (Array.isArray(v) && !v.length)) return;
+      out.push([f[2] === "exception" ? "Exception" : f[1], f[2] === "exception" ? "asked for" : v, f[2]]);
+    }); });
+    return out;
+  }
+  function body() {
+    return ["Route: " + ROUTES[route].name + " (" + P.round + ")", ""].concat(pairs().map(function (p) { return p[0] + ": " + (Array.isArray(p[1]) ? (p[2] === "agree" ? "\n  - " + p[1].join("\n  - ") : p[1].join(", ")) : p[1]); })).join("\n");
+  }
+  function copy(text, btn, label) {
+    var ok = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = label; }, 1600); };
+    var fb = function () { var t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); ok(); } catch (e) { btn.textContent = "Copy failed"; } t.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fb); else fb();
+  }
+  function say(t) { return '<div class="say"><span class="who">Aside</span><p>' + esc(t) + "</p></div>"; }
+  function draw() {
+    drawRail();
+    var S = steps();
+    if (step >= S.length) {
+      var rows = pairs().map(function (p) { return "<div><dt>" + esc(p[0]) + "</dt><dd>" + esc(Array.isArray(p[1]) ? p[1].join(p[2] === "agree" ? "\n" : ", ") : p[1]) + "</dd></div>"; }).join("");
+      var full = !left(route) || !P.open;
+      var href = "mailto:" + MAIL + "?subject=" + encodeURIComponent(ROUTES[route].subject + (full ? " (waiting list)" : "") + " · " + data.nick) + "&body=" + encodeURIComponent(body());
+      if (LIVE) {
+        form.innerHTML = '<div class="step"><h3>Review and send</h3>' + say(full ? "This round is full, so your application goes to the waiting list. I'll write when a place opens." : "Check your answers, then send. You get a confirmation by e-mail.") + '<dl class="review" style="margin:0">' + rows + "</dl>" +
+          '<div id="ts"></div><p class="err" id="send-err" role="alert" style="color:var(--bad);margin:0"></p>' +
+          '<div class="nav-row"><button type="button" class="btn" id="back">Back</button><button type="button" class="btn btn-hot" id="send-live">Send application</button></div>' +
+          '<p class="draft" style="display:block;text-align:center">Trouble sending? <a href="' + href + '" style="color:var(--red-text)">Send it by e-mail instead</a></p></div>';
+        var token = function () { return ""; };
+        AsideAPI.human(document.getElementById("ts")).then(function (t) { token = t; });
+        document.getElementById("back").onclick = function () { step--; save(); draw(); toTopOfForm(); };
+        document.getElementById("send-live").onclick = function () {
+          var btn = this; btn.disabled = true; btn.textContent = "Sending…"; document.getElementById("send-err").textContent = "";
+          AsideAPI.call("apply", { route: route, fields: data, answers: pairs().map(function (p) { return [p[0], p[1]]; }), turnstile: token() }).then(function (j) {
+            if (!j.ok) { btn.disabled = false; btn.textContent = "Send application"; document.getElementById("send-err").textContent = AsideAPI.why(j); return; }
+            forget(); bar.style.width = "100%"; rail.querySelectorAll(".rstep").forEach(function (r) { r.className = "rstep ok"; r.querySelector("i").textContent = "✓"; });
+            form.innerHTML = '<div class="done-card"><div class="big"><svg><use href="#i-check"/></svg></div><h3>Thank you, ' + esc(data.nick) + '.</h3><p>Your application arrived' + (j.waitlist ? " and is on the waiting list" : "") + '. A confirmation is on its way to ' + esc(data.email) + '. Every application is read, and you will get an answer within 14 days, yes or no.</p><button type="button" class="btn" id="done-close">Close</button></div>';
+            document.getElementById("done-close").onclick = function () { if (phone()) closeApp(); else apply.hidden = true; window.scrollTo({ top: 0, behavior: "smooth" }); };
+          }, function () { btn.disabled = false; btn.textContent = "Send application"; document.getElementById("send-err").textContent = AsideAPI.why(null); });
+        };
+        return;
+      }
+      form.innerHTML = '<div class="step"><h3>Review and send</h3>' + say(full ? "This round is full, so your application goes to the waiting list. I'll write when a place opens." : "Check your answers. Sending opens your e-mail app with everything filled in.") + '<dl class="review" style="margin:0">' + rows + "</dl>" +
+        '<div class="send-box"><div class="addr">' + esc(MAIL) + ' <button type="button" class="copy-btn" id="copy-addr">Copy address</button></div><p>If your e-mail app does not open, copy the application and send it to this address yourself.</p>' +
+        '<div class="nav-row" style="margin:0"><a class="btn btn-hot" id="send" href="' + href + '">Send by e-mail</a><button type="button" class="btn btn-ghost-dark" id="copy-app">Copy application</button></div></div>' +
+        '<div class="nav-row"><button type="button" class="btn" id="back">Back</button><button type="button" class="btn" id="sent">I sent it</button></div></div>';
+      document.getElementById("copy-addr").onclick = function (e) { copy(MAIL, e.target, "Copy address"); };
+      document.getElementById("copy-app").onclick = function (e) { copy("To: " + MAIL + "\nSubject: " + ROUTES[route].subject + "\n\n" + body(), e.target, "Copy application"); };
+      document.getElementById("back").onclick = function () { step--; save(); draw(); toTopOfForm(); };
+      document.getElementById("sent").onclick = function () {
+        forget(); bar.style.width = "100%"; rail.querySelectorAll(".rstep").forEach(function (r) { r.className = "rstep ok"; r.querySelector("i").textContent = "✓"; });
+        form.innerHTML = '<div class="done-card"><div class="big"><svg><use href="#i-check"/></svg></div><h3>Thank you, ' + esc(data.nick) + '.</h3><p>Your application is on its way. Every application is read, and you will get an answer at ' + esc(data.email) + ' within 14 days, yes or no.</p><button type="button" class="btn" id="done-close">Close</button></div>';
+        document.getElementById("done-close").onclick = function () { if (phone()) closeApp(); else apply.hidden = true; window.scrollTo({ top: 0, behavior: "smooth" }); };
+      };
+      return;
+    }
+    var s = S[step];
+    var journey = s.journey ? '<div class="journey"><div><em>Step 1</em><b>Accepted</b><span>Picked by hand from this round</span></div><div><em>Step 2</em><b>30 days of Pro</b><span>A trial licence for your project</span></div><div><em>Step 3</em><b>Feedback</b><span>Short notes after 2 and 4 weeks</span></div><div><em>Step 4</em><b>Full licence</b><span>For this major version</span></div></div>' : "";
+    form.innerHTML = '<div class="step"><h3>' + s.t + "</h3>" + say(s.say) + journey + '<div class="fields">' + s.f.map(field).join("") + '</div><div class="nav-row">' +
+      (step ? '<button type="button" class="btn" id="back">Back</button>' : '<button type="button" class="btn" id="switch">Other route</button>') +
+      '<span class="draft">Your answers are kept in this browser until you send them.</span><button type="submit" class="btn btn-hot">' + (step === S.length - 1 ? "Review" : "Next") + "</button></div></div>";
+    s.f.forEach(function (f) { var x = f[4] || {}; if (x.min) { var ta = document.getElementById("f-" + f[0]), c = document.getElementById("c-" + f[0]); var u = function () { c.textContent = ta.value.trim().length + " / " + x.min + "+"; }; ta.addEventListener("input", u); u(); } });
+    var ex = document.getElementById("f-exception");
+    if (ex) ex.addEventListener("change", function () { collect(); s.f.forEach(function (f) { var b = form.querySelector('[data-id="' + f[0] + '"]'); if (b) b.hidden = !shown(f); }); });
+    var b = document.getElementById("back"); if (b) b.onclick = function () { collect(); step--; save(); draw(); toTopOfForm(); };
+    var sw = document.getElementById("switch"); if (sw) sw.onclick = function () { collect(); choose(route === "test" ? "licence" : "test"); };
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); collect(); if (!validate()) return; step++; save(); draw(); toTopOfForm(); });
+  form.addEventListener("input", function () { clearTimeout(form._t); form._t = setTimeout(collect, 400); });
+  function choose(r) {
+    if (route !== r) {
+      var keep = { nick: data.nick, email: data.email, discord: data.discord };
+      route = r; var saved = load(r);
+      if (saved) { step = Math.min(saved.step || 0, steps().length); data = saved.data || {}; ["nick", "email", "discord"].forEach(function (k) { if (!data[k] && keep[k]) data[k] = keep[k]; }); }
+      else { step = 0; data = keep; }
+    }
+    document.querySelectorAll(".route").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-route") === r)); });
+    apply.hidden = false; apply.classList.add("open"); draw();
+    if (phone()) { document.body.style.overflow = "hidden"; apply.scrollTop = 0; var first = form.querySelector("input, select, textarea"); }
+  }
+  document.querySelectorAll(".route").forEach(function (b) { b.addEventListener("click", function () { choose(b.getAttribute("data-route")); if (!phone()) apply.scrollIntoView({ behavior: "smooth" }); }); });
+  var h = location.hash.replace("#", "");
+  if (h === "test" || h === "licence") choose(h);
+})();

@@ -1,0 +1,21 @@
+-- The roadmap as it was on the website before the server (web/data.js); edit it in the admin from now on.
+INSERT INTO roadmap (id, col, title, text, tier, sort, created) VALUES
+('installer-and-switch-over', 'now', 'Installer and switch-over', 'Per-user installer, tested from the installed copy on every change.', 'free', 0, 0),
+('code-signing', 'now', 'Code signing', 'So Windows stops warning about the installer.', 'free', 10, 0),
+('updates', 'now', 'Updates', 'Aside tells you about a new version and installs it.', 'free', 20, 0),
+('licence-server', 'now', 'Licence server', 'Activation, two computers, freeing a computer.', 'pro', 30, 0),
+('game-picker', 'next', 'Game picker', 'A start screen with your games and translations.', 'free', 40, 0),
+('prepare-a-game-window', 'next', '"Prepare a game" window', 'Unpack, decompile and generate translation files with a few clicks.', 'free', 50, 0),
+('refreshed-interface', 'next', 'Refreshed interface', 'A cleaner look for the editor and the tabs.', 'free', 60, 0),
+('user-guide-in-the-app', 'next', 'User guide in the app', 'Help where you need it, not only on the website.', 'free', 70, 0),
+('carry-over-to-a-new-game-version', 'later', 'Carry over to a new game version', 'Old translations matched to changed and moved lines, marked for a check.', 'pro', 80, 0),
+('layered-images-in-the-scene-preview', 'later', 'Layered images in the scene preview', 'Draw characters and scenes built from layers.', 'free', 90, 0),
+('fuzzy-translation-memory', 'later', 'Fuzzy translation memory', 'Suggestions from similar lines, not only identical ones.', 'pro', 100, 0),
+('style-check', 'later', 'Style check', 'Formal and informal address, gender, character voice, using the language pack.', 'pro', 110, 0),
+('character-profiles', 'later', 'Character profiles', 'Who speaks how, passed to batch machine translation.', 'pro', 120, 0),
+('release-builder', 'later', 'Release builder', 'From translation to an installable patch with version and changelog.', 'pro', 130, 0),
+('teamwork', 'later', 'Teamwork', 'Assignments, translator and proofreader roles, merging edits.', 'pro', 140, 0),
+('more-language-packs', 'ideas', 'More language packs', 'Rules for more languages, downloadable in the app.', 'free', 150, 0),
+('reports-and-saved-views', 'ideas', 'Reports and saved views', 'CSV or PDF reports, saved filter views.', 'pro', 160, 0),
+('linux-and-macos', 'ideas', 'Linux and macOS', 'Possible with the new core; not promised yet.', 'free', 170, 0),
+('czech-version-of-the-website', 'ideas', 'Czech version of the website', 'This site, in Czech.', 'web', 180, 0);

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aside Releases</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Releases, changelog and statistics of Aside, the translation manager for Ren'Py.">
+<meta name="theme-color" content="#12070A">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+/* Layout concept: a release board. The next build sits on top like a marquee, the numbers behind it in tiles,
+   and the changelog runs down a lit timeline. */
+section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
+.band { background: var(--bg-2); border-block: 1px solid var(--line); }
+.sec-head { max-width: 760px; margin-bottom: clamp(1.8rem, 1.4rem + 2vw, 3rem); }
+.lead { font-size: 1.1rem; max-width: 60ch; margin-top: 1rem; }
+
+.rel-hero { position: relative; overflow: hidden; padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) clamp(3rem, 2rem + 4vw, 5rem); }
+.rel-hero .wrap { position: relative; z-index: 1; }
+.rel-hero h1 { font-size: clamp(2.6rem, 1.8rem + 3.5vw, 4.4rem); font-weight: 800; letter-spacing: -.05em; line-height: 1; }
+.next { margin-top: 2.2rem; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr); gap: 0; border-radius: 24px; overflow: hidden; border: 1px solid var(--line-2); background: var(--card); box-shadow: var(--shadow); }
+@media (max-width: 860px) { .next { grid-template-columns: minmax(0, 1fr); } }
+.next-main { padding: clamp(1.4rem, 1rem + 2vw, 2.4rem); display: grid; gap: 1rem; align-content: start; }
+.next-top { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: .5rem; padding: .4rem .75rem; border-radius: 999px; font: 700 .76rem/1 var(--f-display); }
+.pill.live { background: var(--red-soft); color: #FFC2CF; }
+.pill.live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 0 var(--red); animation: ping 1.8s infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(255, 49, 92, .7); } 100% { box-shadow: 0 0 0 10px rgba(255, 49, 92, 0); } }
+.pill.os { background: rgba(255, 255, 255, .06); color: var(--text); }
+.next h2 { font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem); }
+.next p { color: var(--text); max-width: 56ch; }
+.next .btns { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .4rem; }
+.btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.next-side { padding: clamp(1.4rem, 1rem + 2vw, 2.4rem); background: linear-gradient(160deg, var(--wine-2), var(--wine)); display: grid; gap: .9rem; align-content: start; }
+.next-side h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .14em; color: #FFB3C3; }
+.req { display: grid; gap: .55rem; font-size: .93rem; color: #F2DDE2; }
+.req div { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .55rem; border-bottom: 1px dashed rgba(255, 255, 255, .14); }
+.req b { color: #fff; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.next-side > *, .next-main > * { min-width: 0; }
+.check-box { margin-top: .4rem; font-size: .86rem; color: #E3C9D0; }
+.check-box code { display: block; margin-top: .4rem; padding: .6rem .7rem; border-radius: 10px; background: rgba(0, 0, 0, .3); color: #FFD9E1; overflow-x: auto; white-space: nowrap; }
+
+/* stats */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 960px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { padding: 1.4rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); display: grid; gap: .4rem; align-content: start; }
+.stat b { font: 800 clamp(1.9rem, 1.5rem + 1.4vw, 2.6rem)/1 var(--f-display); letter-spacing: -.04em; color: var(--ink); }
+.stat b em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.stat span { font-size: .88rem; color: var(--muted); }
+.stat.wide { grid-column: span 2; }
+@media (max-width: 520px) { .stat.wide { grid-column: auto; } .stats { grid-template-columns: minmax(0, 1fr); } }
+.chart { margin-top: 1.2rem; padding: clamp(1.2rem, 1rem + 1vw, 1.8rem); border-radius: var(--r); background: var(--card); border: 1px solid var(--line); }
+.chart-head { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: baseline; margin-bottom: 1.2rem; }
+.chart-head h3 { font-size: 1.1rem; }
+.chart-head span { font-size: .85rem; color: var(--muted); }
+.bars { display: grid; gap: .7rem; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr) 76px; gap: .9rem; align-items: center; font-size: .9rem; }
+.bar-row .nm { color: var(--ink); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row .tr { height: 14px; border-radius: 99px; background: var(--bg); overflow: hidden; }
+.bar-row .tr i { display: block; height: 100%; width: var(--w); border-radius: 99px; background: var(--grad); transform-origin: left; transition: transform 1.2s cubic-bezier(.3, 0, .2, 1); }
+.bar-row.l .tr i { background: repeating-linear-gradient(135deg, var(--ember) 0 6px, rgba(255, 112, 67, .45) 6px 12px); }
+.bars.pre i { transform: scaleX(0); }
+.bar-row .v { text-align: right; font: 500 .8rem/1 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .bar-row { grid-template-columns: minmax(0, 1fr) 70px; } .bar-row .tr { grid-column: 1 / -1; grid-row: 2; } }
+.legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1.2rem; font-size: .82rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: .5rem; }
+.legend i { width: 22px; height: 8px; border-radius: 9px; background: var(--grad); }
+.legend i.l { background: repeating-linear-gradient(135deg, var(--ember) 0 6px, rgba(255, 112, 67, .45) 6px 12px); }
+
+/* changelog */
+.log { position: relative; display: grid; gap: 1.2rem; max-width: 900px; }
+.log::before { content: ""; position: absolute; left: 15px; top: 10px; bottom: 10px; width: 2px; background: linear-gradient(180deg, var(--red), var(--ember) 30%, var(--line-2) 60%); }
+.entry { position: relative; padding-left: 52px; }
+.entry::before { content: ""; position: absolute; left: 6px; top: 20px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 3px solid var(--red); box-shadow: 0 0 14px rgba(255, 49, 92, .6); }
+.entry.old::before { border-color: var(--line-2); box-shadow: none; }
+.entry-card { border-radius: var(--r); background: var(--card); border: 1px solid var(--line); padding: clamp(1.1rem, .9rem + 1vw, 1.6rem); }
+.entry-top { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.entry-top h3 { font-size: 1.2rem; margin-right: auto; }
+.when { font: 600 .74rem/1 var(--f-mono); color: var(--muted); }
+.entry > .entry-card > p { margin-top: .6rem; color: var(--text); }
+.changes { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .55rem; }
+.changes li { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: .7rem; align-items: start; font-size: .94rem; }
+@media (max-width: 520px) { .changes li { grid-template-columns: minmax(0, 1fr); gap: .25rem; } }
+.tag { justify-self: start; font: 800 .64rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .1em; padding: .38rem .5rem; border-radius: 6px; margin-top: .1rem; }
+.tag.new { background: var(--red-soft); color: #FFC2CF; }
+.tag.imp { background: var(--ok-soft); color: var(--ok); }
+.tag.fix { background: var(--warn-soft); color: var(--warn); }
+.tag.core { background: rgba(121, 195, 255, .13); color: #9CD3FF; }
+.more { margin-top: .9rem; }
+.more summary { cursor: pointer; font: 700 .88rem/1 var(--f-display); color: var(--red-text); list-style: none; }
+.more summary::-webkit-details-marker { display: none; }
+.more summary::before { content: "+ "; }
+.more[open] summary::before { content: "− "; }
+
+.reveal { transition: opacity .6s ease, transform .6s ease; }
+.js .reveal.pre { opacity: .001; transform: translateY(16px); }
+@media (prefers-reduced-motion: reduce) { .js .reveal.pre { opacity: 1; transform: none; } .bars.pre i { transform: none; } }
+</style>
+</head>
+<body data-own-counters>
+<a class="skip" href="#main">Skip to content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF315C"/><stop offset="1" stop-color="#FF7043"/></linearGradient>
+    <symbol id="logo" viewBox="80 80 900 870">
+      <path d="M238.4 292.5 Q272.1 192.2 376.6 175 L797.6 105.9 Q960 79.3 949.7 243.6 L915.1 798 Q905.9 944.7 760.8 921.6 L185.9 830.1 Q64 810.7 103.4 693.6 Z" fill="url(#brandg)"/>
+      <path d="M187.5 756.6 L452.6 318.8 Q470.8 288.6 506.1 288.6 L567.3 288.6 Q602.5 288.6 618.2 320.2 L834.2 756.6 L675.4 756.6 L524.9 453.2 L363.8 756.6 Z" fill="#fff"/>
+      <path d="M466.1 633.1 L614.3 633.1 L675.4 756.6 L552 756.6 Z" fill="#fff" fill-opacity=".62"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Aside, home"><svg aria-hidden="true"><use href="#logo"/></svg>aside<span class="sub">Releases</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="./#tour">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="./#pricing">Pricing</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="releases.html" class="on">Releases</a>
+      <a href="blog.html">Blog</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+    <div class="top-cta"><a class="btn btn-sm btn-hot" href="beta.html">Join the beta</a></div>
+  </div>
+</header>
+
+<main id="main">
+<section class="rel-hero" id="next">
+  <div class="blob" style="width:520px;height:520px;right:-160px;top:-200px;background:#FF315C"></div>
+  <div class="blob" style="width:340px;height:340px;left:-120px;bottom:-160px;background:#FF7043;opacity:.25;animation-delay:-7s"></div>
+  <div class="wrap">
+    <span class="kicker">Releases</span>
+    <h1>Every build, <span class="grad-text">every change.</span></h1>
+    <div class="next spot">
+      <div class="next-main">
+        <div class="next-top"><span class="pill live">In final testing</span><span class="pill os">Windows 10 / 11 · 64-bit</span></div>
+        <h2>The first public build is on its way.</h2>
+        <p>One installer, one window, a fast Rust core. The installer is built and tested automatically on every change; code signing, updates and the licence server are being finished before it goes out.</p>
+        <div class="btns">
+          <a class="btn btn-hot" href="beta.html"><svg><use href="#i-bell"/></svg>Get in early</a><a class="btn" href="mailto:aside@filiposakkq.dev?subject=Tell%20me%20when%20Aside%20is%20out">Tell me when it's out</a>
+          <span class="btn" aria-disabled="true"><svg><use href="#i-down"/></svg>Download for Windows · soon</span>
+        </div>
+      </div>
+      <div class="next-side">
+        <h3>What you will get</h3>
+        <div class="req">
+          <div>Installer<b>Aside_&lt;version&gt;_x64-setup.exe</b></div>
+          <div>Install<b>per user, no admin</b></div>
+          <div>System<b>Windows 10 or 11, 64-bit</b></div>
+          <div>Runtime<b>Edge WebView2</b></div>
+          <div>Internet<b>not needed</b></div>
+        </div>
+        <p class="check-box">Every file is published with a SHA-256 checksum. Check it in PowerShell:<code>Get-FileHash .\Aside_&lt;version&gt;_x64-setup.exe -Algorithm SHA256</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="stats" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Statistics</span>
+      <h2>Aside in numbers.</h2>
+      <p class="lead">Taken from the repository and the test reports of the current development build.</p>
+    </div>
+    <div class="stats">
+      <div class="stat spot"><b class="counter" data-to="8">8</b><span>real Ren'Py games tested, from archive to translation</span></div>
+      <div class="stat spot"><b><em class="counter" data-to="1400000" data-fmt="M">1.4 M</em></b><span>lines of real translations read identically by the old and new core</span></div>
+      <div class="stat spot"><b class="counter" data-to="8968">8 968</b><span>read calls compared on those games: 0 differences</span></div>
+      <div class="stat spot"><b class="counter" data-to="80">80</b><span>operations under the hood, the same in every build</span></div>
+      <div class="stat spot"><b><em class="counter" data-to="749">749</em>/749</b><span>recorded test cases matching</span></div>
+      <div class="stat spot"><b>139/139</b><span>interface self-test checks, run inside the installed app</span></div>
+      <div class="stat spot"><b class="counter" data-to="724">724</b><span>automated tests (648 Python, 76 Rust), plus the recorded cases</span></div>
+      <div class="stat spot"><b class="counter" data-to="1465">1 465</b><span>interface texts translated into Czech, the first language pack</span></div>
+      <div class="stat spot"><b class="counter" data-to="33">33</b><span>kinds of check messages for tags, variables, length and more</span></div>
+      <div class="stat spot"><b class="counter" data-to="26000" data-fmt="k">26 k</b><span>lines of Rust in the new core and app</span></div>
+      <div class="stat spot wide"><b><em class="counter" data-to="84">84</em> pull requests</b><span>merged on the way from the first tool to the desktop app, each one tested</span></div>
+    </div>
+
+    <div class="chart">
+      <div class="chart-head"><h3>The tested games, by size</h3><span>translation lines per game, to scale</span></div>
+      <div class="bars" id="bars"></div>
+      <div class="legend"><span><i></i>Full-screen scenes: preview fully supported</span><span><i class="l"></i>Layered images: background only, for now</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="changelog">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Changelog</span>
+      <h2>What changed, newest first.</h2>
+      <p class="lead">Development history until the first public build. After that, every release gets its own entry with a version number.</p>
+    </div>
+    <div class="log">
+      <article class="entry"><div class="entry-card spot">
+        <div class="entry-top"><h3>Aside: the desktop app</h3><span class="pill live">In testing</span><span class="when">October 2026</span></div>
+        <p>The product gets its name, an installer and the licence system for Pro.</p>
+        <ul class="changes">
+          <li><span class="tag new">New</span><span>The name Aside, the logo and the icons; the project folder is now <code>.aside</code>.</span></li>
+          <li><span class="tag new">New</span><span>Windows installer: per user, no admin rights, tested automatically from the installed copy.</span></li>
+          <li><span class="tag new">New</span><span>Pro licences: activation with a key, two computers per licence, freeing a computer from the app.</span></li>
+          <li><span class="tag new">New</span><span>Network client for machine translation in the new core.</span></li>
+          <li><span class="tag fix">Fixed</span><span>A freed computer stops using Pro at its next check, like a cancelled licence.</span></li>
+        </ul>
+        <details class="more"><summary>Under the hood</summary><ul class="changes">
+          <li><span class="tag core">Core</span><span>Licence server with an admin page and automatic deployment.</span></li>
+          <li><span class="tag core">Core</span><span>A cancelled licence stops working within hours.</span></li>
+          <li><span class="tag core">Core</span><span>A written list of everything Aside sends over the network, kept up to date with the code.</span></li>
+        </ul></details>
+      </div></article>
+
+      <article class="entry"><div class="entry-card spot">
+        <div class="entry-top"><h3>A new core in Rust</h3><span class="when">October 2026</span></div>
+        <p>The whole engine rebuilt as a fast desktop program, checked step by step against the original so nothing changes under your hands.</p>
+        <ul class="changes">
+          <li><span class="tag imp">Faster</span><span>One program instead of Python and a browser: the interface runs in its own window, without a local web server.</span></li>
+          <li><span class="tag core">Core</span><span>Parser, archives, checks, data files, projects, game tools and all 80 operations ported; 749 of 749 recorded cases match.</span></li>
+          <li><span class="tag core">Core</span><span>Compared with the original on 8 real games: 8 968 read calls, 0 differences.</span></li>
+          <li><span class="tag core">Core</span><span>The Pro features as a separate program next to the app, with the same answers as before.</span></li>
+        </ul>
+      </div></article>
+
+      <article class="entry"><div class="entry-card spot">
+        <div class="entry-top"><h3>Translating gets context</h3><span class="when">October 2026</span></div>
+        <ul class="changes">
+          <li><span class="tag new">New</span><span>Menu tab: the question, every option with its translation and condition, and what follows each choice.</span></li>
+          <li><span class="tag new">New</span><span>Results bar in the quick modes: "result 3 of 16", arrows for next and previous, a list of all hits.</span></li>
+          <li><span class="tag new">New</span><span>Whole-word switch in every search box.</span></li>
+          <li><span class="tag imp">Improved</span><span>Scene preview draws the background and every picture shown over it; layered games get a clear note instead of a wrong picture.</span></li>
+          <li><span class="tag fix">Fixed</span><span>A choice that shares its text with an earlier menu says where its translation is listed.</span></li>
+          <li><span class="tag fix">Fixed</span><span>The Menu tab shows a choice right after it was edited.</span></li>
+        </ul>
+      </div></article>
+
+      <article class="entry old"><div class="entry-card spot">
+        <div class="entry-top"><h3>From one game to any game</h3><span class="when">Earlier</span></div>
+        <ul class="changes">
+          <li><span class="tag imp">Improved</span><span>Works with most Ren'Py games, tried on 8 of them with 9 to 687 script files.</span></li>
+          <li><span class="tag new">New</span><span>English interface; Czech becomes the first language pack, and any language works without one.</span></li>
+          <li><span class="tag new">New</span><span>Groups found from file names or folders: episodes, chapters, days, <code>script2</code> series.</span></li>
+          <li><span class="tag new">New</span><span>Missed texts: strings the generator skipped, added once you approve them.</span></li>
+          <li><span class="tag new">New</span><span>Preparing a built game: unpack, decompile, generate the translation files.</span></li>
+          <li><span class="tag core">Core</span><span>Per-author change log, so a team can share one translation folder without conflicts.</span></li>
+        </ul>
+      </div></article>
+
+      <article class="entry old"><div class="entry-card spot">
+        <div class="entry-top"><h3>Where it began</h3><span class="when">The BaDIK tool</span></div>
+        <p>A translation manager built for the Czech translation of <a href="https://badik.filiposakkq.dev" target="_blank" rel="noopener" style="color:var(--red-text)">Being a DIK</a>: the editor, the checks for tags and variables, proofreading states, the glossary and history. Aside grew out of it.</p>
+      </div></article>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="./"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
+      <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
+      <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
+    </div>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="./#pricing">Pricing</a><a href="docs.html">Docs</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a></nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  document.documentElement.classList.add("js");
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var top = document.getElementById("top");
+  window.addEventListener("scroll", function () { top.classList.toggle("scrolled", (window.scrollY || 0) > 8); }, { passive: true });
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var GAMES = [["LoSeSb", 359753, 1], ["Four Elements Trainer", 170129, 1], ["Our Red String", 151633, 1], ["Eternum", 73463, 0], ["Midnight Paradise", 67123, 0], ["Milfy City", 46615, 0], ["Being a DIK", 45291, 0], ["A Wife and Mother", 37247, 0]];
+  var fmtN = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); };
+  var bars = document.getElementById("bars");
+  bars.innerHTML = GAMES.map(function (g) {
+    return '<div class="bar-row' + (g[2] ? " l" : "") + '"><span class="nm">' + g[0] + '</span><span class="tr"><i style="--w:' + (g[1] / 359753 * 100).toFixed(1) + '%"></i></span><span class="v">' + fmtN(g[1]) + "</span></div>";
+  }).join("");
+
+  document.addEventListener("pointermove", function (e) {
+    var c = e.target.closest && e.target.closest(".spot"); if (!c) return;
+    var r = c.getBoundingClientRect(); c.style.setProperty("--mx", (e.clientX - r.left) + "px"); c.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+  function fmt(n, f) { if (f === "M") return (n / 1e6).toFixed(1) + " M"; if (f === "k") return Math.round(n / 1000) + " k"; return fmtN(Math.round(n)); }
+  function countUp(el) {
+    var to = +el.getAttribute("data-to"), f = el.getAttribute("data-fmt"), t0 = null;
+    function step(t) { if (!t0) t0 = t; var p = Math.min(1, (t - t0) / 1400); el.textContent = fmt(to * (1 - Math.pow(1 - p, 4)), f); if (p < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  if ("IntersectionObserver" in window && !reduce) {
+    if (bars.getBoundingClientRect().top > window.innerHeight) bars.classList.add("pre");
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        if (en.target === bars) bars.classList.remove("pre"); else countUp(en.target);
+        io.unobserve(en.target);
+      });
+    }, { threshold: .4 });
+    $$(".counter").forEach(function (el) { io.observe(el); });
+    io.observe(bars);
+    var vh = window.innerHeight, ents = $$(".entry, .stat");
+    ents.forEach(function (el) { if (el.getBoundingClientRect().top > vh) el.classList.add("reveal", "pre"); });
+    var ro = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.remove("pre"); ro.unobserve(en.target); } }); }, { rootMargin: "0px 0px -6% 0px" });
+    ents.forEach(function (el) { if (el.classList.contains("pre")) ro.observe(el); });
+  }
+})();
+</script>
+<script src="assets/site.js"></script>
+<script>
+/* with the server: published releases from the admin (the newest with its download), above the development history */
+(function () {
+  var esc = function (t) { return String(t || "").replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var TAG = { "new": ["New", "new"], improved: ["Improved", "imp"], fixed: ["Fixed", "fix"], core: ["Core", "core"] };
+  function notes(t) {
+    return (t || "").split("\n").filter(function (l) { return l.trim(); }).map(function (l) {
+      var m = /^(new|improved|fixed|core):\s*(.*)$/i.exec(l.trim()), tag = m ? TAG[m[1].toLowerCase()] : null;
+      return "<li>" + (tag ? '<span class="tag ' + tag[1] + '">' + tag[0] + "</span>" : '<span class="tag imp">Change</span>') + "<span>" + esc(m ? m[2] : l) + "</span></li>";
+    }).join("");
+  }
+  AsideAPI.live().then(function (live) {
+    if (!live) return;
+    AsideAPI.call("releases").then(function (j) {
+      if (!j.ok || !j.items.length) return;
+      var latest = j.items.filter(function (r) { return r.channel === "stable" && r.downloadable; })[0] || j.items[0];
+      var main = document.querySelector(".next-main");
+      main.innerHTML = '<div class="next-top"><span class="pill live">' + (latest.channel === "beta" ? "Beta" : "Latest release") + '</span><span class="pill os">Windows 10 / 11 · 64-bit</span></div>' +
+        "<h2>Aside " + esc(latest.version) + (latest.title ? " · " + esc(latest.title) : "") + "</h2><p>Released " + esc(latest.date) + (latest.size ? " · " + esc(latest.size) : "") + ".</p>" +
+        '<div class="btns">' + (latest.downloadable ? '<a class="btn btn-hot" href="/api/download/' + esc(latest.id) + '">Download for Windows</a>' : "") + '<a class="btn" href="#changelog">What changed</a></div>' +
+        (latest.sha256 ? '<p class="check-box" style="color:var(--muted)">SHA-256: <code style="display:inline;background:none;padding:0;overflow-wrap:anywhere">' + esc(latest.sha256) + "</code></p>" : "");
+      var log = document.querySelector(".log");
+      log.insertAdjacentHTML("afterbegin", j.items.map(function (r) {
+        return '<article class="entry"><div class="entry-card spot"><div class="entry-top"><h3>Aside ' + esc(r.version) + (r.title ? " · " + esc(r.title) : "") + '</h3><span class="pill ' + (r.channel === "beta" ? "os" : "live") + '">' + (r.channel === "beta" ? "Beta" : "Release") + '</span><span class="when">' + esc(r.date) + "</span></div>" +
+          '<ul class="changes">' + notes(r.notes) + "</ul>" + (r.downloadable ? '<p style="margin-top:.9rem"><a class="btn btn-sm" href="/api/download/' + esc(r.id) + '">Download ' + esc(r.version) + "</a></p>" : "") + "</div></article>";
+      }).join(""));
+    });
+  });
+})();
+</script>
+</body>
+</html>

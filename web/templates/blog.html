@@ -1,0 +1,126 @@
+title: Aside Dev Diary
+desc: The development diary of Aside, the translation manager for Ren'Py: how it is built, and what translators should know about Ren'Py.
+sub: Blog
+---css---
+/* Layout concept: a diary. Post cards on top like save slots, then the posts in one readable column. */
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 900px) { .slots { grid-template-columns: minmax(0, 1fr); } }
+.slot { display: grid; grid-template-rows: auto 1fr; border-radius: var(--r); overflow: hidden; background: var(--card); border: 1px solid var(--line); text-decoration: none; transition: transform .2s, border-color .2s; }
+.slot:hover { transform: translateY(-4px); border-color: rgba(255, 49, 92, .4); }
+.slot .art { aspect-ratio: 16 / 7; position: relative; overflow: hidden; display: grid; place-items: center; font: 800 1.1rem/1 var(--f-mono); color: #fff; }
+.slot .art.a { background: radial-gradient(60% 80% at 80% 20%, rgba(255, 112, 67, .7), transparent 70%), linear-gradient(140deg, #3A0F1D, #170A10); }
+.slot .art.b { background: radial-gradient(60% 80% at 20% 30%, rgba(255, 49, 92, .7), transparent 70%), linear-gradient(140deg, #2A0C1A, #120709); }
+.slot .art.c { background: radial-gradient(70% 80% at 60% 80%, rgba(121, 195, 255, .35), transparent 70%), linear-gradient(140deg, #26101C, #120709); }
+.slot .art span { padding: .5rem .8rem; border-radius: 8px; background: rgba(0, 0, 0, .35); border: 1px solid rgba(255, 255, 255, .15); }
+.slot .art .no { position: absolute; left: .8rem; top: .7rem; font: 700 .7rem/1 var(--f-display); letter-spacing: .14em; color: rgba(255, 255, 255, .7); background: none; border: 0; padding: 0; }
+.slot .txt { padding: 1.2rem; display: grid; gap: .5rem; align-content: start; }
+.slot .meta { font: 600 .74rem/1 var(--f-mono); color: var(--muted); }
+.slot h3 { font-size: 1.12rem; }
+.slot p { font-size: .9rem; color: var(--muted); }
+.post { max-width: 740px; margin-inline: auto; padding-block: clamp(3rem, 2rem + 3vw, 4.5rem); border-top: 1px solid var(--line); }
+.post .meta { font: 600 .78rem/1 var(--f-mono); color: var(--muted); display: flex; gap: 1rem; flex-wrap: wrap; }
+.post h2 { font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem); margin-top: .8rem; }
+.post .dek { font-size: 1.15rem; color: var(--text); margin-top: 1rem; }
+.post h3 { margin-top: 2rem; font-size: 1.25rem; }
+.post p { margin-top: 1rem; max-width: 68ch; }
+.post ul { margin: 1rem 0 0; padding-left: 1.3rem; display: grid; gap: .5rem; }
+.post li::marker { color: var(--red); }
+.post pre { margin: 1.2rem 0 0; padding: 1rem 1.1rem; border-radius: 14px; background: var(--wine); color: #F2DDE2; overflow-x: auto; font: 400 .84rem/1.65 var(--f-mono); }
+.post pre .c { color: #B98C98; }
+.post pre .bad { color: #FF8FA6; }
+.post pre .ok { color: #7BE3B5; }
+.pull { margin: 1.8rem 0 0; padding: 1.2rem 1.4rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); font: 800 1.3rem/1.35 var(--f-display); color: var(--ink); letter-spacing: -.02em; }
+.pull b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin-top: 1.4rem; }
+@media (max-width: 560px) { .figs { grid-template-columns: minmax(0, 1fr); } }
+.figs div { padding: 1rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.figs b { display: block; font: 800 1.7rem/1 var(--f-display); color: var(--ink); letter-spacing: -.03em; }
+.figs span { font-size: .84rem; color: var(--muted); }
+.back { margin-top: 2rem; }
+.back a { color: var(--red-text); font-weight: 700; text-decoration: none; }
+---body---
+<section class="page-hero">
+  <div class="blob" style="width:460px;height:460px;right:-140px;top:-180px;background:#FF315C"></div>
+  <div class="wrap">
+    <span class="kicker">Dev diary</span>
+    <h1>Notes from <span class="grad-text">behind the scenes.</span></h1>
+    <p class="lead">How Aside is built, and what every Ren'Py translator should know. Written by <a href="https://filiposakkq.dev" target="_blank" rel="noopener" style="color:var(--red-text)">filiposakkq</a>, the one person who makes it.</p>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="slots">
+      <a class="slot spot" href="#rust"><div class="art a"><span class="no">SAVE 03</span><span>749 / 749</span></div><div class="txt"><span class="meta">October 2026 · 5 min</span><h3>A new core in Rust, and nothing changed</h3><p>How the whole engine was rewritten without a single answer changing.</p></div></a>
+      <a class="slot spot" href="#tags"><div class="art b"><span class="no">SAVE 02</span><span>{i}…</span></div><div class="txt"><span class="meta">October 2026 · 4 min</span><h3>Why one missing {/i} crashes a game</h3><p>Tags, variables and the small mistakes players see first.</p></div></a>
+      <a class="slot spot" href="#missed"><div class="art c"><span class="no">SAVE 01</span><span>show text</span></div><div class="txt"><span class="meta">October 2026 · 4 min</span><h3>The texts the generator never sees</h3><p>Why parts of a "finished" translation stay in English.</p></div></a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <article class="post" id="rust">
+      <div class="meta"><span>October 2026</span><span>5 min read</span><span>Under the hood</span></div>
+      <h2>A new core in Rust, and nothing changed</h2>
+      <p class="dek">Aside began as a Python program with a browser window. The first public build is one fast desktop app. Here is how the engine was replaced without changing what it does.</p>
+      <h3>The rule: no new features during the port</h3>
+      <p>A rewrite that also changes behaviour cannot be checked. So the port had one rule: the new core must give exactly the same answers as the old one. Bugs found on the way were fixed in the old code first, and only then ported.</p>
+      <h3>Recorded answers instead of reading code</h3>
+      <p>Before a line of Rust was written, the old core recorded its answers: fixed inputs (parser cases, archives, checks, whole synthetic projects) and the exact output for each. Every module of the new core had to reproduce them byte for byte, including the files it writes.</p>
+      <div class="figs"><div><b>749</b><span>recorded cases, all matching</span></div><div><b>80</b><span>operations ported one by one</span></div><div><b>11</b><span>milestones, each a reviewed step</span></div></div>
+      <h3>Then the real games</h3>
+      <p>Synthetic data only goes so far. The last check opened copies of the translations of eight real games with both cores and asked both the same questions: overview, files, every filter, checks, glossary, the scene and the menu behind sampled lines.</p>
+      <p class="pull">8 968 questions on 8 games. <b>Zero differences.</b></p>
+      <h3>The same interface, without a server</h3>
+      <p>The interface did not change at all. In the old app it talked to a small local web server; in the new one the same requests go to the core inside the window, so no network port is opened. The interface's own self-test, 139 checks, passes inside the installed app.</p>
+      <p>The Pro features live in a separate program next to the app. That keeps the free app free of Pro code, and lets Pro update on its own.</p>
+      <p class="back"><a href="#main">↑ All posts</a></p>
+    </article>
+
+    <article class="post" id="tags">
+      <div class="meta"><span>October 2026</span><span>4 min read</span><span>For translators</span></div>
+      <h2>Why one missing {/i} crashes a game</h2>
+      <p class="dek">A Ren'Py line is more than text. Some of what you see in a translation file is instructions for the engine, and a mistake there is a mistake in code.</p>
+      <h3>Text tags</h3>
+      <p>Tags in curly braces style the text or control it: <code>{i}</code> for italics, <code>{b}</code> for bold, <code>{w}</code> to wait for a click. A tag that opens must close, in the right order. When a closing tag goes missing in the translation, the game can stop on that line with an exception, in front of the player.</p>
+<pre><span class="c"># original</span>
+mira "Did you bring the {b}letter{/b}?"
+<span class="c"># translation</span>
+mira "Přinesl jsi ten {b}dopis?"      <span class="bad">← {/b} is missing</span>
+mira "Přinesl jsi ten {b}dopis{/b}?"  <span class="ok">← fine</span></pre>
+      <h3>Variables</h3>
+      <p>Square brackets insert a value: <code>[player_name]</code> becomes the name the player typed. Translate the word inside and the game looks for a variable that does not exist. A typo has the same effect.</p>
+<pre>mira "Welcome back, [player_name]."
+mira "Vítej zpátky, [jméno_hráče]."   <span class="bad">← NameError: not defined</span></pre>
+      <h3>The quieter mistakes</h3>
+      <ul>
+        <li>A <code>\n</code> line break lost or added changes the layout.</li>
+        <li>A number that differs from the original ("3 days" became "4 dny").</li>
+        <li>A line that is much longer than the original and no longer fits the dialogue box.</li>
+        <li>English words left behind in a translated line.</li>
+      </ul>
+      <h3>How Aside handles it</h3>
+      <p>Every translation is compared with its original as you type and on every refresh: tags, variables, format marks, line breaks, numbers, length and the fit in the box, measured with the game's own font. Errors that would crash the game are marked apart from warnings that may be intended. You can <a href="./#try" style="color:var(--red-text)">try it on the home page</a>.</p>
+      <p class="back"><a href="#main">↑ All posts</a></p>
+    </article>
+
+    <article class="post" id="missed">
+      <div class="meta"><span>October 2026</span><span>4 min read</span><span>For translators</span></div>
+      <h2>The texts the generator never sees</h2>
+      <p class="dek">You translated every line in every file, released, and a player sends a screenshot with English in it. It was never in your files.</p>
+      <h3>What the generator writes</h3>
+      <p>Ren'Py's translate command writes blocks for dialogue, menu choices, screen texts and strings marked with <code>_()</code>. Text shown any other way has no block, so it never reaches the translator:</p>
+      <ul>
+        <li><code>show text "Three days later..."</code></li>
+        <li>prompts of <code>renpy.input("What is your name?")</code></li>
+        <li>notifications with <code>renpy.notify(...)</code></li>
+        <li>a chapter title kept in a variable and shown later with <code>[title]</code></li>
+        <li>the game's own functions that show text</li>
+      </ul>
+      <h3>How Aside finds them</h3>
+      <p>Aside reads the game's scripts, compares them with your translation and lists what is missing, split into <i>likely</i> and <i>maybe</i>. You tick what the player sees, and it lands in <code>extra_strings.rpy</code> as lines to translate, in a strings block Ren'Py reads like any other.</p>
+      <div class="figs"><div><b>24 of 27</b><span>texts a translator had added by hand were found</span></div><div><b>185</b><span>likely texts listed for the same game</span></div><div><b>0</b><span>texts written twice</span></div></div>
+      <p>Measured on Being a DIK. The other 3 of those 27 were not really missed: the generator had extracted two of them, and one is assembled from pieces in the code. It is a heuristic, so the list is always yours to review.</p>
+      <p class="back"><a href="#main">↑ All posts</a></p>
+    </article>
+  </div>
+</section>

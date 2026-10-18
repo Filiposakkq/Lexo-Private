@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aside for Ren'Py</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Aside is a translation manager for Ren'Py games. Translate the whole game, check every tag and variable, see the scene and the choices. Free, local, no account. Windows.">
+<meta name="theme-color" content="#12070A">
+<meta property="og:title" content="Aside: translate the whole Ren'Py game, break nothing">
+<meta property="og:description" content="A translation manager for Ren'Py: checks for tags, variables and line fit, scene preview, choice menus, progress. Free, local, no account.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+/* Layout concept: a product page on blush paper. The app itself (dark, framed) is the hero image; the sections walk
+   from "what it feels like" to "try it" to "what it costs", and end with a Ren'Py-style choice menu. */
+section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
+.band { background: var(--bg-2); }
+.sec-head { max-width: 760px; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.2rem); }
+.sec-head.c { margin-inline: auto; text-align: center; }
+.lead { color: var(--text); font-size: 1.125rem; max-width: 60ch; margin-top: 1rem; }
+.sec-head.c .lead { margin-inline: auto; }
+
+/* hero */
+.hero { position: relative; overflow: hidden; padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) clamp(4rem, 2.5rem + 5vw, 6.5rem); }
+.hero::before { display: none; content: ""; position: absolute; width: 900px; height: 900px; right: -300px; top: -380px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 112, 67, .22), rgba(240, 36, 79, .12) 45%, transparent 70%); pointer-events: none; }
+.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5; background-image: radial-gradient(rgba(255, 120, 150, .13) 1px, transparent 1.2px); background-size: 22px 22px; mask-image: linear-gradient(180deg, #000, transparent 70%); -webkit-mask-image: linear-gradient(180deg, #000, transparent 70%); }
+.hero .wrap { position: relative; z-index: 1; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(2rem, 1rem + 4vw, 4rem); align-items: center; }
+@media (max-width: 1000px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
+.hero h1, .hero .lead, .hero-ctas, .trust, .hero .kicker { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
+.hero .lead { animation-delay: .12s; } .hero-ctas { animation-delay: .22s; } .trust { animation-delay: .32s; } .stage { animation: rise 1s .2s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+.hero h1 { font-size: var(--s-1); font-weight: 800; line-height: .98; letter-spacing: -.05em; }
+.hero h1 em { font-style: normal; position: relative; display: inline-block; z-index: 0; }
+.hero h1 em { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: .06em; }
+.hero h1 em::after { content: ""; position: absolute; left: -.04em; right: -.04em; bottom: .02em; height: .1em; background: var(--grad); box-shadow: 0 0 22px var(--red); z-index: -1; border-radius: 4px; transform-origin: left; animation: mark .8s .4s cubic-bezier(.6, 0, .2, 1) both; }
+@keyframes mark { from { transform: scaleX(0); } }
+.hero .lead { font-size: clamp(1.06rem, 1rem + .35vw, 1.22rem); margin-top: 1.4rem; }
+.hero-ctas { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 2rem; }
+.trust { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; margin-top: 2rem; font-size: .9rem; color: var(--muted); }
+.trust span { display: inline-flex; align-items: center; gap: .45rem; }
+.trust svg { width: 17px; height: 17px; color: var(--ok); }
+
+.stage { position: relative; padding: 1.5rem 0 2rem; min-width: 0; }
+.window { border-radius: 14px; overflow: hidden; background: #10131A; box-shadow: var(--shadow); border: 1px solid rgba(60, 10, 25, .25); transform: perspective(1600px) rotateY(-7deg) rotateX(2deg); transform-origin: left center; transition: transform .6s ease; }
+.stage:hover .window { transform: perspective(1600px) rotateY(-2deg) rotateX(0); }
+@media (max-width: 1000px) { .window, .stage:hover .window { transform: none; } }
+.chrome { display: flex; align-items: center; gap: .45rem; padding: .6rem .85rem; background: #181B24; font: 500 .74rem/1 var(--f-mono); color: #8A90A0; }
+.chrome i { width: 10px; height: 10px; border-radius: 50%; display: block; flex: none; }
+.chrome i:nth-child(1) { background: #FF5F57; } .chrome i:nth-child(2) { background: #FEBC2E; } .chrome i:nth-child(3) { background: #28C840; }
+.chrome span { margin-left: .6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.window img { width: 100%; height: auto; aspect-ratio: 1440 / 816; }
+.callout { position: absolute; display: flex; align-items: center; gap: .6rem; padding: .65rem .85rem; border-radius: 14px; background: var(--card); box-shadow: var(--shadow-s), 0 18px 40px -20px rgba(90, 10, 35, .45); border: 1px solid var(--line); font-size: .86rem; color: var(--ink); white-space: nowrap; animation: float 6s ease-in-out infinite; }
+.callout b { font: 800 1rem/1 var(--f-display); }
+.callout small { display: block; color: var(--muted); font-size: .74rem; margin-top: .15rem; }
+.callout .dot { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; font-weight: 800; }
+.callout .dot.ok { background: var(--ok-soft); color: var(--ok); }
+.callout .dot.bad { background: var(--bad-soft); color: var(--bad); }
+.callout .dot.red { background: var(--grad); color: #fff; }
+.c1 { left: -4%; top: 4%; }
+.c2 { right: -3%; top: 40%; animation-delay: -2s; }
+.c3 { left: 8%; bottom: -2%; animation-delay: -4s; }
+@keyframes float { 50% { transform: translateY(-8px); } }
+@media (max-width: 640px) { .callout { font-size: .76rem; padding: .5rem .65rem; } .callout b { font-size: .86rem; } .callout .dot { width: 24px; height: 24px; } .c1 { left: 0; top: 0; } .c2 { right: 0; } .c3 { left: 4%; } .callout small { display: none; } }
+
+/* games row: a slow marquee */
+.games-row { padding-block: 1.4rem 1.6rem; border-block: 1px solid var(--line); background: var(--bg-2); overflow: hidden; }
+.gr-head p { font: 700 .82rem/1.3 var(--f-display); color: var(--muted); text-transform: uppercase; letter-spacing: .14em; text-align: center; margin-bottom: 1rem; }
+.marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.mq-track { display: flex; gap: .6rem; width: max-content; animation: mq 40s linear infinite; }
+.marquee:hover .mq-track { animation-play-state: paused; }
+@keyframes mq { to { transform: translateX(-50%); } }
+.mq-track span { font: 700 1rem/1 var(--f-display); padding: .7rem 1.1rem; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink); white-space: nowrap; }
+.mq-track span.dup { display: none; }
+.mq-track span b { font: 500 .74rem/1 var(--f-mono); color: var(--red-text); margin-left: .5rem; }
+@media (prefers-reduced-motion: reduce) { .mq-track { flex-wrap: wrap; width: auto; justify-content: center; padding-inline: 16px; } .mq-track span[aria-hidden] { display: none; } }
+
+/* before / after */
+.ba { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; }
+@media (max-width: 820px) { .ba { grid-template-columns: minmax(0, 1fr); } }
+.ba-card { border-radius: var(--r); padding: clamp(1.4rem, 1rem + 1.5vw, 2rem); }
+.ba-card.before { border: 1.5px dashed var(--line-2); background: rgba(0, 0, 0, .15); }
+.ba-card.after { background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.ba-card.after::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--grad); }
+.ba-card h3 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.ba-card h3 small { font: 600 .72rem/1 var(--f-display); padding: .32rem .55rem; border-radius: 999px; background: var(--bg-2); color: var(--muted); }
+.ba-card.after h3 small { background: var(--red-soft); color: var(--red-text); }
+.ba-list { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; gap: .85rem; }
+.ba-list li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: .7rem; font-size: .98rem; }
+.ba-list li svg { width: 22px; height: 22px; margin-top: .05rem; }
+.before .ba-list li { color: var(--muted); }
+.before .ba-list svg { color: var(--muted); }
+.after .ba-list svg { color: var(--ok); }
+
+/* feature tour */
+.tour { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: clamp(1.5rem, 1rem + 2.5vw, 3rem); align-items: start; }
+@media (max-width: 960px) { .tour { grid-template-columns: minmax(0, 1fr); } }
+.tour-list { display: grid; gap: .45rem; }
+.tour-item { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: .9rem; text-align: left; padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid transparent; background: transparent; cursor: pointer; font: inherit; color: inherit; transition: background-color .2s, border-color .2s, box-shadow .2s; }
+.tour-item:hover { background: var(--red-tint); }
+.tour-item[aria-selected="true"] { background: var(--card); border-color: var(--line); box-shadow: var(--shadow-s); }
+.tour-item .ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--red-tint); color: var(--red-text); transition: background .2s, color .2s; }
+.tour-item[aria-selected="true"] .ic { background: var(--grad); color: #fff; }
+.tour-item .ic svg { width: 21px; height: 21px; }
+.tour-item h3 { font-size: 1.06rem; }
+.tour-item p { font-size: .92rem; color: var(--text); margin-top: .25rem; display: none; }
+.tour-item[aria-selected="true"] p { display: block; }
+@media (max-width: 960px) {
+  .tour-list { display: flex; overflow-x: auto; gap: .4rem; padding-bottom: .4rem; scrollbar-width: none; }
+  .tour-list::-webkit-scrollbar { display: none; }
+  .tour-item { flex: none; padding: .45rem .9rem .45rem .45rem; border-radius: 999px; display: flex; align-items: center; gap: .55rem; border-color: var(--line); background: var(--card); }
+  .tour-item .ic { width: 30px; height: 30px; border-radius: 50%; }
+  .tour-item .ic svg { width: 16px; height: 16px; }
+  .tour-item h3 { font-size: .9rem; white-space: nowrap; }
+  .tour-item[aria-selected="true"] p { display: none; }
+}
+.tour-panel { min-width: 0; }
+.tour-text-m { display: none; margin-bottom: 1rem; color: var(--text); font-size: .98rem; }
+@media (max-width: 960px) { .tour-text-m { display: block; } }
+.panel-frame { border-radius: 16px; overflow: hidden; background: #10131A; box-shadow: var(--shadow); border: 1px solid rgba(60, 10, 25, .25); }
+.panel-frame img { width: 100%; height: auto; aspect-ratio: 1440 / 816; }
+.panel-note { margin-top: .9rem; font-size: .88rem; color: var(--muted); }
+.mock { aspect-ratio: 1440 / 816; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4%; padding: 5% 4%; background: #10131A; color: #DDE1EA; font-size: clamp(.58rem, .42rem + .5vw, .82rem); }
+.mock .col { display: grid; gap: .8em; align-content: start; min-width: 0; }
+.mock .cap { font: 600 .9em/1.2 var(--f-mono); letter-spacing: .04em; text-transform: uppercase; color: #8A90A0; display: flex; justify-content: space-between; align-items: center; gap: .5em; flex-wrap: wrap; }
+.mock .cap b { font-weight: 600; padding: .2em .55em; border-radius: 99px; letter-spacing: 0; text-transform: none; }
+.mock .cap b.ok { background: rgba(90, 214, 160, .15); color: #6FE0AE; }
+.mock .cap b.part { background: rgba(244, 184, 78, .15); color: #F4C46E; }
+.sc { position: relative; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: radial-gradient(60% 50% at 75% 30%, rgba(255, 200, 150, .7), transparent 70%), linear-gradient(170deg, #2A1B3D, #6B2C4A 60%, #E2725B 120%); }
+.sc.layer { background: linear-gradient(170deg, #1C2A3D, #2C4A5B 60%, #5B8A8E 120%); }
+.sc .fig { position: absolute; bottom: 0; left: 38%; width: 24%; height: 78%; border-radius: 45% 45% 10% 10% / 30% 30% 5% 5%; background: linear-gradient(180deg, #F2B9A0, #C9798A); }
+.sc .ghost { position: absolute; bottom: 0; left: 38%; width: 24%; height: 78%; border-radius: 45% 45% 10% 10% / 30% 30% 5% 5%; border: 2px dashed rgba(255, 255, 255, .55); }
+.sc .box { position: absolute; left: 4%; right: 4%; bottom: 5%; height: 26%; background: rgba(10, 10, 16, .78); border-radius: 5px; padding: 3% 4%; font-size: .95em; line-height: 1.35; color: #F2EEF6; }
+.sc .tagn { position: absolute; left: 7%; bottom: 27%; background: var(--grad); color: #fff; font: 700 .85em/1 var(--f-display); padding: .3em .6em; border-radius: 4px; }
+.sc .note { position: absolute; top: 6%; left: 5%; right: 5%; background: rgba(10, 10, 16, .72); color: #F4C46E; padding: .4em .6em; border-radius: 4px; font-size: .85em; line-height: 1.3; }
+.mock p { color: #A9AFBD; line-height: 1.45; font-size: .95em; }
+.mmock { aspect-ratio: 1440 / 816; background: #10131A; color: #DDE1EA; padding: 4.5% 5.5%; display: grid; gap: .7em; align-content: start; font-size: clamp(.62rem, .48rem + .55vw, .9rem); }
+.mmock .cap { font: 600 .82em/1.2 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: #8A90A0; }
+.mmock .q { color: #A9AFBD; }
+.mmock .q b { color: #fff; font-weight: 600; }
+.mmock .o { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 4%; padding: .75em 1em; border-radius: 8px; background: #181B24; border: 1px solid rgba(255, 255, 255, .07); align-items: center; }
+.mmock .o span:first-child { color: #8A90A0; }
+.mmock .o span:nth-child(2) { color: #F2EEF6; }
+.mmock .o em { font: 500 .78em/1 var(--f-mono); font-style: normal; color: #6FB7FF; }
+.mmock .o.shared { border-color: rgba(244, 184, 78, .45); }
+.mmock .after { padding-left: 1em; border-left: 2px solid rgba(255, 255, 255, .12); color: #A9AFBD; font-size: .92em; line-height: 1.5; }
+.mmock small { color: #F4C46E; }
+
+/* playground */
+.play { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); border-radius: 24px; overflow: hidden; background: var(--card); box-shadow: var(--shadow); border: 1px solid var(--line); }
+@media (max-width: 900px) { .play { grid-template-columns: minmax(0, 1fr); } }
+.scene { position: relative; aspect-ratio: 16 / 10; overflow: hidden; isolation: isolate; background: radial-gradient(60% 50% at 78% 30%, rgba(255, 196, 140, .6), transparent 70%), radial-gradient(80% 70% at 20% 100%, rgba(255, 92, 124, .4), transparent 70%), linear-gradient(170deg, #2A1B3D 0%, #5B2A4A 55%, #E2725B 120%); }
+@media (min-width: 901px) { .scene { aspect-ratio: auto; min-height: 420px; } }
+.scene .win { position: absolute; right: 9%; top: 10%; width: 24%; aspect-ratio: 3/4; border: 3px solid rgba(20, 10, 30, .55); border-radius: 4px; background: linear-gradient(180deg, rgba(255, 220, 170, .5), rgba(255, 150, 120, .25)); }
+.scene .win::before, .scene .win::after { content: ""; position: absolute; background: rgba(20, 10, 30, .55); }
+.scene .win::before { left: 50%; top: 0; bottom: 0; width: 3px; transform: translateX(-50%); }
+.scene .win::after { top: 50%; left: 0; right: 0; height: 3px; }
+.scene .lamp { position: absolute; left: 14%; top: 22%; width: 14%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255, 230, 170, .95), rgba(255, 170, 90, .25) 45%, transparent 70%); animation: flicker 4s ease-in-out infinite; }
+@keyframes flicker { 40% { opacity: .85; } 45% { opacity: 1; } 70% { opacity: .92; } }
+.scene .floor { position: absolute; inset: auto 0 0 0; height: 32%; background: linear-gradient(180deg, rgba(20, 10, 30, .25), rgba(10, 6, 16, .7)); }
+.vn-box { position: absolute; left: 4%; right: 4%; bottom: 5%; height: 30%; background: rgba(12, 11, 18, .82); border-radius: 10px; border: 1px solid rgba(255, 255, 255, .12); padding: 1.3em 1.2em .6em; color: #F4F1F7; font: 500 clamp(.74rem, .5rem + .9vw, 1rem)/1.45 var(--f-body); }
+.vn-name { position: absolute; left: 1em; top: 0; transform: translateY(-55%); padding: .25em .85em; border-radius: 6px; background: var(--grad); color: #fff; font: 700 .9em/1.3 var(--f-display); }
+.vn-text { height: 100%; overflow: hidden; }
+.vn-text .v { color: #FFD68A; }
+.vn-ctc { position: absolute; right: 1em; bottom: .7em; width: 0; height: 0; border-left: .38em solid transparent; border-right: .38em solid transparent; border-top: .5em solid #fff; animation: bob 1.2s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(3px); } }
+.vn-box.over { border-color: #F4B84E; box-shadow: inset 0 -14px 14px -10px rgba(244, 184, 78, .6); }
+.rp-error { position: absolute; inset: 0; z-index: 3; background: #E8E8E8; color: #111; padding: 5%; font: 500 clamp(.6rem, .45rem + .6vw, .82rem)/1.5 var(--f-mono); display: flex; flex-direction: column; gap: .7em; }
+.rp-error h4 { font: 700 1.25em/1.2 var(--f-body); color: #111; letter-spacing: 0; }
+.rp-error .trace { background: #fff; border: 1px solid #ccc; padding: .7em .9em; color: #333; overflow: hidden; }
+.rp-error .trace b { color: #B00020; font-weight: 600; }
+.rp-error .btnrow { display: flex; gap: .5em; margin-top: auto; flex-wrap: wrap; }
+.rp-error .btnrow span { background: #fff; border: 1px solid #bbb; padding: .3em .7em; border-radius: 3px; font: 500 .95em/1.2 var(--f-body); }
+.inspect { padding: clamp(1.1rem, .9rem + 1vw, 1.6rem); display: grid; gap: .9rem; align-content: start; }
+.fieldlab { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; font: 700 .72rem/1 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .45rem; }
+.fieldlab em { font: 500 .74rem/1 var(--f-mono); font-style: normal; text-transform: none; letter-spacing: 0; }
+.orig { font: 400 .875rem/1.55 var(--f-mono); color: var(--text); padding: .7rem .85rem; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); overflow-wrap: anywhere; }
+.t-tag { color: var(--code-tag); }
+.t-var { color: var(--code-var); }
+#tr { width: 100%; min-height: 5rem; resize: vertical; display: block; font: 400 .875rem/1.55 var(--f-mono); color: var(--ink); background: var(--card); border: 1.5px solid var(--line-2); border-radius: 12px; padding: .7rem .85rem; outline: none; transition: border-color .15s, box-shadow .15s; }
+#tr:focus { border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint); }
+.checks { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chk { display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .65rem; border-radius: 999px; font: 600 .76rem/1.2 var(--f-display); transition: background-color .2s, color .2s; }
+.chk::before { content: "✓"; font-weight: 800; }
+.chk.ok { background: var(--ok-soft); color: var(--ok); }
+.chk.bad { background: var(--bad-soft); color: var(--bad); }
+.chk.bad::before { content: "✗"; }
+.chk.warn { background: var(--warn-soft); color: var(--warn); }
+.chk.warn::before { content: "!"; }
+.why { font-size: .9rem; color: var(--muted); min-height: 2.8em; }
+.why b { color: var(--ink); }
+.tries { display: flex; flex-wrap: wrap; gap: .45rem; }
+.try { font: 700 .82rem/1 var(--f-display); padding: .6rem .85rem; border-radius: 999px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; min-height: 38px; }
+.try:hover { border-color: var(--red); color: var(--red-text); }
+.try.reset { background: transparent; border-style: dashed; }
+
+/* numbers */
+.nums { padding-block: 0 clamp(4rem, 3rem + 4vw, 6rem); }
+.nums-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 900px) { .nums-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.nums-grid > div { padding: 1.4rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); }
+.nums-grid b { display: block; font: 800 clamp(2rem, 1.6rem + 1.5vw, 2.8rem)/1 var(--f-display); letter-spacing: -.04em; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nums-grid span { display: block; margin-top: .6rem; font-size: .9rem; color: var(--muted); }
+.nums-more { text-align: center; margin-top: 1.4rem; }
+.nums-more a { color: var(--red-text); font-weight: 700; text-underline-offset: 3px; }
+
+/* free vs pro table */
+.cmp-wrap { max-width: 980px; margin: 2.4rem auto 0; overflow-x: auto; border-radius: var(--r); border: 1px solid var(--line); background: var(--card); }
+table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size: .94rem; }
+.cmp th, .cmp td { padding: .8rem 1.1rem; text-align: left; border-bottom: 1px solid var(--line); }
+.cmp thead th { font: 800 1rem/1.2 var(--f-display); color: var(--ink); background: var(--card-2); }
+.cmp thead th:not(:first-child), .cmp td:not(:first-child) { text-align: center; width: 22%; }
+.cmp thead th.p { color: var(--red-text); }
+.cmp td:first-child { color: var(--text); }
+.cmp tbody tr:hover td { background: var(--red-tint); }
+.cmp .grp td { font: 800 .7rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); background: var(--bg-2); padding-block: .65rem; }
+.cmp .y { color: var(--ok); font-weight: 800; }
+.cmp .n { color: var(--muted); }
+.cmp .lim { font: 500 .8rem/1 var(--f-mono); color: var(--warn); }
+.cmp .un { font: 600 .8rem/1 var(--f-mono); color: var(--ink); }
+.cmp tr:last-child td { border-bottom: 0; }
+
+/* included */
+.incl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 2rem; }
+@media (max-width: 900px) { .incl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .incl { grid-template-columns: minmax(0, 1fr); } }
+.incl > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: .7rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.incl svg { width: 20px; height: 20px; color: var(--red); margin-top: .15rem; }
+.incl b { display: block; color: var(--ink); font: 700 .98rem/1.35 var(--f-display); }
+.incl span { font-size: .9rem; color: var(--muted); }
+
+/* zero band */
+.zero { background: var(--wine); color: #F6E9EC; position: relative; overflow: hidden; }
+.zero::before { content: ""; position: absolute; width: 700px; height: 700px; left: -200px; bottom: -420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(240, 36, 79, .45), transparent 70%); }
+.zero .wrap { position: relative; }
+.zero h2 { color: #fff; }
+.zero .lead { color: #E3C9D0; }
+.zeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2.6rem; }
+@media (max-width: 760px) { .zeros { grid-template-columns: minmax(0, 1fr); } }
+.zeros > div { padding: 1.5rem; border-radius: var(--r); background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); }
+.zeros b { display: block; font: 800 clamp(2.6rem, 2rem + 2vw, 3.6rem)/1 var(--f-display); letter-spacing: -.05em; }
+.zeros b span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.zeros h3 { color: #fff; margin-top: .8rem; font-size: 1.08rem; }
+.zeros p { color: #D9BEC6; font-size: .93rem; margin-top: .35rem; }
+.zero .opt { margin-top: 1.6rem; font-size: .92rem; color: #D9BEC6; }
+.zero .opt a { color: #fff; font-weight: 600; }
+
+/* pricing */
+.plans { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; max-width: 980px; margin-inline: auto; }
+@media (max-width: 820px) { .plans { grid-template-columns: minmax(0, 1fr); } }
+.plan { border-radius: 24px; padding: clamp(1.5rem, 1.1rem + 1.5vw, 2.2rem); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-s); display: flex; flex-direction: column; gap: 1.1rem; position: relative; overflow: hidden; }
+.plan.pro { background: linear-gradient(160deg, var(--wine-2), var(--wine)); color: #F2DDE2; border-color: transparent; box-shadow: var(--shadow); }
+.plan.pro::before { content: ""; position: absolute; width: 380px; height: 380px; right: -140px; top: -170px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 112, 67, .5), transparent 70%); }
+.plan > * { position: relative; }
+.plan .name { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.plan .name h3 { font-size: 1.4rem; }
+.plan.pro h3 { color: #fff; }
+.plan .badge { font: 700 .72rem/1 var(--f-display); padding: .4rem .65rem; border-radius: 999px; background: var(--ok-soft); color: var(--ok); }
+.plan.pro .badge { background: var(--grad); color: #fff; }
+.price { font: 800 3rem/1 var(--f-display); letter-spacing: -.05em; color: var(--ink); }
+.price small { font: 500 .95rem/1.3 var(--f-body); letter-spacing: 0; color: var(--muted); margin-left: .4rem; }
+.plan.pro .price { color: #fff; font-size: 2.2rem; }
+.plan.pro .price small { color: #E3C9D0; }
+.plan > p { font-size: .96rem; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; font-size: .95rem; }
+.plan li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: .6rem; align-items: start; }
+.plan li svg { width: 18px; height: 18px; color: var(--ok); margin-top: .18rem; }
+.plan.pro li svg { color: #FF9A7A; }
+.plan li em { font: 600 .74rem/1.6 var(--f-mono); font-style: normal; color: var(--warn); white-space: nowrap; }
+.plan.pro li em { color: #FFC2CF; }
+.plan .btn { margin-top: auto; }
+.soon-row { max-width: 980px; margin: 1.4rem auto 0; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: center; font-size: .9rem; color: var(--muted); }
+.soon-row span { padding: .4rem .75rem; border-radius: 999px; border: 1px dashed var(--line-2); color: var(--text); }
+.lic { max-width: 980px; margin: 2.4rem auto 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 820px) { .lic { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lic div { padding-top: .9rem; border-top: 2px solid var(--red-soft); }
+.lic b { display: block; font: 700 .98rem/1.3 var(--f-display); color: var(--ink); }
+.lic span { font-size: .87rem; color: var(--muted); }
+
+/* docs teaser */
+.docs-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 960px) { .docs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .docs-grid { grid-template-columns: minmax(0, 1fr); } }
+.doc-card { display: grid; gap: .45rem; align-content: start; padding: 1.3rem; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); text-decoration: none; transition: transform .2s, box-shadow .2s, border-color .2s; }
+.doc-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-s); border-color: var(--red-soft); }
+.doc-card .n { font: 700 .74rem/1 var(--f-display); color: var(--red-text); }
+.doc-card h3 { font-size: 1.05rem; }
+.doc-card p { font-size: .9rem; color: var(--muted); }
+.docs-more { margin-top: 1.6rem; display: flex; justify-content: center; }
+
+/* status */
+.road { border-radius: 24px; background: var(--card); border: 1px solid var(--line); padding: clamp(1.4rem, 1rem + 2vw, 2.4rem); box-shadow: var(--shadow-s); }
+.road-top { display: flex; justify-content: space-between; align-items: end; gap: 1rem 1.5rem; flex-wrap: wrap; }
+.road-top .big { font: 800 clamp(2.4rem, 2rem + 1.5vw, 3.2rem)/1 var(--f-display); letter-spacing: -.05em; color: var(--ink); }
+.road-top .big small { font: 600 1rem/1 var(--f-display); letter-spacing: 0; color: var(--muted); margin-left: .4rem; }
+.road-top p { color: var(--muted); max-width: 46ch; font-size: .95rem; }
+.track.pre i { transform: scaleX(0); }
+.track { position: relative; height: 12px; border-radius: 99px; background: var(--bg); margin-top: 1.6rem; overflow: hidden; }
+.track i { position: absolute; inset: 0 auto 0 0; width: 91%; transform-origin: left; transition: transform 1.4s cubic-bezier(.3, 0, .2, 1); box-shadow: 0 0 18px var(--red); border-radius: 99px; background: var(--grad); }
+.miles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.2rem; margin-top: 1.8rem; }
+@media (max-width: 820px) { .miles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.miles > div { display: grid; gap: .35rem; align-content: start; }
+.miles .st { justify-self: start; font: 700 .7rem/1 var(--f-display); letter-spacing: .04em; padding: .35rem .6rem; border-radius: 999px; background: var(--ok-soft); color: var(--ok); }
+.miles .st.now { background: var(--red-soft); color: var(--red-text); }
+.miles .st.next { background: var(--bg-2); color: var(--muted); }
+.miles h3 { font-size: 1rem; }
+.miles p { font-size: .88rem; color: var(--muted); }
+
+/* beta teaser and showcase strip */
+.beta { position: relative; overflow: hidden; }
+.route-teasers { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; max-width: 980px; margin-inline: auto; }
+@media (max-width: 760px) { .route-teasers { grid-template-columns: minmax(0, 1fr); } }
+.rt-card { position: relative; overflow: hidden; display: grid; gap: .7rem; padding: clamp(1.4rem, 1rem + 1.5vw, 2rem); border-radius: 24px; background: var(--card); border: 1.5px solid var(--line-2); text-decoration: none; transition: transform .25s, border-color .25s, box-shadow .25s; }
+.rt-card:hover { transform: translateY(-5px); border-color: var(--red); box-shadow: 0 0 0 4px var(--red-tint), var(--shadow); }
+.rt-card .rl { position: absolute; right: 1.2rem; top: .2rem; font: 800 6.5rem/1 var(--f-display); color: rgba(255, 49, 92, .1); pointer-events: none; }
+.rt-card .rk { font: 800 .7rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--red-text); }
+.rt-card h3 { font-size: 1.5rem; }
+.rt-card p { font-size: .97rem; max-width: 40ch; }
+.rt-card .rgo { justify-self: start; display: inline-flex; align-items: center; gap: .5rem; margin-top: .4rem; font: 800 .92rem/1 var(--f-display); color: #fff; padding: .75rem 1.1rem; border-radius: 999px; background: var(--grad); }
+.rt-card .rgo svg { width: 16px; height: 16px; }
+.seats-mini { font: 700 .82rem/1.2 var(--f-display); color: var(--muted); }
+.seats-mini.full { color: var(--warn); }
+.showcase-strip { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
+.ss { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: center; }
+@media (max-width: 860px) { .ss { grid-template-columns: minmax(0, 1fr); } }
+.ss-cards { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1rem; }
+.ss-card { min-height: 200px; border-radius: 20px; padding: 1.3rem; display: grid; align-content: end; gap: .3rem; text-decoration: none; background: radial-gradient(60% 60% at 70% 30%, rgba(255, 196, 140, .55), transparent 70%), linear-gradient(160deg, #2A1B3D, #5B2A4A 60%, #E2725B 130%); border: 1px solid var(--line-2); transition: transform .25s; }
+.ss-card:hover { transform: translateY(-4px) rotate(-.5deg); }
+.ss-card b { font: 800 1.4rem/1.1 var(--f-display); color: #fff; }
+.ss-card span { font-size: .88rem; color: #FFE3E9; }
+.ss-card.empty { background: transparent; border: 1.5px dashed var(--line-2); place-content: center; text-align: center; }
+.ss-card.empty b { color: var(--red-text); font-size: 2rem; }
+.ss-card.empty span { color: var(--muted); }
+
+/* sound toggle in the playground */
+.snd { display: inline-flex; align-items: center; gap: .4rem; font: 700 .76rem/1 var(--f-display); padding: .45rem .7rem; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--muted); cursor: pointer; min-height: 32px; }
+.snd svg { width: 16px; height: 16px; }
+.snd[aria-pressed="true"] { color: #fff; background: var(--grad); border-color: transparent; }
+.play-top { display: flex; justify-content: space-between; align-items: center; gap: .6rem; }
+
+/* faq */
+.faq-grid { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); gap: clamp(1.5rem, 1rem + 3vw, 4rem); align-items: start; }
+@media (max-width: 900px) { .faq-grid { grid-template-columns: minmax(0, 1fr); } }
+.faq-grid .side p { color: var(--muted); margin-top: 1rem; }
+.faq-grid .side a { color: var(--red-text); font-weight: 600; text-underline-offset: 3px; }
+.faq details { border-radius: 16px; background: var(--card); border: 1px solid var(--line); margin-bottom: .6rem; transition: box-shadow .2s; }
+.faq details[open] { box-shadow: var(--shadow-s); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.05rem 1.2rem; font: 700 1.02rem/1.35 var(--f-display); color: var(--ink); }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; width: 28px; height: 28px; flex: none; border-radius: 50%; background: var(--red-tint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 6v12M6 12h12' stroke='%23C8123E' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 14px no-repeat; transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq .a { padding: 0 1.2rem 1.15rem; color: var(--text); max-width: 68ch; font-size: .98rem; }
+
+/* final choice menu */
+.final { background: var(--wine); color: #F2DDE2; text-align: center; position: relative; overflow: hidden; }
+.final::before { content: ""; position: absolute; inset: auto -20% -60% -20%; height: 120%; background: radial-gradient(closest-side, rgba(240, 36, 79, .5), transparent 70%); }
+.final .wrap { position: relative; }
+.final h2 { color: #fff; max-width: 16ch; margin-inline: auto; }
+.final .lead { color: #E3C9D0; margin-inline: auto; }
+.choices { display: grid; gap: .7rem; max-width: 560px; margin: 2.4rem auto 0; }
+.choice { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 60px; padding: .9rem 1.3rem; border-radius: 14px; text-decoration: none; text-align: left; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .16); color: #fff; font: 700 1.04rem/1.3 var(--f-display); transition: transform .15s, background-color .15s, border-color .15s; }
+.choice:hover { transform: translateX(5px); background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .4); }
+.choice small { font: 500 .78rem/1.3 var(--f-body); color: #D9BEC6; text-align: right; }
+.choice.hot { background: var(--grad); border-color: transparent; }
+.choice.hot small { color: rgba(255, 255, 255, .9); }
+.final .smart { margin-top: 1.8rem; font-size: .88rem; color: #CFAFB8; max-width: 60ch; margin-inline: auto; }
+
+.toTop { position: fixed; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); display: grid; place-items: center; cursor: pointer; z-index: 40; box-shadow: var(--shadow-s); }
+.toTop svg { width: 18px; height: 18px; }
+.lightbox { position: fixed; inset: 0; z-index: 80; background: rgba(30, 6, 14, .92); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); cursor: zoom-out; }
+.lightbox img { max-height: 92vh; border-radius: 10px; }
+.zoom { cursor: zoom-in; }
+.reveal { transition: opacity .6s ease, transform .6s ease; }
+.js .reveal.pre { opacity: .001; transform: translateY(16px); }
+@media (prefers-reduced-motion: reduce) { .js .reveal.pre { opacity: 1; transform: none; } .window { transform: none !important; } }
+</style>
+</head>
+<body data-home data-own-counters>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF315C"/><stop offset="1" stop-color="#FF7043"/></linearGradient>
+    <symbol id="logo" viewBox="80 80 900 870">
+      <path d="M238.4 292.5 Q272.1 192.2 376.6 175 L797.6 105.9 Q960 79.3 949.7 243.6 L915.1 798 Q905.9 944.7 760.8 921.6 L185.9 830.1 Q64 810.7 103.4 693.6 Z" fill="url(#brandg)"/>
+      <path d="M187.5 756.6 L452.6 318.8 Q470.8 288.6 506.1 288.6 L567.3 288.6 Q602.5 288.6 618.2 320.2 L834.2 756.6 L675.4 756.6 L524.9 453.2 L363.8 756.6 Z" fill="#fff"/>
+      <path d="M466.1 633.1 L614.3 633.1 L675.4 756.6 L552 756.6 Z" fill="#fff" fill-opacity=".62"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="#main" aria-label="Aside, home"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
+    <nav class="nav" aria-label="Main">
+      <a href="#tour">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="#pricing">Pricing</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="releases.html">Releases</a>
+      <a href="blog.html">Blog</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+    <div class="top-cta">
+      <a class="btn btn-sm hide-m" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener"><svg style="color:var(--red)"><use href="#i-heart"/></svg>Ko-fi</a>
+      <a class="btn btn-sm btn-hot" href="beta.html">Join the beta</a>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+<section class="hero">
+  <div class="blob" style="width:520px;height:520px;right:-120px;top:-160px;background:#FF315C"></div>
+  <div class="blob" style="width:380px;height:380px;right:30%;top:40%;background:#FF7043;opacity:.25;animation-delay:-6s"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="kicker">The translation manager for Ren'Py</span>
+      <h1>Translate the whole game. <em>Break nothing.</em></h1>
+      <p class="lead">Aside opens a Ren'Py game's translation and walks you through it, line by line. It checks every tag, variable and line length as you type, shows the scene and the choices behind each line, and keeps count of what is done.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-hot" href="#get">Get Aside free <svg><use href="#i-arrow"/></svg></a>
+        <a class="btn" href="#try">Try to break a line</a>
+      </div>
+      <div class="trust">
+        <span><svg><use href="#i-check"/></svg>Free translating workflow</span>
+        <span><svg><use href="#i-check"/></svg>Runs offline, no account</span>
+        <span><svg><use href="#i-check"/></svg>Never writes into your game</span>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="window">
+        <div class="chrome"><i></i><i></i><i></i><span>Aside · demo project · Lines</span></div>
+        <img class="zoom" src="assets/img/app-lines.webp" width="1440" height="816" alt="Aside, the Lines tab: a table of lines with their state, and below it the original and the translation side by side.">
+      </div>
+      <div class="callout c1"><span class="dot ok">✓</span><div><b>35 of 36</b> lines translated<small>Episode 1 · 97 %</small></div></div>
+      <div class="callout c2"><span class="dot bad">✗</span><div><b>{/b}</b> is not closed<small>ep1_arrival.rpy · line 23</small></div></div>
+      <div class="callout c3"><span class="dot red">↗</span><div><b>Continue</b> where you stopped<small>ep1_arrival.rpy:5</small></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="games-row">
+  <div class="wrap gr-head"><p>Tried on 8 real Ren'Py games, from archive to translation</p></div>
+  <div class="marquee" aria-label="Tested games"><div class="mq-track"><span>Being a DIK<b>45k lines</b></span><span>Eternum<b>73k</b></span><span>A Wife and Mother<b>37k</b></span><span>Milfy City<b>47k</b></span><span>Midnight Paradise<b>67k</b></span><span>LoSeSb<b>360k</b></span><span>Four Elements Trainer<b>170k</b></span><span>Our Red String<b>152k</b></span><span class="dup" aria-hidden="true"></span><span aria-hidden="true">Being a DIK<b>45k lines</b></span><span aria-hidden="true">Eternum<b>73k</b></span><span aria-hidden="true">A Wife and Mother<b>37k</b></span><span aria-hidden="true">Milfy City<b>47k</b></span><span aria-hidden="true">Midnight Paradise<b>67k</b></span><span aria-hidden="true">LoSeSb<b>360k</b></span><span aria-hidden="true">Four Elements Trainer<b>170k</b></span><span aria-hidden="true">Our Red String<b>152k</b></span></div></div>
+</div>
+
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker">Why Aside</span>
+      <h2>A translation is thousands of tiny chances to crash a game.</h2>
+      <p class="lead">One unclosed <code>{i}</code>, one mistyped <code>[name]</code>, one line too long for the box. Aside catches them while you write, not after a player reports them.</p>
+    </div>
+    <div class="ba">
+      <div class="ba-card before">
+        <h3>In a text editor <small>the usual way</small></h3>
+        <ul class="ba-list">
+          <li><svg><use href="#i-x"/></svg>You find a broken tag when the game throws an exception.</li>
+          <li><svg><use href="#i-x"/></svg>You guess who says a line and what is on screen.</li>
+          <li><svg><use href="#i-x"/></svg>A choice is a lone string, cut off from what follows it.</li>
+          <li><svg><use href="#i-x"/></svg>Progress lives in a spreadsheet you forget to update.</li>
+          <li><svg><use href="#i-x"/></svg>Texts the generator skipped stay in English.</li>
+        </ul>
+      </div>
+      <div class="ba-card after spot">
+        <h3>In Aside <small>the calm way</small></h3>
+        <ul class="ba-list">
+          <li><svg><use href="#i-check"/></svg>Every line is checked against its original as you type.</li>
+          <li><svg><use href="#i-check"/></svg>The speaker, the scene and the lines around it sit next to the text.</li>
+          <li><svg><use href="#i-check"/></svg>The Menu tab shows the question, every option and what follows it.</li>
+          <li><svg><use href="#i-check"/></svg>Progress per line, file and episode, a weekly goal, a finish estimate.</li>
+          <li><svg><use href="#i-check"/></svg>Missed texts are found and added once you approve them.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tour" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">A quick tour</span>
+      <h2>Everything a line needs, in one window.</h2>
+    </div>
+    <div class="tour">
+      <div class="tour-list" role="tablist" aria-label="Features">
+        <button class="tour-item" role="tab" aria-selected="true" data-p="editor"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><h3>The editor</h3><p>Original and translation side by side, buttons for tags and pauses, saved straight into the <code>.rpy</code> file with <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="check"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6l-8-3Zm-3.5 9 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h3>Checks</h3><p>Errors that would crash the game and warnings that look suspicious, for the whole project in one list, each with a jump to its line.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="scene"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m3 16 5-5 4 4 3-3 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><h3>Scene preview</h3><p>The picture behind the line, with the game's font. Full-screen renders and scenes are fully supported; layered images are not drawn yet.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="menu"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7m6-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h3>Choice menus</h3><p>The question, every option with its translation and condition, and the first lines after each choice, read from the game script.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="overview"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h3>Progress</h3><p>What is left to translate and proofread, per file and per episode, chapter or folder, with a weekly goal.</p></div></button>
+        <button class="tour-item" role="tab" aria-selected="false" data-p="glossary"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h11a3 3 0 0 1 3 3v12H7a3 3 0 0 1-3-3zM18 8h2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h6M8 13h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><div><h3>Glossary</h3><p>Character names imported from the game and your own terms, checked in every line so a name never changes halfway.</p></div></button>
+      </div>
+      <div class="tour-panel">
+        <p class="tour-text-m" id="tour-text-m"></p>
+        <div class="panel-frame" id="panel"></div>
+        <p class="panel-note" id="panel-note"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="try">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker">Try it here</span>
+      <h2>Go on, try to break this line.</h2>
+      <p class="lead">Edit the Czech translation. The checks run as you type, the same way they run on every line in Aside, and the scene shows what the player would get.</p>
+    </div>
+    <div class="play">
+      <div class="scene" aria-hidden="true">
+        <div class="win"></div><div class="lamp"></div><div class="floor"></div>
+        <div class="vn-box" id="vn-box"><span class="vn-name">Mira</span><div class="vn-text" id="vn-text"></div><span class="vn-ctc"></span></div>
+        <div class="rp-error" id="rp-error" hidden>
+          <h4>An exception has occurred.</h4>
+          <div class="trace" id="rp-trace"></div>
+          <div>Your players would see this instead of the scene.</div>
+          <div class="btnrow"><span>Rollback</span><span>Ignore</span><span>Open Traceback</span><span>Quit</span></div>
+        </div>
+      </div>
+      <div class="inspect">
+        <div class="play-top"><span class="fieldlab" style="margin:0">Line 5 of ep1_arrival.rpy</span><button class="snd" type="button" id="snd" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sound</button></div>
+        <div><div class="fieldlab">Original <em>old</em></div><div class="orig" id="orig"></div></div>
+        <div><div class="fieldlab"><label for="tr">Your translation</label><em id="len"></em></div><textarea id="tr" spellcheck="false" rows="3"></textarea></div>
+        <div class="checks" id="checks" aria-live="polite"></div>
+        <p class="why" id="why-txt"></p>
+        <div class="tries">
+          <button class="try" data-try="tag">Delete the {/i}</button>
+          <button class="try" data-try="var">Misspell the variable</button>
+          <button class="try" data-try="long">Make it too long</button>
+          <button class="try reset" data-try="reset">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="nums" id="numbers">
+  <div class="wrap">
+    <div class="nums-grid">
+      <div class="spot"><b class="counter" data-to="1400000" data-fmt="M">1.4 M</b><span>lines of real translations read identically by the old and the new engine</span></div>
+      <div class="spot"><b class="counter" data-to="8968">8 968</b><span>read calls compared on 8 games, with 0 differences</span></div>
+      <div class="spot"><b class="counter" data-to="749">749</b><span>recorded test cases, every one matching</span></div>
+      <div class="spot"><b class="counter" data-to="724">724</b><span>automated tests guarding every build</span></div>
+    </div>
+    <p class="nums-more"><a href="releases.html#stats">More statistics →</a></p>
+  </div>
+</section>
+
+<section id="included" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">All included, free</span>
+      <h2>The whole translating workflow costs nothing.</h2>
+      <p class="lead">No trial, no account, no ads. These stay free.</p>
+    </div>
+    <div class="incl">
+      <div><svg><use href="#i-check"/></svg><p><b>Editor, filters and search</b><span>Whole-word search, filters by state, undo</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Quick translating and proofreading</b><span>Scene and editor together, "result 3 of 16"</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>All the checks</b><span>Tags, variables, numbers, length, box fit</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Find and replace</b><span>Across the whole project, in plain text</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>History and diff</b><span>Every version of every line</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Backups and snapshots</b><span>Before every write, restorable</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Scene preview and choice menus</b><span>Read from the game's own scripts</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Glossary and spelling hints</b><span>Hints from your project's own words</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Missed texts</b><span>Strings the generator skipped (experimental)</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Groups and progress</b><span>Episodes, chapters or folders found for you</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Machine translation of a line</b><span>DeepL, LibreTranslate or OpenAI-compatible, your key</span></p></div>
+      <div><svg><use href="#i-check"/></svg><p><b>Language packs</b><span>Czech first; neutral rules for any language</span></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="zero" id="privacy">
+  <div class="wrap">
+    <span class="kicker on-dark">Your work stays yours</span>
+    <h2>Three zeros we are proud of.</h2>
+    <p class="lead">Aside is a desktop app. Your game, your translation and your notes stay on your computer.</p>
+    <div class="zeros">
+      <div class="spot"><b><span>0</span></b><h3>bytes written into your game</h3><p>Game folders are only read. Aside writes translation files, after a backup, and its own small data folder.</p></div>
+      <div class="spot"><b><span>0</span></b><h3>telemetry, analytics, crash reports</h3><p>Nothing about your projects is ever sent to us. No file names, no texts, no settings.</p></div>
+      <div class="spot"><b><span>0</span></b><h3>accounts to make</h3><p>Install and open a game. Pro asks only for a licence key, never for a login.</p></div>
+    </div>
+    <p class="opt">Machine translation is off until you turn it on, and then talks straight to the service you chose. <a href="docs.html#data">What leaves your computer →</a></p>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker">Pricing</span>
+      <h2>Free to translate. Pro to go faster.</h2>
+      <p class="lead">Pro is for long games and release work. Try its speed features on your own project before you pay.</p>
+    </div>
+    <div class="plans">
+      <div class="plan spot">
+        <div class="name"><h3>Aside</h3><span class="badge">Free forever</span></div>
+        <div class="price">0<small>no strings</small></div>
+        <p>Everything you need to translate, check and finish a game.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Editor, quick modes, find and replace</li>
+          <li><svg><use href="#i-check"/></svg>All checks, glossary, spelling hints</li>
+          <li><svg><use href="#i-check"/></svg>Scene preview, choice menus, history</li>
+          <li><svg><use href="#i-check"/></svg>Progress, groups, missed texts</li>
+          <li><svg><use href="#i-check"/></svg>A taste of the Pro speed features<em>20 lines a run</em></li>
+        </ul>
+        <a class="btn" href="#get">Get Aside</a>
+      </div>
+      <div class="plan pro spot">
+        <div class="name"><h3>Aside Pro</h3><span class="badge">One-off licence</span></div>
+        <div class="price">Price soon<small>one payment, no subscription</small></div>
+        <p>Everything in Free, plus the speed layer that takes the boring hours away.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Batch machine translation with glossary and context<em>unlimited</em></li>
+          <li><svg><use href="#i-check"/></svg>Safe bulk fixes with a preview of every change<em>unlimited</em></li>
+          <li><svg><use href="#i-check"/></svg>Group suggestions for hundreds of files<em>unlimited</em></li>
+          <li><svg><use href="#i-check"/></svg>Regex batches that keep tags and variables safe</li>
+          <li><svg><use href="#i-check"/></svg>Publish your progress to your site or Patreon</li>
+        </ul>
+        <a class="btn btn-hot" href="beta.html#licence">Apply for a sponsored licence</a>
+      </div>
+    </div>
+    <div class="cmp-wrap">
+      <table class="cmp">
+        <thead><tr><th scope="col">Feature</th><th scope="col">Free</th><th scope="col" class="p">Pro</th></tr></thead>
+        <tbody>
+          <tr><td>Editor, filters, search, undo, backups</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Quick translating and proofreading</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>All checks, glossary, spelling hints</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Find and replace, history and diff</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Scene preview, choice menus</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Groups, progress, missed texts</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Machine translation of one line (your key)</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Approve identical lines, language packs</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr class="grp"><td colspan="3">Speed layer</td></tr>
+          <tr><td>Batch machine translation</td><td class="lim">20 / run</td><td class="un">Unlimited</td></tr>
+          <tr><td>Safe bulk fixes</td><td class="lim">20 / run</td><td class="un">Unlimited</td></tr>
+          <tr><td>Group suggestions</td><td class="lim">5 / run</td><td class="un">Unlimited</td></tr>
+          <tr><td>Regex batches</td><td class="n">–</td><td class="y">✓</td></tr>
+          <tr><td>Publish progress to your site</td><td class="n">–</td><td class="y">✓</td></tr>
+          <tr class="grp"><td colspan="3">Coming to Pro</td></tr>
+          <tr><td>Carry a translation to a new game version</td><td class="n">–</td><td class="un">Soon</td></tr>
+          <tr><td>Fuzzy translation memory, style check</td><td class="n">–</td><td class="un">Planned</td></tr>
+          <tr><td>Release builder, teamwork</td><td class="n">–</td><td class="un">Planned</td></tr>
+          <tr class="grp"><td colspan="3">Price</td></tr>
+          <tr><td>Licence</td><td class="un">0</td><td class="un">One-off, price soon</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lic">
+      <div><b>Two computers</b><span>Free one yourself when you switch.</span></div>
+      <div><b>Works offline</b><span>Checks in now and then, with a grace period.</span></div>
+      <div><b>Per major version</b><span>Pay once for the whole version.</span></div>
+      <div><b>Never locks your work</b><span>If a licence lapses, only Pro switches off.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="docs" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Documentation</span>
+      <h2>Short guides for your first evening.</h2>
+    </div>
+    <div class="docs-grid">
+      <a class="doc-card spot" href="docs.html#start"><span class="n">Start here</span><h3>Install and open a game</h3><p>From the installer to your first saved line.</p></a>
+      <a class="doc-card spot" href="docs.html#checks"><span class="n">Reference</span><h3>Every check explained</h3><p>What each error and warning means and how to fix it.</p></a>
+      <a class="doc-card spot" href="docs.html#keys"><span class="n">Speed</span><h3>Keyboard shortcuts</h3><p>Translate a whole scene without the mouse.</p></a>
+      <a class="doc-card spot" href="docs.html#data"><span class="n">Safety</span><h3>Your data and backups</h3><p>What Aside writes, where, and how to go back.</p></a>
+    </div>
+    <div class="docs-more"><a class="btn" href="docs.html">Open the documentation <svg><use href="#i-arrow"/></svg></a></div>
+  </div>
+</section>
+
+<section id="status">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Status</span>
+      <h2>Almost ready for its first release.</h2>
+    </div>
+    <div class="road">
+      <div class="road-top">
+        <div class="big">10 of 11<small>milestones done</small></div>
+        <p>Aside was rebuilt as one fast desktop app with a Rust core and checked against the original on 8 real games: 8 968 read calls, no difference.</p>
+      </div>
+      <div class="track" role="img" aria-label="10 of 11 milestones done"><i></i></div>
+      <div class="miles">
+        <div><span class="st">Done</span><h3>Fast new core</h3><p>All 80 operations rebuilt in Rust; 749 of 749 recorded cases match.</p></div>
+        <div><span class="st">Done</span><h3>Desktop app</h3><p>One window, no Python, no local web server, the same interface.</p></div>
+        <div><span class="st now">Now</span><h3>Installer</h3><p>Per-user install without admin rights. Signing and updates are being finished.</p></div>
+        <div><span class="st next">Next</span><h3>First public build</h3><p>A game picker, the "prepare a game" window, and Windows downloads.</p></div>
+      </div>
+      <div style="margin-top:1.6rem;display:flex;gap:.6rem;flex-wrap:wrap"><a class="btn" href="roadmap.html">See the roadmap and vote <svg><use href="#i-arrow"/></svg></a><a class="btn" href="releases.html">Releases and changelog</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="beta" class="beta band" style="padding-block: clamp(4rem, 3rem + 5vw, 7.5rem)">
+  <div class="blob" style="width:420px;height:420px;left:-160px;top:10%;background:#FF315C;opacity:.3"></div>
+  <div class="wrap">
+    <div class="sec-head c">
+      <span class="kicker">Beta programs</span>
+      <h2>A few seats before the release.</h2>
+      <p class="lead">A small group, picked by hand: testers for the builds and sponsored licences for active translations. Each route has its own application.</p>
+    </div>
+    <div class="route-teasers">
+      <a class="rt-card spot" href="beta.html#test"><span class="rl">A</span><span class="rk">Route A · Testing</span><h3>Test the builds</h3><p>Every test build first, a direct line to the author. You report what breaks.</p><span class="seats-mini" data-seats="test"></span><span class="rgo">Apply to test <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="rt-card spot" href="beta.html#licence"><span class="rl">B</span><span class="rk">Route B · Sponsored licence</span><h3>Pro for an active project</h3><p>For an active, public translation: 30 days of Pro, then a full licence after your feedback. Not a giveaway.</p><span class="seats-mini" data-seats="licence"></span><span class="rgo">Apply for a licence <svg><use href="#i-arrow"/></svg></span></a>
+    </div>
+  </div>
+</section>
+
+<section class="showcase-strip">
+  <div class="wrap ss">
+    <div><span class="kicker">Showcase</span><h2>Translated with Aside.</h2><p class="lead">It started with the Czech translation of Being a DIK. The next spot on the wall could be yours.</p></div>
+    <div class="ss-cards">
+      <a class="ss-card spot" href="showcase.html"><b>Being a DIK</b><span>Czech · 45 291 lines</span></a>
+      <a class="ss-card empty" href="showcase.html"><b>+</b><span>Your translation</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap faq-grid">
+    <div class="side">
+      <span class="kicker">FAQ</span>
+      <h2>Good questions.</h2>
+      <p>Something else? The <a href="docs.html">documentation</a> goes deeper, or <a href="contact.html">write to the author</a>.</p>
+    </div>
+    <div class="faq">
+      <details><summary>Does Aside change my game?</summary><div class="a">No. Game folders are only read. Aside edits the translation files in <code>game/tl/&lt;language&gt;</code>, always after a backup, and keeps its own data in a small <code>.aside</code> folder next to them.</div></details>
+      <details><summary>Which games work?</summary><div class="a">Ren'Py 7.4 and 8 games, with or without a <code>tl</code> folder and with <code>.rpa</code> archives. It was tried on 8 real games with 9 to 687 script files. The scene preview is best on games made of full-screen renders.</div></details>
+      <details><summary>Is it only for Czech?</summary><div class="a">No. Any language works. The interface is in English, and language packs add the rules of a language (Czech is the first). Without a pack the neutral rules apply.</div></details>
+      <details><summary>Do I need the Ren'Py SDK?</summary><div class="a">No. Aside unpacks archives itself and uses the game's own engine to generate translation files. The SDK is only needed if you want to run Ren'Py's lint from Aside.</div></details>
+      <details><summary>What is the catch with Free?</summary><div class="a">There is none. The whole translating workflow is free. Pro sells time savers for big projects, and you can try them on 20 lines at a time.</div></details>
+      <details><summary>Why will Windows warn me about the installer?</summary><div class="a">The first builds are not code-signed yet, so SmartScreen shows "Windows protected your PC". Choose <b>More info</b>, then <b>Run anyway</b>. Each file comes with a SHA-256 checksum.</div></details>
+    </div>
+  </div>
+</section>
+
+<section id="get" class="final">
+  <div class="wrap">
+    <span class="kicker on-dark">menu:</span>
+    <h2>Your translation is waiting. What do you do?</h2>
+    <p class="lead">The first Windows build is in final testing. Make your choice.</p>
+    <div class="choices">
+      <a class="choice hot" href="beta.html">"Let me in early." <small>join the beta</small></a>
+      <a class="choice" href="mailto:aside@filiposakkq.dev?subject=Tell%20me%20when%20Aside%20is%20out">"Tell me the day it's out." <small>aside@filiposakkq.dev</small></a>
+      <a class="choice" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">"I want to help it happen." <small>a coffee on Ko-fi</small></a>
+      <a class="choice" href="docs.html">"Let me read the docs first." <small>documentation</small></a>
+    </div>
+    <p class="smart">Aside is made by one translator. Ko-fi support goes first to a code-signing certificate, so Windows stops warning about the installer.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="#main"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
+      <p>Translation manager for Ren'Py, born from the Czech translation of <a href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">Being a DIK</a>. Aside is an independent tool, not affiliated with Ren'Py.</p>
+      <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="#tour">Features</a><a href="compare.html">Compare</a><a href="#pricing">Pricing</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
+      <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" hidden><img id="lb-img" alt=""></div>
+
+<script src="assets/data.js"></script>
+<script>
+(function () {
+  "use strict";
+  document.documentElement.classList.add("js");
+  var PD = (window.ASIDE_DATA || {}).program;
+  if (PD) document.querySelectorAll(".seats-mini").forEach(function (el) { var k = el.getAttribute("data-seats"), l = Math.max(0, PD[k].places - PD[k].taken); el.classList.toggle("full", !l || !PD.open); el.textContent = !PD.open ? "Closed for now" : l ? l + " of " + PD[k].places + " places left · " + PD.round : "Round full · waiting list"; });
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  var navLinks = $$(".nav a[href^='#']");
+  if ("IntersectionObserver" in window) {
+    var secObs = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) { if (en.isIntersecting) navLinks.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id); }); });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    navLinks.forEach(function (a) { var s = $(a.getAttribute("href")); if (s) secObs.observe(s); });
+  }
+
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("#lightbox").hidden = true; });
+  /* lightbox */
+  var lb = $("#lightbox");
+  document.addEventListener("click", function (e) { var t = e.target; if (t.classList && t.classList.contains("zoom")) { $("#lb-img").src = t.src; $("#lb-img").alt = t.alt; lb.hidden = false; } });
+  lb.addEventListener("click", function () { lb.hidden = true; });
+
+  /* feature tour */
+  var SCENE = '<div class="mock"><div class="col"><div class="cap">Full-screen render <b class="ok">supported</b></div><div class="sc"><div class="fig"></div><span class="tagn">Mira</span><div class="box">Lampa na tebe čekala.</div></div><p>The background and every picture shown over it, in place, with the game\'s own font.</p></div>' +
+    '<div class="col"><div class="cap">Layered image <b class="part">partly</b></div><div class="sc layer"><div class="ghost"></div><div class="note">Characters built from layers are not drawn yet.</div><span class="tagn">Mira</span><div class="box">Lampa na tebe čekala.</div></div><p>The background is shown with a note. Drawing the layers is planned.</p></div></div>';
+  var MENU = '<div class="mmock"><div class="cap">Menu · ep1_arrival.rpy:88</div><div class="q">Mira: <b>"So, are you staying?"</b></div>' +
+    '<div class="o"><span>Stay the night</span><span>Zůstat přes noc</span><em>if trust &gt; 2</em></div>' +
+    '<div class="o"><span>Walk home</span><span>Jít domů</span><em></em></div>' +
+    '<div class="after">mira "Then take the lamp with you."<br>mira "Tak si vezmi tu lampu s sebou."</div>' +
+    '<div class="o shared"><span>Ask about the letter</span><span>Zeptat se na dopis</span><em>ep1_garden:41</em></div>' +
+    '<small>This text is shared with a menu in ep1_garden.rpy; Ren\'Py keeps one translation for both.</small></div>';
+  var PANELS = {
+    editor: { html: '<img class="zoom" src="assets/img/app-lines.webp" width="1440" height="816" alt="The Lines tab with the editor.">', note: "Demo project with made-up dialogue. Tap the picture to enlarge it." },
+    check: { html: '<img class="zoom" src="assets/img/app-check.webp" width="1440" height="816" alt="The Check tab with errors and warnings.">', note: "Errors would crash the game or break the script; warnings may be intended. Nothing is rewritten without you." },
+    scene: { html: SCENE, note: "Games made of full-screen renders and scenes preview fully (5 of the 8 tested games). Games that build pictures from layers show the background and say what is missing." },
+    menu: { html: MENU, note: "Read from the decompiled .rpy scripts; jumps and menus built in Python are not followed." },
+    overview: { html: '<img class="zoom" src="assets/img/app-overview.webp" width="1440" height="816" alt="The Overview tab with progress.">', note: "Groups are found from file names (episode, chapter, day, script2…) or from folders." },
+    glossary: { html: '<img class="zoom" src="assets/img/app-glossary.webp" width="1440" height="816" alt="The Glossary tab.">', note: "Names are imported from the game's Character definitions." }
+  };
+  var items = $$(".tour-item");
+  function show(btn) {
+    var k = btn.getAttribute("data-p");
+    items.forEach(function (b) { b.setAttribute("aria-selected", String(b === btn)); });
+    $("#panel").innerHTML = PANELS[k].html; $("#panel-note").textContent = PANELS[k].note;
+    $("#tour-text-m").innerHTML = btn.querySelector("p").innerHTML;
+  }
+  items.forEach(function (b) { b.addEventListener("click", function () { show(b); if (window.innerWidth <= 960) b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }); });
+  show(items[0]);
+
+  /* playground: live check */
+  var ORIG = "{i}Hey!{/i} Welcome back, [player_name]. The lamp has been waiting for you.";
+  var TR = "{i}Hej!{/i} Vítej zpátky, [player_name]. Lampa na tebe čekala.";
+  var LONG = "{i}Hej!{/i} Vítej zpátky, [player_name]. Lampa na tebe čekala celou tu dlouhou zimu, každý večer svítila do okna a já jsem se pořád ptala sama sebe, jestli se vůbec někdy vrátíš, nebo jestli na nás v tom velkém městě úplně zapomeneš.";
+  var VARS = { player_name: "Alex" };
+  var PAIRED = /^(i|b|u|s|plain|color|size|font|a|alpha|k|outlinecolor|cps|rb|rt)$/;
+  var tr = $("#tr"), vnText = $("#vn-text"), vnBox = $("#vn-box"), err = $("#rp-error"), trace = $("#rp-trace");
+  $("#orig").innerHTML = esc(ORIG).replace(/(\{[^{}]*\})/g, '<span class="t-tag">$1</span>').replace(/(\[[^\[\]]*\])/g, '<span class="t-var">$1</span>');
+  function tags(s) { var out = [], re = /\{(\/?)([a-zA-Z]+)(=[^}]*)?\}/g, m; s = s.replace(/\{\{/g, "  "); while ((m = re.exec(s))) out.push({ close: m[1] === "/", name: m[2].toLowerCase(), raw: m[0].toLowerCase() }); return out; }
+  function vars(s) { var out = [], re = /\[([^\[\]]+)\]/g, m; s = s.replace(/\[\[/g, "  "); while ((m = re.exec(s))) out.push(m[1].trim()); return out; }
+  function sameCount(a, b) { var c = {}, k; a.forEach(function (x) { c[x] = (c[x] || 0) + 1; }); b.forEach(function (x) { c[x] = (c[x] || 0) - 1; }); for (k in c) if (c[k]) return false; return true; }
+  function balance(s) { var st = [], t = tags(s), i; for (i = 0; i < t.length; i++) { if (!PAIRED.test(t[i].name)) continue; if (!t[i].close) st.push(t[i].name); else if (st[st.length - 1] === t[i].name) st.pop(); else return { bad: "close", name: t[i].name }; } return st.length ? { bad: "open", name: st[st.length - 1] } : null; }
+  function brackets(s) { return (s.match(/\(/g) || []).length - (s.match(/\)/g) || []).length; }
+  function render(s) {
+    var html = "", re = /(\{\/?[a-zA-Z]+(?:=[^}]*)?\})|(\[[^\[\]]+\])/g, last = 0, m, map = { i: "em", b: "strong", u: "u", s: "s" };
+    while ((m = re.exec(s))) {
+      html += esc(s.slice(last, m.index));
+      if (m[1]) { var t = m[1].match(/\{(\/?)([a-zA-Z]+)/), nm = t[2].toLowerCase(); if (map[nm]) html += "<" + t[1] + map[nm] + ">"; }
+      else { var v = m[2].slice(1, -1).trim(); html += '<span class="v">' + esc(VARS[v] || v) + "</span>"; }
+      last = re.lastIndex;
+    }
+    return html + esc(s.slice(last));
+  }
+  var meas = document.createElement("canvas").getContext("2d");
+  function plain(s) { return s.replace(/\{[^{}]*\}/g, "").replace(/\[([^\[\]]+)\]/g, function (_, v) { return VARS[v.trim()] || v; }); }
+  function lineCount(text) {
+    var cs = getComputedStyle(vnText), w = vnText.clientWidth; if (!w) return 1;
+    meas.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+    var lines = 1, cur = "";
+    text.split(/\s+/).forEach(function (wd) { var t = cur ? cur + " " + wd : wd; if (meas.measureText(t).width > w && cur) { lines++; cur = wd; } else cur = t; });
+    return lines;
+  }
+  function boxLines() { var cs = getComputedStyle(vnText), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.45; return Math.max(1, Math.floor((vnText.clientHeight + 2) / lh)); }
+  function chip(l, s) { return '<span class="chk ' + s + '">' + l + "</span>"; }
+  function check() {
+    var s = tr.value, empty = !s.trim();
+    $("#len").textContent = s.length + " / " + ORIG.length + " chars";
+    var ot = tags(ORIG).map(function (t) { return t.raw; }), tt = tags(s).map(function (t) { return t.raw; });
+    var ov = vars(ORIG), tv = vars(s), bal = balance(s);
+    var tagsOk = sameCount(ot, tt) && !bal, varsOk = sameCount(ov, tv), brOk = brackets(s) === brackets(ORIG);
+    var lines = lineCount(plain(s)), cap = boxLines(), fits = lines <= cap;
+    var ratio = s.length / ORIG.length, lenWarn = ratio > 1.6 || (!empty && ratio < .3);
+    var unknown = tv.filter(function (v) { return ov.indexOf(v) < 0; });
+    $("#checks").innerHTML = empty ? chip("untranslated", "warn") :
+      chip(tagsOk ? "tags match" : "tags", tagsOk ? "ok" : "bad") + chip(varsOk ? "variables match" : "variables", varsOk ? "ok" : "bad") +
+      chip("brackets", brOk ? "ok" : "bad") + chip(fits ? "fits the box" : "too long for the box", fits ? "ok" : "warn") + chip(lenWarn ? "length " + Math.round(ratio * 100) + " %" : "length", lenWarn ? "warn" : "ok");
+    var why;
+    if (empty) why = "An empty line falls back to the original text in the game.";
+    else if (bal && bal.bad === "open") why = "<b>{" + esc(bal.name) + "}</b> is opened but never closed. The game stops on this line.";
+    else if (bal) why = "<b>{/" + esc(bal.name) + "}</b> closes a tag that is not open.";
+    else if (!tagsOk) why = "The text tags differ from the original.";
+    else if (unknown.length) why = "<b>[" + esc(unknown[0]) + "]</b> is not a variable of the original. The game would crash.";
+    else if (!varsOk) why = "A variable of the original is missing.";
+    else if (!brOk) why = "The brackets do not pair up like in the original.";
+    else if (!fits) why = "This needs " + lines + " lines, the dialogue box holds " + cap + ". Measured with the box font.";
+    else if (lenWarn) why = "Much " + (ratio > 1 ? "longer" : "shorter") + " than the original. Worth a second look.";
+    else why = "All good. Now try one of the buttons below.";
+    $("#why-txt").innerHTML = why;
+    var head = 'File "game/tl/czech/ep1_arrival.rpy", line 5, in script\n', crash = null;
+    if (bal && bal.bad === "open") crash = head + '    mira "' + esc(s) + '"\n<b>Exception: The {' + esc(bal.name) + "} text tag was never closed.</b>";
+    else if (bal) crash = head + "<b>Exception: Closing tag {/" + esc(bal.name) + "} does not match an open tag.</b>";
+    else if (unknown.length) crash = head + '    mira "' + esc(s) + "\"\n<b>NameError: name '" + esc(unknown[0]) + "' is not defined</b>";
+    err.hidden = !crash; if (crash) trace.innerHTML = crash.replace(/\n/g, "<br>");
+    vnText.innerHTML = render(empty ? ORIG : s); vnBox.classList.toggle("over", !fits);
+  }
+  $$(".try").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-try");
+      if (k === "tag") tr.value = tr.value.indexOf("{/i}") >= 0 ? tr.value.replace("{/i}", "") : "{i}Hej! Vítej zpátky, [player_name]. Lampa na tebe čekala.";
+      if (k === "var") tr.value = (tr.value.indexOf("[player_name]") >= 0 ? tr.value : TR).replace("[player_name]", "[player_nam]");
+      if (k === "long") tr.value = LONG;
+      if (k === "reset") tr.value = TR;
+      check();
+    });
+  });
+  tr.value = TR; tr.addEventListener("input", check); window.addEventListener("resize", check);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
+  check();
+
+
+
+  /* sound: a soft text blip, like a visual novel typing out a line (off until you turn it on) */
+  var actx = null, sndOn = false, sndBtn = $("#snd"), lastBlip = 0;
+  sndBtn.addEventListener("click", function () {
+    sndOn = !sndOn; sndBtn.setAttribute("aria-pressed", String(sndOn));
+    if (sndOn && !actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
+    if (actx && actx.state === "suspended") actx.resume();
+    if (sndOn) blip(true);
+  });
+  function blip(force) {
+    if (!sndOn || !actx) return;
+    var now = actx.currentTime; if (!force && now - lastBlip < .045) return; lastBlip = now;
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = "triangle"; o.frequency.value = 520 + Math.random() * 140;
+    g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.07, now + .006); g.gain.exponentialRampToValueAtTime(0.0001, now + .06);
+    o.connect(g).connect(actx.destination); o.start(now); o.stop(now + .07);
+  }
+  tr.addEventListener("input", function () { blip(); });
+
+  /* live touches: spotlight on cards, tilt of the hero window, counters, the status bar, the playground types itself once */
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var stage = $(".stage"), win = $(".window");
+  if (stage && !reduce && matchMedia("(hover: hover) and (min-width: 1001px)").matches) {
+    stage.addEventListener("pointermove", function (e) { var r = stage.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; win.style.transform = "perspective(1600px) rotateY(" + (x * 10 - 3) + "deg) rotateX(" + (-y * 6) + "deg)"; });
+    stage.addEventListener("pointerleave", function () { win.style.transform = ""; });
+  }
+  function fmt(n, f) { return f === "M" ? (n / 1e6).toFixed(1) + " M" : String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202F"); }
+  function countUp(el) {
+    var to = +el.getAttribute("data-to"), f = el.getAttribute("data-fmt"), t0 = null;
+    function step(t) { if (!t0) t0 = t; var p = Math.min(1, (t - t0) / 1400); el.textContent = fmt(to * (1 - Math.pow(1 - p, 4)), f); if (p < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  var trackEl = $(".track");
+  var typed = false;
+  function typeDemo() {
+    if (typed || reduce) return; typed = true;
+    var full = TR, i = 0; tr.value = "";
+    var iv = setInterval(function () { i += 2; tr.value = full.slice(0, i); check(); blip(); if (i >= full.length) clearInterval(iv); }, 45);
+  }
+  if ("IntersectionObserver" in window && !reduce) {
+    if (trackEl && trackEl.getBoundingClientRect().top > window.innerHeight) trackEl.classList.add("pre");
+    var lo = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var t = en.target;
+        if (t.classList.contains("counter")) countUp(t);
+        if (t === trackEl) t.classList.remove("pre");
+        if (t.id === "try") typeDemo();
+        lo.unobserve(t);
+      });
+    }, { threshold: .35 });
+    $$(".counter").forEach(function (el) { lo.observe(el); });
+    if (trackEl) lo.observe(trackEl);
+    lo.observe($("#try"));
+  }
+
+  /* reveal on scroll; everything is visible before this runs and without JS */
+  if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var targets = $$(".ba-card, .incl > div, .zeros > div, .plan, .doc-card, .miles > div, .faq details, .nums-grid > div"), vh = window.innerHeight;
+    targets.forEach(function (el) { if (el.getBoundingClientRect().top > vh) el.classList.add("reveal", "pre"); });
+    var ro = new IntersectionObserver(function (ents) { ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.remove("pre"); ro.unobserve(en.target); } }); }, { rootMargin: "0px 0px -6% 0px" });
+    targets.forEach(function (el) { if (el.classList.contains("pre")) ro.observe(el); });
+  }
+})();
+</script>
+<script src="assets/site.js"></script>
+<script>
+/* with the server: the places of the beta round as they are now */
+AsideAPI.config().then(function (c) {
+  if (!c) return; var P = c.program;
+  document.querySelectorAll(".seats-mini").forEach(function (el) { var k = el.getAttribute("data-seats"), l = Math.max(0, P[k].places - P[k].taken); el.classList.toggle("full", !l || !P.open); el.textContent = !P.open ? "Closed for now" : l ? l + " of " + P[k].places + " places left · " + P.round : "Round full · waiting list"; });
+});
+</script>
+</body>
+</html>
