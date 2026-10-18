@@ -17,7 +17,7 @@ not_found_handling = "404-page"
 
 [vars]
 SITE_URL = "https://aside.filiposakkq.dev"
-MAIL_FROM = "Aside <aside@filiposakkq.dev>"
+MAIL_FROM = "Filip from Aside <aside@filiposakkq.dev>"
 # new applications, messages, bug reports and showcase entries are announced here
 OWNER_EMAIL = "aside@filiposakkq.dev"
 # the public site key of the Turnstile widget (empty = the forms work without it)
