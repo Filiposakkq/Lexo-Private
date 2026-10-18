@@ -325,6 +325,8 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 .rt-card p { font-size: .97rem; max-width: 40ch; }
 .rt-card .rgo { justify-self: start; display: inline-flex; align-items: center; gap: .5rem; margin-top: .4rem; font: 800 .92rem/1 var(--f-display); color: #fff; padding: .75rem 1.1rem; border-radius: 999px; background: var(--grad); }
 .rt-card .rgo svg { width: 16px; height: 16px; }
+.seats-mini { font: 700 .82rem/1.2 var(--f-display); color: var(--muted); }
+.seats-mini.full { color: var(--warn); }
 .showcase-strip { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
 .ss { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: center; }
 @media (max-width: 860px) { .ss { grid-template-columns: minmax(0, 1fr); } }
@@ -654,7 +656,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
           <li><svg><use href="#i-check"/></svg>Regex batches that keep tags and variables safe</li>
           <li><svg><use href="#i-check"/></svg>Publish your progress to your site or Patreon</li>
         </ul>
-        <a class="btn btn-hot" href="beta.html#licence">Get Pro free in the beta</a>
+        <a class="btn btn-hot" href="beta.html#licence">Apply for a sponsored licence</a>
       </div>
     </div>
     <div class="cmp-wrap">
@@ -737,12 +739,12 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
   <div class="wrap">
     <div class="sec-head c">
       <span class="kicker">Beta programs</span>
-      <h2>Two ways in before the release.</h2>
-      <p class="lead">Test the builds, or get a free Pro licence for a real translation project. Each route has its own short application.</p>
+      <h2>A few seats before the release.</h2>
+      <p class="lead">A small group, picked by hand: testers for the builds and sponsored licences for active translations. Each route has its own application.</p>
     </div>
     <div class="route-teasers">
-      <a class="rt-card spot" href="beta.html#test"><span class="rl">A</span><span class="rk">Route A · Testing</span><h3>Test the builds</h3><p>Every test build first, a direct line to the author. You report what breaks.</p><span class="rgo">Apply to test <svg><use href="#i-arrow"/></svg></span></a>
-      <a class="rt-card spot" href="beta.html#licence"><span class="rl">B</span><span class="rk">Route B · Free licence</span><h3>Get Pro for your project</h3><p>A free Pro licence for an active translation. You share honest feedback after 2 and 4 weeks.</p><span class="rgo">Apply for a licence <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="rt-card spot" href="beta.html#test"><span class="rl">A</span><span class="rk">Route A · Testing</span><h3>Test the builds</h3><p>Every test build first, a direct line to the author. You report what breaks.</p><span class="seats-mini" data-seats="test"></span><span class="rgo">Apply to test <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="rt-card spot" href="beta.html#licence"><span class="rl">B</span><span class="rk">Route B · Sponsored licence</span><h3>Pro for an active project</h3><p>For an active, public translation: 30 days of Pro, then a full licence after your feedback. Not a giveaway.</p><span class="seats-mini" data-seats="licence"></span><span class="rgo">Apply for a licence <svg><use href="#i-arrow"/></svg></span></a>
     </div>
   </div>
 </section>
@@ -797,6 +799,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <div>
       <a class="brand" href="#main"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
       <p>Translation manager for Ren'Py, born from the Czech translation of <a href="https://badik.filiposakkq.dev" target="_blank" rel="noopener">Being a DIK</a>. Aside is an independent tool, not affiliated with Ren'Py.</p>
+      <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
     </div>
     <nav aria-label="Footer">
       <a href="#tour">Features</a><a href="compare.html">Compare</a><a href="#pricing">Pricing</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
@@ -808,10 +811,13 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 <button class="toTop" id="toTop" aria-label="Back to top" hidden><svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div class="lightbox" id="lightbox" hidden><img id="lb-img" alt=""></div>
 
+<script src="data.js"></script>
 <script>
 (function () {
   "use strict";
   document.documentElement.classList.add("js");
+  var PD = (window.ASIDE_DATA || {}).program;
+  if (PD) document.querySelectorAll(".seats-mini").forEach(function (el) { var k = el.getAttribute("data-seats"), l = Math.max(0, PD[k].places - PD[k].taken); el.classList.toggle("full", !l || !PD.open); el.textContent = !PD.open ? "Closed for now" : l ? l + " of " + PD[k].places + " places left · " + PD.round : "Round full · waiting list"; });
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var esc = function (s) { return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };

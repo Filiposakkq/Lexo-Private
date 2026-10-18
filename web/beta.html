@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aside Beta Programs</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Apply to test Aside before release, or apply for a free Aside Pro licence for your Ren'Py translation project.">
+<meta name="description" content="A few places before the release: apply to test Aside, or apply for a sponsored Aside Pro licence for an active Ren'Py translation.">
 <meta name="theme-color" content="#12070A">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,6 +97,29 @@
 .done-card .big svg { width: 40px; height: 40px; color: #fff; }
 .done-card h3 { font-size: 1.6rem; }
 .done-card p { max-width: 50ch; color: var(--text); }
+
+.seats { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font: 700 .84rem/1.2 var(--f-display); color: var(--text); }
+.seats .dots { display: inline-flex; gap: 5px; }
+.seats .dots i { width: 14px; height: 14px; border-radius: 4px; background: var(--grad); box-shadow: 0 0 10px rgba(255, 49, 92, .45); }
+.seats .dots i.taken { background: var(--card-2); box-shadow: none; border: 1px solid var(--line-2); }
+.seats.full { color: var(--warn); }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+@media (max-width: 860px) { .facts { grid-template-columns: minmax(0, 1fr); } }
+.facts div { padding: 1.1rem 1.2rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.facts b { display: block; font: 800 1rem/1.3 var(--f-display); color: var(--ink); }
+.facts span { font-size: .9rem; color: var(--muted); }
+.journey { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; margin-top: 1rem; }
+@media (max-width: 760px) { .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.journey div { position: relative; padding: 1rem; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+.journey em { font-style: normal; font: 800 .68rem/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--red-text); }
+.journey b { display: block; margin-top: .35rem; font: 800 .95rem/1.3 var(--f-display); color: var(--ink); }
+.journey span { display: block; font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+.say { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .9rem; align-items: start; padding: 1rem 1.1rem; border-radius: 14px; background: rgba(12, 11, 18, .7); border: 1px solid rgba(255, 255, 255, .1); position: relative; margin-top: .4rem; }
+.say .who { position: absolute; left: 1rem; top: 0; transform: translateY(-55%); padding: .2rem .7rem; border-radius: 6px; background: var(--grad); color: #fff; font: 800 .78rem/1.3 var(--f-display); }
+.say p { grid-column: 1 / -1; color: #F2DDE2; font-size: .95rem; padding-top: .4rem; }
+.toggle-ex { display: inline-flex; align-items: center; gap: .55rem; font-size: .9rem; color: var(--text); cursor: pointer; margin-top: .2rem; }
+.toggle-ex input { width: 18px; height: 18px; accent-color: var(--red); }
+.draft { font-size: .8rem; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -135,32 +158,39 @@
   <div class="blob" style="width:520px;height:520px;right:-160px;top:-200px;background:#FF315C"></div>
   <div class="blob" style="width:320px;height:320px;left:-140px;bottom:-140px;background:#FF7043;opacity:.25;animation-delay:-6s"></div>
   <div class="wrap">
-    <span class="kicker">Beta programs</span>
-    <h1>Choose your <span class="grad-text">route.</span></h1>
-    <p class="lead">Two ways to be part of Aside before the first release. Each has its own short application. Fields marked <b style="color:var(--red-text)">*</b> are required, and the answers go straight to <b style="color:var(--ink)">aside@filiposakkq.dev</b>.</p>
+    <span class="kicker" id="round-kicker">Beta programs</span>
+    <h1>A few seats <span class="grad-text">before the release.</span></h1>
+    <p class="lead">Aside is looking for a small group of people who translate real Ren'Py games. Places are limited in every round and each application is read and picked by hand. You get an answer either way.</p>
     <div class="routes">
       <button class="route spot" type="button" data-route="test" aria-pressed="false" aria-controls="apply">
         <span class="letter">A</span>
         <span class="tagr">Route A · Testing</span>
         <h2>Test the builds</h2>
-        <p>Get every test build first, try it on real games and report what breaks.</p>
+        <div class="seats" data-seats="test"></div>
+        <p>Every test build first. You try it on your games and report what breaks, clearly enough to fix.</p>
         <div class="cols">
           <div><h4>You get</h4><ul><li><svg><use href="#i-check"/></svg>Builds before everyone</li><li><svg><use href="#i-check"/></svg>A direct line to the author</li><li><svg><use href="#i-check"/></svg>A say in what gets fixed first</li></ul></div>
-          <div class="ask"><h4>We ask</h4><ul><li><svg><use href="#i-arrow"/></svg>Bug reports with steps and screenshots</li><li><svg><use href="#i-arrow"/></svg>A Windows PC and a Ren'Py game</li><li><svg><use href="#i-arrow"/></svg>Test builds stay private</li></ul></div>
+          <div class="ask"><h4>We look for</h4><ul><li><svg><use href="#i-arrow"/></svg>Clear bug reports with steps</li><li><svg><use href="#i-arrow"/></svg>Windows and a few Ren'Py games</li><li><svg><use href="#i-arrow"/></svg>Discretion: builds stay private</li></ul></div>
         </div>
         <span class="go">Apply to test <svg><use href="#i-arrow"/></svg></span>
       </button>
       <button class="route spot" type="button" data-route="licence" aria-pressed="false" aria-controls="apply">
         <span class="letter">B</span>
-        <span class="tagr">Route B · Free licence</span>
-        <h2>Get Pro for your project</h2>
-        <p>Translate a real game with Aside, and tell us honestly how it went.</p>
+        <span class="tagr">Route B · Sponsored licence</span>
+        <h2>Pro for an active project</h2>
+        <div class="seats" data-seats="licence"></div>
+        <p>For translators with a public project in progress. Not a giveaway: a licence in exchange for real use and honest feedback.</p>
         <div class="cols">
-          <div><h4>You get</h4><ul><li><svg><use href="#i-check"/></svg>A free Aside Pro licence</li><li><svg><use href="#i-check"/></svg>Help setting up your project</li><li><svg><use href="#i-check"/></svg>A spot in the showcase, if you like</li></ul></div>
-          <div class="ask"><h4>We ask</h4><ul><li><svg><use href="#i-arrow"/></svg>A real, active translation project</li><li><svg><use href="#i-arrow"/></svg>Feedback after 2 and 4 weeks</li><li><svg><use href="#i-arrow"/></svg>The game author's permission</li></ul></div>
+          <div><h4>You get</h4><ul><li><svg><use href="#i-check"/></svg>30 days of Pro, then a full licence</li><li><svg><use href="#i-check"/></svg>Help setting up your project</li><li><svg><use href="#i-check"/></svg>A spot in the showcase, if you like</li></ul></div>
+          <div class="ask"><h4>We look for</h4><ul><li><svg><use href="#i-arrow"/></svg>A public translation with progress</li><li><svg><use href="#i-arrow"/></svg>Feedback after 2 and 4 weeks</li><li><svg><use href="#i-arrow"/></svg>One licence per game and language</li></ul></div>
         </div>
         <span class="go">Apply for a licence <svg><use href="#i-arrow"/></svg></span>
       </button>
+    </div>
+    <div class="facts">
+      <div><b>Picked by hand</b><span>Every application is read. Places are few, so not every one gets in this round.</span></div>
+      <div><b>An answer within 14 days</b><span>Yes, no or waiting list, always by e-mail.</span></div>
+      <div><b>Exceptions exist</b><span>Doesn't fit a rule but have a good reason? Say so in the application.</span></div>
     </div>
   </div>
 </section>
@@ -181,59 +211,80 @@
     <div>
       <a class="brand" href="./"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
       <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
+      <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
     </div>
     <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
   </div>
 </footer>
+<script src="data.js"></script>
 <script>
 (function () {
-  var MAIL = "aside@filiposakkq.dev";
+  var D = window.ASIDE_DATA || {}, P = D.program || { round: "Round 1", open: true, test: { places: 4, taken: 0 }, licence: { places: 3, taken: 0 } };
+  var MAIL = D.contact || "aside@filiposakkq.dev";
   var LANGS = ["Czech", "Slovak", "Polish", "German", "French", "Spanish", "Portuguese (Brazil)", "Italian", "Russian", "Ukrainian", "Turkish", "Indonesian", "Vietnamese", "Japanese", "Chinese", "Korean", "Other"];
-  /* field: [id, label, type, required, options/extra] */
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  /* seats from data.js */
+  var left = function (k) { return Math.max(0, P[k].places - P[k].taken); };
+  document.getElementById("round-kicker").textContent = "Beta programs · " + P.round + (P.closes ? " · closes " + new Date(P.closes).toLocaleDateString() : "");
+  document.querySelectorAll("[data-seats]").forEach(function (el) {
+    var k = el.getAttribute("data-seats"), n = P[k].places, l = left(k), dots = "";
+    for (var i = 0; i < n; i++) dots += "<i" + (i >= l ? ' class="taken"' : "") + "></i>";
+    el.classList.toggle("full", !l || !P.open);
+    el.innerHTML = '<span class="dots" aria-hidden="true">' + dots + "</span>" + (!P.open ? "Applications are closed for now" : l ? l + " of " + n + " places left in " + P.round : "Round full · join the waiting list");
+  });
+
+  /* field: [id, label, type, required, extra]; extra.when / extra.unless: shown only when the checkbox "exception" is on / off */
   var ROUTES = {
-    test: { name: "Testing", subject: "Aside beta: testing application", steps: [
-      { t: "About you", d: "So we know who you are and how to reach you.", f: [
+    test: { name: "Testing", subject: "Aside beta: testing application", who: "Route A", steps: [
+      { t: "About you", say: "Hi! First, who are you and where can I reach you?", f: [
         ["nick", "Nickname", "text", 1], ["email", "E-mail", "email", 1],
         ["discord", "Discord name", "text", 0, { hint: "Optional, for faster bug chats" }],
         ["speak", "Languages you speak", "chips", 1, { opts: ["English", "Czech", "Slovak", "Polish", "German", "Spanish", "French", "Russian", "Other"], multi: 1 }] ] },
-      { t: "Your setup", d: "Test builds behave differently on different computers.", f: [
+      { t: "Your setup", say: "Test builds behave differently on different computers and games.", f: [
         ["win", "Windows", "chips", 1, { opts: ["Windows 11", "Windows 10"] }],
         ["ram", "Memory (RAM)", "chips", 1, { opts: ["4 GB", "8 GB", "16 GB", "32 GB or more"] }],
-        ["screen", "Screen", "chips", 0, { opts: ["Laptop", "1080p", "1440p", "4K"] }],
-        ["exp", "Your experience with translating Ren'Py games", "chips", 1, { opts: ["New to it", "Translated one game", "I translate regularly", "I make Ren'Py games"] }],
-        ["games", "Ren'Py games you can test on", "textarea", 1, { min: 10, hint: "Names of games you own, ideally of different sizes" }] ] },
-      { t: "Commitment", d: "Testing helps only when bugs are reported well.", f: [
+        ["exp", "Your experience with Ren'Py translation", "chips", 1, { opts: ["New to it", "Translated one game", "I translate regularly", "I make Ren'Py games"] }],
+        ["games", "Ren'Py games you can test on", "textarea", 1, { min: 15, hint: "Names of games you have, ideally of different sizes" }] ] },
+      { t: "Bug sense", say: "The most useful testers describe problems well. Show me how you would.", f: [
+        ["bug", "Describe the last bug you found in any program", "textarea", 1, { min: 80, hint: "What you did, what happened, what you expected. Any app counts." }],
         ["hours", "Time you can give", "chips", 1, { opts: ["1–2 h a week", "3–5 h a week", "More"] }],
-        ["agree", "You agree", "agree", 1, { opts: ["I will report bugs with the steps that cause them and a screenshot.", "I understand test builds can have bugs, and I keep a backup of my translation.", "I will not share test builds or their download links."] }],
-        ["note", "Anything else?", "textarea", 0, { hint: "Other tools you use, what you hope Aside fixes" }] ] } ] },
-    licence: { name: "Free licence", subject: "Aside beta: free licence application", steps: [
-      { t: "About you", d: "The licence is issued to this e-mail address.", f: [
+        ["agree", "You agree", "agree", 1, { opts: ["I report bugs with the steps that cause them and a screenshot.", "I keep a backup of my translation; test builds can have bugs.", "I don't share test builds or their links.", "I understand places are limited and picked by hand."] }],
+        ["note", "Anything else?", "textarea", 0, { hint: "Exceptions, other tools you use, what you hope Aside fixes" }] ] } ] },
+    licence: { name: "Sponsored licence", subject: "Aside beta: sponsored licence application", who: "Route B", steps: [
+      { t: "About you", say: "Hi! The licence goes to the e-mail you give here.", f: [
         ["nick", "Nickname", "text", 1], ["email", "E-mail", "email", 1],
         ["discord", "Discord name", "text", 0, { hint: "Optional" }],
         ["lang", "You translate into", "select", 1, { opts: LANGS }] ] },
-      { t: "Your project", d: "Tell us about the translation you would use Aside for.", f: [
-        ["game", "Game", "text", 1, { hint: "Name and version" }],
-        ["gamelink", "Link to the game", "url", 1, { hint: "Its page on itch.io, Patreon, Steam or a forum" }],
+      { t: "Your project", say: "Sponsored licences go to active, public translations. Show me yours.", f: [
+        ["game", "Game and version", "text", 1, { hint: "e.g. Eternum 0.9" }],
+        ["link", "Link to your translation", "url", 1, { unless: "exception", hint: "Its thread, Patreon, website or release page" }],
+        ["exception", "", "exception", 0],
+        ["why_ex", "Why should your project be an exception?", "textarea", 1, { when: "exception", min: 60, hint: "Not public yet, a team project, a special case: tell me" }],
+        ["progress", "How far you are", "chips", 1, { opts: ["Under 10 %", "10–25 %", "25–75 %", "Over 75 %", "Released, now updating"] }],
         ["size", "Size of the game", "chips", 1, { opts: ["Under 10k lines", "10k–50k", "50k–150k", "Over 150k", "Not sure"] }],
-        ["progress", "How far you are", "chips", 1, { opts: ["Starting", "Under 25 %", "25–75 %", "Over 75 %", "Updating to a new version"] }],
         ["team", "Team", "chips", 1, { opts: ["Just me", "2–3 people", "4 or more"] }],
-        ["where", "Where your translation is or will be published", "text", 1, { hint: "A link, or \"not published yet\"" }],
         ["tools", "Tools you use now", "text", 1, { hint: "e.g. Notepad++, Translator++, renpy-translator" }] ] },
-      { t: "What we ask", d: "A free licence in exchange for real use and honest feedback.", f: [
-        ["why", "What do you hope Pro saves you?", "textarea", 1, { min: 30, hint: "A few sentences: what takes you the most time today" }],
-        ["agree", "You agree", "agree", 1, { opts: ["I will use Aside for this project for at least 4 weeks.", "I will send feedback after 2 and after 4 weeks.", "I will report the bugs I find.", "I have, or will ask for, the game author's permission before publishing."] }],
+      { t: "How it works", say: "Here is the deal. A trial first, the full licence after your feedback.", journey: 1, f: [
+        ["why", "What takes you the most time today?", "textarea", 1, { min: 60, hint: "Tell me where Pro would help your project" }],
+        ["agree", "You agree", "agree", 1, { opts: ["I start with 30 days of Pro; the full licence for this major version follows after my feedback.", "I send short feedback after 2 and after 4 weeks.", "I report the bugs I find.", "I understand there are 3 places per round, one per game and language, picked by hand."] }],
         ["show", "Showcase", "agree", 0, { opts: ["You may list my translation in the Aside showcase."] }] ] } ] }
   };
   var route = null, step = 0, data = {};
   var form = document.getElementById("form"), rail = document.getElementById("rail"), bar = document.getElementById("bar"), apply = document.getElementById("apply");
-  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var save = function () { try { localStorage.setItem("aside-beta-" + route, JSON.stringify({ step: step, data: data })); } catch (e) {} };
+  var load = function (r) { try { return JSON.parse(localStorage.getItem("aside-beta-" + r) || "null"); } catch (e) { return null; } };
+  var forget = function () { try { localStorage.removeItem("aside-beta-" + route); } catch (e) {} };
+  var shown = function (f) { var x = f[4] || {}; return x.when ? !!data[x.when] : x.unless ? !data[x.unless] : true; };
 
   function field(f) {
     var id = f[0], lab = f[1], type = f[2], req = f[3], x = f[4] || {}, v = data[id], star = req ? " <b>*</b>" : "";
-    var h = '<div class="f' + (type === "textarea" || type === "agree" || type === "chips" && (x.opts || []).length > 4 ? " full" : "") + '" data-id="' + id + '">';
+    var full = type === "textarea" || type === "agree" || type === "exception" || (type === "chips" && x.opts.length > 4);
+    var h = '<div class="f' + (full ? " full" : "") + '" data-id="' + id + '"' + (shown(f) ? "" : " hidden") + ">";
+    if (type === "exception") return h + '<label class="toggle-ex"><input type="checkbox" id="f-exception"' + (v ? " checked" : "") + '>My project is not public yet, or I don\'t fit the rules: I am asking for an exception</label><span class="msg"></span></div>';
     if (type === "chips" || type === "agree") h += '<span class="lab" id="lab-' + id + '">' + esc(lab) + star + "</span>"; else h += '<label for="f-' + id + '">' + esc(lab) + star + "</label>";
-    if (type === "text" || type === "email" || type === "url") h += '<input id="f-' + id + '" type="' + type + '" maxlength="160" value="' + esc(v || "") + '"' + (type === "email" ? ' autocomplete="email"' : "") + ">";
-    if (type === "textarea") h += '<textarea id="f-' + id + '" maxlength="800">' + esc(v || "") + "</textarea>" + (x.min ? '<span class="count" id="c-' + id + '"></span>' : "");
+    if (type === "text" || type === "email" || type === "url") h += '<input id="f-' + id + '" type="' + type + '" maxlength="160" value="' + esc(v || "") + '"' + (type === "email" ? ' autocomplete="email"' : "") + (type === "url" ? ' placeholder="https://"' : "") + ">";
+    if (type === "textarea") h += '<textarea id="f-' + id + '" maxlength="1200">' + esc(v || "") + "</textarea>" + (x.min ? '<span class="count" id="c-' + id + '"></span>' : "");
     if (type === "select") h += '<select id="f-' + id + '"><option value="">Choose…</option>' + x.opts.map(function (o) { return "<option" + (v === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>";
     if (type === "chips") h += '<div class="chips" role="' + (x.multi ? "group" : "radiogroup") + '" aria-labelledby="lab-' + id + '">' + x.opts.map(function (o, i) {
       var on = x.multi ? (v || []).indexOf(o) >= 0 : v === o;
@@ -243,26 +294,28 @@
     if (x.hint) h += '<span class="hint">' + esc(x.hint) + "</span>";
     return h + '<span class="msg" aria-live="polite"></span></div>';
   }
-  function steps() { return ROUTES[route].steps; }
+  var steps = function () { return ROUTES[route].steps; };
   function drawRail() {
     var all = steps().map(function (s) { return s.t; }).concat(["Review and send"]);
-    rail.innerHTML = '<span class="rt">Route ' + (route === "test" ? "A · Testing" : "B · Free licence") + "</span>" + all.map(function (t, i) { return '<div class="rstep' + (i < step ? " ok" : i === step ? " now" : "") + '"><i>' + (i < step ? "✓" : i + 1) + "</i><span>" + t + "</span></div>"; }).join("");
+    rail.innerHTML = '<span class="rt">' + ROUTES[route].who + " · " + ROUTES[route].name + "</span>" + all.map(function (t, i) { return '<div class="rstep' + (i < step ? " ok" : i === step ? " now" : "") + '"><i>' + (i < step ? "✓" : i + 1) + "</i><span>" + t + "</span></div>"; }).join("");
     bar.style.width = (step / all.length * 100) + "%";
   }
   function collect() {
     if (step >= steps().length) return;
     steps()[step].f.forEach(function (f) {
       var id = f[0], type = f[2];
-      if (type === "chips" && (f[4] || {}).multi || type === "agree") data[id] = Array.prototype.slice.call(form.querySelectorAll('input[name="' + id + '"]:checked')).map(function (i) { return i.value; });
-      else if (type === "chips") { var c = form.querySelector('input[name="' + id + '"]:checked'); data[id] = c ? c.value : ""; }
+      if (type === "exception") { var c = document.getElementById("f-exception"); data[id] = !!(c && c.checked); }
+      else if (type === "chips" && f[4].multi || type === "agree") data[id] = Array.prototype.slice.call(form.querySelectorAll('input[name="' + id + '"]:checked')).map(function (i) { return i.value; });
+      else if (type === "chips") { var r = form.querySelector('input[name="' + id + '"]:checked'); data[id] = r ? r.value : ""; }
       else { var el = document.getElementById("f-" + id); data[id] = el ? el.value.trim() : ""; }
     });
+    save();
   }
   function validate() {
     var ok = true, first = null;
     steps()[step].f.forEach(function (f) {
       var id = f[0], type = f[2], req = f[3], x = f[4] || {}, v = data[id], msg = "";
-      if (req) {
+      if (req && shown(f)) {
         if (type === "agree") { if ((v || []).length < x.opts.length) msg = "Please agree to all of these."; }
         else if (Array.isArray(v) ? !v.length : !v) msg = type === "chips" ? "Pick one." : "This is required.";
         else if (type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) msg = "This does not look like an e-mail address.";
@@ -276,47 +329,63 @@
     if (first) { var inp = first.querySelector("input, select, textarea"); if (inp) inp.focus(); }
     return ok;
   }
-  function body() {
-    var lines = ["Route: " + ROUTES[route].name, ""];
-    steps().forEach(function (s) { s.f.forEach(function (f) { var v = data[f[0]]; if (v && (!Array.isArray(v) || v.length)) lines.push(f[1] + ": " + (Array.isArray(v) ? (f[2] === "agree" ? "\n  - " + v.join("\n  - ") : v.join(", ")) : v)); }); });
-    return lines.join("\n");
+  function pairs() {
+    var out = [];
+    steps().forEach(function (s) { s.f.forEach(function (f) {
+      var v = data[f[0]]; if (!shown(f) || !v || (Array.isArray(v) && !v.length)) return;
+      out.push([f[2] === "exception" ? "Exception" : f[1], f[2] === "exception" ? "asked for" : v, f[2]]);
+    }); });
+    return out;
   }
-  function draw() {
-    drawRail();
-    var S = steps(), last = step >= S.length;
-    if (last) {
-      var rows = [];
-      S.forEach(function (s) { s.f.forEach(function (f) { var v = data[f[0]]; if (v && (!Array.isArray(v) || v.length)) rows.push("<div><dt>" + esc(f[1]) + "</dt><dd>" + esc(Array.isArray(v) ? v.join(f[2] === "agree" ? "\n" : ", ") : v) + "</dd></div>"); }); });
-      var href = "mailto:" + MAIL + "?subject=" + encodeURIComponent(ROUTES[route].subject + " (" + data.nick + ")") + "&body=" + encodeURIComponent(body());
-      form.innerHTML = '<div class="step"><h3>Review and send</h3><p>Check your answers. Sending opens your e-mail app with everything filled in.</p><dl class="review" style="margin:0">' + rows.join("") + "</dl>" +
-        '<div class="send-box"><div class="addr">' + MAIL + ' <button type="button" class="copy-btn" id="copy-addr">Copy address</button></div><p>If your e-mail app does not open, copy the application and send it to this address yourself.</p>' +
-        '<div class="nav-row" style="margin:0"><a class="btn btn-hot" id="send" href="' + href + '">Send by e-mail</a><button type="button" class="btn btn-ghost-dark" id="copy-app">Copy application</button></div></div>' +
-        '<div class="nav-row"><button type="button" class="btn" id="back">Back</button><button type="button" class="btn" id="sent">I sent it</button></div></div>';
-      document.getElementById("copy-addr").onclick = function (e) { copy(MAIL, e.target, "Copy address"); };
-      document.getElementById("copy-app").onclick = function (e) { copy("To: " + MAIL + "\nSubject: " + ROUTES[route].subject + "\n\n" + body(), e.target, "Copy application"); };
-      document.getElementById("back").onclick = function () { step--; draw(); };
-      document.getElementById("sent").onclick = function () {
-        bar.style.width = "100%"; rail.querySelectorAll(".rstep").forEach(function (r) { r.className = "rstep ok"; r.querySelector("i").textContent = "✓"; });
-        form.innerHTML = '<div class="done-card"><div class="big"><svg><use href="#i-check"/></svg></div><h3>Thank you, ' + esc(data.nick) + '.</h3><p>Your application is on its way. You will get an answer at ' + esc(data.email) + '. Until then, the <a href="docs.html" style="color:var(--red-text)">documentation</a> is a good read.</p></div>';
-      };
-      return;
-    }
-    var s = S[step];
-    form.innerHTML = '<div class="step"><h3>' + s.t + "</h3><p>" + s.d + '</p><div class="fields">' + s.f.map(field).join("") + '</div><div class="nav-row">' +
-      (step ? '<button type="button" class="btn" id="back">Back</button>' : '<button type="button" class="btn" id="switch">Other route</button>') +
-      '<button type="submit" class="btn btn-hot">' + (step === S.length - 1 ? "Review" : "Next") + "</button></div></div>";
-    s.f.forEach(function (f) { var x = f[4] || {}; if (x.min) { var ta = document.getElementById("f-" + f[0]), c = document.getElementById("c-" + f[0]); var u = function () { c.textContent = ta.value.trim().length + " / " + x.min + "+"; }; ta.addEventListener("input", u); u(); } });
-    var b = document.getElementById("back"); if (b) b.onclick = function () { collect(); step--; draw(); };
-    var sw = document.getElementById("switch"); if (sw) sw.onclick = function () { choose(route === "test" ? "licence" : "test"); };
+  function body() {
+    return ["Route: " + ROUTES[route].name + " (" + P.round + ")", ""].concat(pairs().map(function (p) { return p[0] + ": " + (Array.isArray(p[1]) ? (p[2] === "agree" ? "\n  - " + p[1].join("\n  - ") : p[1].join(", ")) : p[1]); })).join("\n");
   }
   function copy(text, btn, label) {
     var ok = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = label; }, 1600); };
     var fb = function () { var t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); ok(); } catch (e) { btn.textContent = "Copy failed"; } t.remove(); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fb); else fb();
   }
-  form.addEventListener("submit", function (e) { e.preventDefault(); collect(); if (!validate()) return; step++; draw(); form.scrollIntoView({ block: "start", behavior: "smooth" }); });
+  function say(t) { return '<div class="say"><span class="who">Aside</span><p>' + esc(t) + "</p></div>"; }
+  function draw() {
+    drawRail();
+    var S = steps();
+    if (step >= S.length) {
+      var rows = pairs().map(function (p) { return "<div><dt>" + esc(p[0]) + "</dt><dd>" + esc(Array.isArray(p[1]) ? p[1].join(p[2] === "agree" ? "\n" : ", ") : p[1]) + "</dd></div>"; }).join("");
+      var full = !left(route) || !P.open;
+      var href = "mailto:" + MAIL + "?subject=" + encodeURIComponent(ROUTES[route].subject + (full ? " (waiting list)" : "") + " · " + data.nick) + "&body=" + encodeURIComponent(body());
+      form.innerHTML = '<div class="step"><h3>Review and send</h3>' + say(full ? "This round is full, so your application goes to the waiting list. I'll write when a place opens." : "Check your answers. Sending opens your e-mail app with everything filled in.") + '<dl class="review" style="margin:0">' + rows + "</dl>" +
+        '<div class="send-box"><div class="addr">' + esc(MAIL) + ' <button type="button" class="copy-btn" id="copy-addr">Copy address</button></div><p>If your e-mail app does not open, copy the application and send it to this address yourself.</p>' +
+        '<div class="nav-row" style="margin:0"><a class="btn btn-hot" id="send" href="' + href + '">Send by e-mail</a><button type="button" class="btn btn-ghost-dark" id="copy-app">Copy application</button></div></div>' +
+        '<div class="nav-row"><button type="button" class="btn" id="back">Back</button><button type="button" class="btn" id="sent">I sent it</button></div></div>';
+      document.getElementById("copy-addr").onclick = function (e) { copy(MAIL, e.target, "Copy address"); };
+      document.getElementById("copy-app").onclick = function (e) { copy("To: " + MAIL + "\nSubject: " + ROUTES[route].subject + "\n\n" + body(), e.target, "Copy application"); };
+      document.getElementById("back").onclick = function () { step--; save(); draw(); };
+      document.getElementById("sent").onclick = function () {
+        forget(); bar.style.width = "100%"; rail.querySelectorAll(".rstep").forEach(function (r) { r.className = "rstep ok"; r.querySelector("i").textContent = "✓"; });
+        form.innerHTML = '<div class="done-card"><div class="big"><svg><use href="#i-check"/></svg></div><h3>Thank you, ' + esc(data.nick) + '.</h3><p>Your application is on its way. Every application is read, and you will get an answer at ' + esc(data.email) + ' within 14 days, yes or no.</p></div>';
+      };
+      return;
+    }
+    var s = S[step];
+    var journey = s.journey ? '<div class="journey"><div><em>Step 1</em><b>Accepted</b><span>Picked by hand from this round</span></div><div><em>Step 2</em><b>30 days of Pro</b><span>A trial licence for your project</span></div><div><em>Step 3</em><b>Feedback</b><span>Short notes after 2 and 4 weeks</span></div><div><em>Step 4</em><b>Full licence</b><span>For this major version</span></div></div>' : "";
+    form.innerHTML = '<div class="step"><h3>' + s.t + "</h3>" + say(s.say) + journey + '<div class="fields">' + s.f.map(field).join("") + '</div><div class="nav-row">' +
+      (step ? '<button type="button" class="btn" id="back">Back</button>' : '<button type="button" class="btn" id="switch">Other route</button>') +
+      '<span class="draft">Your answers are kept in this browser until you send them.</span><button type="submit" class="btn btn-hot">' + (step === S.length - 1 ? "Review" : "Next") + "</button></div></div>";
+    s.f.forEach(function (f) { var x = f[4] || {}; if (x.min) { var ta = document.getElementById("f-" + f[0]), c = document.getElementById("c-" + f[0]); var u = function () { c.textContent = ta.value.trim().length + " / " + x.min + "+"; }; ta.addEventListener("input", u); u(); } });
+    var ex = document.getElementById("f-exception");
+    if (ex) ex.addEventListener("change", function () { collect(); s.f.forEach(function (f) { var b = form.querySelector('[data-id="' + f[0] + '"]'); if (b) b.hidden = !shown(f); }); });
+    var b = document.getElementById("back"); if (b) b.onclick = function () { collect(); step--; save(); draw(); };
+    var sw = document.getElementById("switch"); if (sw) sw.onclick = function () { collect(); choose(route === "test" ? "licence" : "test"); };
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); collect(); if (!validate()) return; step++; save(); draw(); form.scrollIntoView({ block: "start", behavior: "smooth" }); });
+  form.addEventListener("input", function () { clearTimeout(form._t); form._t = setTimeout(collect, 400); });
   function choose(r) {
-    if (route !== r) { route = r; step = 0; var keep = { nick: data.nick, email: data.email, discord: data.discord }; data = keep; }
+    if (route !== r) {
+      var keep = { nick: data.nick, email: data.email, discord: data.discord };
+      route = r; var saved = load(r);
+      if (saved) { step = Math.min(saved.step || 0, steps().length); data = saved.data || {}; ["nick", "email", "discord"].forEach(function (k) { if (!data[k] && keep[k]) data[k] = keep[k]; }); }
+      else { step = 0; data = keep; }
+    }
     document.querySelectorAll(".route").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-route") === r)); });
     apply.hidden = false; draw();
   }

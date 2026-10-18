@@ -29,6 +29,11 @@ sub: Roadmap
 .vote:hover { color: var(--ink); border-color: var(--red); }
 .vote[aria-pressed="true"] { background: var(--grad); color: #fff; border-color: transparent; }
 .vote.pop { transform: scale(1.15); }
+.vote b { font: 800 .8rem/1 var(--f-display); color: var(--ink); padding-left: .35rem; margin-left: .1rem; border-left: 1px solid var(--line-2); }
+.vote[aria-pressed="true"] b { color: #fff; border-color: rgba(255, 255, 255, .4); }
+.top3 { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1.4rem; }
+.top3 span { font: 700 .82rem/1 var(--f-display); padding: .5rem .8rem; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--text); }
+.top3 span b { color: var(--red-text); margin-right: .3rem; }
 .tray { position: sticky; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 30; margin-top: 1.6rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.2rem; border-radius: 18px; background: linear-gradient(160deg, var(--wine-2), var(--wine)); border: 1px solid rgba(255, 255, 255, .12); box-shadow: var(--shadow); color: #F2DDE2; }
 .tray b { color: #fff; font: 800 1.05rem/1.3 var(--f-display); }
 .tray .acts { display: flex; gap: .5rem; flex-wrap: wrap; }
@@ -39,13 +44,14 @@ sub: Roadmap
   <div class="wrap">
     <span class="kicker">Roadmap</span>
     <h1>What comes <span class="grad-text">next.</span></h1>
-    <p class="lead">Where Aside is going, in the open. Heart the things you want most and send your votes: they decide what comes first after the release.</p>
+    <p class="lead">Where Aside is going, in the open. Heart the things you want most and send your votes: the counts on the cards are updated by hand, and they decide what comes first after the release.</p>
   </div>
 </section>
 
 <section class="sec" style="padding-top:0">
   <div class="wrap">
-    <div class="board" id="board"></div>
+    <div class="top3" id="top3"></div>
+    <div class="board" id="board" style="margin-top:1.4rem"></div>
     <div class="tray" id="tray">
       <div><b id="tray-n">No votes yet</b><p id="tray-t">Tap the hearts on the cards you want most.</p></div>
       <div class="acts"><a class="btn btn-hot" id="send-votes" href="mailto:aside@filiposakkq.dev">Send my votes</a><a class="btn btn-ghost-dark" href="mailto:aside@filiposakkq.dev?subject=Aside%20idea">Suggest an idea</a></div>
@@ -54,56 +60,40 @@ sub: Roadmap
 </section>
 ---script---
 (function () {
-  var COLS = [
-    { k: "now", t: "Now", items: [
-      ["Installer and switch-over", "Per-user installer, tested from the installed copy on every change.", "free"],
-      ["Code signing", "So Windows stops warning about the installer.", "free"],
-      ["Updates", "Aside tells you about a new version and installs it.", "free"],
-      ["Licence server", "Activation, two computers, freeing a computer.", "pro"] ] },
-    { k: "next", t: "Next: first release", items: [
-      ["Game picker", "A start screen with your games and translations.", "free"],
-      ["\"Prepare a game\" window", "Unpack, decompile and generate translation files with a few clicks.", "free"],
-      ["Refreshed interface", "A cleaner look for the editor and the tabs.", "free"],
-      ["User guide in the app", "Help where you need it, not only on the website.", "free"] ] },
-    { k: "later", t: "Later", items: [
-      ["Carry over to a new game version", "Old translations matched to changed and moved lines, marked for a check.", "pro"],
-      ["Layered images in the scene preview", "Draw characters and scenes built from layers.", "free"],
-      ["Fuzzy translation memory", "Suggestions from similar lines, not only identical ones.", "pro"],
-      ["Style check", "Formal and informal address, gender, character voice, using the language pack.", "pro"],
-      ["Character profiles", "Who speaks how, passed to batch machine translation.", "pro"],
-      ["Release builder", "From translation to an installable patch with version and changelog.", "pro"],
-      ["Teamwork", "Assignments, translator and proofreader roles, merging edits.", "pro"] ] },
-    { k: "ideas", t: "Ideas", items: [
-      ["More language packs", "Rules for more languages, downloadable in the app.", "free"],
-      ["Reports and saved views", "CSV or PDF reports, saved filter views.", "pro"],
-      ["Linux and macOS", "Possible with the new core; not promised yet.", "free"],
-      ["Czech version of the website", "This site, in Czech.", "web"] ] }
-  ];
+  var D = window.ASIDE_DATA || { roadmap: [], contact: "aside@filiposakkq.dev" };
+  var COLS = [["now", "Now"], ["next", "Next: first release"], ["later", "Later"], ["ideas", "Ideas"]];
   var LBL = { free: "Free", pro: "Pro", web: "Website" };
   var voted = {};
   try { voted = JSON.parse(localStorage.getItem("aside-votes") || "{}"); } catch (e) { voted = {}; }
-  var board = document.getElementById("board");
+  var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var heart = '<svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z" fill="currentColor"/></svg>';
-  board.innerHTML = COLS.map(function (c) {
-    return '<div class="col ' + c.k + '"><div class="col-head"><h2><i></i>' + c.t + "</h2><span>" + c.items.length + "</span></div>" + c.items.map(function (it) {
-      var on = !!voted[it[0]];
-      return '<article class="item"><h3>' + it[0] + "</h3><p>" + it[1] + '</p><div class="row"><span class="lbl ' + it[2] + '">' + LBL[it[2]] + '</span>' +
-        (c.k === "now" ? "" : '<button class="vote" type="button" aria-pressed="' + on + '" data-v="' + it[0].replace(/"/g, "&quot;") + '">' + heart + '<span>' + (on ? "Wanted" : "Want this") + "</span></button>") + "</div></article>";
-    }).join("") + "</div>";
-  }).join("");
+  var count = function (it) { return (it.votes || 0) + (voted[it.title] ? 1 : 0); };
+  var board = document.getElementById("board");
+  function draw() {
+    board.innerHTML = COLS.map(function (c) {
+      var items = D.roadmap.filter(function (it) { return it.col === c[0]; });
+      if (c[0] !== "now") items = items.slice().sort(function (a, b) { return count(b) - count(a); });
+      return '<div class="col ' + c[0] + '"><div class="col-head"><h2><i></i>' + c[1] + "</h2><span>" + items.length + "</span></div>" + items.map(function (it) {
+        var on = !!voted[it.title];
+        return '<article class="item"><h3>' + esc(it.title) + "</h3><p>" + esc(it.text) + '</p><div class="row"><span class="lbl ' + it.tier + '">' + (LBL[it.tier] || it.tier) + "</span>" +
+          (c[0] === "now" ? "" : '<button class="vote" type="button" aria-pressed="' + on + '" data-v="' + esc(it.title) + '" aria-label="' + (on ? "Remove my vote for " : "Vote for ") + esc(it.title) + '">' + heart + "<span>" + (on ? "Wanted" : "Want this") + "</span><b>" + count(it) + "</b></button>") + "</div></article>";
+      }).join("") + "</div>";
+    }).join("");
+    var top = D.roadmap.filter(function (it) { return it.col !== "now" && count(it) > 0; }).sort(function (a, b) { return count(b) - count(a); }).slice(0, 3);
+    document.getElementById("top3").innerHTML = top.length ? top.map(function (it, i) { return "<span><b>#" + (i + 1) + "</b>" + esc(it.title) + " · " + count(it) + "</span>"; }).join("") : "<span>No votes yet. Be the first.</span>";
+  }
   function tray() {
     var list = Object.keys(voted).filter(function (k) { return voted[k]; });
-    document.getElementById("tray-n").textContent = list.length ? list.length + (list.length === 1 ? " vote" : " votes") + " ready" : "No votes yet";
-    document.getElementById("tray-t").textContent = list.length ? list.slice(0, 3).join(" · ") + (list.length > 3 ? " …" : "") : "Tap the hearts on the cards you want most.";
-    document.getElementById("send-votes").href = "mailto:aside@filiposakkq.dev?subject=" + encodeURIComponent("Aside roadmap votes") + "&body=" + encodeURIComponent("I want these most:\n- " + (list.join("\n- ") || "(nothing yet)") + "\n\nWhy:\n");
+    document.getElementById("tray-n").textContent = list.length ? list.length + (list.length === 1 ? " vote" : " votes") + " ready to send" : "No votes yet";
+    document.getElementById("tray-t").textContent = list.length ? list.slice(0, 3).join(" · ") + (list.length > 3 ? " …" : "") : "Tap the hearts on the cards you want most, then send them.";
+    document.getElementById("send-votes").href = "mailto:" + D.contact + "?subject=" + encodeURIComponent("Aside roadmap votes") + "&body=" + encodeURIComponent("I want these most:\n- " + (list.join("\n- ") || "(nothing yet)") + "\n\nWhy:\n");
     try { localStorage.setItem("aside-votes", JSON.stringify(voted)); } catch (e) {}
   }
   board.addEventListener("click", function (e) {
     var b = e.target.closest(".vote"); if (!b) return;
     var k = b.getAttribute("data-v"); voted[k] = !voted[k];
-    b.setAttribute("aria-pressed", String(voted[k])); b.querySelector("span").textContent = voted[k] ? "Wanted" : "Want this";
-    b.classList.add("pop"); setTimeout(function () { b.classList.remove("pop"); }, 160);
-    tray();
+    draw(); tray();
+    var nb = board.querySelector('.vote[data-v="' + k.replace(/"/g, '\\"') + '"]'); if (nb) { nb.classList.add("pop"); setTimeout(function () { nb.classList.remove("pop"); }, 160); nb.focus(); }
   });
-  tray();
+  draw(); tray();
 })();

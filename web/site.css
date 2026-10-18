@@ -130,3 +130,5 @@ footer { border-top: 1px solid var(--line); padding-block: 2.8rem calc(2.8rem + 
 .sec-head .lead, .sec .lead { font-size: 1.1rem; max-width: 60ch; margin-top: 1rem; }
 .copy-btn { font: 700 .8rem/1 var(--f-display); padding: .55rem .8rem; border-radius: 999px; border: 1px solid var(--line-2); background: var(--card-2); color: var(--ink); cursor: pointer; min-height: 36px; }
 .copy-btn:hover { border-color: var(--red); }
+.foot .maker { margin-top: .5rem; }
+.foot .maker a { color: var(--red-text); text-underline-offset: 3px; }
