@@ -119,18 +119,24 @@ fn serve(mut req: Request, dispatcher: &Dispatcher) {
     send(&mut req, reply);
 }
 
-/// The folder with the UI files: `LEXO_UI_DIR`, or the folder of this repository.
+/// A folder of the installed application: `<name>` next to the program (where the installer puts the resources).
+fn installed_dir(name: &str, probe: &str) -> Option<PathBuf> {
+    let dir = std::env::current_exe().ok()?.parent()?.join(name);
+    dir.join(probe).exists().then_some(dir)
+}
+
+/// The folder with the UI files: `LEXO_UI_DIR`, the `ui` folder next to the program (an installed application), or the folder of this repository.
 pub fn default_ui_dir() -> PathBuf {
     if let Some(d) = std::env::var_os("LEXO_UI_DIR") {
         return PathBuf::from(d);
     }
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../free/lexo_free/ui")
+    installed_dir("ui", "index.html").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../free/lexo_free/ui"))
 }
 
-/// The folder with the language packs shipped with the application.
+/// The folder with the language packs shipped with the application (`LEXO_PACKS_DIR`, the `packs` folder next to the program, or the repository).
 pub fn default_packs_dir() -> PathBuf {
     if let Some(d) = std::env::var_os("LEXO_PACKS_DIR") {
         return PathBuf::from(d);
     }
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../core/lexo/packs")
+    installed_dir("packs", "cs").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../core/lexo/packs"))
 }
