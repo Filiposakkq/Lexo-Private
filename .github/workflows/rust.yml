@@ -45,3 +45,25 @@ jobs:
         run: cargo build --locked -p lexo-server
       - name: UI self-test in Edge against the Rust server
         run: python rust/tools/run_ui_selftest.py --exe rust/target/debug/lexo-server.exe
+
+  app:
+    # The Tauri application: built with the C++ tools of the runner, and the UI self-test (139 checks) runs inside its window.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal -c clippy --no-self-update
+      - name: Build the application
+        working-directory: rust
+        run: cargo build --locked -p lexo-app
+      - name: Clippy on the application
+        working-directory: rust
+        run: cargo clippy --locked -p lexo-app -- -D warnings
+      - name: UI self-test inside the window of the application
+        shell: pwsh
+        run: |
+          $env:LEXO_SELFTEST = "1"
+          $p = Start-Process -FilePath "rust/target/debug/lexo-app.exe" -RedirectStandardOutput selftest.out -PassThru
+          if (-not $p.WaitForExit(240000)) { Stop-Process -Id $p.Id -Force; Get-Content selftest.out; throw "the self-test did not finish" }
+          Get-Content selftest.out
+          if ((Get-Content selftest.out -Raw) -notmatch "139/139") { throw "the self-test did not pass" }

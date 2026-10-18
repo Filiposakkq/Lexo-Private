@@ -37,7 +37,7 @@ fn the_server_serves_the_ui_and_the_operations() {
             app.open_project(&tl2, false).unwrap();
             app
         },
-        ServerOptions { ui_dir: default_ui_dir(), port: 0, pick_folder: None },
+        ServerOptions::new(default_ui_dir()),
     )
     .unwrap();
     let port = server.addr.port();

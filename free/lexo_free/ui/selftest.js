@@ -255,8 +255,8 @@
     ok('v záhlaví je tlačítko druhého okna', document.getElementById('newWinBtn') && !SECONDARY, 'chybí tlačítko nebo je to druhé okno');
     ok('v záhlaví je tlačítko celé obrazovky a zkratka F11', document.getElementById('fullBtn') && ACTIONS.some((a) => a.id === 'fullscreen' && a.keys.includes('F11')), 'chybí');
     let wo;
-    try { wo = await post('window/open', { view: 'entries', file: 'x.rpy', line: 3 }); } catch (e) { wo = e.data; }      // no opener in the test server: the page must be told to fall back
-    ok('server při nedostupném okně vrátí náhradní postup, ne chybu', wo && wo.ok === false && wo.fallback === true, JSON.stringify(wo));
+    try { wo = await post('window/open', { view: 'entries', file: 'x.rpy', line: 3 }); } catch (e) { wo = e.data; }      // no opener in the test server: the page must be told to fall back; in the application a window is really opened
+    ok('server při otevření okna vrátí adresu okna, nebo (bez možnosti okno otevřít) náhradní postup, ne chybu', wo && ((wo.ok === false && wo.fallback === true) || (wo.ok === true && typeof wo.url === 'string')), JSON.stringify(wo));
     ok('každá akce má jedinečné id bez tečky', new Set(ACTIONS.map((a) => a.id)).size === ACTIONS.length && ACTIONS.every((a) => !a.id.includes('.')), 'duplicitní nebo špatné id');
     const keys = ACTIONS.flatMap((a) => (a.entries ? [] : keysOf(a))), dup = keys.filter((k, i) => keys.indexOf(k) !== i);
     ok('výchozí zkratky se nepřekrývají', dup.length === 0, dup.join(','));
