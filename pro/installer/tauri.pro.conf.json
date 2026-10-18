@@ -1,0 +1,7 @@
+{
+  "bundle": {
+    "resources": {
+      "../../../pro/rust/target/release/lexo-pro-sidecar.exe": "pack/lexo-pro-sidecar.exe"
+    }
+  }
+}
