@@ -1,4 +1,4 @@
-//! The Lexo application: a Tauri window around the UI of Free, on the Rust Core (milestone M8).
+//! The Aside application: a Tauri window around the UI of Free, on the Rust Core (milestone M8).
 //!
 //! The window loads its page from the custom protocol `lexo://` (on Windows `http://lexo.localhost/`), and the page's own `fetch('/api/...')` goes to the same protocol: the handler
 //! below gives the request to the routes of `lexo-server` (`Dispatcher`), so the UI runs unchanged and no socket is opened. The things only the shell can do (the folder dialog, one more
@@ -49,7 +49,7 @@ impl Shell for TauriShell {
         let handle = self.handle.clone();
         self.handle
             .run_on_main_thread(move || {
-                let _ = WebviewWindowBuilder::new(&handle, format!("w{n}"), WebviewUrl::CustomProtocol(url)).title("Lexo").inner_size(1200.0, 800.0).build();
+                let _ = WebviewWindowBuilder::new(&handle, format!("w{n}"), WebviewUrl::CustomProtocol(url)).title("Aside").inner_size(1200.0, 800.0).build();
             })
             .map_err(|e| e.to_string())
     }
@@ -112,6 +112,7 @@ fn main() {
     let packs = default_packs_dir();
     let backend = Backend::spawn(move || {
         let mut config = Config::new(cfg_dir.as_ref().map(|d| d.join("config.json")).as_deref());
+        lexo_core::config::take_over_legacy_config();
         config.load();
         let user = cfg_dir.as_ref().map_or_else(|| lexo_core::config::config_dir().join("packs"), |d| d.join("packs"));
         let mut app = App::new(config, Packs { bundled: packs, user: Some(user) });
@@ -151,7 +152,7 @@ fn main() {
             let query = if selftest { "?selftest=1&lang=cs" } else { "" }; // the self-test checks Czech texts
             let url: Url = format!("{BASE_URL}{query}").parse()?;
             let mut window =
-                WebviewWindowBuilder::new(app, "main", WebviewUrl::CustomProtocol(url)).title("Lexo").inner_size(1400.0, 900.0).min_inner_size(900.0, 600.0);
+                WebviewWindowBuilder::new(app, "main", WebviewUrl::CustomProtocol(url)).title("Aside").inner_size(1400.0, 900.0).min_inner_size(900.0, 600.0);
             if selftest {
                 window = window.initialization_script(SELFTEST_JS);
             }
@@ -159,5 +160,5 @@ fn main() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("the Lexo application could not start");
+        .expect("the Aside application could not start");
 }

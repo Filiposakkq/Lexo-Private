@@ -303,7 +303,7 @@ impl App {
             out.insert(
                 "reason".into(),
                 if layered {
-                    msg("The scene is built from layered or composed images, which Lexo does not draw yet.", &[]).wire()
+                    msg("The scene is built from layered or composed images, which Aside does not draw yet.", &[]).wire()
                 } else {
                     msg("I found no picture (scene / show) before this line that can be traced in the game archives.", &[]).wire()
                 },

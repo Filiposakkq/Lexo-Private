@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The windows of Lexo talk to Core through the lexo:// protocol, not through the IPC of Tauri, so they need no permission here.",
+  "description": "The windows of Aside talk to Core through the lexo:// protocol, not through the IPC of Tauri, so they need no permission here.",
   "windows": ["*"],
   "permissions": []
 }

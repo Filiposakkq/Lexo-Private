@@ -173,7 +173,7 @@ impl Dispatcher {
         if path == "/" || path == "/index.html" {
             return self.static_file("index.html");
         }
-        let flat = ["/styles.css", "/crest.svg", "/favicon.svg", "/selftest.js"];
+        let flat = ["/styles.css", "/crest.svg", "/favicon.svg", "/aside.png", "/selftest.js"];
         let script =
             path.strip_prefix("/js/").is_some_and(|n| n.ends_with(".js") && n.len() > 3 && n.chars().all(|c| c.is_ascii_alphanumeric() || "._-".contains(c)));
         if flat.contains(&path) || script {

@@ -161,7 +161,7 @@ def make_handler(sess):
             p = url.path
             if p in ("/", "/index.html"):
                 return self._static("index.html")
-            if p in ("/styles.css", "/crest.svg", "/favicon.svg", "/selftest.js") or re.fullmatch(r"/js/[\w.-]+\.js", p):
+            if p in ("/styles.css", "/crest.svg", "/favicon.svg", "/aside.png", "/selftest.js") or re.fullmatch(r"/js/[\w.-]+\.js", p):
                 return self._static(p[1:])
             if not p.startswith("/api/"):
                 return self._send(404, "not found", "text/plain")

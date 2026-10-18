@@ -30,6 +30,7 @@ fn main() {
     let server = start(
         move || {
             let mut config = Config::new(cfg_dir.as_ref().map(|d| d.join("config.json")).as_deref());
+            lexo_core::config::take_over_legacy_config();
             config.load();
             let user = lexo_core::config::config_dir().join("packs");
             let user = cfg_dir.as_ref().map_or(user, |d| d.join("packs"));

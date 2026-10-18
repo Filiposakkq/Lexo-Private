@@ -43,7 +43,7 @@ export async function viewSettings() {
       ...field(T('Most lines in the box'), h('input', { type: 'text', id: 'set_tblines', value: String(tb.max_lines) }), T('Default 4.')))),
     h('fieldset', null, h('legend', { 'data-k': 'mt' }, T('Machine translation (optional, experimental)')), h('div', { class: 'form' },
       ...field(T('Service'), h('select', { id: 'set_mt_provider' }, [['', T('Off')], ['deepl', 'DeepL'], ['openai', T('OpenAI-compatible (also local)')], ['libretranslate', 'LibreTranslate']].map(([k, l]) => h('option', { value: k, selected: (s.mt?.provider || '') === k }, l))), T('Gives only a SUGGESTION for one line after you click “Machine suggestion” in the editor; nothing is ever written by itself.')),
-      ...field(T('API key'), h('input', { type: 'password', id: 'set_mt_key', value: '', placeholder: s.mt?.has_key ? T('(saved – leave empty if you do not want to change it)') : '', autocomplete: 'off' }), T('Saved as plain text in config.json in %APPDATA%\\Lexo. It is not sent back to the app.')),
+      ...field(T('API key'), h('input', { type: 'password', id: 'set_mt_key', value: '', placeholder: s.mt?.has_key ? T('(saved – leave empty if you do not want to change it)') : '', autocomplete: 'off' }), T('Saved as plain text in config.json in %APPDATA%\\Aside. It is not sent back to the app.')),
       ...(s.mt?.has_key ? [h('span'), h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 'set_mt_clear' }), T(' Delete the saved key'))] : []),
       ...field(T('Service address'), h('input', { type: 'text', id: 'set_mt_url', value: s.mt?.base_url || '', placeholder: T('only for your own server, e.g. http://localhost:1234/v1') })),
       ...field('Model', h('input', { type: 'text', id: 'set_mt_model', value: s.mt?.model || '', placeholder: T('only for OpenAI-compatible, e.g. gpt-4o-mini') })),
@@ -60,12 +60,12 @@ export async function viewSettings() {
       ...field(T('Repository'), h('input', { type: 'text', id: 'set_repo', value: s.web.repo, placeholder: 'owner/repository' }), T('A folder with a clone, an address or user/repository. Your git (Credential Manager) handles the sign-in – no tokens are stored here.')),
       ...field(T('File in the repository'), h('input', { type: 'text', id: 'set_path', value: s.web.path }), T('Default web/progress.json.')),
       ...field(T('Name of the game on the website'), h('input', { type: 'text', id: 'set_title', value: s.web.title })))),
-    h('fieldset', null, h('legend', { 'data-k': 'about' }, T('About the app')), h('p', null, h('b', null, `Lexo ${S.version || ''}`),
+    h('fieldset', null, h('legend', { 'data-k': 'about' }, T('About the app')), h('p', null, h('b', null, `Aside ${S.version || ''}`),
       T(" – a translation manager for Ren'Py games: edit, proofread, check and follow the progress of a translation. Licence: see the file "), h('span', { class: 'mono' }, 'LICENSE'), '.'),
       h('p', { class: 'notice' }, h('b', null, T('State of the app: ')), T("it is under development and has been tried on a number of Ren'Py games of different kinds. "),
         T('The interface is English with Czech as a language pack; more languages are planned.'))),
     h('div', { class: 'row' }, h('button', { class: 'btn primary', onclick: save }, T('Save settings')),
-      h('span', { class: 'muted' }, T('Settings: '), h('span', { class: 'mono' }, 'config.json'), T(' in %APPDATA%\\Lexo'))));
+      h('span', { class: 'muted' }, T('Settings: '), h('span', { class: 'mono' }, 'config.json'), T(' in %APPDATA%\\Aside'))));
   /* Group the fieldsets into sections with a side navigation. Everything stays in the DOM (only hidden), so Save sees every field. */
   const fsets = [...root.querySelectorAll(':scope > fieldset')];
   const findSet = (k) => fsets.find((f) => f.querySelector('legend').dataset.k === k);
