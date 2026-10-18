@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="120" viewBox="0 0 360 120">
+<g transform="translate(0 4) scale(.11)">
+<rect x="64" y="64" width="896" height="896" rx="210" fill="#EAEAEA"/>
+<path d="M230 760 L414 300 Q430 260 466 260 H558 Q594 260 610 300 L794 760 H652 L512 414 L372 760 Z" fill="#0F0F14"/>
+<path d="M454 638 H603 L652 760 H508 Z" fill="#0F0F14" fill-opacity=".4"/>
+</g>
+<text x="112" y="69" font-family="Inter, Manrope, Arial, sans-serif" font-size="58" font-weight="800" letter-spacing="-2.8" fill="#EAEAEA">aside</text>
+<text x="114" y="94" font-family="Inter, Manrope, Arial, sans-serif" font-size="8.5" font-weight="500" letter-spacing="1.2" fill="#BDB8C3">Translation Manager for Ren'Py</text>
+</svg>
