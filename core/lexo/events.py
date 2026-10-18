@@ -1,6 +1,6 @@
 """Event log: every change of the shared project state, one append-only file per author (docs/DATA-LAYOUT.md, docs/TEAMWORK.md).
 
-    <translation folder>/.lexo/events/<author>.jsonl      one JSON object per line, written only by that author
+    <translation folder>/.aside/events/<author>.jsonl      one JSON object per line, written only by that author
     <config folder>/projects/<id>/events-seen.json         local: how many bytes of each file this computer has already read
 
 An event says "this key of this kind now has this value" (`value` null = removed):

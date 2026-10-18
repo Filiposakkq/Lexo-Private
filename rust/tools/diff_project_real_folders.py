@@ -2,7 +2,7 @@
 
     py rust/tools/diff_project_real_folders.py <folder holding games> [--exe path\\to\\lexo-golden.exe]
 
-Every folder `<folder>/*/game/tl/<language>` is opened by both (the store is read from its `.lexo` folder, `common.rpy` is skipped, the neutral language pack is used; nothing is written)
+Every folder `<folder>/*/game/tl/<language>` is opened by both (the store is read from its `.aside` folder, `common.rpy` is skipped, the neutral language pack is used; nothing is written)
 and the files found, the rows of the overview and the proofread counts of every file are compared.
 """
 import argparse
@@ -24,12 +24,12 @@ def python_answer(folder):
     folder = Path(folder)
     lay = layout.Layout()
     try:
-        lay = layout.parse(json.loads((folder / ".lexo" / "lexo.json").read_text(encoding="utf-8-sig")))
+        lay = layout.parse(json.loads((folder / ".aside" / "aside.json").read_text(encoding="utf-8-sig")))
     except (OSError, ValueError):
         pass
     layout.use(lay)
     layout.use(layout.Layout(lay.sections, lay.labels, "", lay.series, lay.folders))        # the neutral pack, like the Rust side
-    st = store.Store(folder / ".lexo").load()
+    st = store.Store(folder / ".aside").load()
     p = project.Project(folder, st, skip=["common.rpy"])
     report = p.refresh()
     rows = p.rows()

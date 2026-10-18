@@ -1236,9 +1236,9 @@ pub fn store_json(st: &Store) -> Value {
     }
 }
 
-/// What the real-data comparison reads from a data folder (a `.lexo` folder): the store, the history and the events, nothing is written.
+/// What the real-data comparison reads from a data folder (a `.aside` folder): the store, the history and the events, nothing is written.
 pub fn folder_json(dir: &Path, today: chrono::NaiveDate) -> Value {
-    let layout = std::fs::read_to_string(dir.join("lexo.json"))
+    let layout = std::fs::read_to_string(dir.join("aside.json"))
         .ok()
         .and_then(|t| serde_json::from_str::<Value>(t.trim_start_matches('\u{feff}')).ok())
         .and_then(|v| layout::parse(&v).ok())
@@ -1466,7 +1466,7 @@ pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
 /// What the real-data comparison reads from a translation folder: the files found, their rows (counts, proofread) with the store of its `.lexo` folder; nothing is written.
 pub fn project_json(root: &Path, skip: &[String]) -> Value {
     let dir = root.join(project::DATA_DIR_NAME);
-    let layout = std::fs::read_to_string(dir.join("lexo.json"))
+    let layout = std::fs::read_to_string(dir.join("aside.json"))
         .ok()
         .and_then(|t| serde_json::from_str::<Value>(t.trim_start_matches('\u{feff}')).ok())
         .and_then(|v| layout::parse(&v).ok())

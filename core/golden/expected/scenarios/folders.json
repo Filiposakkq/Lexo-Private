@@ -139,7 +139,7 @@
     "lock_lost": false,
     "ok": true,
     "project": {
-     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "data_dir": "<TMP>/p/game/tl/czech/.aside",
      "files": 6,
      "local_dir": "<TMP>/cfg/projects/<id>",
      "path": "<TMP>/p/game/tl/czech",
@@ -420,7 +420,7 @@
     "lock_lost": false,
     "ok": true,
     "project": {
-     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "data_dir": "<TMP>/p/game/tl/czech/.aside",
      "files": 6,
      "local_dir": "<TMP>/cfg/projects/<id>",
      "path": "<TMP>/p/game/tl/czech",
@@ -947,7 +947,7 @@
     "lock_lost": false,
     "ok": true,
     "project": {
-     "data_dir": "<TMP>/p/game/tl/czech/.lexo",
+     "data_dir": "<TMP>/p/game/tl/czech/.aside",
      "files": 6,
      "local_dir": "<TMP>/cfg/projects/<id>",
      "path": "<TMP>/p/game/tl/czech",

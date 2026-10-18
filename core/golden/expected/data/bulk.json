@@ -8,15 +8,15 @@
    "sha1": "65e61de339e6259069309a3d091a763c6cc790db",
    "text": "file;group\r\na.rpy;general\r\n"
   },
-  "root/tl/.lexo/approved.csv": {
+  "root/tl/.aside/approved.csv": {
    "sha1": "77f6ffeb1d5e2c2e023c954fd140fb741e5cab65",
    "text": "﻿file;block;original\r\na.rpy;translate czech a_2;Hmm.\r\nb.rpy;translate czech b_3;Hello there, my friend, how are you doing today?\r\n"
   },
-  "root/tl/.lexo/assignments.csv": {
+  "root/tl/.aside/assignments.csv": {
    "sha1": "22d791eb1d2512a4f791217d12a42701f9ff6726",
    "text": "﻿file;group\r\na.rpy;episode 1\r\nx.rpy;general\r\n"
   },
-  "root/tl/.lexo/glossary.csv": {
+  "root/tl/.aside/glossary.csv": {
    "sha1": "8f2eb849f7452918fcbb8aab8fc47f5f35a9ada6",
    "text": "code;name;type;note\r\nmc;Kira;speaker;\r\nsage;The Sage;term;mudrc\r\n"
   },
@@ -68,7 +68,7 @@
    "op": "store.open",
    "params": {
     "local": "root/local",
-    "shared": "root/tl/.lexo"
+    "shared": "root/tl/.aside"
    }
   },
   {

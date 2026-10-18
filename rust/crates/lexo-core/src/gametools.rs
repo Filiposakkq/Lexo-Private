@@ -25,7 +25,7 @@ pub const DEFAULT_MAX_FILE: u64 = 2 * 1024 * 1024 * 1024; // one file inside an 
 pub const DEFAULT_MAX_TOTAL: u64 = 16 * 1024 * 1024 * 1024; // everything one extraction writes
 const SCRIPT_SUFFIXES: [&str; 2] = [".rpyc", ".rpymc"];
 const SCRIPT_SOURCE_SUFFIXES: [&str; 4] = [".rpy", ".rpyc", ".rpym", ".rpymc"];
-const LINK_SKIP_ROOT: [&str; 2] = ["_progress_data", ".lexo"]; // data of translation tools lying next to the game: never part of a workspace
+const LINK_SKIP_ROOT: [&str; 3] = ["_progress_data", ".aside", ".lexo"]; // data of translation tools lying next to the game: never part of a workspace
 const LINK_SKIP_DIRS: [&str; 3] = ["cache", "saves", "tl"]; // Ren'Py rewrites these; they are created fresh in the workspace
 const COPY_SUFFIXES: [&str; 6] = [".rpy", ".rpyc", ".rpymc", ".rpyb", ".pyc", ".pyo"]; // files the engine may rewrite in place: copied, never linked
 

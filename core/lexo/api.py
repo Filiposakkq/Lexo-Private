@@ -486,7 +486,7 @@ def _missed_ignore(app, a):
     return _ok(app.missed_ignore(a.texts, a.clear))
 
 
-@_op("groups/apply", "POST", "write", "Define the groups of the project (written to lexo.json).", A("label"), A("groups"), S("series"), A("folders"), example={"label": "Episode", "groups": [1, 2]})
+@_op("groups/apply", "POST", "write", "Define the groups of the project (written to aside.json).", A("label"), A("groups"), S("series"), A("folders"), example={"label": "Episode", "groups": [1, 2]})
 def _groups_apply(app, a):
     return _ok(app.groups_apply(a.label, a.groups, a.series, a.folders))
 

@@ -8,7 +8,7 @@
  },
  "steps": [
   {"op": "fixes.check_literal", "texts": ["fine", "a\\nb", "say \\\"hi\\\"", "bare \" quote", "line\nbreak", "ends with \\", "double \\\\", ""]},
-  {"op": "store.open", "shared": "root/game/tl/czech/.lexo", "local": "root/local"},
+  {"op": "store.open", "shared": "root/game/tl/czech/.aside", "local": "root/local"},
   {"op": "store.load"},
   {"op": "project.open", "root": "root/game/tl/czech"},
   {"op": "project.refresh"},

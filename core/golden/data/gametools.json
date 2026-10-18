@@ -14,7 +14,7 @@
   "src/game/scripts.rpa": {"from": "gametools/scripts.rpa"},
   "arch/lies.rpa": {"from": "gametools/lies.rpa"},
   "src/_progress_data/x.json": "{}",
-  "src/.lexo/y.txt": "y",
+  "src/.aside/y.txt": "y",
   "src/Game.exe": "exe",
   "src/Game.py": "# launcher",
   "src/lib/py3-windows-x86_64/python.exe": "python",

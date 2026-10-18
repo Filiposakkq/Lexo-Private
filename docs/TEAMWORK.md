@@ -3,7 +3,7 @@
 ## Version 1: no server (shared folder or git)
 The team shares the translation folder with git, or a sync tool (Dropbox, Syncthing). Lexo needs no server of its own.
 
-- **State** (proofread, approved, assigned...) lives in `.lexo/events/<author>.jsonl`; every author writes only their own file, so merging never conflicts.
+- **State** (proofread, approved, assigned...) lives in `.aside/events/<author>.jsonl`; every author writes only their own file, so merging never conflicts.
 - **Translations in `.rpy` files** can be edited by two people in one file. Lexo merges **per `translate` block** (the block id is unique), not per text line, so different lines of one file do not collide.
 - **A real conflict** (both changed one line) is shown, and the user picks a version or edits by hand.
 - **Assignments:** the lead gives files or groups to people so that they do not overlap; this prevents most conflicts for free.

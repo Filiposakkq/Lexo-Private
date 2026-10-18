@@ -3,13 +3,13 @@
  "files": {
   "root/tl/a.rpy": "translate czech a_1:\n\n    # mc \"Hmm.\"\n    mc \"Hmm.\"\n\ntranslate czech a_2:\n\n    # js \"Hmm.\"\n    js \"Hmm.\"\n\ntranslate czech a_3:\n\n    # mc \"Hello there, my friend, how are you doing today?\"\n    mc \"Hello there, my friend, how are you doing today?\"\n\ntranslate czech a_4:\n\n    # mc \"...\"\n    mc \"...\"\n\ntranslate czech a_5:\n\n    # mc \"Ah, Wow!\"\n    mc \"Ah, Wow!\"\n\ntranslate czech a_6:\n\n    # mc \"Kira\"\n    mc \"Kira\"\n\ntranslate czech a_7:\n\n    # mc \"Empty\"\n    mc \"\"\n\ntranslate czech strings: \n\n    old \"Hmm.\"\n    new \"Hmm.\"\n\n    old \"Kira and the {i}Sage{/i}\"\n    new \"Kira and the {i}Sage{/i}\"\n",
   "root/tl/b.rpy": "translate czech b_1:\n\n    # mc \"Hmm.\"\n    mc \"Hmm.\"\n\ntranslate czech b_2:\n\n    # mc \"Hmm.\"\n    mc \"Hmm...\"\n\ntranslate czech b_3:\n\n    # mc \"Hello there, my friend, how are you doing today?\"\n    mc \"Hello there, my friend, how are you doing today?\"\n",
-  "root/tl/.lexo/approved.csv": "file;block;original\r\nb.rpy;translate czech b_1;Hmm.\r\n",
-  "root/tl/.lexo/assignments.csv": "file;group\r\na.rpy;general\r\n",
-  "root/tl/.lexo/glossary.csv": "code;name;type;note\r\nmc;Kira;speaker;\r\nsage;The Sage;term;mudrc\r\n"
+  "root/tl/.aside/approved.csv": "file;block;original\r\nb.rpy;translate czech b_1;Hmm.\r\n",
+  "root/tl/.aside/assignments.csv": "file;group\r\na.rpy;general\r\n",
+  "root/tl/.aside/glossary.csv": "code;name;type;note\r\nmc;Kira;speaker;\r\nsage;The Sage;term;mudrc\r\n"
  },
  "steps": [
   {"op": "layout.use", "raw": {"sections": [{"n": 1, "groups": [1, 2]}]}},
-  {"op": "store.open", "shared": "root/tl/.lexo", "local": "root/local"},
+  {"op": "store.open", "shared": "root/tl/.aside", "local": "root/local"},
   {"op": "store.load"},
   {"op": "project.open", "root": "root/tl"},
   {"op": "project.refresh"},

@@ -40,6 +40,7 @@ impl App {
             self.notices.push(Text::new_msg(note));
         }
         let root = resolve(&path);
+        crate::datadir::adopt_legacy(&root);
         let data_dir = root.join(DATA_DIR_NAME);
         if let Err(e) = std::fs::create_dir(&data_dir) {
             if e.kind() != std::io::ErrorKind::AlreadyExists || !data_dir.is_dir() {

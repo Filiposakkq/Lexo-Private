@@ -100,7 +100,7 @@
    "op": "store.open",
    "params": {
     "local": "root/local",
-    "shared": "root/game/tl/czech/.lexo"
+    "shared": "root/game/tl/czech/.aside"
    }
   },
   {

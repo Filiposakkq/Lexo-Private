@@ -4,7 +4,7 @@
   "root/game/tl/a.rpy": "translate czech a_1:\n\n    # mc \"Hi\"\n    mc \"Ahoj\"\n",
   "root/game/tl/sub/b.rpy": "line b\r\n",
   "root/game/tl/_progress_data/x.rpy": "skipped\n",
-  "root/game/tl/.lexo/y.rpy": "skipped\n",
+  "root/game/tl/.aside/y.rpy": "skipped\n",
   "root/game/tl/__pycache__/z.rpy": "skipped\n",
   "root/game/tl/UPPER.RPY": "upper case extension\n",
   "root/game/tl/c.txt": "not a script\n",

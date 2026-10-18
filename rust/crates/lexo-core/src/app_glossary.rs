@@ -178,7 +178,7 @@ impl App {
     /// All files of the game that define characters: the files named `characters*.rpy` and, when there are none, every other script that has a `define x = Character(...)`
     /// line. The translation folder is usually `<game>/game/tl/<lang>`, so the game folder is searched upwards.
     pub fn find_characters_files(&self) -> Vec<PathBuf> {
-        let skip = ["tl", "cache", "saves", "_progress_data", ".lexo", ".git"];
+        let skip = ["tl", "cache", "saves", "_progress_data", ".aside", ".lexo", ".git"];
         let Some(base) = self.game_dir().filter(|b| b.is_dir()) else { return Vec::new() };
         let (mut named, mut scripts): (Vec<PathBuf>, Vec<PathBuf>) = (Vec::new(), Vec::new());
         for f in walk_files(&base, &skip) {

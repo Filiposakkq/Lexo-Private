@@ -14,6 +14,7 @@ from .lock import ProjectLocked
 from .messages import msg
 from .messages import msgn
 from .messages import text_of
+from .datadir import adopt_legacy
 from .project import DATA_DIR_NAME
 from .project import Project
 from .project import ProjectUnavailable
@@ -34,7 +35,7 @@ class CorePart:
         self.project = None
         self.store = None
         self.history = None
-        self.data_dir = None       # shared data: <translation folder>/.lexo
+        self.data_dir = None       # shared data: <translation folder>/.aside
         self.local_dir = None      # local data: backups, snapshots, lock, derived files (datadir.py)
         self.notices = []          # one-off messages for the UI (migration, load problems...)
         self._spell_cache = None
@@ -65,6 +66,7 @@ class CorePart:
         if redirected:
             self.notices.append(redirected)
         root = Path(path).resolve()
+        adopt_legacy(root)
         data_dir = root / DATA_DIR_NAME
         try:
             data_dir.mkdir(exist_ok=True)

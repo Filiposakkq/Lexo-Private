@@ -23,7 +23,7 @@ UI and server routes for these steps (they come with the new UI and the project 
 
 ## From a built game to translation files (tested on five games, see GAME-TESTS.md)
 `gametools.prepare_translation(game_root, workspace, language, unrpyc_python, unrpyc_script)` runs the whole way in a workspace:
-1. `make_workspace`: hard links of the game (not `cache`, `saves`, `tl`, `_progress_data`, `.lexo`); script and bytecode files are copied;
+1. `make_workspace`: hard links of the game (not `cache`, `saves`, `tl`, `_progress_data`, `.aside`); script and bytecode files are copied;
 2. `extract_scripts`: the scripts inside the `.rpa` archives are unpacked next to them;
 3. `decompile` (unrpyc), then `repair_decompiled` (indentation after a backslash in python blocks);
 4. `generate_translation` with the game's own engine (`lint.find_launcher`); files named in Ren'Py's error output are renamed to `.unparsable` and the run is repeated (up to three times).
@@ -43,12 +43,12 @@ Checked on Being a DIK: of the 27 strings the translator had added by hand, 24 a
 of them, one is built from pieces in the code). The list has 185 likely texts for that game, mostly more `show text` lines the translator had not reached yet.
 It is a heuristic: review the list, untick what the player never sees (a build name, a file label).
 
-### The project's own functions and ignored texts (`.lexo/missed.json`)
+### The project's own functions and ignored texts (`.aside/missed.json`)
 - **Functions that show text:** a game may show text through its own function (`notify("Item added")`, `show_message(...)`, `Item("Spy Camera")`). The dialog has a field for them (comma separated)
   and "Find functions…", which lists the functions of the game that are called again and again with a text as their first argument (at least three times; methods of objects and lists, exceptions, `renpy.*` and
   similar are left out). A click adds a name. Texts passed to these functions become `likely`.
 - **Ignored texts:** "Ignore selected" puts texts that the player never sees (a build name, a label) into the project's ignore list; they stay out of every later search until "Forget the ignored texts".
-- The file is `<translation folder>/.lexo/missed.json`, shared like the other project files. Built-in: any `<name>.say("...")` call counts as a text sink.
+- The file is `<translation folder>/.aside/missed.json`, shared like the other project files. Built-in: any `<name>.say("...")` call counts as a text sink.
 
 ### Where the added texts go
 The place does not matter to the game: Ren'Py reads every `translate <language> strings:` block of every file under `tl/<language>`. **By default all the texts go to `extra_strings.rpy`**, one tidy place.
