@@ -1623,6 +1623,7 @@
   "You have used all releases for now. Write to the seller if you need to free a place.": "Teď už jsi využil všechna uvolnění. Pokud potřebuješ uvolnit místo, napiš prodejci.",
   "Your computers": "Tvoje počítače",
   "e.g. Home PC": "např. Domácí PC",
-  "last seen {date}": "naposledy viděn {date}"
+  "last seen {date}": "naposledy viděn {date}",
+  "this computer was removed from the licence": "tento počítač byl z licence odebrán"
  }
 }

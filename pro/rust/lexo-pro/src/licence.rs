@@ -183,6 +183,8 @@ pub fn set_device_name(name: &str) {
 
 /// The text of the reason that is shown when the server has cancelled the licence.
 pub const CANCELLED: &str = "this licence was cancelled";
+/// ... and when the place of this computer was freed (by the user from another computer, or by the owner).
+pub const REMOVED: &str = "this computer was removed from the licence";
 
 /// The marker of a licence that the server cancelled: `licence.revoked` next to the licence file holds the id of that licence. It makes the pack stop at once when the server says
 /// "cancelled" (the pack asks at its start and every few hours), instead of waiting for the end of the check interval. A new activation removes it.
@@ -190,12 +192,13 @@ fn revoked_marker() -> PathBuf {
     licence_path().with_extension("revoked")
 }
 
-pub fn mark_revoked(id: &str) {
+/// Remembers that the server refused this licence file: `reason` is "cancelled" (the licence was cancelled) or "removed" (this computer was freed). Two lines: the id and the reason.
+pub fn mark_revoked(id: &str, reason: &str) {
     let path = revoked_marker();
     if let Some(dir) = path.parent() {
         let _ = std::fs::create_dir_all(dir);
     }
-    let _ = std::fs::write(path, id);
+    let _ = std::fs::write(path, format!("{id}\n{reason}\n"));
 }
 
 pub fn clear_revoked() {
@@ -221,9 +224,14 @@ pub fn status() -> Status {
     match std::fs::read_to_string(licence_path()) {
         Ok(text) => {
             let status = evaluate(&text, now(), &device_id(), public_key().as_ref());
-            let cancelled = std::fs::read_to_string(revoked_marker()).ok().is_some_and(|m| file_id(&text).is_some_and(|id| id == m.trim()));
-            if cancelled && matches!(status, Status::Licensed { .. } | Status::Grace { .. }) {
-                return Status::Refused(CANCELLED);
+            if matches!(status, Status::Licensed { .. } | Status::Grace { .. }) {
+                if let Ok(marker) = std::fs::read_to_string(revoked_marker()) {
+                    let mut lines = marker.lines();
+                    let (id, reason) = (lines.next().unwrap_or("").trim(), lines.next().unwrap_or("cancelled").trim());
+                    if file_id(&text).is_some_and(|mine| mine == id) {
+                        return Status::Refused(if reason == "removed" { REMOVED } else { CANCELLED });
+                    }
+                }
             }
             status
         }

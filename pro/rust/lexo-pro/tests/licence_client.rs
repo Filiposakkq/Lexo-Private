@@ -29,10 +29,12 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
     let down = Arc::new(AtomicBool::new(false));
     let issued = Arc::new(AtomicI64::new(now()));
     let revoked = Arc::new(AtomicBool::new(false));
+    let removed = Arc::new(AtomicBool::new(false));
     let refreshes = Arc::new(AtomicUsize::new(0));
     let seen: Arc<Mutex<Vec<(String, Value)>>> = Arc::new(Mutex::new(Vec::new()));
     let fake = {
-        let (down, issued, revoked, refreshes, seen) = (down.clone(), issued.clone(), revoked.clone(), refreshes.clone(), seen.clone());
+        let (down, issued, revoked, removed, refreshes, seen) =
+            (down.clone(), issued.clone(), revoked.clone(), removed.clone(), refreshes.clone(), seen.clone());
         move |url: &str, _headers: &[(String, String)], body: &[u8]| -> Result<(u16, String), MtError> {
             if down.load(Ordering::SeqCst) {
                 return Err(MtError(msg("The connection to the service failed: {reason}", &[("reason", json!("offline"))])));
@@ -54,6 +56,8 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
                     refreshes.fetch_add(1, Ordering::SeqCst);
                     if revoked.load(Ordering::SeqCst) {
                         (403, json!({"ok": false, "error": "revoked"}).to_string())
+                    } else if removed.load(Ordering::SeqCst) {
+                        (403, json!({"ok": false, "error": "not_activated"}).to_string())
                     } else {
                         (200, signed(&server_key))
                     }
@@ -158,5 +162,20 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
     assert_eq!(call("release", json!({"target": "bbbb"})).unwrap()["releases_left"], 0);
     assert!(text(call("release", json!({"target": "dead"}))).contains("freed computers 2 times in the last 30 days"));
     assert!(text(call("release", json!({"target": "gone"}))).contains("not on this licence"));
+
+    // a computer whose place was freed stops like a cancelled licence, with its own reason; a new activation brings it back
+    revoked.store(false, Ordering::SeqCst);
+    call("activate", json!({"key": "ASIDE-GOOD"})).unwrap();
+    assert_eq!(call("status", json!({})).unwrap()["state"], "licensed");
+    removed.store(true, Ordering::SeqCst);
+    issued.store(now() - 7 * 3600, Ordering::SeqCst);
+    call("activate", json!({"key": "ASIDE-GOOD"})).unwrap(); // a file made seven hours ago, so that the check at the start asks the server
+    removed.store(true, Ordering::SeqCst);
+    call("check", json!({})).unwrap();
+    let state = call("status", json!({})).unwrap();
+    assert_eq!((state["state"].as_str(), state["reason"].as_str()), (Some("refused"), Some(licence::REMOVED)));
+    assert!(!p.offers().contains_key("replace.regex"));
+    removed.store(false, Ordering::SeqCst);
+    assert_eq!(call("activate", json!({"key": "ASIDE-GOOD"})).unwrap()["state"], "licensed");
     let _ = std::fs::remove_dir_all(&tmp);
 }
