@@ -117,6 +117,11 @@ fn a_failed_push_rolls_everything_back() {
     let f = Fixture::new("rollback");
     let hook = f.remote.join("hooks/pre-receive");
     std::fs::write(&hook, "#!/bin/sh\necho rejected by test >&2\nexit 1\n").unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&hook, std::fs::Permissions::from_mode(0o755)).unwrap(); // git runs a hook only when it is executable
+    }
     let local_before = git(&f.work, &["rev-parse", "HEAD"]);
     let file_before = std::fs::read(f.work.join("web/progress.json")).unwrap();
     let d = data(40.0);
