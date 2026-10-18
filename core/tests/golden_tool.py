@@ -32,7 +32,7 @@ from lexo.util import WriteFailed                                   # noqa: E402
 
 GOLDEN = ROOT / "core" / "golden"
 EXPECTED = GOLDEN / "expected"
-VOLATILE_KEYS = ("time", "date", "updated", "elapsed", "token", "started", "mtime", "created", "stamp", "loaded_at", "seconds", "author")
+VOLATILE_KEYS = ("time", "date", "updated", "elapsed", "token", "started", "mtime", "created", "stamp", "loaded_at", "seconds", "author", "days_left", "week_start", "needed_per_day")
 PATH_PARAMS = ("file", "name", "files", "names")                    # parameters that name a translation file: written with "/" in a scenario, with the separator of the system for the call
 REL_RPY = re.compile(r"^[\w .\-]+(?:\\[\w .\-]+)+\.rpy$")           # beach\a.rpy (a file in a folder, as Windows writes it)
 LANGS = {"cs": lang.CS, "neutral": lang.NEUTRAL}

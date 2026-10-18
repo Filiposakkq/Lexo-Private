@@ -4,7 +4,23 @@ use serde_json::{Map, Value};
 use std::sync::OnceLock;
 
 /// Keys whose scalar values are replaced by `<volatile>` (a key counts when it contains one of these, lower-cased).
-const VOLATILE_KEYS: [&str; 12] = ["time", "date", "updated", "elapsed", "token", "started", "mtime", "created", "stamp", "loaded_at", "seconds", "author"];
+const VOLATILE_KEYS: [&str; 15] = [
+    "time",
+    "date",
+    "updated",
+    "elapsed",
+    "token",
+    "started",
+    "mtime",
+    "created",
+    "stamp",
+    "loaded_at",
+    "seconds",
+    "author",
+    "days_left",
+    "week_start",
+    "needed_per_day",
+];
 
 struct Patterns {
     project_id: Regex,

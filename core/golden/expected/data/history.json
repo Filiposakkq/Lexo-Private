@@ -446,27 +446,27 @@
    "answer": {
     "proofread": {
      "auto": true,
-     "days_left": 4,
+     "days_left": "<volatile>",
      "done": 0,
      "goal": 50,
      "left": 50,
-     "needed_per_day": 13,
+     "needed_per_day": "<volatile>",
      "pace_per_week": 38,
      "percent": 0.0,
      "status": "behind"
     },
     "translate": {
      "auto": true,
-     "days_left": 4,
+     "days_left": "<volatile>",
      "done": 20,
      "goal": 80,
      "left": 60,
-     "needed_per_day": 15,
+     "needed_per_day": "<volatile>",
      "pace_per_week": 68,
      "percent": 25.0,
      "status": "behind"
     },
-    "week_start": "2026-10-12"
+    "week_start": "<volatile>"
    },
    "op": "history.goals",
    "params": {
@@ -479,27 +479,27 @@
    "answer": {
     "proofread": {
      "auto": true,
-     "days_left": 7,
+     "days_left": "<volatile>",
      "done": 0,
      "goal": 50,
      "left": 50,
-     "needed_per_day": 8,
+     "needed_per_day": "<volatile>",
      "pace_per_week": 38,
      "percent": 0.0,
      "status": "behind"
     },
     "translate": {
      "auto": false,
-     "days_left": 7,
+     "days_left": "<volatile>",
      "done": 0,
      "goal": 50,
      "left": 50,
-     "needed_per_day": 8,
+     "needed_per_day": "<volatile>",
      "pace_per_week": 72,
      "percent": 0.0,
      "status": "behind"
     },
-    "week_start": "2026-10-19"
+    "week_start": "<volatile>"
    },
    "op": "history.goals",
    "params": {
@@ -516,27 +516,27 @@
    "answer": {
     "proofread": {
      "auto": true,
-     "days_left": 4,
+     "days_left": "<volatile>",
      "done": 0,
      "goal": null,
      "left": 0,
-     "needed_per_day": 0,
+     "needed_per_day": "<volatile>",
      "pace_per_week": null,
      "percent": 0,
      "status": "no_goal"
     },
     "translate": {
      "auto": true,
-     "days_left": 4,
+     "days_left": "<volatile>",
      "done": 0,
      "goal": null,
      "left": 0,
-     "needed_per_day": 0,
+     "needed_per_day": "<volatile>",
      "pace_per_week": null,
      "percent": 0,
      "status": "no_goal"
     },
-    "week_start": "2026-10-12"
+    "week_start": "<volatile>"
    },
    "op": "history.goals",
    "params": {

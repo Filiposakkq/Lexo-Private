@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/lexo-core", "crates/lexo-golden"]
+members = ["crates/lexo-core", "crates/lexo-golden", "crates/lexo-server"]
 
 [workspace.package]
 version = "0.0.0"

@@ -227,6 +227,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "lexo-server"
+version = "0.0.0"
+dependencies = [
+ "lexo-core",
+ "serde_json",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.191"
 source = "registry+https://github.com/rust-lang/crates.io-index"
