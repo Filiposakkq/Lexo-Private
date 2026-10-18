@@ -1,0 +1,45 @@
+name: Licence server
+
+on:
+  pull_request:
+    paths: ["server/**", "pro/rust/lexo-pro/src/licence*.rs", ".github/workflows/server.yml"]
+  push:
+    branches: [main]
+    paths: ["server/**", "pro/rust/lexo-pro/src/licence*.rs", ".github/workflows/server.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    # The Worker in Miniflare with a real D1; and a file signed by the server must be accepted by the Rust verifier of the Pro pack.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Install
+        working-directory: server
+        run: npm ci
+      - name: Typecheck
+        working-directory: server
+        run: npm run typecheck
+      - name: Tests
+        working-directory: server
+        run: npm test
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --no-self-update
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: pro/rust
+          key: server
+      - name: Build the licence tool
+        working-directory: pro/rust
+        run: cargo build --locked -p lexo-pro --bin lexo-pro-licence
+      - name: A file signed by the server is accepted by the Rust verifier
+        working-directory: server
+        run: node scripts/cross-check.mjs ../pro/rust/target/debug/lexo-pro-licence

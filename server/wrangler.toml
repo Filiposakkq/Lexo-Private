@@ -1,0 +1,19 @@
+# The licence server of Aside: a Cloudflare Worker with a D1 database (docs/PRO-DESIGN.md, "The licence server").
+# Secrets are NOT here; set them with `wrangler secret put <NAME>`: LICENCE_SIGNING_KEY (the private key from `lexo-pro-licence keygen`, 64 hex digits), WEBHOOK_SECRET (the signing
+# secret of the webhook of the payment provider), ADMIN_TOKEN (a long random string for the admin page), and optionally RESEND_API_KEY (to mail the licence key).
+name = "aside-licence"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+[vars]
+# the public key built into the Pro pack (PUBLIC_KEY_HEX in pro/rust/lexo-pro/src/licence.rs); the server uses it to check the licence files it gets back
+LICENCE_PUBLIC_KEY = "1317d76f9189e042509235a6d05e0b8664f4cfffad8f34638472feccddb94a91"
+PRODUCT_MAJOR = "1"
+MAIL_FROM = "Aside <licence@aside.filiposakkq.dev>"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aside-licence"
+# `wrangler d1 create aside-licence` prints the real id; put it here before the first deploy
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
