@@ -10,6 +10,8 @@ compatibility_date = "2026-10-01"
 LICENCE_PUBLIC_KEY = "1317d76f9189e042509235a6d05e0b8664f4cfffad8f34638472feccddb94a91"
 PRODUCT_MAJOR = "1"
 MAIL_FROM = "Aside <licence@aside.filiposakkq.dev>"
+# replies of the buyers go here (an address of the owner; later it can be an address on the own domain)
+REPLY_TO = "filiposakkq.business@gmail.com"
 
 [[d1_databases]]
 binding = "DB"

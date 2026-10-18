@@ -157,3 +157,35 @@ describe("the admin", () => {
     expect(r.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
   });
 });
+
+describe("the e-mail with the key", () => {
+  it("has a text and an HTML version with the key, a Reply-To, and escapes what it is given", async () => {
+    const { keyEmail, mailKey } = await import("../src/mail.ts");
+    const mail = keyEmail("ASIDE-AAAAA-BBBBB-CCCCC-DDDDD", "L-<TEST>");
+    expect(mail.subject).toBe("Your Aside Pro licence key");
+    expect(mail.text).toContain("ASIDE-AAAAA-BBBBB-CCCCC-DDDDD");
+    expect(mail.html).toContain("ASIDE-AAAAA-BBBBB-CCCCC-DDDDD");
+    expect(mail.html).toContain("L-&lt;TEST&gt;");
+    expect(mail.html).not.toContain("L-<TEST>");
+
+    let sent: Json | null = null;
+    const original = globalThis.fetch;
+    globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
+      sent = JSON.parse(String(init?.body));
+      return new Response("{}", { status: 200 });
+    }) as typeof fetch;
+    try {
+      const withKey = { ...E, RESEND_API_KEY: "re_test", REPLY_TO: "owner@example.com", MAIL_FROM: "Aside <licence@example.com>" } as Env;
+      expect(await mailKey(withKey, "buyer@example.com", "ASIDE-AAAAA-BBBBB-CCCCC-DDDDD", "L-1")).toBe(true);
+      expect(sent).toMatchObject({ from: "Aside <licence@example.com>", to: "buyer@example.com", reply_to: "owner@example.com", subject: "Your Aside Pro licence key" });
+      expect(String((sent as Json | null)?.html)).toContain("ASIDE-AAAAA-BBBBB-CCCCC-DDDDD");
+      // nothing is sent without a Resend key or an address
+      sent = null;
+      expect(await mailKey({ ...E, RESEND_API_KEY: undefined } as Env, "buyer@example.com", "K", "L")).toBe(false);
+      expect(await mailKey(withKey, "", "K", "L")).toBe(false);
+      expect(sent).toBeNull();
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+});
