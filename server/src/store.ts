@@ -30,6 +30,17 @@ export async function insertLicence(db: D1Database, l: LicenceRow): Promise<void
 export const setState = (db: D1Database, id: string, state: string) => db.prepare("UPDATE licences SET state = ? WHERE id = ?").bind(state, id).run();
 export const setKeyHash = (db: D1Database, id: string, hash: string) => db.prepare("UPDATE licences SET key_hash = ? WHERE id = ?").bind(hash, id).run();
 export const setCheckDays = (db: D1Database, id: string, days: number) => db.prepare("UPDATE licences SET check_days = ? WHERE id = ?").bind(days, id).run();
+export const setMaxDevices = (db: D1Database, id: string, n: number) => db.prepare("UPDATE licences SET max_devices = ? WHERE id = ?").bind(n, id).run();
+export const setContact = (db: D1Database, id: string, email: string, note: string) =>
+  db.prepare("UPDATE licences SET email = ?, note = ? WHERE id = ?").bind(email, note, id).run();
+
+/** Removes the e-mail address that some events keep in their detail (the mailing of the key). */
+export const scrubEvents = (db: D1Database, id: string) =>
+  db.prepare("UPDATE events SET detail = '' WHERE licence_id = ? AND kind IN ('key-mailed', 'key-not-mailed')").bind(id).run();
+
+/** The events of one kind (for example the refused attempts), newest first. */
+export const eventsByKind = async (db: D1Database, kind: string, limit = 100) =>
+  (await db.prepare("SELECT * FROM events WHERE kind = ? ORDER BY id DESC LIMIT ?").bind(kind, limit).all<EventRow>()).results;
 
 export const activations = async (db: D1Database, id: string) =>
   (await db.prepare("SELECT * FROM activations WHERE licence_id = ? ORDER BY created").bind(id).all<ActivationRow>()).results;

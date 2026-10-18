@@ -45,14 +45,14 @@ h2.sec{font-size:15px;margin:28px 0 10px;font-weight:600}
 <div class="login" id="login"><h2>Sign in</h2><p>Enter the admin token of this server.</p><div class="row"><input id="token" type="password" placeholder="Admin token" autocomplete="off"><button class="primary" id="go">Sign in</button></div><p class="mute" id="loginmsg" style="margin:10px 0 0"></p></div>
 <main id="app" hidden>
 <div class="stats" id="stats"></div>
-<div class="bar"><input type="search" id="q" placeholder="Search by licence id or e-mail"><div class="chips" id="chips"></div><button class="primary" id="newbtn">Issue a licence</button><button id="reload" title="Reload">Reload</button></div>
+<div class="bar"><input type="search" id="q" placeholder="Search by licence id or e-mail"><div class="chips" id="chips"></div><button class="primary" id="newbtn">Issue a licence</button><button id="bulkbtn">Bulk issue</button><button id="exportbtn">Export CSV</button><button id="reload" title="Reload">Reload</button></div>
 <div class="card"><table><thead><tr><th>Licence</th><th>E-mail</th><th>Version</th><th>Devices</th><th>Last check</th><th>State</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="none" hidden>No licences match.</div></div>
-<h2 class="sec">Recent activity</h2><div class="card"><ul class="events" id="events"></ul></div>
+<div class="bar" style="margin-top:28px"><h2 class="sec" style="margin:0;flex:1">Recent activity</h2><div class="chips" id="evchips"></div></div><div class="card"><ul class="events" id="events"></ul></div>
 </main>
 <div id="layer"></div>
 <script>
 const $=(s)=>document.querySelector(s);let token=sessionStorage.getItem('aside_admin')||'';
-let data={licences:[],events:[],stats:{}},filter='all',query='',timer=0;
+let data={licences:[],events:[],stats:{}},filter='all',query='',timer=0,evFilter='';
 const el=(t,txt,cls)=>{const e=document.createElement(t);if(txt!==undefined&&txt!==null)e.textContent=txt;if(cls)e.className=cls;return e};
 const when=(s)=>s?new Date(s*1000).toLocaleString():'never';
 function rel(s){if(!s)return 'never';const d=Math.floor(Date.now()/1000)-s;if(d<45)return 'just now';if(d<3600)return Math.round(d/60)+' min ago';if(d<86400)return Math.round(d/3600)+' h ago';return Math.round(d/86400)+' d ago'}
@@ -72,8 +72,8 @@ function paint(){const s=data.stats;const st=$('#stats');st.replaceChildren();
 const chips=$('#chips');chips.replaceChildren();[['all','All'],['active','Active'],['overdue','Overdue'],['revoked','Revoked']].forEach(([k,l])=>{const b=el('button',l,'chip'+(filter===k?' on':''));b.onclick=()=>{filter=k;paint()};chips.append(b)});
 const rows=data.licences.filter(l=>{const [name]=status(l);return filter==='all'||(filter==='active'&&l.state==='active')||(filter==='revoked'&&l.state!=='active')||(filter==='overdue'&&name==='check overdue')});
 const tb=$('#rows');tb.replaceChildren();rows.forEach(l=>{const tr=el('tr');tr.append(el('td',l.id,'mono'),el('td',l.email||'–','mute'),el('td',l.major+'.x'));const d=el('td');d.append(dots(l));tr.append(d);const c=el('td',rel(l.last_seen),'mute');c.title=when(l.last_seen);tr.append(c);const [name,cls]=status(l);const p=el('td');p.append(el('span',name,'pill '+cls));tr.append(p);tr.onclick=()=>openLicence(l.id);tb.append(tr)});
-$('#none').hidden=rows.length>0;eventList($('#events'),data.events,true)}
-async function load(){try{const j=await api('overview?q='+encodeURIComponent(query));data=j;$('#login').hidden=true;$('#app').hidden=false;$('#who').hidden=false;$('#logout').hidden=false;paint()}catch(e){$('#loginmsg').textContent=e.message==='unauthorised'?'That token is not right.':(e.message==='admin_not_configured'?'The server has no ADMIN_TOKEN (at least 16 characters).':e.message);if(e.message==='unauthorised'){sessionStorage.removeItem('aside_admin');$('#app').hidden=true;$('#login').hidden=false}}}
+$('#none').hidden=rows.length>0;const ec=$('#evchips');ec.replaceChildren();[['','All'],['refused','Refused only']].forEach(([k,l])=>{const b=el('button',l,'chip'+(evFilter===k?' on':''));b.onclick=()=>{evFilter=k;load()};ec.append(b)});eventList($('#events'),data.events,true)}
+async function load(){try{const j=await api('overview?q='+encodeURIComponent(query)+(evFilter?'&events='+evFilter:''));data=j;$('#login').hidden=true;$('#app').hidden=false;$('#who').hidden=false;$('#logout').hidden=false;paint()}catch(e){$('#loginmsg').textContent=e.message==='unauthorised'?'That token is not right.':(e.message==='admin_not_configured'?'The server has no ADMIN_TOKEN (at least 16 characters).':e.message);if(e.message==='unauthorised'){sessionStorage.removeItem('aside_admin');$('#app').hidden=true;$('#login').hidden=false}}}
 function close(){$('#layer').replaceChildren()}
 async function openLicence(id){let j;try{j=await api('licence/'+id)}catch(e){toast(e.message,'bad');return}
 const l=j.licence;const L=$('#layer');L.replaceChildren();const scrim=el('div','','scrim');scrim.onclick=close;const d=el('aside','','drawer');
@@ -83,7 +83,10 @@ const kv=el('dl','','kv');[['E-mail',l.email||'–'],['Features',l.features],['V
 const acts=el('div','','acts');const act=(label,fn,c)=>{const b=el('button',label,c||'');b.onclick=async()=>{try{await fn();await load();openLicence(l.id)}catch(e){toast(e.message,'bad')}};acts.append(b)};
 const cp=el('button','Copy id');cp.onclick=()=>copy(l.id,'Licence id');acts.append(cp);
 if(l.state==='active')act('Revoke',async()=>{if(!confirm('Revoke '+l.id+'? Its devices will stop being renewed.'))throw new Error('cancelled');await post('licence/'+l.id+'/revoke',{})},'danger');else act('Restore',()=>post('licence/'+l.id+'/restore'));
+act('Devices allowed',async()=>{const v=prompt('How many computers may use this licence? (1-20)',l.max_devices);if(!v)throw new Error('cancelled');await post('licence/'+l.id+'/max_devices',{n:Number(v)})});
+act('Edit contact',async()=>{const e=prompt('E-mail of the buyer (empty = none):',l.email||'');if(e===null)throw new Error('cancelled');const n=prompt('Note:',l.note||'');if(n===null)throw new Error('cancelled');await post('licence/'+l.id+'/update',{email:e,note:n})});
 act('Check interval',async()=>{const v=prompt('Check every how many days? (1-365)',l.check_days);if(!v)throw new Error('cancelled');await post('licence/'+l.id+'/check_days',{days:Number(v)})});
+act('Erase personal data',async()=>{if(!confirm('Remove the e-mail and the note of '+l.id+' (also from its history)? The licence itself stays.'))throw new Error('cancelled');await post('licence/'+l.id+'/erase',{})},'danger');
 act('New key',async()=>{if(!confirm('The old key stops working at once. Continue?'))throw new Error('cancelled');const r=await post('licence/'+l.id+'/rekey',{send:l.email?confirm('Mail the new key to '+l.email+'?'):false});showKey(r.key,l.id,r.mailed,l.email)});d.append(acts);
 d.append(el('h2','Devices','sec'));if(!j.activations.length)d.append(el('p','No device has activated this licence yet.','mute'));
 j.activations.forEach(a=>{const r=el('div','','dev');const t=el('span');t.append(el('span',a.device.slice(0,12)+'…','mono'),el('br'),el('small','since '+when(a.created)+' · last seen '+rel(a.last_seen),'mute'));r.append(t);
@@ -100,10 +103,22 @@ const send=el('label','','mute');const cb=el('input');cb.type='checkbox';cb.id='
 const row=el('div','','dev');row.style.borderBottom='0';const cancel=el('button','Cancel');cancel.onclick=close;const go=el('button','Create','primary');
 go.onclick=async()=>{try{const r=await post('issue',{email:$('#i_email').value.trim(),features:$('#i_features').value.trim(),check_days:Number($('#i_days').value)||undefined,max_devices:Number($('#i_devices').value)||undefined,note:$('#i_note').value,send:$('#i_send').checked});await load();showKey(r.key,r.licence.id,r.mailed,r.licence.email)}catch(e){toast(e.message,'bad')}};
 row.append(el('span'),cancel,go);box.append(row);m.append(box);m.onclick=(e)=>{if(e.target===m)close()};L.append(m);$('#i_email').focus()}
+function bulkForm(){const L=$('#layer');L.replaceChildren();const m=el('div','','modal');const box=el('div','','box');box.append(el('h3','Issue many licences'));
+const f=(id,label,ph,type)=>{const w=el('div','','field');const lb=el('label',label);lb.htmlFor=id;const i=el('input');i.id=id;i.type=type||'text';i.placeholder=ph||'';w.append(lb,i);return w};
+box.append(f('b_count','How many (1-100)','10','number'),f('b_note','Note for all of them','testers, giveaway…'),f('b_features','Features','all'));
+const two=el('div','','two');two.append(f('b_days','Check every (days)','14','number'),f('b_devices','Devices each','2','number'));box.append(two);
+const row=el('div','','dev');row.style.borderBottom='0';const cancel=el('button','Cancel');cancel.onclick=close;const go=el('button','Create','primary');
+go.onclick=async()=>{try{const r=await post('issue_bulk',{count:Number($('#b_count').value),note:$('#b_note').value,features:$('#b_features').value.trim(),check_days:Number($('#b_days').value)||undefined,max_devices:Number($('#b_devices').value)||undefined});await load();showKeys(r.licences)}catch(e){toast(e.message,'bad')}};
+row.append(el('span'),cancel,go);box.append(row);m.append(box);m.onclick=(e)=>{if(e.target===m)close()};L.append(m);$('#b_count').focus()}
+function showKeys(list){const L=$('#layer');L.replaceChildren();const m=el('div','','modal');const box=el('div','','box');box.append(el('h3',list.length+' keys made'));
+const text=list.map(x=>x.id+'  '+x.key).join('\\n');const kb=el('div','','keybox');kb.append(el('span','Shown only now – copy or download them before you close this window.','mute'));const pre=el('textarea');pre.readOnly=true;pre.rows=Math.min(12,list.length+1);pre.style.width='100%';pre.style.fontFamily='ui-monospace,Consolas,monospace';pre.value=text;kb.append(pre);
+const bar=el('div','','dev');bar.style.borderBottom='0';const c=el('button','Copy all','primary');c.onclick=()=>copy(text,'Keys');const d=el('button','Download .txt');d.onclick=()=>{const a=el('a');a.href=URL.createObjectURL(new Blob([text+'\\n'],{type:'text/plain'}));a.download='aside-keys.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};bar.append(c,d);kb.append(bar);
+box.append(kb);const done=el('button','Done');done.style.marginTop='14px';done.onclick=close;box.append(done);m.append(box);L.append(m)}
+async function exportCsv(){try{const r=await fetch('/admin/api/export',{headers:{authorization:'Bearer '+token}});if(!r.ok)throw new Error('error '+r.status);const a=el('a');a.href=URL.createObjectURL(await r.blob());a.download='aside-licences.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}catch(e){toast(e.message,'bad')}}
 function signIn(){token=$('#token').value.trim();sessionStorage.setItem('aside_admin',token);$('#loginmsg').textContent='';load()}
 $('#go').onclick=signIn;$('#token').onkeydown=(e)=>{if(e.key==='Enter')signIn()};
 $('#logout').onclick=()=>{sessionStorage.removeItem('aside_admin');token='';location.reload()};
-$('#newbtn').onclick=issueForm;$('#reload').onclick=load;
+$('#newbtn').onclick=issueForm;$('#bulkbtn').onclick=bulkForm;$('#exportbtn').onclick=exportCsv;$('#reload').onclick=load;
 $('#q').oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>{query=$('#q').value;load()},250)};
 document.addEventListener('keydown',(e)=>{if(e.key==='Escape')close()});
 if(token)load();else $('#token').focus();
