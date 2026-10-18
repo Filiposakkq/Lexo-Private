@@ -34,6 +34,15 @@ export async function requireFeature(id) {
   lockedDialog(id, (cache && cache.problems) || []);
   return false;
 }
+/* The reasons the pack gives for a licence file it cannot use (English texts of the pack); each is a literal t() so that the pack of texts can be checked. */
+const reasonText = (r) => ({
+  'the licence file is not readable': () => T('the licence file is not readable'),
+  'the signature of the licence is wrong': () => T('the signature of the licence is wrong'),
+  'the licence belongs to another computer': () => T('the licence belongs to another computer'),
+  'the licence covers another major version of the application': () => T('the licence covers another major version of the application'),
+  'this build cannot verify licences': () => T('this build cannot verify licences'),
+  'the licence file comes from a newer version of the licence system': () => T('the licence file comes from a newer version of the licence system'),
+}[r] || (() => r || ''))();
 /* Settings, Licence: the state of the licence of the Pro pack, entering a key, the regular check and freeing this computer. The pack decides everything (it checks the signed
    licence file); this only shows its state and sends the key. Without the pack the state is "none". */
 export function licencePanel() {
@@ -57,7 +66,7 @@ export function licencePanel() {
     else if (s === 'licensed') kids.push(h('p', null, h('b', null, T('Licensed.')), ' ', T('Licence {id}; the next check with the server is due in {n} days.', { id: st.id, n: st.days_to_check })), manage);
     else if (s === 'grace') kids.push(h('div', { class: 'notice warn' }, T('The check with the licence server is overdue. Pro keeps working for {n} more days; connect to the internet and press “Check now”.', { n: st.days_left })), manage);
     else if (s === 'expired') kids.push(h('div', { class: 'notice bad' }, T('The licence has expired because it could not be checked with the server for too long. Pro works with its limits. Press “Check now” when you are online, or enter your key again.')), manage, ...enter);
-    else if (s === 'refused') kids.push(h('div', { class: 'notice bad' }, T('The licence file cannot be used: {reason}', { reason: T(st.reason || '') })), manage, ...enter);
+    else if (s === 'refused') kids.push(h('div', { class: 'notice bad' }, T('The licence file cannot be used: {reason}', { reason: reasonText(st.reason) })), manage, ...enter);
     else kids.push(h('p', { class: 'muted' }, T('No licence is entered: the Pro features that are free to try work with limits.')), ...enter);
     box.replaceChildren(...kids);
   }
