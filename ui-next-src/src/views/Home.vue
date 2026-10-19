@@ -7,6 +7,8 @@ import { post } from '../api.js';
 import { t, tn } from '../i18n.js';
 import { app, loadApp, loadGames } from '../state.js';
 
+const emit = defineEmits(['prepare']);
+
 /* Home: the library of games, what needs attention (the licence), and the way into a game. The screens of a game are still the classic ones, so opening a game continues there. */
 const query = ref('');
 const sort = ref('recent');
@@ -53,7 +55,7 @@ async function open(game) {
 }
 async function pin(game) { try { await post('library/pin', { path: game.path, pinned: !game.pinned }); } catch (e) { message.value = e.message; } await loadGames(); }
 async function remove(game) { try { await post('library/remove', { path: game.path }); } catch (e) { message.value = e.message; } await loadGames(); }
-function prepare() { message.value = t('The guide to prepare a game is the next part of the new interface. Until then the game cannot be prepared here.'); }
+function prepare(game) { emit('prepare', game.path); }
 async function added() { adding.value = false; await loadGames(); }
 </script>
 

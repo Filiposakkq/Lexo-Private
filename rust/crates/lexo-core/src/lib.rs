@@ -21,6 +21,7 @@ pub mod app_memory;
 pub mod app_menu;
 pub mod app_missed;
 pub mod app_mt;
+pub mod app_prepare;
 pub mod app_profile;
 pub mod app_proof;
 pub mod app_publish;

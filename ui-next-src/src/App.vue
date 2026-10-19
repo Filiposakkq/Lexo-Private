@@ -2,11 +2,16 @@
 import { onMounted, ref } from 'vue';
 import Splash from './components/Splash.vue';
 import Home from './views/Home.vue';
+import Prepare from './views/Prepare.vue';
 import { t } from './i18n.js';
-import { app, loadApp } from './state.js';
+import { app, loadApp, loadGames } from './state.js';
 
 /* The shell: the icon rail, the top bar with the name (Aside, or Aside Pro when Pro is on) and the screen. Home is the first screen of the new interface; the rest of the application is the classic interface for now. */
 const splash = ref(true);
+const view = ref('home');          // home | prepare
+const prepPath = ref('');
+function prepare(path) { prepPath.value = path || ''; view.value = 'prepare'; }
+function home() { view.value = 'home'; loadGames(); }
 let seen = false;
 try { seen = sessionStorage.getItem('aside.splash') === '1'; } catch { /* no storage: the animation plays */ }
 if (seen) splash.value = false;
@@ -21,7 +26,8 @@ onMounted(loadApp);
   <Splash v-if="splash" @done="splashDone" />
   <div class="shell">
     <nav class="rail" :aria-label="t('Main menu')">
-      <a class="rail-item on" href="/next/" :title="t('Home')" aria-current="page">⌂</a>
+      <a class="rail-item" :class="{ on: view === 'home' }" href="#" :title="t('Home')" :aria-current="view === 'home' ? 'page' : null" @click.prevent="home">⌂</a>
+      <a class="rail-item" :class="{ on: view === 'prepare' }" href="#" :title="t('Prepare a game')" :aria-current="view === 'prepare' ? 'page' : null" @click.prevent="prepare()">⚒</a>
       <a class="rail-item" href="/" :title="t('The rest of the application is in the classic interface for now')">☰</a>
       <span class="grow"></span>
       <a class="rail-item" href="/" :title="t('Settings (in the classic interface for now)')">⚙</a>
@@ -34,7 +40,8 @@ onMounted(loadApp);
         <span class="grow"></span>
         <span v-if="app.pro" class="tag-pro">{{ t('Pro is active') }}</span>
       </header>
-      <Home />
+      <Home v-if="view === 'home'" @prepare="prepare" />
+      <Prepare v-else :path="prepPath" @back="home" @done="loadGames" />
     </div>
   </div>
 </template>

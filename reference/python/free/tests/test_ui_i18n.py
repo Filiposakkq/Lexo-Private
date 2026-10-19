@@ -69,6 +69,22 @@ def used_keys():
     return set(_used_keys())
 
 
+def rust_keys():
+    """Templates of the messages written in Rust (Core): msg("...") and msgn(n, "one", "many"). They need not be in Python, so their Czech texts are not stale."""
+    keys = set()
+    src = Path(__file__).resolve().parents[4] / "rust" / "crates" / "lexo-core" / "src"
+    one = re.compile(r'\bmsg\(\s*"((?:[^"\\]|\\.)*)"')
+    many = re.compile(r'\bmsgn\(\s*[^,()]+(?:\([^()]*\))?[^,()]*,\s*"((?:[^"\\]|\\.)*)"\s*,\s*"((?:[^"\\]|\\.)*)"')
+    for f in sorted(src.glob("*.rs")):
+        text = f.read_text(encoding="utf-8")
+        keys.update(m.group(1).replace('\\"', '"') for m in one.finditer(text))
+        keys.update(m.group(1) for m in re.finditer(r'\bfailed\(\s*"([^"]*)"', text))     # app_git.rs: the name of the step is a message of its own
+        keys.update(m.group(1) for m in re.finditer(r'\brun\([^,]+,\s*"([^"]*)"\)', text))
+        keys.update(m.group(1) for m in re.finditer(r'\brun\(&\[[^\]]*\],\s*"([^"]*)"\)', text))   # ... also where the step is named in a call of the runner
+        keys.update(m.group(1).replace('\\"', '"') + "|" + m.group(2).replace('\\"', '"') for m in many.finditer(text))
+    return keys
+
+
 def python_keys():
     """Templates of the messages written in Python: msg("...") and msgn(n, "one", "many")."""
     import ast
@@ -96,7 +112,8 @@ class UiTextTests(unittest.TestCase):
         self.assertEqual(missing, [], "texts without a Czech translation in packs/cs/ui.json")
 
     def test_the_pack_has_no_stale_texts(self):
-        stale = sorted(k for k in self.strings if k not in used_keys())
+        known = used_keys() | rust_keys()
+        stale = sorted(k for k in self.strings if k not in known)
         self.assertEqual(stale, [], "texts in packs/cs/ui.json that no t() uses any more")
 
     def test_placeholders_match(self):

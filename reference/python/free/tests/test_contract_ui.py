@@ -23,6 +23,7 @@ SESSION = {("GET", "focus"), ("GET", "ping"), ("POST", "focus"), ("POST", "windo
            ("POST", "profile/list"), ("POST", "profile/set"),
            ("POST", "style/targets"), ("POST", "style/batch"),
            ("POST", "spell/state"), ("POST", "spell/add"), ("POST", "spell/remove"), ("POST", "spell/ignore"), ("POST", "spell/check"), ("POST", "spell/replace"),
+           ("POST", "prepare/inspect"), ("POST", "prepare/unrpyc"), ("POST", "prepare/start"), ("POST", "prepare/status"),
            ("POST", "library/list"), ("POST", "library/add"), ("POST", "library/remove"), ("POST", "library/pin"),
            ("POST", "git/state"), ("POST", "git/pull"), ("POST", "git/push"),
            ("POST", "team/state"), ("POST", "team/join"), ("POST", "team/create"), ("POST", "team/set"),

@@ -18,8 +18,14 @@ Code: `reference/python/core/lexo/gametools.py`. Goal: from a game folder withou
 v2 needs Python 3.9+ and is for Ren'Py 8 games; v1 (legacy branch) runs on the Python 2.7 of a Ren'Py 7 SDK. The caller chooses the script and the Python
 (`lint.find_python(sdk)` gives the one that ships with an SDK). Later the app can bundle unrpyc (MIT: keep the licence text and the authors).
 
+## The guide in the new interface (Home › Prepare a game)
+The steps above are run by `app_prepare.rs` as a **job on its own thread** (they take minutes): `prepare/inspect` looks at the game (the folder with `game/`, or the `game` folder itself): engine of its own (`lib/py*` Python and the `<Game>.py` launcher beside `<Game>.exe`/`.sh`), scripts as text and as bytecode only, archives, translations that exist, whether unrpyc is needed and where it is; `prepare/start` runs the job (`{job}`), `prepare/status` says which step it is on (`workspace`, `extract`, `decompile`, `generate`), `prepare/unrpyc` remembers where `unrpyc.py` is (the file or its folder; found by itself beside the game, in Downloads or on the Desktop). One job at a time.
+- The game is only read. The workspace is `<settings folder>/workspaces/<name>-<id>` and the translation is `…/game/tl/<language>` in it; that folder is the project (it is put on Home and opened). A language that was prepared before is reused, not generated again.
+- unrpyc is asked for **only when it is needed**: when scripts exist only as bytecode (also after the archives were unpacked). The Python for it is the one that ships with the game.
+- Tested with a fake program in place of unrpyc and of the game's engine (`tests/prepare.rs`); the real engine and unrpyc were tested on five games in the Python version (see GAME-TESTS.md).
+
 ## Not done yet
-UI and server routes for these steps (they come with the new UI and the project menu), choosing unrpyc v1/v2 automatically from the detected Ren'Py version, a real unrpyc run in CI.
+Choosing unrpyc v1/v2 automatically from the detected Ren'Py version, a real unrpyc run in CI, games that carry no engine of their own (they would need the Ren'Py SDK), a guide step that copies the finished translation into the game.
 
 ## From a built game to translation files (tested on five games, see GAME-TESTS.md)
 `gametools.prepare_translation(game_root, workspace, language, unrpyc_python, unrpyc_script)` runs the whole way in a workspace:

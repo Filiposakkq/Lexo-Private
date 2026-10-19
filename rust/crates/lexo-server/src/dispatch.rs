@@ -358,6 +358,19 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "prepare/inspect" | "prepare/unrpyc" | "prepare/start" | "prepare/status" => {
+                let (route, d) = (r.to_string(), Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
+                    let out = match route.as_str() {
+                        "prepare/inspect" => app.prepare_inspect(&text("path"))?,
+                        "prepare/unrpyc" => app.prepare_set_unrpyc(&text("path"))?,
+                        "prepare/start" => app.prepare_start(&text("path"), &text("language"))?,
+                        _ => app.prepare_status(&text("job"))?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "library/list" | "library/add" | "library/remove" | "library/pin" => {
                 let (route, d) = (r.to_string(), Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
