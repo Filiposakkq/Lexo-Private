@@ -74,7 +74,7 @@ fn now() -> i64 {
 /// Stores a file from the server if it is valid for this computer; the old file stays when it is not.
 fn store(file: &Value) -> Result<Status, ExtensionError> {
     let text = file.to_string();
-    let status = licence::evaluate_file(&text, now(), &licence::device_id());
+    let status = licence::evaluate_file(&text, now().max(licence::file_issued(&text).unwrap_or(0)), &licence::device_id());
     if !matches!(status, Status::Licensed { .. } | Status::Grace { .. }) {
         return Err(error(msg("The licence server sent a file that this version of Aside cannot use. Check for an update.", &[])));
     }

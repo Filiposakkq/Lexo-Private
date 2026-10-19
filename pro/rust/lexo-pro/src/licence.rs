@@ -170,6 +170,30 @@ pub fn licence_path() -> PathBuf {
 }
 
 /// This machine's id: a hash of a random id that is made once and stored next to the licence file. Nothing readable (no names, no paths) ever leaves the machine.
+/// An identifier of this machine (the Windows `MachineGuid`, `/etc/machine-id` elsewhere), empty when there is none. It is mixed into the device id, so that copying the licence file
+/// and `device.id` to another computer gives another device (and not a free clone). Read once.
+fn machine_id() -> &'static str {
+    static ID: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    ID.get_or_init(|| {
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            let out = std::process::Command::new("reg")
+                .args(["query", r"HKLM\SOFTWARE\Microsoft\Cryptography", "/v", "MachineGuid"])
+                .creation_flags(0x0800_0000)
+                .output()
+                .ok();
+            out.and_then(|o| String::from_utf8(o.stdout).ok())
+                .and_then(|s| s.lines().find(|l| l.contains("MachineGuid")).and_then(|l| l.split_whitespace().last().map(String::from)))
+                .unwrap_or_default()
+        }
+        #[cfg(not(windows))]
+        {
+            std::fs::read_to_string("/etc/machine-id").map(|s| s.trim().to_string()).unwrap_or_default()
+        }
+    })
+}
+
 pub fn device_id() -> String {
     let path = licence_path().with_file_name("device.id");
     let secret = match std::fs::read_to_string(&path) {
@@ -187,7 +211,7 @@ pub fn device_id() -> String {
             s
         }
     };
-    let digest = Sha256::digest(format!("aside-device:{secret}").as_bytes());
+    let digest = Sha256::digest(format!("aside-device:{secret}:{}", machine_id()).as_bytes());
     digest.iter().take(16).map(|b| format!("{b:02x}")).collect()
 }
 
@@ -251,11 +275,32 @@ pub fn file_issued(text: &str) -> Option<i64> {
     payload_of(text)?["issued"].as_i64()
 }
 
+/// The highest time this computer has seen with a licence file (a file next to the licence). A clock set back does not count: the age of the licence is measured with the later of the two.
+/// It does not stop someone who deletes the file, but a licence cannot be kept alive for months by turning the clock back, and the time a licence file was issued is signed, so it counts too.
+fn seen_path() -> PathBuf {
+    licence_path().with_file_name("clock.seen")
+}
+
+/// `real` is the clock; `stored` the highest time seen; `issued` the time of issue of the file (signed, so it cannot be lower than the truth).
+pub fn trusted_time(real: i64, stored: i64, issued: i64) -> i64 {
+    real.max(stored).max(issued)
+}
+
+fn now_trusted(file_text: &str) -> i64 {
+    let path = seen_path();
+    let stored = std::fs::read_to_string(&path).ok().and_then(|s| s.trim().parse::<i64>().ok()).unwrap_or(0);
+    let t = trusted_time(now(), stored, file_issued(file_text).unwrap_or(0));
+    if t > stored + 3600 {
+        let _ = std::fs::write(&path, t.to_string());
+    }
+    t
+}
+
 /// The state of the licence of this machine now.
 pub fn status() -> Status {
     match std::fs::read_to_string(licence_path()) {
         Ok(text) => {
-            let status = evaluate_file(&text, now(), &device_id());
+            let status = evaluate_file(&text, now_trusted(&text), &device_id());
             if matches!(status, Status::Licensed { .. } | Status::Grace { .. }) {
                 if let Ok(marker) = std::fs::read_to_string(revoked_marker()) {
                     let mut lines = marker.lines();
@@ -336,6 +381,21 @@ mod tests {
         let keys: Vec<_> = TRUSTED_KEYS.iter().map(|(k, _)| public_key_for(k)).collect();
         assert!(keys.iter().all(|k| k.is_some()), "every listed key must be a valid public key");
         assert_ne!(keys[0].unwrap().to_bytes(), keys[1].unwrap().to_bytes());
+    }
+
+    #[test]
+    fn a_clock_set_back_does_not_give_back_the_time() {
+        assert_eq!(trusted_time(1_000, 5_000, 0), 5_000); // the clock went back below the highest time seen
+        assert_eq!(trusted_time(1_000, 0, 4_000), 4_000); // below the time the file was issued (signed)
+        assert_eq!(trusted_time(9_000, 5_000, 4_000), 9_000); // the normal case
+    }
+
+    #[test]
+    fn the_device_id_is_stable_and_does_not_show_the_machine() {
+        let (a, b) = (device_id(), device_id());
+        assert_eq!(a, b);
+        assert_eq!(a.len(), 32);
+        assert!(!a.contains(machine_id()) || machine_id().is_empty());
     }
 
     #[test]

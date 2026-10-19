@@ -86,3 +86,9 @@ Limits: **1 code per hour and 3 per day** for an address (also counted for unkno
 ## Limits per network address
 
 The calls of the application are limited per address and hour in the code (`src/ratelimit.ts`; the free plan of Cloudflare allows only one rule of its own): `recover/request` 5, `recover/confirm` 20, `activate` 30, `deactivate` 30, `release` 30, `devices` 60, `refresh` 120. The address is taken from `CF-Connecting-IP` (without it, in a local run and in the tests, nothing is limited), hashed together with the day, counted in the table `rate_limits` and deleted after a few hours. **Database change before the code is deployed:** `migrations/0004_ratelimit.sql` in the D1 console.
+## What the licence does and does not stop (hardening)
+
+- The age of a licence file is measured with the later of the clock, the highest time the computer has seen (`clock.seen` next to the licence) and the signed time of issue, so turning the clock back does not keep a cancelled licence alive. Someone who deletes `clock.seen` gets back at most the time to the end of the file (14 + 14 days).
+- The device id includes the identifier of the machine, so copying `licence.json` and `device.id` to another computer gives another device that has to take a place. (After this change, computers activated before it need to enter the key once more.)
+- A place is taken in one statement that checks the limit, so parallel activations cannot exceed `max_devices`.
+- Not stopped: patching the program, a replaced Core (it is open source), a licence file kept offline until it ends. Rate limits by IP belong to Cloudflare (a rule on `/v1/activate`, `/v1/refresh`, `/v1/recover/request`).

@@ -54,7 +54,10 @@ export async function activate(req: Request, env: Env, now: number): Promise<Res
       await store.logEvent(env.DB, now, l.id, "refused", `device limit ${n}/${l.max_devices}`);
       return fail("device_limit", 409, { devices: n, max: l.max_devices });
     }
-    await store.takePlace(env.DB, l.id, device, now, clean(b.name, 40), clean(b.version, 20));
+    if (!(await store.takePlace(env.DB, l.id, device, now, l.max_devices, clean(b.name, 40), clean(b.version, 20)))) {
+      await store.logEvent(env.DB, now, l.id, "refused", `device limit ${l.max_devices}/${l.max_devices} (parallel)`);
+      return fail("device_limit", 409, { devices: l.max_devices, max: l.max_devices });
+    }
     await store.logEvent(env.DB, now, l.id, "activate", device.slice(0, 8));
   } else {
     await store.touch(env.DB, l.id, device, now, clean(b.name, 40), clean(b.version, 20));

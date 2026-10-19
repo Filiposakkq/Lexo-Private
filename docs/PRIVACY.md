@@ -15,7 +15,7 @@ Address: `https://api.aside.filiposakkq.dev` (Cloudflare Worker). Contacted when
 | lost key (Pro, "I lost my key") | the **e-mail address** the user types (to get a code), and then the address and the **code** (to get a new key). The server never confirms whether an address belongs to a customer |
 | list of computers, freeing a computer, removing the licence | the licence file, the device id, for freeing another computer also its device id |
 
-- The **device id** is a hash of a random number that Aside makes once and keeps next to the licence file (`device.id`). It is not made from the name of the computer, the user name, the hardware or the network. It cannot be traced back to a person.
+- The **device id** is a hash of a random number that Aside makes once and keeps next to the licence file (`device.id`). It is made from that random number and the identifier of the installation of the operating system (the Windows `MachineGuid`, `/etc/machine-id`), mixed into one hash, so that the licence file cannot simply be copied to another computer; neither of the two is sent, only the hash. It is not made from the name of the computer, the user name or the network. It cannot be traced back to a person.
 - The **name** of a computer is only what the user types ("Home PC"). Empty is allowed.
 - Nothing about the projects is sent: no file names, no paths, no texts, no glossary, no settings, no list of games.
 
