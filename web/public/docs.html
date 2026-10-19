@@ -311,7 +311,14 @@ MyGame/
 
     <section id="pro">
       <h2><span class="n">15</span>Pro and the licence</h2>
-      <p>Pro adds batch machine translation, safe bulk fixes, group suggestions, regex batches and publishing your progress. In Free the first three work on a small batch per run (20 lines, or 5 files for group suggestions), so you can try them on your project.</p>
+      <p>Pro adds batch machine translation, safe bulk fixes, group suggestions, regex batches, publishing your progress, and the features that save the most work on a long game:</p>
+      <ul>
+        <li><b>Carry over a translation to a new version of the game.</b> Choose the folder of the old, translated version: every untranslated line is looked up in it by its original text (the ids of scenes change between versions). Identical lines are carried over as they are; lines whose original changed a little are carried over too, shown with the difference and marked <i>To fix</i>.</li>
+        <li><b>Fill from similar translations.</b> The same for the project itself: an untranslated line gets the translation of a similar original of the same speaker.</li>
+        <li><b>Profiles of characters.</b> Gender, how the character speaks and who they address formally; the batch machine translation passes them to a language model, so the feminine and masculine forms and the <i>tykání</i> or <i>vykání</i> stay right.</li>
+        <li><b>Style check.</b> A language model reads each translated line with its original and context and points out a wrong form of address, wrong gender forms or a tone that does not fit, with a correction you can accept.</li>
+      </ul>
+      <p>Every one of them shows a preview first, writes only what you tick, and can be undone in one step. In Free the first few work on a small batch per run (20 lines, 50 for carry over, or 5 files for group suggestions), so you can try them on your project; regex batches, publishing and profiles need a licence. Text leaves your computer only for the machine translation and the style check, and only to the service you set up.</p>
       <ol class="steps-l">
         <li><span>Buy a licence. The key comes by e-mail.</span></li>
         <li><span>Enter it in <b>Settings → Licence</b>. The limits lift at once.</span></li>

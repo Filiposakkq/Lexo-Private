@@ -7,6 +7,7 @@ A map of the documents. **Current** = describes how things are now. **Plan** = a
 | [HANDOFF.md](HANDOFF.md) | What is this project, what was decided, what are the rules, how is a step done, what is the state now (start here) | current |
 | [ROADMAP.md](ROADMAP.md) | The plan in order, what is done (the table "Where we are" and the log) | current (the early steps are history) |
 | [FEATURES.md](FEATURES.md) | Which features are Free and which are Pro, and the status of each | current |
+| [PRO-FEATURES.md](PRO-FEATURES.md) | What each Pro feature does, where it is, the demo limits, what it sends over the network, how to undo it | current |
 | [PRO-DESIGN.md](PRO-DESIGN.md) | How Pro is kept apart, delivered, licensed, limited; the licence server; what is done and open | current |
 | [PRIVACY.md](PRIVACY.md) | Everything that leaves the user's computer, and what the servers store | current (changes with the code, in the same pull request) |
 | [REPO-CLEANUP.md](REPO-CLEANUP.md) | What is untidy in the repository and the plan to tidy it | plan |
