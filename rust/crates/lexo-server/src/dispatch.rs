@@ -292,6 +292,13 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "style/targets" | "style/batch" => {
+                let (batch, d) = (r == "style/batch", Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let out = if batch { app.style_batch(&d["items"])? } else { app.style_targets(d["file"].as_str().unwrap_or(""), &d["lines"])? };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "profile/list" | "profile/set" => {
                 let (set, d) = (r == "profile/set", Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {

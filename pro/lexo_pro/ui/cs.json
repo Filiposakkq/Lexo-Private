@@ -69,6 +69,7 @@
   "Filled from similar translations": "Doplněno z podobných překladů",
   "Filled from a similar original: check it": "Doplněno z podobného originálu: zkontroluj",
   "Invalid gender of a character.": "Neplatné pohlaví postavy.",
-  "Profile of a character": "Profil postavy"
+  "Profile of a character": "Profil postavy",
+  "The style check needs a language model: choose the OpenAI-compatible service in Settings → Machine translation.": "Kontrola stylu potřebuje jazykový model: v Nastavení → Strojový překlad vyber službu kompatibilní s OpenAI."
  }
 }

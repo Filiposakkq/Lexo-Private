@@ -35,7 +35,7 @@ impl App {
     }
 
     /// What the validator says about `text` as the translation of `ent` (information is left out).
-    fn mt_issues(&self, ent: &Entry, text: &str) -> Res<Vec<Value>> {
+    pub(crate) fn mt_issues(&self, ent: &Entry, text: &str) -> Res<Vec<Value>> {
         let mut probe = ent.clone();
         probe.target = text.to_string();
         probe.category = "";

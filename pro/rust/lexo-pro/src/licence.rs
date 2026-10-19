@@ -20,7 +20,8 @@ use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
 /// The taste features: items per action in demo mode.
-pub const DEMO_LIMITS: [(&str, i64); 5] = [("bulk.categorize", 5), ("mt.batch", 20), ("fixes.safe", 20), ("carry.over", 50), ("memory.fuzzy", 20)];
+pub const DEMO_LIMITS: [(&str, i64); 6] =
+    [("bulk.categorize", 5), ("mt.batch", 20), ("fixes.safe", 20), ("carry.over", 50), ("memory.fuzzy", 20), ("style.check", 20)];
 
 /// The major version of the product that this pack belongs to; a licence covers one major version.
 pub const PRODUCT_MAJOR: u64 = 1;
