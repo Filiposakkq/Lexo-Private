@@ -19,3 +19,6 @@ sha2 = "0.10"
 unicode-normalization = "0.1"
 ureq = { version = "2", default-features = false, features = ["tls", "native-certs"] }
 zip = { version = "2", default-features = false, features = ["deflate"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

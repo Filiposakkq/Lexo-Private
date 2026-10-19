@@ -10,3 +10,7 @@ target/
 .claude/settings.local.json
 .admin-preview.html
 *.tmp
+
+# the build of the new interface (npm run build in ui-next-src); its README stays
+rust/resources/ui-next/*
+!rust/resources/ui-next/README.md

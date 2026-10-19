@@ -43,6 +43,14 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST release/state` | | the settings, the releases so far, the game (name and version from `config.*`), the language | `release.build` |
 | `POST release/settings` | `{settings}` | save the attached files, the options, credits, the output folder (`.aside/release.json`) | `release.build` |
 | `POST release/preview` | `{version, notes}` | the checks, the changes since the last release, the texts; nothing is written | `release.build` |
+| `POST library/list` | | the games of Home: `{games: [{path, name, version, language, total, done, corr, pinned, opened, state}], pro}`; `state`: `ready`, `needs_prepare`, `choose`, `missing` | |
+| `POST library/add` | `{path}` | put a game on Home by its folder (nothing is opened or written in the game) | |
+| `POST library/remove` | `{path}` | take a game off Home (the card only) | |
+| `POST library/pin` | `{path, pinned}` | pin or unpin a card | |
+| `POST prepare/inspect` | `{path}` | what is in the game and what is missing, `ready` | |
+| `POST prepare/unrpyc` | `{path}` | remember where `unrpyc.py` is | |
+| `POST prepare/start` | `{path, language}` | start preparing the game as a job: `{job}` | |
+| `POST prepare/status` | `{job}` | `{current, steps, done, success, error, result}` | |
 | `POST git/state` | | `{available, repo, branch, remote, upstream, behind, ahead, changes}`: git in the translation folder (no change is made) | |
 | `POST git/pull` | | `git pull --rebase --autostash` and read the files again; on a failure the rebase is cancelled | |
 | `POST git/push` | | add the translation folder, commit ("Translation update by …") when it changed, push; when the server is ahead, pull and push once more | |

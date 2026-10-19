@@ -358,6 +358,33 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "prepare/inspect" | "prepare/plan" | "prepare/unrpyc" | "prepare/start" | "prepare/status" => {
+                let (route, d) = (r.to_string(), Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
+                    let out = match route.as_str() {
+                        "prepare/inspect" => app.prepare_inspect(&text("path"))?,
+                        "prepare/unrpyc" => app.prepare_set_unrpyc(&text("path"))?,
+                        "prepare/plan" => app.prepare_plan(&text("path"), &text("mode"), &text("workspace"))?,
+                        "prepare/start" => app.prepare_start(&text("path"), &text("language"), &text("mode"), &text("workspace"))?,
+                        _ => app.prepare_status(&text("job"))?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
+            "library/list" | "library/add" | "library/remove" | "library/pin" => {
+                let (route, d) = (r.to_string(), Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
+                    let out = match route.as_str() {
+                        "library/add" => app.library_add(&text("path"))?,
+                        "library/remove" => app.library_remove(&text("path"))?,
+                        "library/pin" => app.library_pin(&text("path"), d["pinned"].as_bool().unwrap_or(true))?,
+                        _ => app.library_list()?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "git/state" | "git/pull" | "git/push" => {
                 let route = r.to_string();
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {

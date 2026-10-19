@@ -15,6 +15,8 @@ UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui-classic"
 CORE_LEXO = Path(__file__).resolve().parents[2] / "core" / "lexo"
 FREE_PY = Path(__file__).resolve().parents[1] / "lexo_free"
 PACK = Path(__file__).resolve().parents[4] / "rust" / "resources" / "packs" / "cs"
+# the sources of the new interface (Vue): its texts are keys of the same pack
+UI_NEXT_SRC = Path(__file__).resolve().parents[4] / "ui-next-src" / "src"
 
 # Every module of the UI is converted: no Czech string literal may remain (the English text of a key may contain Czech example words).
 CONVERTED = sorted(f.name for f in (UI / "js").glob("*.js"))
@@ -36,7 +38,12 @@ def strip_comments(text):
 
 
 def js_sources():
-    return {f.name: f.read_text(encoding="utf-8") for f in sorted((UI / "js").glob("*.js"))}
+    sources = {f.name: f.read_text(encoding="utf-8") for f in sorted((UI / "js").glob("*.js"))}
+    if UI_NEXT_SRC.is_dir():       # the new interface: .vue and .js files (not the copy of the text module itself, not tests)
+        for f in sorted([*UI_NEXT_SRC.rglob("*.vue"), *UI_NEXT_SRC.rglob("*.js")]):
+            if f.name != "i18n.js" and not f.name.endswith(".test.js"):
+                sources["next/" + f.name] = re.sub(r"<style.*?</style>", " ", f.read_text(encoding="utf-8"), flags=re.S)
+    return sources
 
 
 @functools.lru_cache(maxsize=None)
@@ -60,6 +67,22 @@ def _used_keys():
 
 def used_keys():
     return set(_used_keys())
+
+
+def rust_keys():
+    """Templates of the messages written in Rust (Core): msg("...") and msgn(n, "one", "many"). They need not be in Python, so their Czech texts are not stale."""
+    keys = set()
+    src = Path(__file__).resolve().parents[4] / "rust" / "crates" / "lexo-core" / "src"
+    one = re.compile(r'\bmsg\(\s*"((?:[^"\\]|\\.)*)"')
+    many = re.compile(r'\bmsgn\(\s*[^,()]+(?:\([^()]*\))?[^,()]*,\s*"((?:[^"\\]|\\.)*)"\s*,\s*"((?:[^"\\]|\\.)*)"')
+    for f in sorted(src.glob("*.rs")):
+        text = f.read_text(encoding="utf-8")
+        keys.update(m.group(1).replace('\\"', '"') for m in one.finditer(text))
+        keys.update(m.group(1) for m in re.finditer(r'\bfailed\(\s*"([^"]*)"', text))     # app_git.rs: the name of the step is a message of its own
+        keys.update(m.group(1) for m in re.finditer(r'\brun\([^,]+,\s*"([^"]*)"\)', text))
+        keys.update(m.group(1) for m in re.finditer(r'\brun\(&\[[^\]]*\],\s*"([^"]*)"\)', text))   # ... also where the step is named in a call of the runner
+        keys.update(m.group(1).replace('\\"', '"') + "|" + m.group(2).replace('\\"', '"') for m in many.finditer(text))
+    return keys
 
 
 def python_keys():
@@ -89,7 +112,8 @@ class UiTextTests(unittest.TestCase):
         self.assertEqual(missing, [], "texts without a Czech translation in packs/cs/ui.json")
 
     def test_the_pack_has_no_stale_texts(self):
-        stale = sorted(k for k in self.strings if k not in used_keys())
+        known = used_keys() | rust_keys()
+        stale = sorted(k for k in self.strings if k not in known)
         self.assertEqual(stale, [], "texts in packs/cs/ui.json that no t() uses any more")
 
     def test_placeholders_match(self):

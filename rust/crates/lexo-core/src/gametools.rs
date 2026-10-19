@@ -321,6 +321,49 @@ pub fn make_workspace(game_root: &Path, workspace: &Path) -> Result<Workspace, T
     Ok(done)
 }
 
+/// What `make_workspace(game_root, workspace)` would write: `(links, bytes)`. `links` says whether files can be linked from the game to the disk of the workspace (the same disk);
+/// `bytes` is what is copied: only the script and bytecode files when they can, otherwise every file of the game (but not the folders that are never copied).
+pub fn workspace_cost(game_root: &Path, workspace: &Path) -> (bool, u64) {
+    let game_root = resolve(game_root);
+    let probe =
+        rglob_suffix(&game_root, &[".rpa", ".rpyc", ".rpy", ".png", ".jpg", ".ogg", ".mp3", ".webp", ".ttf", ".otf", ".py"]).into_iter().find(|p| p.is_file());
+    let mut anchor = resolve(workspace);
+    while !anchor.exists() {
+        match anchor.parent() {
+            Some(p) => anchor = p.to_path_buf(),
+            None => break,
+        }
+    }
+    let links = probe.is_some_and(|src| {
+        let test = anchor.join(format!(".aside-link-test-{}", std::process::id()));
+        let ok = fs::hard_link(&src, &test).is_ok();
+        let _ = fs::remove_file(&test);
+        ok
+    });
+    fn walk(dir: &Path, rel: &Path, links: bool, total: &mut u64) {
+        let Ok(rd) = fs::read_dir(dir) else { return };
+        for e in rd.flatten() {
+            let rel = rel.join(e.file_name());
+            let parts: Vec<String> = rel.components().map(|c| c.as_os_str().to_string_lossy().into_owned()).collect();
+            if LINK_SKIP_ROOT.contains(&parts[0].as_str()) || (parts.len() > 1 && parts[0] == "game" && LINK_SKIP_DIRS.contains(&parts[1].as_str())) {
+                continue;
+            }
+            let p = e.path();
+            if p.is_dir() {
+                walk(&p, &rel, links, total);
+            } else if let Ok(m) = p.metadata() {
+                let suffix = p.extension().map(|x| format!(".{}", x.to_string_lossy().to_lowercase())).unwrap_or_default();
+                if !links || COPY_SUFFIXES.contains(&suffix.as_str()) {
+                    *total += m.len();
+                }
+            }
+        }
+    }
+    let mut bytes = 0u64;
+    walk(&game_root, Path::new(""), links, &mut bytes);
+    (links, bytes)
+}
+
 // ---------------------------------------------------------------- decompiling
 /// Copy every `.rpyc` / `.rpymc` below `game_dir` into `workspace`, keeping the relative paths. The game is only read. Returns the number of copied files.
 pub fn copy_scripts(game_dir: &Path, workspace: &Path) -> Result<u64, ToolError> {

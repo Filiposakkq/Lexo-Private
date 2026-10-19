@@ -1,0 +1,43 @@
+name: New interface
+
+on:
+  pull_request:
+    paths: ["ui-next-src/**", "rust/resources/packs/cs/ui.json", ".github/workflows/ui-next.yml"]
+  push:
+    branches: [main]
+    paths: ["ui-next-src/**", "rust/resources/packs/cs/ui.json", ".github/workflows/ui-next.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# a new push to a pull request cancels the run of the older push (it would be thrown away anyway)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ui-next:
+    # The new interface (Vue + Vite, ui-next-src): its tests, and a build that must succeed. The build is not committed (it is made again here and by the launcher).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui-next-src/package-lock.json
+      - name: Install
+        working-directory: ui-next-src
+        run: npm ci
+      - name: Tests
+        working-directory: ui-next-src
+        run: npm test
+      - name: Build
+        working-directory: ui-next-src
+        run: npm run build
+      - name: The build has what the server serves
+        run: |
+          test -f rust/resources/ui-next/index.html
+          ls rust/resources/ui-next/assets
+          grep -q "__TOKEN__" rust/resources/ui-next/index.html
