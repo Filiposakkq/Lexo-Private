@@ -16,10 +16,10 @@ of every feature see [FEATURES.md](../product/FEATURES.md). This document says w
 | Regex find and replace (`replace.regex`) | Lines › Tools › *Find and replace…*, mode *Regular expression* | locked | – | no |
 | Group suggestions (`bulk.categorize`) | Files › groups | 5 files | – | no |
 | Publishing progress (`publish.web`) | Publishing tab | locked | a git repository you own | git push to **your** repository |
-| Carry a translation over to a new version (`carry.over`) | Lines › Tools › *Carry over from the previous version…* | 50 lines written (the counts are complete) | the folder of the old version | no |
-| Fill from similar translations (`memory.fuzzy`) | Lines › Tools › *Fill from similar translations…* | 20 lines | – | no |
+| Carry a translation over to a new version (`carry.over`) | Lines › Tools › *Carry over from the previous version…* | 10 lines written (the counts are complete) | the folder of the old version | no |
+| Fill from similar translations (`memory.fuzzy`) | Lines › Tools › *Fill from similar translations…* | locked | – | no |
 | Profiles of characters (`mt.profiles`) | Glossary › *Profile…* per speaker | locked | a language model for the batch translation | with the batch translation only |
-| Style check (`style.check`) | Lines › Tools › *Check the style…* | 20 lines | an OpenAI-compatible service, the consent | **yes**, to that service |
+| Style check (`style.check`) | Lines › Tools › *Check the style…* | locked | an OpenAI-compatible service, the consent | **yes**, to that service |
 | Release builder (`release.build`) | Lines › Tools › *Build a release…* | locked | – | no (nothing is uploaded) |
 
 ## Batch machine translation
@@ -82,9 +82,9 @@ Makes the translation into **a zip the players unpack into their game folder**; 
 ## Limits, in short
 | Feature | Demo limit |
 |---|---|
-| Batch machine translation, safe fixes, fill from similar translations, style check | 20 per run |
-| Carry over | 50 lines written per run (the counts show all) |
+| Batch machine translation, safe fixes | 20 per run |
+| Carry over | 10 lines written per run (the counts show all) |
 | Group suggestions | 5 files |
-| Regex replace, publishing, profiles, release builder | locked |
+| Regex replace, publishing, profiles, release builder, fill from similar translations, style check | locked |
 
 A licence removes the limits and unlocks the locked features (see [PRO-DESIGN.md](../product/PRO-DESIGN.md) for the licence, the computers and the checks).

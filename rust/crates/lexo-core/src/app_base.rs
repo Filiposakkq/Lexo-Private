@@ -3,7 +3,7 @@ use crate::features;
 use crate::fsutil::WriteFailed;
 use crate::messages::{msg, Message, Text};
 use regex::Regex;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::sync::OnceLock;
 
 /// The only addresses the app will open in the browser (the UI sends just the id). Empty until the product has a website to point to.
