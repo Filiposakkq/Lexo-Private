@@ -14,7 +14,7 @@ export async function carryDialog(done) {
   const path = h('input', { type: 'text', placeholder: T('Folder of the previous (translated) version'), style: { flex: 1 } });
   const info = h('span', { class: 'grow' }), results = h('div'), go = h('button', { class: 'btn primary', disabled: true });
   const sel = new Set();
-  let data = null;
+  let data = null, closeDlg = null;
   const key = (it) => `${it.file}|${it.line}`;
   const recommended = (it) => it.kind === 'exact' || (it.ratio >= 0.9 && !it.tags_differ);
   function paintInfo() {
@@ -61,7 +61,8 @@ export async function carryDialog(done) {
     const selections = data.items.filter((it) => sel.has(key(it))).map((it) => ({ file: it.file, line: it.line }));
     try {
       const r = await post('carry/apply', { old: path.value.trim(), selections });
-      toast(tn(r.changed, 'Carried over {n} line', 'Carried over {n} lines') + '. ' + T('Undo: “Undo”.'), 'ok', 8000);
+      toast(tn(r.changed, 'Carried over {n} line', 'Carried over {n} lines') + '. ' + T('Undo: “Undo the last file change”.'), 'ok', 8000);
+      closeDlg?.();
       S.files = null; await refreshHeader(); done?.();
     } catch (e) { fail(e); return false; }
   };
@@ -70,7 +71,7 @@ export async function carryDialog(done) {
   } }, T('Browse…'));
   path.addEventListener('keydown', (e) => { if (e.key === 'Enter') find(); });
   paintInfo();
-  dialog({ title: T('Carry the translation over from the previous version'),
+  closeDlg = dialog({ title: T('Carry the translation over from the previous version'),
     body: h('div', null,
       h('p', { class: 'muted' }, T('The open project is the NEW version of the game. Choose the folder of the OLD, translated version: the translation of every line whose original is the same (or almost the same) is looked up there. Nothing is written until you confirm; the change can be undone.')),
       h('div', { class: 'toolbar' }, path, browse, h('button', { class: 'btn primary', onclick: find }, T('Find'))),
