@@ -1,0 +1,39 @@
+# The website of Aside and its small server: one Cloudflare Worker that serves the files of web/public/ and answers /api and /admin.
+# Separate from the licence server (server/): its own database, its own secrets, its own deploy.
+# Secrets are NOT here; add them in the Cloudflare dashboard (Workers, aside-web, Settings, Variables and Secrets, type Secret)
+# or with `npx wrangler secret put <NAME>` (README.md, "Set up"). A deploy never removes them.
+#   HASH_SALT (a long random string, set once), RESEND_API_KEY (a Resend key that may send as aside@filiposakkq.dev),
+#   TURNSTILE_SECRET (the secret key of the Turnstile widget), ADMIN_TOKEN (optional emergency password for /admin).
+name = "aside-web"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+[assets]
+# the website is exactly the folder web/public/ (pages and assets); nothing else of the repository is uploaded
+directory = "../public"
+binding = "ASSETS"
+run_worker_first = ["/api/*", "/admin", "/admin/*"]
+not_found_handling = "404-page"
+
+[vars]
+SITE_URL = "https://aside.filiposakkq.dev"
+MAIL_FROM = "Filip from Aside <aside@filiposakkq.dev>"
+# new applications, messages, bug reports and showcase entries are announced here
+OWNER_EMAIL = "aside@filiposakkq.dev"
+# the public site key of the Turnstile widget (empty = the forms work without it)
+TURNSTILE_SITE_KEY = "0x4AAAAAAFavKs5zwVFjbRwc"
+# Cloudflare Access in front of /admin: the team domain ("<team>.cloudflareaccess.com") and the Application Audience (AUD) tag
+# of the Access application. Not secret. Empty = only ADMIN_TOKEN can open the admin.
+ACCESS_TEAM_DOMAIN = "bold-poetry-c0ac.cloudflareaccess.com"
+ACCESS_AUD = "df91b38fe416fc238e4f6202f5008cf6dec5ed62336d0020c2bb46e50b43b062"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aside-web"
+# the id printed by `npx wrangler d1 create aside-web` (not a secret)
+database_id = "10e68128-84af-46f1-ae09-caa3255dc13b"
+migrations_dir = "migrations"
+
+[triggers]
+# once a day: feedback invitations and reminders, clean-up; every hour: the health check (src/cron.ts)
+crons = ["17 8 * * *", "7 * * * *"]

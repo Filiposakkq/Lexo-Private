@@ -1,0 +1,34 @@
+"""Assemble the generated pages of the website from their templates.
+
+Each template web/templates/<name>.html starts with a front matter block:
+    title: ... / desc: ... / sub: ... / ---css--- ... / ---body--- ... / ---script--- ...
+and becomes web/public/<name>.html with the shared header (templates/_head.html) and footer (templates/_foot.html).
+Run it after changing anything in web/templates/.
+Usage: python web/tools/build_pages.py
+"""
+import pathlib
+import re
+
+WEB = pathlib.Path(__file__).resolve().parent.parent
+PAGES = WEB / "templates"
+OUT = WEB / "public"
+
+
+def main():
+    head = (PAGES / "_head.html").read_text(encoding="utf-8")
+    foot = (PAGES / "_foot.html").read_text(encoding="utf-8")
+    for src in sorted(PAGES.glob("[!_]*.html")):
+        text = src.read_text(encoding="utf-8")
+        meta, rest = text.split("---css---", 1)
+        css, rest = rest.split("---body---", 1)
+        body, script = (rest.split("---script---", 1) + [""])[:2]
+        fields = dict(re.findall(r"^(\w+):\s*(.*)$", meta, re.M))
+        page = head.replace("{{TITLE}}", fields["title"]).replace("{{DESC}}", fields["desc"]).replace("{{SUB}}", fields["sub"]).replace("{{CSS}}", css.strip())
+        page = page.replace('<a href="%s.html">' % src.stem, '<a href="%s.html" class="on">' % src.stem)
+        page += body.strip() + "\n" + foot.replace("{{SCRIPT}}", ("<script>\n" + script.strip() + "\n</script>") if script.strip() else "")
+        (OUT / src.name).write_text(page, encoding="utf-8")
+        print("wrote", src.name)
+
+
+if __name__ == "__main__":
+    main()
