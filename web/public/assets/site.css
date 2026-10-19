@@ -192,3 +192,16 @@ footer { border-top: 1px solid var(--line); padding-block: 2.8rem calc(2.8rem + 
 .fdone h2 { font-size: 1.5rem; }
 .fdone p { max-width: 52ch; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* the "Now" strip (Status in the admin), on the home and releases pages */
+.now-strip { display: flex; align-items: center; gap: .9rem 1.2rem; flex-wrap: wrap; margin: 1.4rem 0; padding: .9rem 1.1rem; border-radius: 16px; background: linear-gradient(120deg, rgba(255, 49, 92, .14), rgba(255, 112, 67, .05)), var(--card); border: 1px solid rgba(255, 49, 92, .35); font-size: .94rem; }
+.now-strip .now-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 0 rgba(255, 49, 92, .6); animation: now-pulse 2s infinite; flex: none; }
+@keyframes now-pulse { 70% { box-shadow: 0 0 0 10px rgba(255, 49, 92, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 49, 92, 0); } }
+.now-strip .now-main { flex: 1 1 260px; min-width: 0; color: var(--text); }
+.now-strip .now-main b { color: var(--ink); font-family: var(--f-display); }
+.now-strip .now-note { display: block; color: var(--muted); font-size: .88rem; margin-top: .2rem; }
+.now-strip .now-nums { display: flex; gap: .4rem 1rem; flex-wrap: wrap; color: var(--muted); font-size: .86rem; }
+.now-strip .now-nums b { color: var(--ink); font: 800 1rem/1 var(--f-display); }
+@media (prefers-reduced-motion: reduce) { .now-strip .now-dot { animation: none; } }
+/* a small "news by e-mail" box (home final section, releases) */
+.news-box { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }

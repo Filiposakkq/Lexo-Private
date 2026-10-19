@@ -35,5 +35,5 @@ database_id = "10e68128-84af-46f1-ae09-caa3255dc13b"
 migrations_dir = "migrations"
 
 [triggers]
-# once a day: feedback invitations and reminders, clean-up of the flood limits
-crons = ["17 8 * * *"]
+# once a day: feedback invitations and reminders, clean-up; every hour: the health check (src/cron.ts)
+crons = ["17 8 * * *", "7 * * * *"]

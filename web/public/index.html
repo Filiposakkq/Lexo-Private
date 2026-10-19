@@ -127,6 +127,10 @@ section { padding-block: clamp(4rem, 3rem + 5vw, 7.5rem); }
 .panel-frame { border-radius: 16px; overflow: hidden; background: #10131A; box-shadow: var(--shadow); border: 1px solid rgba(60, 10, 25, .25); }
 .panel-frame img { width: 100%; height: auto; aspect-ratio: 1440 / 816; }
 .panel-note { margin-top: .9rem; font-size: .88rem; color: var(--muted); }
+/* the screenshots show an older build of the app; say so wherever one is shown */
+.chrome > span:not(.old-tag) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.old-tag { flex: none; margin-left: auto; padding: .28rem .55rem; border-radius: 999px; background: rgba(244, 184, 78, .16); color: #F4B84E; font: 700 .66rem/1 var(--f-display); letter-spacing: .04em; white-space: nowrap; }
+.old-pill { display: inline-block; margin-right: .5rem; padding: .2rem .5rem; border-radius: 999px; background: rgba(244, 184, 78, .14); color: #F4B84E; font: 700 .72rem/1.3 var(--f-display); }
 .mock { aspect-ratio: 1440 / 816; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4%; padding: 5% 4%; background: #10131A; color: #DDE1EA; font-size: clamp(.58rem, .42rem + .5vw, .82rem); }
 .mock .col { display: grid; gap: .8em; align-content: start; min-width: 0; }
 .mock .cap { font: 600 .9em/1.2 var(--f-mono); letter-spacing: .04em; text-transform: uppercase; color: #8A90A0; display: flex; justify-content: space-between; align-items: center; gap: .5em; flex-wrap: wrap; }
@@ -443,7 +447,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     </div>
     <div class="stage">
       <div class="window">
-        <div class="chrome"><i></i><i></i><i></i><span>Aside · demo project · Lines</span></div>
+        <div class="chrome"><i></i><i></i><i></i><span>Aside · demo project · Lines</span><span class="old-tag" title="The screenshots are from an older build; the app looks different now and will change more before the release.">Older build</span></div>
         <img class="zoom" src="assets/img/app-lines.webp" width="1440" height="816" alt="Aside, the Lines tab: a table of lines with their state, and below it the original and the translation side by side.">
       </div>
       <div class="callout c1"><span class="dot ok">✓</span><div><b>35 of 36</b> lines translated<small>Episode 1 · 97 %</small></div></div>
@@ -697,6 +701,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
         <div class="big">10 of 11<small>milestones done</small></div>
         <p>Aside was rebuilt as one fast desktop app with a Rust core and checked against the original on 8 real games: 8 968 read calls, no difference.</p>
       </div>
+      <div class="now-strip" id="now" hidden aria-live="polite"></div>
       <div class="track" role="img" aria-label="10 of 11 milestones done"><i></i></div>
       <div class="miles">
         <div><span class="st">Done</span><h3>Fast new core</h3><p>All 80 operations rebuilt in Rust; 749 of 749 recorded cases match.</p></div>
@@ -759,7 +764,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     <p class="lead">The first Windows build is in final testing. Make your choice.</p>
     <div class="choices">
       <a class="choice hot" href="beta.html">"Let me in early." <small>join the beta</small></a>
-      <a class="choice" href="mailto:aside@filiposakkq.dev?subject=Tell%20me%20when%20Aside%20is%20out">"Tell me the day it's out." <small>aside@filiposakkq.dev</small></a>
+      <a class="choice" href="news.html">"Tell me the day it's out." <small>news by e-mail</small></a>
       <a class="choice" href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">"I want to help it happen." <small>a coffee on Ko-fi</small></a>
       <a class="choice" href="docs.html">"Let me read the docs first." <small>documentation</small></a>
     </div>
@@ -777,7 +782,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
       <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
     </div>
     <nav aria-label="Footer">
-      <a href="#tour">Features</a><a href="compare.html">Compare</a><a href="#pricing">Pricing</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a>
+      <a href="#tour">Features</a><a href="compare.html">Compare</a><a href="#pricing">Pricing</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="#faq">FAQ</a><a href="news.html">News by e-mail</a>
       <a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a>
     </nav>
   </div>
@@ -832,6 +837,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
     var k = btn.getAttribute("data-p");
     items.forEach(function (b) { b.setAttribute("aria-selected", String(b === btn)); });
     $("#panel").innerHTML = PANELS[k].html; $("#panel-note").textContent = PANELS[k].note;
+    if (PANELS[k].html.indexOf("<img") >= 0) { var op = document.createElement("span"); op.className = "old-pill"; op.textContent = "Older build: the look is temporary and will change"; $("#panel-note").prepend(op); }
     $("#tour-text-m").innerHTML = btn.querySelector("p").innerHTML;
   }
   items.forEach(function (b) { b.addEventListener("click", function () { show(b); if (window.innerWidth <= 960) b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }); });
@@ -984,7 +990,12 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 </script>
 <script src="assets/site.js"></script>
 <script>
-/* with the server: the places of the beta round as they are now */
+/* with the server: the "Now" strip, the FAQ as edited in the admin, and the places of the beta round as they are now */
+AsideAPI.now(document.getElementById("now"));
+AsideAPI.config().then(function (c) { return c ? AsideAPI.call("faq") : null; }).then(function (j) {
+  if (!j || !j.ok || !j.items.length) return;
+  document.querySelector(".faq").innerHTML = j.items.map(function (x) { return "<details><summary>" + AsideAPI.md(x.q, true) + '</summary><div class="a">' + AsideAPI.md(x.a, true) + "</div></details>"; }).join("");
+});
 AsideAPI.config().then(function (c) {
   if (!c) return; var P = c.program;
   document.querySelectorAll(".seats-mini").forEach(function (el) { var k = el.getAttribute("data-seats"), l = Math.max(0, P[k].places - P[k].taken); el.classList.toggle("full", !l || !P.open); el.textContent = !P.open ? "Closed for now" : l ? l + " of " + P[k].places + " places left · " + P.round : "Round full · waiting list"; });

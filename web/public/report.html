@@ -27,6 +27,24 @@
 .rep .m { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; font-size: .8rem; color: var(--muted); }
 .st { padding: .25rem .55rem; border-radius: 999px; font: 800 .66rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .06em; background: var(--card-2); color: var(--muted); }
 .st.new { background: var(--red-soft); color: #FFC2CF; } .st.confirmed { background: var(--warn-soft); color: var(--warn); } .st.fixed { background: var(--ok-soft); color: var(--ok); }
+.rep .ans { margin-top: .3rem; padding: .6rem .75rem; border-radius: 10px; background: var(--bg); border-left: 3px solid var(--red); font-size: .88rem; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.rep .ans b { display: block; font: 700 .7rem/1.3 var(--f-display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .2rem; }
+.blk { display: grid; gap: .6rem; margin-bottom: 1.4rem; }
+.blk h2 { font-size: 1.1rem; margin-bottom: .2rem; }
+.bld { padding: .9rem 1rem; border-radius: 14px; background: linear-gradient(140deg, rgba(255, 49, 92, .12), rgba(255, 112, 67, .03)), var(--card); border: 1px solid rgba(255, 49, 92, .3); display: grid; gap: .45rem; }
+.bld b { color: var(--ink); font: 700 1rem/1.3 var(--f-display); }
+.bld .m { font-size: .8rem; color: var(--muted); overflow-wrap: anywhere; }
+.bld .notes { font-size: .88rem; color: var(--text); white-space: pre-wrap; }
+.task { padding: .9rem 1rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: grid; gap: .5rem; }
+.task b { color: var(--ink); font: 700 .95rem/1.3 var(--f-display); }
+.task .tb { font-size: .88rem; color: var(--text); }
+.task .tb p { margin: 0 0 .4rem; }
+.task .acts { display: flex; gap: .4rem; flex-wrap: wrap; }
+.task .acts button { min-height: 36px; padding: 0 .8rem; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--text); font: 700 .78rem/1 var(--f-display); cursor: pointer; }
+.task .acts button[aria-pressed="true"].done { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
+.task .acts button[aria-pressed="true"].problem { background: var(--red-soft); color: #FFC2CF; border-color: var(--red); }
+.task .acts button[aria-pressed="true"].skipped { background: var(--card-2); color: var(--ink); border-color: var(--line-2); }
+.task textarea { min-height: 60px; font-size: .9rem; }
 .tips { padding: 1rem 1.1rem; border-radius: 14px; border: 1.5px dashed var(--line-2); font-size: .9rem; color: var(--muted); }
 .tips b { color: var(--ink); }
 </style>
@@ -91,9 +109,11 @@
         <div class="ff full"><span class="lab">Screenshot (optional)</span><label class="drop" id="drop" for="r-img"><input type="file" id="r-img" accept="image/png,image/jpeg,image/webp"><span id="drop-t">Tap to add a screenshot, or drop it here</span></label></div>
       </div>
       <p class="ferr" id="r-err" role="alert"></p>
-      <div class="frow"><button class="btn btn-hot" type="submit">Send report</button><span class="fnote">Keep this page's link to yourself.</span></div>
+      <div class="frow"><button class="btn btn-hot" type="submit">Send report</button><span class="fnote">Keep this page's link to yourself. Answers appear here under your reports.</span></div>
     </form>
     <div class="mine">
+      <div class="blk" id="builds" hidden><h2>Test builds</h2><div id="bl"></div></div>
+      <div class="blk" id="tasks" hidden><h2>Things to try</h2><div id="tl"></div></div>
       <div class="tips"><b>A good report</b> has steps someone else can repeat, what you expected, and a screenshot. One problem per report.</div>
       <h2>Your reports</h2>
       <div id="mine"><p class="fnote">None yet.</p></div>
@@ -109,7 +129,7 @@
       <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
       <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
     </div>
-    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="news.html">News</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
   </div>
 </footer>
 <script src="assets/data.js"></script>
@@ -123,14 +143,44 @@
   if (!/^[a-z2-9]{16,40}$/.test(code)) return fail("This page needs your personal link from the welcome e-mail.");
   function mine(list) {
     document.getElementById("mine").innerHTML = list.length ? list.map(function (b) {
-      return '<div class="rep"><b>#' + b.id + " " + esc(b.title) + '</b><div class="m"><span class="st ' + esc(b.state) + '">' + esc(STATE[b.state] || b.state) + "</span><span>" + new Date(b.created * 1000).toLocaleDateString() + "</span></div></div>";
+      return '<div class="rep"><b>#' + b.id + " " + esc(b.title) + '</b><div class="m"><span class="st ' + esc(b.state) + '">' + esc(STATE[b.state] || b.state) + "</span><span>" + new Date(b.created * 1000).toLocaleDateString() + "</span></div>" + (b.reply ? '<div class="ans"><b>Answer</b>' + esc(b.reply) + "</div>" : "") + "</div>";
     }).join("") : '<p class="fnote">None yet.</p>';
   }
-  function load() { return AsideAPI.call("tester/" + code).then(function (j) { if (!j.ok) throw new Error("bad"); mine(j.bugs); return j; }); }
+  function size(n) { return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " kB"; }
+  function builds(list) {
+    document.getElementById("builds").hidden = !list.length;
+    document.getElementById("bl").innerHTML = list.map(function (b, i) {
+      return '<div class="bld"><b>' + esc(b.version) + (i === 0 ? " · newest" : "") + '</b><span class="m">' + new Date(b.created * 1000).toLocaleDateString() + (b.link ? " · download link" : " · " + esc(b.filename) + " · " + size(b.size)) + "</span>" + (b.notes ? '<div class="notes">' + esc(b.notes) + "</div>" : "") +
+        '<a class="btn btn-hot" href="/api/build/' + encodeURIComponent(b.id) + "/" + code + '"' + (b.link ? ' target="_blank" rel="noopener"' : "") + ">Download</a>" + (b.sha256 ? '<span class="m">SHA-256: ' + esc(b.sha256) + "</span>" : "") + "</div>";
+    }).join("");
+  }
+  var TS = [["done", "Done, works"], ["problem", "Problem"], ["skipped", "Skip"]];
+  function tasks(list) {
+    document.getElementById("tasks").hidden = !list.length;
+    var tl = document.getElementById("tl");
+    tl.innerHTML = list.map(function (t) {
+      return '<div class="task" data-id="' + esc(t.id) + '"><b>' + esc(t.title) + "</b>" + (t.build ? '<span class="fnote">Build ' + esc(t.build) + "</span>" : "") + (t.body ? '<div class="tb">' + AsideAPI.md(t.body) + "</div>" : "") +
+        '<div class="acts" role="group" aria-label="Your result">' + TS.map(function (x) { return '<button type="button" class="' + x[0] + '" data-s="' + x[0] + '" aria-pressed="' + (t.state === x[0]) + '">' + x[1] + "</button>"; }).join("") + "</div>" +
+        '<textarea aria-label="A note (what happened, optional)" placeholder="A note: what happened? (optional)" maxlength="1500">' + esc(t.note || "") + '</textarea><span class="fnote" role="status"></span></div>';
+    }).join("");
+    tl.querySelectorAll(".task").forEach(function (el) {
+      el.querySelectorAll("button[data-s]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var st = el.querySelector("[role=status]"); st.textContent = "Saving…";
+          AsideAPI.call("task", { code: code, task: el.getAttribute("data-id"), state: b.getAttribute("data-s"), note: el.querySelector("textarea").value }).then(function (j) {
+            if (!j.ok) { st.textContent = AsideAPI.why(j); return; }
+            el.querySelectorAll("button[data-s]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+            st.textContent = "Saved. Thank you!" + (b.getAttribute("data-s") === "problem" ? " For a real bug, a report on the left helps even more." : "");
+          });
+        });
+      });
+    });
+  }
+  function load() { return AsideAPI.call("tester/" + code).then(function (j) { if (!j.ok) throw new Error(j.error || "bad"); mine(j.bugs); builds(j.builds || []); tasks(j.tasks || []); return j; }); }
   AsideAPI.live().then(function (live) {
     if (!live) return fail("Bug reports work on the Aside website. Open your personal link from the e-mail there.");
     load().then(function (j) { lead.textContent = "Thanks for testing, " + j.nick + ". Found something? Describe it so it can be repeated."; document.getElementById("desk").hidden = false; },
-      function () { fail("This link is not valid. If you think that is a mistake, write to aside@filiposakkq.dev."); });
+      function (e) { fail(e.message === "paused" ? "Bug reports are paused for a while. Please try again later." : e.message === "too_many" ? "Too many tries from this address. Please wait an hour." : "This link is not valid. If you got a new link by e-mail, use that one; otherwise write to aside@filiposakkq.dev."); });
   });
   /* screenshots are made smaller in the browser before sending (at most 1600 px wide, JPEG) */
   var input = document.getElementById("r-img"), drop = document.getElementById("drop");

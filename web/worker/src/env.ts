@@ -18,6 +18,13 @@ export interface Env {
   TURNSTILE_SECRET?: string;
   /** The public site key of the Turnstile widget, handed to the pages. */
   TURNSTILE_SITE_KEY?: string;
+  /** Phone notifications through ntfy (src/notify.ts): a long random topic name. A secret. */
+  NTFY_TOPIC?: string;
+  NTFY_SERVER?: string;
+  NTFY_TOKEN?: string;
+  /** Phone notifications through a Telegram bot. Secrets. */
+  TELEGRAM_BOT_TOKEN?: string;
+  TELEGRAM_CHAT_ID?: string;
   SITE_URL?: string;
   MAIL_FROM?: string;
   OWNER_EMAIL?: string;

@@ -66,6 +66,15 @@ export async function within(env: Env, hash: string, kind: string, limit: number
   return true;
 }
 
+/** Whether the visitor already made `limit` requests of a kind within `seconds`, without counting this one. */
+export async function over(env: Env, hash: string, kind: string, limit: number, seconds: number, now: number): Promise<boolean> {
+  const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM hits WHERE kind = ? AND ip_hash = ? AND at > ?").bind(kind, hash, now - seconds).first<{ n: number }>();
+  return (r?.n ?? 0) >= limit;
+}
+
+/** Counts one request of a kind (see `over`). */
+export const hit = (env: Env, hash: string, kind: string, now: number) => env.DB.prepare("INSERT INTO hits (ip_hash, kind, at) VALUES (?, ?, ?)").bind(hash, kind, now).run();
+
 /** Checks the Turnstile answer of a form. Without TURNSTILE_SECRET every form passes (development, or before Turnstile is set up). */
 export async function human(env: Env, token: unknown, req: Request): Promise<boolean> {
   if (!env.TURNSTILE_SECRET) return true;
