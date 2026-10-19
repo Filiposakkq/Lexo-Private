@@ -24,7 +24,7 @@ SESSION = {("GET", "focus"), ("GET", "ping"), ("POST", "focus"), ("POST", "windo
            ("POST", "style/targets"), ("POST", "style/batch"),
            ("POST", "spell/state"), ("POST", "spell/add"), ("POST", "spell/remove"), ("POST", "spell/ignore"), ("POST", "spell/check"), ("POST", "spell/replace"),
            ("POST", "team/state"), ("POST", "team/join"), ("POST", "team/create"), ("POST", "team/set"),
-           ("POST", "team/stats"), ("POST", "team/notes"), ("POST", "team/note_add"), ("POST", "team/note_resolve"), ("POST", "team/changes"), ("POST", "team/seen"),
+           ("POST", "team/stats"), ("POST", "team/notes"), ("POST", "team/note_add"), ("POST", "team/note_resolve"), ("POST", "team/changes"), ("POST", "team/seen"), ("POST", "team/leave"), ("POST", "team/remove"), ("POST", "team/restore"), ("POST", "team/transfer"), ("POST", "team/disband"),
            ("POST", "release/state"), ("POST", "release/settings"), ("POST", "release/preview"), ("POST", "release/build")}
 CALL = re.compile(r"""(?<![.\w])(get|post)\(\s*['"]([\w/.-]+)['"]""")          # get('x') / post('x'), not params.get('x')
 URL = re.compile(r"""['"`]/api/([\w/.-]+)""")

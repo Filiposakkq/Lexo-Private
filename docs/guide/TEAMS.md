@@ -36,11 +36,11 @@ The shared folder is the **translation folder**, the one you open in Aside (`gam
 Pick one way to share it:
 
 - **git** (good for programmers and for a history of changes): everybody clones the same repository and runs *pull* before work and *commit and push* after. Commit `.aside/` together with the `.rpy` files (the local data of each person is outside the folder, so there is nothing to exclude).
-- **Dropbox, OneDrive, Google Drive, Syncthing**: share the folder and let the tool sync. Wait for the sync before you start and after you stop. If two people change the **same** `.rpy` file at once, these tools make a "conflicted copy"; avoid it by giving the files to different people (section 6).
+- **Dropbox, OneDrive, Google Drive, Syncthing**: share the folder and let the tool sync. Wait for the sync before you start and after you stop. If two people change the **same** `.rpy` file at once, these tools make a "conflicted copy"; avoid it by giving the files to different people (section 7).
 - **A network drive**: works if everybody has write access; never open the same file from two computers at the same time.
 
 Two rules make any of them safe:
-1. **Give every file to one person at a time** (section 6). Most conflicts then never happen.
+1. **Give every file to one person at a time** (section 7). Most conflicts then never happen.
 2. **Sync before you start and after you stop.** Aside reads the folder when you press *Refresh files* or open the project.
 
 A reminder for the game build: hidden folders may reach a built game. The shared part (`.aside/`) holds no secrets, only names you typed and notes you wrote. If you do not want it in a release, see the rule shown in [DATA-LAYOUT.md](../technical/DATA-LAYOUT.md); the release builder (Pro) never packs `.aside/`.
@@ -64,11 +64,29 @@ A reminder for the game build: hidden folders may reach a built game. The shared
 ### Giving roles and files (the lead)
 
 - **Roles:** in the Team window the lead picks for every member **translator** or **proofreader** and presses **Save roles**. (The lead is the lead; the lead has no other role.)
-- **Files:** in the table of files, the column **Assigned to** has a list for every file. Pick the person; pick **–** to take the file back. One person per file in the table; the file format allows up to five people on a file if you ever edit it by hand (section 10).
+- **Files:** in the table of files, the column **Assigned to** has a list for every file. Pick the person; pick **–** to take the file back. One person per file in the table; the file format allows up to five people on a file if you ever edit it by hand (section 11).
 
 Everybody sees roles and assignments after the next sync.
 
-## 5. The roles
+### One team per project, not per computer
+
+A team lives **in the translation folder of one game** (`.aside/team/`). If you work on several games, each has its own team (or none): switching to another game shows *its* team, and a game without a team shows "This project has no team yet". Your **id** is the same in all your games (it belongs to this computer account), and the **name** you typed last is offered again when you join another project, but you join each project separately.
+
+## 5. Leaving, removing, handing over, ending
+
+Everything is in the **Team…** window.
+
+| What | Who | How | What happens |
+|---|---|---|---|
+| **Leave the team** | any member (not the lead) | *Leave the team* (asks "Leave this team?") | Your own file in `members/` is deleted; you can join again later. Your notes and your activity log stay. |
+| **Remove a person** | the lead (Pro) | *Remove* next to the name (asks first) | The person is listed as **removed** in `lead.json`, loses their role and their files, and **cannot join again by themselves** (they see "The lead removed you…"). Their notes and logs stay. |
+| **Take a person back** | the lead (Pro) | *Removed: … Take back* | The person can join again with their name. |
+| **Hand the team over** | the lead (Pro) | *Make lead* next to the new lead's name (asks first) | The other person becomes the lead and you become a translator. The new lead needs a Pro licence to manage the team. |
+| **End the team** | the lead (Pro) | *End the team* at the bottom | `lead.json` is deleted. The people's files, the notes and the activity logs stay in the folder (they are not the lead's to delete); a new team can be made later. |
+
+The lead cannot simply leave: hand the team over or end it first. A removed person keeps their copy of the folder and their notes; only the team stops counting them. Because the file of a removed person is not deleted (a sharing tool could bring it back), removal is a list in the lead's file that every copy respects.
+
+## 6. The roles
 
 | Role | What the person does | What Aside does with it |
 |---|---|---|
@@ -78,7 +96,7 @@ Everybody sees roles and assignments after the next sync.
 
 The roles are information for people and for the statistics (they label the rows). They do not change what a person can click. A member who has no role set is shown as a translator.
 
-## 6. Giving files to people (assignments)
+## 7. Giving files to people (assignments)
 
 A file given to a person is the best protection against conflicts: two people do not edit one file. In the table of files:
 
@@ -88,25 +106,25 @@ A file given to a person is the best protection against conflicts: two people do
 
 This is separate from the **Assignment** column (the group of a file: general, episode N). Groups say *which part of the game* a file belongs to; **Assigned to** says *who works on it*.
 
-Giving a file does not lock it. If somebody else changes it anyway, Aside does not stop them. Use the news (section 8) and talk.
+Giving a file does not lock it. If somebody else changes it anyway, Aside does not stop them. Use the news (section 9) and talk.
 
 A file given to a person who is not a member (for example because the member's file did not arrive yet) is cleaned away when the lead saves; the pack drops what refers to unknown people.
 
-## 7. Everyday work
+## 8. Everyday work
 
 A good day for a translator:
 
 1. **Sync** the folder (pull, or wait for the sharing tool).
 2. Open Aside, go to **Files**, set the filter to **My files**.
 3. Press **Team…** and read the **news**: what others did since your last look, and new notes to the team. Press **Mark as seen** when you have read it.
-4. Translate your files in **Lines**. When a line needs a word to the team, write a **note** (section 9).
+4. Translate your files in **Lines**. When a line needs a word to the team, write a **note** (section 10).
 5. **Sync** again when you stop, so the others get your work.
 
 A proofreader does the same, but works on translated lines: marks them proofread or "to fix" (with a note for the translator), approves what is fine. The marks are written under their name in the shared log.
 
-The lead also opens **Team…** to see the **statistics** (section 10) and to give files to people.
+The lead also opens **Team…** to see the **statistics** (section 11) and to give files to people.
 
-## 8. News: what changed since your last look
+## 9. News: what changed since your last look
 
 In the Team window (and as a number you can check there) Aside lists what **other people** did since **your last look**:
 
@@ -121,7 +139,7 @@ The lines are grouped by person and file, the newest first, at most 40. Your own
 
 News depends on the sync: you see what has reached your folder. If you want a quiet start of the day, sync first.
 
-## 9. Notes to the team on lines
+## 10. Notes to the team on lines
 
 When a line needs a decision or a question ("is this too informal?", "check the joke"), write a note on the line instead of a message somewhere else.
 
@@ -131,7 +149,7 @@ When a line needs a decision or a question ("is this too informal?", "check the 
 - Notes belong to a line by its **block and original text** (the same identity the history of texts uses). If the original text of the line changes in a new game version, the old notes no longer show on it. They stay in the files.
 - A note is at most 2000 characters. Notes are never deleted by Aside.
 
-## 10. Statistics (the lead, Pro)
+## 11. Statistics (the lead, Pro)
 
 In **Team…**, below the members, the lead sees **Statistics** with a period (last 7 days, last 30 days, all time):
 
@@ -156,25 +174,25 @@ What to know before you rely on the numbers:
 - The clock is the clock of each computer. Two people with clocks that differ by minutes can swap who "was last" in a conflict; this only affects the last-activity column.
 - **Only the lead sees the statistics**, and only with a working Pro licence. Statistics are for coordination, not for judging people: a translator who writes few lines may be fixing hard ones.
 
-## 11. Where the data is, and what is private
+## 12. Where the data is, and what is private
 
 Everything shared is in `.aside/team/` (and the existing shared project data in `.aside/`). **No other computer, no server and no company sees it** unless you share the folder with them. Aside itself sends nothing for the team over the network.
 
 ```
 <translation folder>/.aside/team/
   members/<author>.json      each person's own name: {"author": id, "name": "..."}         written by that person
-  lead.json                  {"v":1, "lead": id, "roles": {id: role}, "assign": {file: [id]}}  written by the lead only
+  lead.json                  {"v":1, "lead": id, "roles": {id: role}, "assign": {file: [id]}, "removed": [id]}  written by the lead only
   activity/<author>.jsonl    what the person changed: {t, a, file, n, via}, one line per file and edit   (only in a team)
   notes/<author>.jsonl       notes {id, t, a, file, k, text} and resolutions {resolve, t, a}
 ```
 
-Local, **not shared** (in the application's data for the project): `team-seen.json`, the time of your last look at the news.
+Local, **not shared**: `team-seen.json` (in the application's data for the project), the time of your last look at the news; and `team-name.txt` (in the settings folder of the application), the last name you typed, offered again when you join another project.
 
 What the files contain about a person: **the id** (made from the user name of the computer account and four random characters) and **the name the person typed**. Notes contain the text the person wrote. Nothing else. If the project is public (for example on GitHub), these names are public too; type a nickname if you prefer.
 
 The formats are plain text, one file per author, so a git history shows who did what and a conflict is practically impossible. Details and the rules for the `.aside/` folder are in [DATA-LAYOUT.md](../technical/DATA-LAYOUT.md).
 
-## 12. Limits, and what is not built
+## 13. Limits, and what is not built
 
 Limits (the application keeps them even if a file is edited by hand):
 
@@ -186,10 +204,9 @@ Limits (the application keeps them even if a file is edited by hand):
 - merging the `.rpy` files of two people **by block** (today a file is given to one person; see section 3 for the sharing tools' conflicts);
 - buttons that run git for you ("get changes", "send changes");
 - notifications (e-mail, pop-ups) and live co-editing;
-- removing a member or handing the lead over from the application (both are done by editing a file by hand, below);
 - statistics of who **translated** a line in an external editor.
 
-## 13. Questions and problems
+## 14. Questions and problems
 
 **A member does not see the team.** The folder has not reached them yet (sync), or they opened a different folder. The team exists when `.aside/team/lead.json` is in the folder they opened.
 
@@ -199,13 +216,13 @@ Limits (the application keeps them even if a file is edited by hand):
 
 **Someone made a team by mistake / two leads.** Only one `lead.json` exists in a folder. If two people made one at the same time, the sharing tool may keep one copy and drop the other (or create a "conflicted copy"); keep the one you want. The lead of a team is the `lead` field of that file.
 
-**I need to remove a member.** Delete their file in `.aside/team/members/` (and, if they had files, give the files to someone else in the lead's table). The next time the lead saves, entries about them are dropped.
+**I need to remove a member.** The lead presses *Remove* next to the name in **Team…** (section 5); the person's files become free to give to someone else.
 
-**The lead changes (or the lead's computer is lost).** Open `.aside/team/lead.json`, change the `lead` field to the **id** of the new lead (it is the name of the file in `members/`, and the value inside it), and share it. The new lead then needs a Pro licence to manage the team.
+**The lead changes.** The lead presses *Make lead* next to the new lead's name (section 5). **If the lead's computer is lost** and nobody can do that, open `.aside/team/lead.json`, change the `lead` field to the **id** of the new lead (the name of that person's file in `members/` and the `author` value inside it), and share it. The new lead needs a Pro licence to manage the team.
 
 **A member changed their name.** Press **Join** again and type the new name; it replaces the old one.
 
-**A member reinstalled and now appears twice.** The application made a new id for the new installation. Delete the old file of that person in `members/` (and give them their files again).
+**A member reinstalled and now appears twice.** The application made a new id for the new installation. The lead removes the old entry (*Remove*) and gives the files to the new one; or the person deletes their old file in `members/` by hand.
 
 **The statistics show 0 changed lines for someone who clearly worked.** Either the work was done outside the application (an external editor), before the team was made, or the person's activity file has not reached the lead yet.
 

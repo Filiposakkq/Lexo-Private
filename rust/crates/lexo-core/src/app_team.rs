@@ -52,6 +52,16 @@ impl App {
         Ok(out)
     }
 
+    /// Who the lead removed (`removed` in `lead.json`): they are not counted as members and cannot join again by themselves.
+    fn team_removed(&self) -> Res<BTreeSet<String>> {
+        Ok(self.team_lead_file()?.map(|l| l["removed"].as_array().into_iter().flatten().map(py_str).collect()).unwrap_or_default())
+    }
+
+    /// The name you used in another project is offered again (kept in a small file of the application settings, not in the settings the contract knows).
+    fn team_name_file() -> PathBuf {
+        crate::config::config_dir().join("team-name.txt")
+    }
+
     pub(crate) fn team_lead_file(&self) -> Res<Option<Value>> {
         Ok(read_json(&self.team_dir()?.join("lead.json")).filter(Value::is_object))
     }
@@ -60,7 +70,9 @@ impl App {
     pub fn team_state(&mut self) -> Res<Value> {
         self.need_project()?;
         let me = self.author_id();
-        let members = self.team_members()?;
+        let removed = self.team_removed()?;
+        let all_members = self.team_members()?;
+        let members: BTreeMap<String, String> = all_members.iter().filter(|(a, _)| !removed.contains(*a)).map(|(a, n)| (a.clone(), n.clone())).collect();
         let lead = self.team_lead_file()?;
         let lead_author = lead.as_ref().map(|l| py_str(&l["lead"])).unwrap_or_default();
         let roles = lead.as_ref().and_then(|l| l["roles"].as_object().cloned()).unwrap_or_default();
@@ -80,7 +92,9 @@ impl App {
             "ok": true,
             "exists": lead.is_some(),
             "news": news,
-            "me": {"author": me, "name": members.get(&me).cloned().unwrap_or_default(), "joined": members.contains_key(&me), "lead": !lead_author.is_empty() && lead_author == me},
+            "suggest_name": std::fs::read_to_string(App::team_name_file()).unwrap_or_default().trim().to_string(),
+            "removed": removed.iter().map(|a| json!({"author": a, "name": all_members.get(a).cloned().unwrap_or_default()})).collect::<Vec<_>>(),
+            "me": {"author": me, "removed": removed.contains(&me), "name": members.get(&me).cloned().unwrap_or_default(), "joined": members.contains_key(&me), "lead": !lead_author.is_empty() && lead_author == me},
             "members": list,
             "assign": Value::Object(assign.clone()),
             "my_files": my_files,
@@ -97,7 +111,11 @@ impl App {
         }
         let me = self.author_id();
         let path = self.team_dir()?.join("members").join(format!("{}.json", crate::events::clean_author(&me)));
+        if self.team_removed()?.contains(&me) {
+            return Err(app_err(msg("The lead removed you from this team; ask the lead to take you back.", &[])));
+        }
         self.team_write(&path, &json!({"author": me, "name": name}))?;
+        let _ = std::fs::write(App::team_name_file(), &name); // offered again in the next project
         self.team_state()
     }
 
@@ -113,7 +131,7 @@ impl App {
             return Err(app_err(msg("This project already has a team.", &[])));
         }
         let path = self.team_dir()?.join("lead.json");
-        self.team_write(&path, &json!({"v": 1, "lead": me, "roles": {}, "assign": {}}))?;
+        self.team_write(&path, &json!({"v": 1, "lead": me, "roles": {}, "assign": {}, "removed": []}))?;
         self.team_state()
     }
 
@@ -128,7 +146,8 @@ impl App {
         if py_str(&lead["lead"]) != me {
             return Err(app_err(msg("Only the lead of the team can change roles and assignments.", &[])));
         }
-        let members: BTreeSet<String> = self.team_members()?.keys().cloned().collect();
+        let removed = self.team_removed()?;
+        let members: BTreeSet<String> = self.team_members()?.keys().filter(|a| !removed.contains(*a)).cloned().collect();
         let files: Vec<String> = self.o()?.project.files.keys().cloned().collect();
         let res = self.ext_call(FEATURE, "normalize", &json!({"members": members, "lead": me, "roles": roles, "assign": assign, "files": files}))?;
         let mut out = Map::new();
@@ -136,10 +155,99 @@ impl App {
         out.insert("lead".into(), json!(me));
         out.insert("roles".into(), res["roles"].clone());
         out.insert("assign".into(), res["assign"].clone());
+        out.insert("removed".into(), json!(removed));
         let path = self.team_dir()?.join("lead.json");
         self.team_write(&path, &Value::Object(out))?;
         let mut state = self.team_state()?;
         state["dropped"] = res["dropped"].clone();
         Ok(state)
+    }
+
+    /// Write `lead.json` again with the given roles, assignments and removed people (the lead only).
+    fn team_lead_save(&self, lead: &str, roles: &Value, assign: &Value, removed: &BTreeSet<String>) -> Res<()> {
+        let path = self.team_dir()?.join("lead.json");
+        self.team_write(&path, &json!({"v": 1, "lead": lead, "roles": roles, "assign": assign, "removed": removed}))
+    }
+
+    /// Your id and the lead's file, when you are the lead of the team and the feature is available.
+    fn team_as_lead(&mut self) -> Res<(String, Value)> {
+        self.need_project()?;
+        self.gate(FEATURE)?;
+        let me = self.author_id();
+        let Some(lead) = self.team_lead_file()? else {
+            return Err(app_err(msg("This project has no team yet.", &[])));
+        };
+        if py_str(&lead["lead"]) != me {
+            return Err(app_err(msg("Only the lead of the team can change roles and assignments.", &[])));
+        }
+        Ok((me, lead))
+    }
+
+    /// Leave the team (Free): your own file is deleted. The lead cannot just leave: hand the team over or disband it first.
+    pub fn team_leave(&mut self) -> Res<Value> {
+        self.need_project()?;
+        let me = self.author_id();
+        if self.team_lead_file()?.is_some_and(|l| py_str(&l["lead"]) == me) {
+            return Err(app_err(msg("You are the lead: hand the team over to someone or disband it first.", &[])));
+        }
+        let path = self.team_dir()?.join("members").join(format!("{}.json", crate::events::clean_author(&me)));
+        let _ = std::fs::remove_file(path);
+        self.team_state()
+    }
+
+    /// Take a person out of the team (Pro, the lead): they are listed as removed, lose their role and files, and cannot join again by themselves. Their notes and logs stay.
+    pub fn team_remove(&mut self, author: &str) -> Res<Value> {
+        let (me, lead) = self.team_as_lead()?;
+        if author == me {
+            return Err(app_err(msg("You are the lead: hand the team over to someone or disband it first.", &[])));
+        }
+        let mut removed = self.team_removed()?;
+        removed.insert(author.to_string());
+        let (mut roles, mut assign) = (lead["roles"].clone(), lead["assign"].clone());
+        if let Some(r) = roles.as_object_mut() {
+            r.remove(author);
+        }
+        if let Some(a) = assign.as_object_mut() {
+            for (_, who) in a.iter_mut() {
+                if let Some(list) = who.as_array_mut() {
+                    list.retain(|x| py_str(x) != author);
+                }
+            }
+            a.retain(|_, who| who.as_array().is_some_and(|l| !l.is_empty()));
+        }
+        self.team_lead_save(&me, &roles, &assign, &removed)?;
+        self.team_state()
+    }
+
+    /// Take a removed person back (Pro, the lead); they join again with their name.
+    pub fn team_restore(&mut self, author: &str) -> Res<Value> {
+        let (me, lead) = self.team_as_lead()?;
+        let mut removed = self.team_removed()?;
+        removed.remove(author);
+        self.team_lead_save(&me, &lead["roles"], &lead["assign"], &removed)?;
+        self.team_state()
+    }
+
+    /// Hand the team over to another member (Pro, the lead): they become the lead, you become a translator. The new lead needs a Pro licence to manage the team.
+    pub fn team_transfer(&mut self, author: &str) -> Res<Value> {
+        let (me, lead) = self.team_as_lead()?;
+        let removed = self.team_removed()?;
+        if author == me || removed.contains(author) || !self.team_members()?.contains_key(author) {
+            return Err(app_err(msg("Choose another member of the team.", &[])));
+        }
+        let mut roles = lead["roles"].clone();
+        if let Some(r) = roles.as_object_mut() {
+            r.remove(author); // the lead has no role of their own
+            r.insert(me.clone(), json!("translator"));
+        }
+        self.team_lead_save(author, &roles, &lead["assign"], &removed)?;
+        self.team_state()
+    }
+
+    /// End the team (Pro, the lead): `lead.json` is deleted. The members' files, the notes and the activity logs stay in the folder (they are not yours to delete); a new team can be made later.
+    pub fn team_disband(&mut self) -> Res<Value> {
+        self.team_as_lead()?;
+        let _ = std::fs::remove_file(self.team_dir()?.join("lead.json"));
+        self.team_state()
     }
 }

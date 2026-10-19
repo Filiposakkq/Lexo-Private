@@ -94,4 +94,28 @@ fn a_team_is_made_by_the_lead_and_seen_by_a_member_without_the_pack() {
     assert_eq!((petr["edited"].clone(), anns["files"].clone(), anns["lines"].clone()), (json!(1), json!(1), json!(1)), "{st}");
     assert!(ann.team_stats(None).is_err());
     assert_eq!(lead.team_stats(Some(1)).unwrap()["days"], 1);
+
+    // leaving: a member may leave (and join again); the lead may not just leave
+    assert_eq!(ann.team_leave().unwrap()["me"]["joined"], false);
+    assert!(lead.team_leave().is_err());
+    assert_eq!(ann.team_join("Ann").unwrap()["me"]["joined"], true);
+
+    // removing (the lead): Ann loses her files, is listed as removed, and cannot join again by herself; the lead can take her back
+    let s = lead.team_remove("ann-0001").unwrap();
+    assert_eq!((s["members"].as_array().unwrap().len(), s["assign"].clone(), s["removed"][0]["author"].clone()), (1, json!({}), json!("ann-0001")), "{s}");
+    assert!(lead.team_remove("lead-0001").is_err(), "the lead is not removed");
+    assert!(ann.team_join("Ann").is_err());
+    assert_eq!(ann.team_state().unwrap()["me"]["removed"], true);
+    lead.team_restore("ann-0001").unwrap();
+    assert_eq!(ann.team_join("Ann").unwrap()["me"]["joined"], true);
+
+    // disbanding and making a new team; then handing it over to Ann (who has no pack: she sees she is the lead but cannot manage)
+    assert_eq!(lead.team_disband().unwrap()["exists"], false);
+    assert!(lead.team_disband().is_err());
+    lead.team_create().unwrap();
+    let s = lead.team_transfer("ann-0001").unwrap();
+    assert_eq!((s["me"]["lead"].clone(), s["can_manage"].clone()), (json!(false), json!(false)), "{s}");
+    let s = ann.team_state().unwrap();
+    assert_eq!((s["me"]["lead"].clone(), s["can_manage"].clone()), (json!(true), json!(false)), "{s}");
+    assert!(lead.team_set(&json!({}), &json!({})).is_err() && lead.team_transfer("ann-0001").is_err(), "the old lead cannot manage any more");
 }

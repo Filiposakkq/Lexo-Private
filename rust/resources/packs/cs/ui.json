@@ -1877,6 +1877,26 @@
   "dealt with": "vyřízeno",
   "Mark as dealt with": "Označit jako vyřízené",
   "No note on this line yet.": "K tomuto řádku zatím není žádná poznámka.",
-  "Add the note": "Přidat poznámku"
+  "Add the note": "Přidat poznámku",
+  "The lead removed you from this team. Ask the lead to take you back.": "Vedoucí tě z tohoto týmu odebral. Požádej ho, ať tě vrátí.",
+  "Forget my name here": "Zapomenout mé jméno tady",
+  "Really?": "Opravdu?",
+  "Yes": "Ano",
+  "No": "Ne",
+  "You are": "Jsi",
+  "Leave the team": "Opustit tým",
+  "Leave this team?": "Opustit tento tým?",
+  "You left the team.": "Opustil jsi tým.",
+  "Make lead": "Předat vedení",
+  "Hand the team over to this person?": "Předat tým této osobě?",
+  "The team was handed over.": "Tým byl předán.",
+  "Remove this person?": "Odebrat tuto osobu?",
+  "Removed:": "Odebráni:",
+  "Take back": "Vrátit",
+  "Take this person back?": "Vrátit tuto osobu?",
+  "End the team": "Ukončit tým",
+  "Ending the team removes the file of the lead; the people, their notes and their logs stay in the folder. You can make a new team later.": "Ukončení týmu smaže soubor vedoucího; lidé, jejich poznámky a záznamy ve složce zůstanou. Později můžeš založit nový tým.",
+  "End this team?": "Ukončit tento tým?",
+  "The team was ended.": "Tým byl ukončen."
  }
 }

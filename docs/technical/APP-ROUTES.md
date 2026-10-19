@@ -47,6 +47,11 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST team/join` | `{name}` | write your own file `.aside/team/members/<author>.json` | |
 | `POST team/create` | | make the project a team with you as the lead (`.aside/team/lead.json`) | `team.manage` |
 | `POST team/set` | `{roles, assign}` | the lead's roles and assignments; the pack cleans them; `dropped` counts what it removed | `team.manage` |
+| `POST team/leave` | | leave the team: your own file in `members/` is deleted (not for the lead) | |
+| `POST team/remove` | `{author}` | the lead removes a person (listed in `removed` of `lead.json`; their role and files are dropped) | `team.manage` |
+| `POST team/restore` | `{author}` | the lead takes a removed person back | `team.manage` |
+| `POST team/transfer` | `{author}` | hand the team over: the person becomes the lead, you become a translator | `team.manage` |
+| `POST team/disband` | | end the team: `lead.json` is deleted | `team.manage` |
 | `POST team/stats` | `{days?}` | statistics per person for the lead: `{members: [{author, name, role, files, lines, done_pct, proof_pct, edited, approved, marked, proofread_updates, last}], unassigned}` | `team.manage` |
 | `POST team/notes` | `{file, line}` | the notes of a line, oldest first: `{exists, notes: [{id, author, name, t, text, resolved}]}` | |
 | `POST team/note_add` | `{file, line, text}` | a note to the team on a line (own file `.aside/team/notes/<author>.jsonl`) | |

@@ -111,6 +111,9 @@
   "This project has no team yet.": "Tento projekt zatím nemá tým.",
   "Only the lead of the team can change roles and assignments.": "Role a přidělení souborů může měnit jen vedoucí týmu.",
   "Only the lead of the team can see the statistics.": "Statistiky může vidět jen vedoucí týmu.",
-  "Write the note first.": "Nejdřív napiš poznámku."
+  "Write the note first.": "Nejdřív napiš poznámku.",
+  "The lead removed you from this team; ask the lead to take you back.": "Vedoucí tě z tohoto týmu odebral; požádej ho, ať tě vrátí.",
+  "You are the lead: hand the team over to someone or disband it first.": "Jsi vedoucí: nejdřív předej tým někomu jinému, nebo ho ukonči.",
+  "Choose another member of the team.": "Vyber jiného člena týmu."
  }
 }

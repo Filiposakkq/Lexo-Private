@@ -24,10 +24,24 @@ export async function teamDialog(done) {
   const body = h('div');
   let close = () => {};
   const reload = async (fresh) => { st = fresh || await teamState(); changed = true; paint(); };
+  /* A button that asks "really?" first (one dialog at a time, so the question is in place). */
+  function sure(label, question, onYes, cls = 'btn small ghost') {
+    const box = h('span');
+    const show = () => box.replaceChildren(h('button', { class: cls, onclick: ask }, label));
+    const ask = () => box.replaceChildren(h('span', { class: 'muted' }, question + ' '), h('button', { class: 'btn small danger', onclick: onYes }, T('Yes')), ' ', h('button', { class: 'btn small', onclick: show }, T('No')));
+    show();
+    return box;
+  }
+  const act = (route, body, done) => async () => {
+    try { await reload(await post(route, body)); if (done) toast(done, 'ok'); } catch (e) { fail(e); }
+  };
   function paint() {
     const kids = [];
-    if (!st.me.joined) {
-      const name = h('input', { type: 'text', maxlength: '40', placeholder: T('Your name'), style: { width: '240px' } });
+    const labels = ROLE_LABEL();
+    if (st.me.removed) {
+      kids.push(h('div', { class: 'notice bad' }, T('The lead removed you from this team. Ask the lead to take you back.')));
+    } else if (!st.me.joined) {
+      const name = h('input', { type: 'text', maxlength: '40', value: st.suggest_name || '', placeholder: T('Your name'), style: { width: '240px' } });
       kids.push(h('p', null, T('Say who you are in this project. Your name is shown to the others in the team; it is written in your own file in the shared folder.')),
         h('div', { class: 'toolbar' }, name, h('button', { class: 'btn primary', onclick: async () => {
           try { await reload(await post('team/join', { name: name.value })); } catch (e) { fail(e); }
@@ -37,29 +51,46 @@ export async function teamDialog(done) {
         h('div', { class: 'toolbar' }, h('button', { class: 'btn primary', onclick: async () => {
           if (!await requireFeature('team.manage')) return;
           try { await reload(await post('team/create', {})); } catch (e) { fail(e); }
-        } }, T('Make this a team (I am the lead)'))));
+        } }, T('Make this a team (I am the lead)')), sure(T('Forget my name here'), T('Really?'), act('team/leave', {}))));
     }
     if (st.exists) {
-      const labels = ROLE_LABEL();
+      const me = st.members.find((m) => m.me);
+      if (me) {
+        kids.push(h('div', { class: 'toolbar' }, h('span', null, T('You are'), ' ', h('b', null, me.name || me.author), ' · ', labels[me.role] || me.role),
+          h('span', { class: 'spacer' }), me.role === 'lead' ? null : sure(T('Leave the team'), T('Leave this team?'), act('team/leave', {}, T('You left the team.')))));
+      }
       const roles = {};
       const rows = st.members.map((m) => {
+        const mine = !!m.me;
         const sel = m.role === 'lead' || !st.can_manage
           ? h('span', null, labels[m.role] || m.role)
           : h('select', { onchange: (e) => { roles[m.author] = e.target.value; } }, ['translator', 'proofreader'].map((r) => h('option', { value: r, selected: m.role === r }, labels[r])));
         roles[m.author] = m.role;
-        return h('tr', null, h('td', null, h('b', null, m.name || m.author), m.me ? h('span', { class: 'muted' }, ' ' + T('(you)')) : null), h('td', null, sel),
-          h('td', { class: 'num' }, m.files));
+        return h('tr', null, h('td', null, h('b', null, m.name || m.author), mine ? h('span', { class: 'muted' }, ' ' + T('(you)')) : null), h('td', null, sel), h('td', { class: 'num' }, m.files),
+          st.can_manage ? h('td', { style: { whiteSpace: 'nowrap' } }, mine ? null : h('span', null,
+            sure(T('Make lead'), T('Hand the team over to this person?'), act('team/transfer', { author: m.author }, T('The team was handed over.'))), ' ',
+            sure(T('Remove'), T('Remove this person?'), act('team/remove', { author: m.author })))) : null);
       });
       kids.push(h('div', { class: 'tablewrap' }, h('table', { class: 'data' },
-        h('thead', null, h('tr', null, [T('Name'), T('Role'), T('Files')].map((x) => h('th', null, x)))), h('tbody', null, rows))));
-      kids.push(newsBox(), h('p', { class: 'muted' }, st.can_manage
-        ? T('You are the lead: give roles here and files in the table of files (the column “Assigned to”). Everybody in the folder sees them.')
-        : T('Roles and files are given by the lead. Your files are marked in the table of files.')));
-      if (st.my_files.length) kids.push(h('p', null, h('b', null, T('Your files:')), ' ', st.my_files.map((f) => f.split(/[\\/]/).pop()).join(', ')));
+        h('thead', null, h('tr', null, [T('Name'), T('Role'), T('Files'), st.can_manage ? '' : null].filter((x) => x !== null).map((x) => h('th', null, x)))), h('tbody', null, rows))));
       if (st.can_manage) {
         kids.push(h('div', { class: 'toolbar' }, h('button', { class: 'btn primary', onclick: async () => {
           try { await reload(await post('team/set', { roles, assign: st.assign })); toast(T('Saved.'), 'ok'); } catch (e) { fail(e); }
-        } }, T('Save roles'))), statsBox());
+        } }, T('Save roles'))));
+        if (st.removed.length) {
+          kids.push(h('p', { class: 'muted' }, T('Removed:'), ' ', ...st.removed.flatMap((r) => [h('b', null, r.name || r.author), ' ', sure(T('Take back'), T('Take this person back?'), act('team/restore', { author: r.author })), '  '])));
+        }
+      }
+      kids.push(h('p', { class: 'muted' }, st.can_manage
+        ? T('You are the lead: give roles here and files in the table of files (the column “Assigned to”). Everybody in the folder sees them.')
+        : T('Roles and files are given by the lead. Your files are marked in the table of files.')));
+      if (st.my_files.length) kids.push(h('p', null, h('b', null, T('Your files:')), ' ', st.my_files.map((f) => f.split(/[\\/]/).pop()).join(', ')));
+      kids.push(newsBox());
+      if (st.can_manage) {
+        kids.push(statsBox());
+        kids.push(h('details', null, h('summary', { class: 'muted' }, T('End the team')),
+          h('p', { class: 'muted' }, T('Ending the team removes the file of the lead; the people, their notes and their logs stay in the folder. You can make a new team later.')),
+          sure(T('End the team'), T('End this team?'), act('team/disband', {}, T('The team was ended.')), 'btn small danger')));
       }
     }
     body.replaceChildren(...kids);
@@ -72,7 +103,7 @@ export async function teamDialog(done) {
       const lines = r.items.map((i) => {
         const k = i.what === 'edited' ? tn(i.n, 'changed {n} line', 'changed {n} lines') : i.what === 'approved' ? tn(i.n, 'approved {n} line', 'approved {n} lines')
           : i.what === 'marked' ? tn(i.n, 'marked {n} line', 'marked {n} lines') : tn(i.n, 'moved {n} file to a group', 'moved {n} files to groups');
-        return h('div', null, h('b', null, i.name), ': ', k, ' · ', h('span', { class: 'mono' }, i.file.split(/[\/]/).pop()));
+        return h('div', null, h('b', null, i.name), ': ', k, ' · ', h('span', { class: 'mono' }, i.file.split(/[\\/]/).pop()));
       });
       box.replaceChildren(h('div', null, h('b', null, T('Since your last look:'))), ...lines,
         r.notes ? h('div', null, tn(r.notes, '{n} new note to the team.', '{n} new notes to the team.')) : null,
