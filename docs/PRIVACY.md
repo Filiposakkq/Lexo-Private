@@ -21,7 +21,7 @@ Address: `https://api.aside.filiposakkq.dev` (Cloudflare Worker). Contacted when
 
 What the server **stores** (D1 database at Cloudflare): the licence id, a **hash** of the key (the key itself is not stored), the e-mail address of the buyer (from the payment provider, to send the key and to help the buyer), the number of computers allowed, the device ids with the names, the version, the time the computer was added and last seen, and a **log** of events (issued, activated, checked, refused, freed, cancelled, e-mail sent). The owner can delete the e-mail and the note of a licence (and the e-mail in its log) on request.
 
-Who else handles it: **Cloudflare** hosts the server and sees the connections (it may log IP addresses under its own terms; our code does not store them, a rate-limit rule uses the IP address only to block floods); **Resend** sends the e-mail with the key (it gets the address of the buyer and the key); the **payment provider** takes the payment and keeps the payment data (**Aside never sees card numbers**).
+Who else handles it: **Cloudflare** hosts the server and sees the connections (it may log IP addresses under its own terms; our code does not store them, a rate-limit rule uses the IP address only to block floods; our server also counts requests per hour for each address to stop floods (the address is hashed together with the day, the counters are deleted after a few hours)); **Resend** sends the e-mail with the key (it gets the address of the buyer and the key); the **payment provider** takes the payment and keeps the payment data (**Aside never sees card numbers**).
 
 ## 2. Machine translation (only when the user turns it on)
 

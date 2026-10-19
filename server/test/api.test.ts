@@ -408,3 +408,26 @@ describe("a lost key", () => {
     expect((await E.DB.prepare("SELECT COUNT(*) AS n FROM recovery_codes WHERE licence_id = ?").bind(id).first<{ n: number }>())?.n).toBe(0);
   });
 });
+
+describe("limits per network address", () => {
+  const from = (ip: string, path: string, body: unknown) => call(path, { body, headers: { "cf-connecting-ip": ip } });
+
+  it("lets an address ask for a code five times an hour, other addresses are not affected, and nothing is limited without the header", async () => {
+    // (the limit of one code an hour for an e-mail address is another limit; here every request is for another address)
+    const codes = await Promise.all(Array.from({ length: 7 }, (_, i) => from("203.0.113.7", "/v1/recover/request", { email: `rl${i}@example.com` })));
+    expect(codes.filter((r) => r.status === 200).length).toBe(5);
+    const blocked = codes.find((r) => r.status === 429)!;
+    expect(blocked.json).toMatchObject({ error: "rate_limited" });
+    expect(blocked.json.minutes).toBeGreaterThan(0);
+    expect((await from("203.0.113.8", "/v1/recover/request", { email: "rl9@example.com" })).status).toBe(200);
+    // without the header (a local run, the other tests) there is no limit
+    for (let i = 0; i < 8; i++) expect((await call("/v1/recover/request", { body: { email: `free${i}@example.com` } })).status).toBe(200);
+  });
+
+  it("limits activations too, and a limited call does not reach the licence", async () => {
+    const { key } = await licence();
+    const answers = await Promise.all(Array.from({ length: 33 }, () => from("198.51.100.4", "/v1/activate", { key, device: device(40) })));
+    expect(answers.filter((r) => r.status === 200).length).toBe(30);
+    expect(answers.filter((r) => r.json.error === "rate_limited").length).toBe(3);
+  });
+});

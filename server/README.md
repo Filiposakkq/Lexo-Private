@@ -82,3 +82,7 @@ The key is stored only as a hash, so it cannot be sent again; the user gets a **
 Limits: **1 code per hour and 3 per day** for an address (also counted for unknown addresses), the code is valid **15 minutes** and has **5 attempts**, and a licence can be recovered this way **once**; the next time goes through the owner (admin: "New key"). If an address has several licences, the newest active one is used.
 
 **Database change before the code is deployed** (D1 console; it is `migrations/0003_recovery.sql`): create the tables `recovery_requests` and `recovery_codes`.
+
+## Limits per network address
+
+The calls of the application are limited per address and hour in the code (`src/ratelimit.ts`; the free plan of Cloudflare allows only one rule of its own): `recover/request` 5, `recover/confirm` 20, `activate` 30, `deactivate` 30, `release` 30, `devices` 60, `refresh` 120. The address is taken from `CF-Connecting-IP` (without it, in a local run and in the tests, nothing is limited), hashed together with the day, counted in the table `rate_limits` and deleted after a few hours. **Database change before the code is deployed:** `migrations/0004_ratelimit.sql` in the D1 console.

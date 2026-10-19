@@ -2,6 +2,7 @@ import { adminApi } from "./admin.ts";
 import { ADMIN_PAGE } from "./adminPage.ts";
 import type { Env } from "./env.ts";
 import { activate, deactivate, devices, fail, parseLemonSqueezy, refresh, release, webhook } from "./handlers.ts";
+import { limited } from "./ratelimit.ts";
 import { recoverConfirm, recoverRequest } from "./recovery.ts";
 
 const now = () => Math.floor(Date.now() / 1000);
@@ -19,6 +20,8 @@ export default {
       if (path.startsWith("/admin/api/")) return await adminApi(req, env, now(), path.slice("/admin/api/".length));
       if (req.method === "GET" && path === "/v1/health") return new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json" } });
       if (req.method === "POST") {
+        const blocked = await limited(req, env, path, now());
+        if (blocked) return blocked;
         switch (path) {
           case "/v1/activate":
             return await activate(req, env, now());
