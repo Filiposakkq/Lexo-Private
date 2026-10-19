@@ -4,3 +4,9 @@ dist/
 build/
 licence-private.key
 *.key
+node_modules/
+.wrangler/
+target/
+.claude/settings.local.json
+.admin-preview.html
+*.tmp

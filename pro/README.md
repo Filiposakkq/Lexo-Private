@@ -1,3 +1,5 @@
+> **The Pro pack that ships is the Rust one in [`rust/`](rust/)** (sidecar program `lexo-pro-sidecar`; features: batch machine translation, safe fixes, regex replace, group suggestions, publishing, carry-over; the licence client). The Python pack described below (`lexo_pro/`, `tests/`) is the reference it was checked against. Map of the repository: [`../README.md`](../README.md).
+
 # pro (private, never part of the public repository)
 
 The Pro pack: the package `lexo_pro` (`pro/lexo_pro/`) with its tests (`pro/tests/`). It depends on Core (`lexo`); Core and Free never import it, they find it by name at run time

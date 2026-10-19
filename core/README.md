@@ -1,3 +1,5 @@
+> **This is the Python reference implementation.** The product is the Rust core in [`../rust/`](../rust/); this folder is what the port was checked against, the generator of the golden data (`golden/`, `tests/golden_tool.py`) and the interface contract (`contract/`). `lexo/packs/` (the language packs) is used by the product. Map of the repository: [`../README.md`](../README.md), plan to tidy it: [`../docs/REPO-CLEANUP.md`](../docs/REPO-CLEANUP.md).
+
 # Core (`core/lexo`)
 
 The library behind Lexo: reading and writing `.rpy`, `.rpa`, lint, font metrics, the project model, settings, snapshots, history, language packs, checks, the

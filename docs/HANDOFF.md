@@ -12,6 +12,7 @@ Goals, in order: (1) generalise from one game and one language to most Ren'Py ga
 (3) **port Core to Rust (Tauri: Rust core, web UI)**, module by module against the golden data (**done up to M9**, M10 installer in progress); (4) only then the menu with game selection and the "prepare a game" window, a new UI, the licence server, the installer, the Free and Pro release.
 
 ## 2. Layout of the repository
+The map with every folder and what kind it is (product, service, Python reference, test data) is in the root [README.md](../README.md); the plan to tidy it is [REPO-CLEANUP.md](REPO-CLEANUP.md). The older tree below is the Python-era layout and is kept for the reference code.
 ```
 core/lexo/        package `lexo` = Core: project model, parser, writer, checks, App (app_*.py), the operations table (api.py), the extension host (extensions.py), language packs (packs/)
 core/tests/       Core tests + helpers.py, contract_tool.py, golden_tool.py
@@ -28,6 +29,7 @@ The app is a local HTTP JSON server + a pywebview window (Edge/Chrome app window
 ## 3. Documents (what each one answers)
 | File | Question it answers |
 |---|---|
+| README.md | The index of the documents and which ones are current |
 | ROADMAP.md | What are the steps, what is done, what is next (the table "Where we are" and the open decisions are kept current; the log is the history) |
 | ARCHITECTURE.md | Layers, where things are, the operations table and the contract, how Pro attaches |
 | API.md | The interface of Core: every operation (generated) |
