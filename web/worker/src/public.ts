@@ -3,6 +3,8 @@ import * as mail from "./mail.ts";
 import { body, fail, human, ipHash, isEmail, isUrl, json, line, randomId, salt, sha256Hex, str, text, within } from "./util.ts";
 
 const DAY = 86400;
+/** Applications a day (from everyone together) after which the mails stop, and after which nothing more is taken. */
+const APPLY_QUIET = 25, APPLY_HARD = 150;
 
 // ---------------------------------------------------------------- settings and the round
 
@@ -85,8 +87,15 @@ export async function apply(req: Request, env: Env, now: number): Promise<Respon
   const p = await program(env);
   if (!p.open) return fail("closed", 409);
   if (!(await human(env, b.turnstile, req))) return fail("not_human", 403);
+  const email = line(f.email, 200);
+  // one open application per e-mail and route (after a "no" the person may apply again)
+  const twin = await env.DB.prepare("SELECT 1 FROM applications WHERE route = ? AND lower(email) = lower(?) AND state != 'declined' LIMIT 1").bind(route, email).first();
+  if (twin) return fail("already", 409);
   const ip = await ipHash(req, env);
-  if (!(await within(env, ip, "apply", 5, DAY, now))) return fail("too_many", 429);
+  if (!(await within(env, ip, "apply", 3, DAY, now))) return fail("too_many", 429);
+  // a flood from many addresses: past HARD a day nothing is saved, past QUIET it is saved without any e-mail (no mail to strangers, no full inbox)
+  const today = (await env.DB.prepare("SELECT COUNT(*) AS n FROM applications WHERE created > ?").bind(now - DAY).first<{ n: number }>())?.n ?? 0;
+  if (today >= APPLY_HARD) return fail("too_many", 429);
   // what the applicant saw, as label / value pairs, cleaned and limited
   const answers = (Array.isArray(b.answers) ? b.answers : [])
     .slice(0, 40)
@@ -94,11 +103,11 @@ export async function apply(req: Request, env: Env, now: number): Promise<Respon
     .filter(Boolean);
   const id = randomId(10);
   const nick = line(f.nick, 60);
-  const email = line(f.email, 200);
   await env.DB.prepare("INSERT INTO applications (id, route, created, nick, email, lang, answers, ip_hash) VALUES (?,?,?,?,?,?,?,?)")
     .bind(id, route, now, nick, email, line(f.lang ?? (Array.isArray(f.speak) ? f.speak.join(", ") : ""), 120), JSON.stringify(answers), ip)
     .run();
   const left = route === "test" ? p.test.places - p.test.taken : p.licence.places - p.licence.taken;
+  if (today >= APPLY_QUIET) return json({ ok: true, id, waitlist: left <= 0 });
   await mail.send(env, email, mail.received(route, nick, p.round, left <= 0));
   await mail.notifyOwner(env, `New application: ${route === "test" ? "testing" : "licence"} · ${nick}`, [
     `${nick} <${email}> applied for ${route === "test" ? "testing" : "a sponsored licence"} in ${p.round}.`,

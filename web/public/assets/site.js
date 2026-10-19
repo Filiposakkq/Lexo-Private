@@ -39,6 +39,7 @@ window.AsideAPI = (function () {
     var e = j && j.error;
     return e === "too_many" ? "Too many tries from this address. Please wait a while and try again." :
       e === "not_human" ? "The anti-bot check did not pass. Please tick it and send again." :
+      e === "already" ? "There is already an application from this e-mail. You will get an answer to it; to add something, reply to the confirmation e-mail." :
       e === "closed" ? "Applications are closed right now." :
       e === "missing" ? "Something required is missing" + (j.field ? " (" + j.field + ")" : "") + "." :
       e === "image_too_big" ? "The screenshot is too big. Try a smaller one." :
