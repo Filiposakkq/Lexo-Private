@@ -1,6 +1,6 @@
 # Aside licence server
 
-A Cloudflare Worker with a D1 database (private, never part of the public repository). Design: [`docs/PRO-DESIGN.md`](../docs/PRO-DESIGN.md), "The licence server".
+A Cloudflare Worker with a D1 database (private, never part of the public repository). Design: [`docs/product/PRO-DESIGN.md`](../docs/product/PRO-DESIGN.md), "The licence server".
 
 ## What it does
 

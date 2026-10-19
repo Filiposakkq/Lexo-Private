@@ -149,7 +149,7 @@ def parse_args(argv):
         elif a.startswith("--debug="):
             opts["debug"] = a[8:]
         elif a.startswith("--episodes="):
-            print("(--episodes is no longer used: the groups are defined in the project file, see docs/PROJECT-FILE.md)")
+            print("(--episodes is no longer used: the groups are defined in the project file, see docs/technical/PROJECT-FILE.md)")
         elif a.startswith("--"):
             opts["flags"].add(a)
         elif opts["folder"] is None:

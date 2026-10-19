@@ -5,7 +5,7 @@
 The Pro pack: the package `lexo_pro` (`reference/python/pro/lexo_pro/`) with its tests (`reference/python/pro/tests/`). It depends on Core (`lexo`); Core and Free never import it, they find it by name at run time
 (`reference/python/core/lexo/extensions.py`). Today it holds the publishing of the progress data to a website repository (`publish.web`).
 
-Why it is kept apart, how it is delivered and updated, what is done and what is not: [../docs/PRO-DESIGN.md](../docs/PRO-DESIGN.md).
+Why it is kept apart, how it is delivered and updated, what is done and what is not: [../docs/product/PRO-DESIGN.md](../docs/product/PRO-DESIGN.md).
 
 Tests: `py reference/python/run_tests.py pro` from the repository root. Run the application without the pack, as a Free installation would run: `set LEXO_NO_PRO=1` and `py reference/python/free/run_lexo.py`.
 

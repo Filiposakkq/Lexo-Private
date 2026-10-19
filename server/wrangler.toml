@@ -1,4 +1,4 @@
-# The licence server of Aside: a Cloudflare Worker with a D1 database (docs/PRO-DESIGN.md, "The licence server").
+# The licence server of Aside: a Cloudflare Worker with a D1 database (docs/product/PRO-DESIGN.md, "The licence server").
 # Secrets are NOT here; set them with `wrangler secret put <NAME>`: LICENCE_SIGNING_KEY (the private key from `lexo-pro-licence keygen`, 64 hex digits), WEBHOOK_SECRET (the signing
 # secret of the webhook of the payment provider), ADMIN_TOKEN (a long random string for the admin page), and optionally RESEND_API_KEY (to mail the licence key).
 name = "aside-licence"

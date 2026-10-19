@@ -2,7 +2,7 @@ import { t as T, tx } from './05-i18n.js';
 import { h } from './00-core.js';
 import { get, post } from './10-api.js';
 import { dialog, fail, toast } from './13-feedback.js';
-/* Pro features that still live in this UI (variant A, see docs/RUST-PORT.md): the UI asks Core what is available and shows a clear message instead of a failing call.
+/* Pro features that still live in this UI (variant A, see docs/technical/RUST-PORT.md): the UI asks Core what is available and shows a clear message instead of a failing call.
    The decision is Core's (features.py, the Pro pack); nothing here switches a feature on. */
 const TITLES = {
   'mt.batch': () => T('Batch machine translation'), 'fixes.safe': () => T('Safe bulk fixes with preview'), 'replace.regex': () => T('Regex find & replace'),

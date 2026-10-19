@@ -1,4 +1,4 @@
-//! The scenarios on whole projects (`testdata/golden/scenarios`, docs/GOLDEN.md): a copy of a fixture project is opened by the application and a list of operations is called through the
+//! The scenarios on whole projects (`testdata/golden/scenarios`, docs/technical/GOLDEN.md): a copy of a fixture project is opened by the application and a list of operations is called through the
 //! table of `api.rs`; the answer of every call and the `.rpy` files at the end are compared with the recorded ones. The same runner as `run_scenario` of `reference/python/core/tests/golden_tool.py`.
 use crate::data::{base64_encode, roots, temp_dir};
 use crate::normalize::normalize;

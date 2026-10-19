@@ -1,6 +1,6 @@
 [package]
 name = "lexo-app"
-description = "The Lexo application: a Tauri window around the UI, talking to lexo-core through the lexo:// protocol (docs/RUST-PORT.md, milestone M8)"
+description = "The Lexo application: a Tauri window around the UI, talking to lexo-core through the lexo:// protocol (docs/technical/RUST-PORT.md, milestone M8)"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

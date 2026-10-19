@@ -1,4 +1,4 @@
-"""Where the data of a project lives (docs/DATA-LAYOUT.md).
+"""Where the data of a project lives (docs/technical/DATA-LAYOUT.md).
 
   <translation folder>/.aside/                shared, small, text files that a team can put in git (CSV, JSON)
   <config folder>/projects/<project id>/      local data: backups, snapshots, the lock, text history, derived progress files

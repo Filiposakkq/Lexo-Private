@@ -1,6 +1,6 @@
 """The Python side has no Czech sentences left: every message is msg(...) / msgn(...) in English (see messages.py).
 What remains Czech is DATA that is stored in files or used as an identifier (status labels in the CSV files, the kinds of lines,
-the sources of the history of a line); it goes away with the new data layout (docs/DATA-LAYOUT.md)."""
+the sources of the history of a line); it goes away with the new data layout (docs/technical/DATA-LAYOUT.md)."""
 import ast
 import re
 import unittest

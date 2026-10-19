@@ -14,7 +14,7 @@ The team shares the translation folder with git, or a sync tool (Dropbox, Syncth
 A hosted service for synchronisation, live assignments and notifications. It is a separate product with operation, accounts, security and cost, so it is not built ahead of time.
 
 ## What is built early, even without teams
-Built (roadmap 2c): the per-author event log for the project state (`events.py`, docs/DATA-LAYOUT.md). Not built: merge of `.rpy` files per block, roles, statistics from events, the git buttons.
+Built (roadmap 2c): the per-author event log for the project state (`events.py`, docs/technical/DATA-LAYOUT.md). Not built: merge of `.rpy` files per block, roles, statistics from events, the git buttons.
 
 The per-author event log and the stable line identity (block id + text hash) (see DATA-LAYOUT.md). Team work is then an addition, and the same identity serves "carry a translation over to a new game version".
 
