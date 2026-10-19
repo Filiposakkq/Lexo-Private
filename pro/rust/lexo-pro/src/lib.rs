@@ -9,6 +9,7 @@ pub mod fix_safe;
 pub mod licence;
 pub mod licence_client;
 pub mod mt_batch;
+pub mod profiles;
 pub mod publish;
 pub mod regex_replace;
 
@@ -23,7 +24,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// The Czech texts of the messages of this pack (`pro/lexo_pro/ui/cs.json`, the same file the Python pack reads).
 const UI_CS: &str = include_str!("../../../lexo_pro/ui/cs.json");
 
-const FEATURES: [&str; 7] = ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over", "memory.fuzzy"];
+const FEATURES: [&str; 8] = ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over", "memory.fuzzy", "mt.profiles"];
 
 fn plain(text: String) -> ExtensionError {
     ExtensionError(Text::Plain(text))

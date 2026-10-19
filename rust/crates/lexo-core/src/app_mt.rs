@@ -132,7 +132,11 @@ impl App {
             let context: Vec<&str> = ents[idx.saturating_sub(2)..idx].iter().filter_map(|e| e.source.as_deref()).filter(|s| !s.is_empty()).collect();
             let local: Map<String, Value> =
                 terms.iter().filter(|(en, _)| validator::term_in_text(source, en)).map(|(en, cz)| (en.clone(), json!(cz))).collect();
-            reqs.push(json!({"id": reqs.len(), "source": source, "context": context, "terms": local}));
+            let mut req = json!({"id": reqs.len(), "source": source, "context": context, "terms": local});
+            if let Some(profile) = self.profile_for(&ent.who) {
+                req["profile"] = profile; // the profile of the speaker (Pro: the pack puts it into the request of the language model)
+            }
+            reqs.push(req);
             plan.push((rel, line, Some((ents, idx))));
         }
         let res = if reqs.is_empty() {

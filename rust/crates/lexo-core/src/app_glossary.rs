@@ -114,14 +114,14 @@ impl App {
         for (code, f) in &found {
             let g = o.store.glossary.get(code);
             items.push(obj(json!({
-                "code": code, "name": g.map_or("", |g| g.n.as_str()), "type": g.map_or("speaker", |g| g.t.as_str()), "note": g.map_or("", |g| g.c.as_str()), "count": f.count,
+                "code": code, "name": g.map_or("", |g| g.n.as_str()), "type": g.map_or("speaker", |g| g.t.as_str()), "note": g.map_or(String::new(), |g| crate::profile::split(&g.c).0), "count": f.count,
                 "example": f.example, "file": f.file, "line": f.line, "in_project": true,
             })));
         }
         for (code, g) in &o.store.glossary {
             if !found.contains_key(code) {
                 items.push(obj(
-                    json!({"code": code, "name": g.n, "type": g.t, "note": g.c, "count": 0, "example": "", "file": "", "line": 0, "in_project": false}),
+                    json!({"code": code, "name": g.n, "type": g.t, "note": crate::profile::split(&g.c).0, "count": 0, "example": "", "file": "", "line": 0, "in_project": false}),
                 ));
             }
         }
@@ -159,8 +159,10 @@ impl App {
             &[Kind::Glossary],
             |st| {
                 for (code, name, typ, note) in &clean {
+                    // the page knows only the free text of a note: the profile of a character (profile.rs) that is stored with it is kept
+                    let note = st.glossary.get(code).map_or_else(|| note.clone(), |g| crate::profile::keep(&g.c, note));
                     if !name.is_empty() || !note.is_empty() {
-                        st.glossary.insert(code.clone(), Gloss { n: name.clone(), t: typ.clone(), c: note.clone() });
+                        st.glossary.insert(code.clone(), Gloss { n: name.clone(), t: typ.clone(), c: note });
                     } else {
                         st.glossary.shift_remove(code);
                     }

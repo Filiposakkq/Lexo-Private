@@ -9,6 +9,7 @@ const TITLES = {
   'bulk.categorize': () => T('Bulk categorisation suggestions'), 'publish.web': () => T('Publishing progress to a website'),
   'carry.over': () => T('Carry a translation over to a new version'),
   'memory.fuzzy': () => T('Fill from similar translations'),
+  'mt.profiles': () => T('Profiles of characters'),
 };
 let cache = null;
 /* {tier, features: {id: {available, limit}}, problems}; without an answer everything counts as available so the real call can report the truth. */

@@ -407,6 +407,10 @@ pub fn translate(cfg: &Map<String, Value>, text: &str, glossary: &[(String, Stri
             if !glossary.is_empty() {
                 system += &format!(" Preferred translations of terms: {}.", glossary.iter().map(|(k, v)| format!("{k} = {v}")).collect::<Vec<_>>().join("; "));
             }
+            // a description of the speaker (the Pro pack, `mt.profiles`): gender, the way of speaking, the form of address
+            if let Some(profile) = cfg.get("profile").and_then(Value::as_str).filter(|p| !py_strip(p).is_empty()) {
+                system += &format!(" {}", py_strip(profile));
+            }
             let user = if context.is_empty() { String::new() } else { format!("Context (previous lines, do not translate):\n{}\n\n", context.join("\n")) }
                 + "Translate:\n"
                 + &protected;
