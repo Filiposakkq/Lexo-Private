@@ -53,6 +53,7 @@ fn main() {
             let features: Vec<String> = flag(&args, "--features").unwrap_or_else(|| "all".into()).split(',').map(|s| s.trim().to_string()).collect();
             let payload = json!({
                 "v": 1,
+                "kid": flag(&args, "--kid").unwrap_or_else(|| "k1".into()),
                 "id": flag(&args, "--id").unwrap_or_else(|| fail("--id is required")),
                 "features": features,
                 "major": flag(&args, "--major").and_then(|s| s.parse::<u64>().ok()).unwrap_or(licence::PRODUCT_MAJOR),

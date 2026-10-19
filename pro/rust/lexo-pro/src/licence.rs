@@ -28,6 +28,18 @@ pub const PRODUCT_MAJOR: u64 = 1;
 /// The public key of the licence server (64 hex digits; the private key stays with the owner, made with `lexo-pro-licence keygen`).
 const PUBLIC_KEY_HEX: &str = "1317d76f9189e042509235a6d05e0b8664f4cfffad8f34638472feccddb94a91";
 
+/// The keys this build trusts, by the key id (`kid`) a licence file names. A file without `kid` was signed by the first key. To rotate the key: add the new one here and release;
+/// when the server signs with it, files signed by the old one are still accepted until it is moved to `DISTRUSTED_KEYS` (after a leak) or removed.
+const TRUSTED_KEYS: [(&str, &str); 2] = [("k1", PUBLIC_KEY_HEX), ("k2", "fadc26d4f240120f8deb03598a145121a2dd2f2b226e02073102699f3c57c9f4")];
+
+/// Key ids that are known to be compromised: a file signed by one of them is refused even though the key is listed above (the pack asks the server for a new file).
+const DISTRUSTED_KEYS: [&str; 0] = [];
+
+/// The key id a licence file names (the first key when it names none); not checked, only used to choose the key to check with.
+pub fn kid_of(file: &str) -> String {
+    payload_of(file).and_then(|p| p["kid"].as_str().map(String::from)).unwrap_or_else(|| "k1".to_string())
+}
+
 const DAY: i64 = 86_400;
 
 /// The interval of the online check when the file does not say.
@@ -75,9 +87,17 @@ fn from_hex(s: &str) -> Option<Vec<u8>> {
     (0..s.len()).step_by(2).map(|i| u8::from_str_radix(&s[i..i + 2], 16).ok()).collect()
 }
 
-/// The public key: the built-in one; a build with `dev-unlock` (or a debug build) also takes `LEXO_LICENCE_PUBKEY` (hex), which the tests use.
+/// The public key of the first key id (kept for the tools and the tests); a licence file is checked with `public_key_for`.
 pub fn public_key() -> Option<VerifyingKey> {
-    let mut hex = PUBLIC_KEY_HEX.to_string();
+    public_key_for("k1")
+}
+
+/// The public key for a key id: a built-in one that is not distrusted; a build with `dev-unlock` (or a debug build) also takes `LEXO_LICENCE_PUBKEY` (hex) for every id, which the tests use.
+pub fn public_key_for(kid: &str) -> Option<VerifyingKey> {
+    if DISTRUSTED_KEYS.contains(&kid) {
+        return None;
+    }
+    let mut hex = TRUSTED_KEYS.iter().find(|(k, _)| *k == kid)?.1.to_string();
     if cfg!(any(feature = "dev-unlock", debug_assertions)) {
         if let Ok(v) = std::env::var("LEXO_LICENCE_PUBKEY") {
             hex = v;
@@ -85,6 +105,18 @@ pub fn public_key() -> Option<VerifyingKey> {
     }
     let bytes: [u8; 32] = from_hex(hex.trim())?.try_into().ok()?;
     VerifyingKey::from_bytes(&bytes).ok()
+}
+
+/// Checks a licence file with the key its `kid` names.
+pub fn evaluate_file(file: &str, now: i64, device: &str) -> Status {
+    let kid = kid_of(file);
+    if TRUSTED_KEYS.iter().all(|(k, _)| *k != kid) {
+        return Status::Refused("the licence was signed with a key this version does not know");
+    }
+    if DISTRUSTED_KEYS.contains(&kid.as_str()) {
+        return Status::Refused("the licence was signed with a key that is no longer trusted");
+    }
+    evaluate(file, now, device, public_key_for(&kid).as_ref())
 }
 
 /// Checks a licence file text: `now` in unix seconds, `device` this machine's id.
@@ -223,7 +255,7 @@ pub fn file_issued(text: &str) -> Option<i64> {
 pub fn status() -> Status {
     match std::fs::read_to_string(licence_path()) {
         Ok(text) => {
-            let status = evaluate(&text, now(), &device_id(), public_key().as_ref());
+            let status = evaluate_file(&text, now(), &device_id());
             if matches!(status, Status::Licensed { .. } | Status::Grace { .. }) {
                 if let Ok(marker) = std::fs::read_to_string(revoked_marker()) {
                     let mut lines = marker.lines();
@@ -297,6 +329,28 @@ mod tests {
         let mut p = json!({"v": 1, "id": "L-1", "features": ["all"], "major": 1, "device": "any", "issued": NOW - 5 * DAY, "check_days": 30});
         edit(&mut p);
         sign(s, &p).to_string()
+    }
+
+    #[test]
+    fn the_built_in_keys_are_valid_and_different() {
+        let keys: Vec<_> = TRUSTED_KEYS.iter().map(|(k, _)| public_key_for(k)).collect();
+        assert!(keys.iter().all(|k| k.is_some()), "every listed key must be a valid public key");
+        assert_ne!(keys[0].unwrap().to_bytes(), keys[1].unwrap().to_bytes());
+    }
+
+    #[test]
+    fn a_file_is_checked_with_the_key_its_kid_names() {
+        let (s, v) = keys();
+        let named = file(&s, |p| p["kid"] = json!("k1"));
+        assert_eq!(kid_of(&named), "k1");
+        assert_eq!(kid_of(&file(&s, |_| {})), "k1"); // no kid = the first key
+        assert_eq!(kid_of(&file(&s, |p| p["kid"] = json!("k7"))), "k7");
+        // an id this build does not list is refused with its own reason, not as a wrong signature
+        let unknown = file(&s, |p| p["kid"] = json!("k7"));
+        assert_eq!(evaluate_file(&unknown, NOW, "d"), Status::Refused("the licence was signed with a key this version does not know"));
+        // a file of a listed id is checked with that key (here the built-in one does not match the throw-away key)
+        assert_eq!(evaluate_file(&named, NOW, "d"), Status::Refused("the signature of the licence is wrong"));
+        assert!(matches!(evaluate(&named, NOW, "d", Some(&v)), Status::Licensed { .. }));
     }
 
     #[test]

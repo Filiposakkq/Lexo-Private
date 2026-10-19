@@ -1,4 +1,4 @@
-import { t as T } from './05-i18n.js';
+import { t as T, tx } from './05-i18n.js';
 import { h } from './00-core.js';
 import { get, post } from './10-api.js';
 import { dialog, fail, toast } from './13-feedback.js';
@@ -42,6 +42,8 @@ const reasonText = (r) => ({
   'the licence belongs to another computer': () => T('the licence belongs to another computer'),
   'the licence covers another major version of the application': () => T('the licence covers another major version of the application'),
   'this build cannot verify licences': () => T('this build cannot verify licences'),
+  'the licence was signed with a key this version does not know': () => T('the licence was signed with a key this version does not know'),
+  'the licence was signed with a key that is no longer trusted': () => T('the licence was signed with a key that is no longer trusted'),
   'the licence file comes from a newer version of the licence system': () => T('the licence file comes from a newer version of the licence system'),
   'this licence was cancelled': () => T('this licence was cancelled'),
   'this computer was removed from the licence': () => T('this computer was removed from the licence'),
@@ -59,11 +61,40 @@ function deviceBox(run) {
       x.current
         ? h('button', { class: 'btn', onclick: () => { const n = prompt(T('Name of this computer:'), x.name || ''); if (n !== null) run('licence/rename', { name: n }, T('Computer renamed.')); } }, T('Rename'))
         : h('button', { class: 'btn', disabled: d.releases_left === 0,
-          onclick: () => { if (confirm(T('Free the place of “{name}”? You can do this {left} more time(s) in the next {days} days.', { name: x.name || T('Unnamed computer'), left: d.releases_left, days: d.release_days }))) run('licence/release', { target: x.id }, T('Computer removed.')); } }, T('Remove'))));
+          onclick: () => { if (confirm(T('Free the place of “{name}”? You can do this {left} more time(s).', { name: x.name || T('Unnamed computer'), left: d.releases_left }))) run('licence/release', { target: x.id }, T('Computer removed.')); } }, T('Remove'))));
     box.append(h('b', null, T('Your computers')), h('div', { class: 'muted' }, T('Places used: {n} of {max}.', { n: d.devices.length, max: d.max })), ...rows,
-      d.releases_left === 0 ? h('p', { class: 'muted' }, T('You have used all releases for now. Write to the seller if you need to free a place.')) : null);
+      d.releases_left === 0 ? h('p', { class: 'muted' }, T('You have used all releases. Write to the seller if you need to free a place.')) : null);
   })();
   return box;
+}
+/* A lost key: the server mails a code to the address of the purchase, with the code it replaces the key (once per licence) and this computer is activated with the new one. */
+function lostKeyDialog(done) {
+  const email = h('input', { type: 'text', placeholder: 'name@example.com', autocomplete: 'email', style: { minWidth: '280px' } });
+  const code = h('input', { type: 'text', placeholder: 'XXXX-XXXX', autocomplete: 'off', spellcheck: false, style: { minWidth: '160px' } });
+  const body = h('div');
+  const step1 = () => body.replaceChildren(
+    h('p', { class: 'muted' }, T('Enter the e-mail address you bought Aside Pro with. We will send a code to it; your old key keeps working until you enter the code.')),
+    h('div', { class: 'row', style: { alignItems: 'center' } }, h('label', null, T('E-mail address')), email));
+  const step2 = (minutes) => body.replaceChildren(
+    h('p', null, T('If the address belongs to a licence, a code was sent to it (valid for {n} minutes). Enter it here.', { n: minutes })),
+    h('div', { class: 'row', style: { alignItems: 'center' } }, h('label', null, T('Code')), code),
+    h('p', { class: 'muted' }, T('You get a new key and the old one stops working. Computers where Aside is already activated keep working. This can be done once per licence.')));
+  let sent = false;
+  step1();
+  dialog({ title: T('Lost licence key'), body, buttons: [
+    { label: T('Cancel') },
+    { label: T('Continue'), kind: 'primary', onclick: async () => {
+      try {
+        if (!sent) { const r = await post('licence/recover', { email: email.value }); sent = true; step2(r.minutes || 15); return false; }
+        const r = await post('licence/recover-confirm', { email: email.value, code: code.value });
+        resetFeatures();
+        try { await post('licence/activate', { key: r.key }); } catch (e) { fail(e); }
+        dialog({ title: T('Your new key'), narrow: true, buttons: [{ label: T('Close'), kind: 'primary' }],
+          body: h('div', null, h('p', null, tx('Your new key is {key}. The old key no longer works. It was also sent to your e-mail.', { key: h('b', { class: 'mono' }, r.key) }))) });
+        done?.();
+      } catch (e) { fail(e); return false; }
+    } },
+  ] });
 }
 /* Settings, Licence: the state of the licence of the Pro pack, entering a key, the regular check and freeing this computer. The pack decides everything (it checks the signed
    licence file); this only shows its state and sends the key. Without the pack the state is "none". */
@@ -79,7 +110,8 @@ export function licencePanel() {
     const key = h('input', { type: 'text', id: 'lic_key', style: { minWidth: '300px' }, placeholder: 'ASIDE-XXXXX-XXXXX-XXXXX-XXXXX', autocomplete: 'off', spellcheck: false });
     const nameBox = h('input', { type: 'text', id: 'lic_name', maxlength: '40', style: { minWidth: '220px' }, placeholder: T('e.g. Home PC'), autocomplete: 'off' });
     const enter = [h('div', { class: 'row', style: { alignItems: 'center' } }, h('label', { for: 'lic_key' }, T('Licence key')), key,
-      h('button', { class: 'btn primary', onclick: () => run('licence/activate', { key: key.value, name: nameBox.value }, T('Licence activated.')) }, T('Activate'))),
+      h('button', { class: 'btn primary', onclick: () => run('licence/activate', { key: key.value, name: nameBox.value }, T('Licence activated.')) }, T('Activate')),
+      h('button', { class: 'btn ghost', onclick: () => lostKeyDialog(paint) }, T('I lost my key'))),
     h('div', { class: 'row', style: { alignItems: 'center' } }, h('label', { for: 'lic_name' }, T('Name of this computer (optional)')), nameBox)];
     const manage = h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => run('licence/refresh', {}, T('Licence checked.')) }, T('Check now')),

@@ -29,10 +29,12 @@ fn refusal(code: &str, answer: &Value) -> ExtensionError {
             "This licence is already used on {max} computers. Free a place in Aside on one of them (Settings, Licence), or write to the seller.",
             &[("max", answer["max"].clone())],
         ),
-        "release_limit" => msg(
-            "You have already freed computers {limit} times in the last {days} days. Write to the seller to free another place.",
-            &[("limit", answer["limit"].clone()), ("days", answer["days"].clone())],
-        ),
+        "release_limit" => {
+            msg("You have already freed computers {limit} times. Write to the seller to free another place.", &[("limit", answer["limit"].clone())])
+        }
+        "too_many" => msg("Too many requests for this address. Try again in {minutes} minutes.", &[("minutes", answer["minutes"].clone())]),
+        "invalid_code" => msg("That code is not valid or has expired.", &[]),
+        "already_used" => msg("The key of this licence was already replaced once. Write to the seller.", &[]),
         "not_found" => msg("That computer is not on this licence any more.", &[]),
         "bad_licence" | "not_activated" => msg("The licence file does not fit this computer. Enter your key again.", &[]),
         "bad_request" => msg("The licence server did not understand the request.", &[]),
@@ -71,7 +73,7 @@ fn now() -> i64 {
 /// Stores a file from the server if it is valid for this computer; the old file stays when it is not.
 fn store(file: &Value) -> Result<Status, ExtensionError> {
     let text = file.to_string();
-    let status = licence::evaluate(&text, now(), &licence::device_id(), licence::public_key().as_ref());
+    let status = licence::evaluate_file(&text, now(), &licence::device_id());
     if !matches!(status, Status::Licensed { .. } | Status::Grace { .. }) {
         return Err(error(msg("The licence server sent a file that this version of Aside cannot use. Check for an update.", &[])));
     }
@@ -135,6 +137,16 @@ pub fn refresh(http: Http) -> Result<Value, ExtensionError> {
 pub fn devices(http: Http) -> Result<Value, ExtensionError> {
     let file = current()?;
     call(http, "/v1/devices", &json!({"licence": file, "device": licence::device_id()}))
+}
+
+/// A lost key, step one: the server mails a code to the address of the purchase (it answers the same for every address).
+pub fn recover_request(email: &str, http: Http) -> Result<Value, ExtensionError> {
+    call(http, "/v1/recover/request", &json!({"email": email.trim()}))
+}
+
+/// A lost key, step two: with the code the server replaces the key and answers with the new one (the caller activates it).
+pub fn recover_confirm(email: &str, code: &str, http: Http) -> Result<Value, ExtensionError> {
+    call(http, "/v1/recover/confirm", &json!({"email": email.trim(), "code": code.trim()}))
 }
 
 /// Frees the place of another computer (a lost one). Limited by the server.

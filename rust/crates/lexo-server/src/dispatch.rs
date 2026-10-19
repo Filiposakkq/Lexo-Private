@@ -267,9 +267,14 @@ impl Dispatcher {
             "window/fullscreen" => {
                 Reply::json(200, &if session.shell.toggle_fullscreen() { json!({"ok": true}) } else { json!({"ok": false, "fallback": true}) })
             }
-            "licence/activate" | "licence/refresh" | "licence/deactivate" | "licence/devices" | "licence/release" | "licence/rename" => {
-                self.licence(r.strip_prefix("licence/").unwrap_or(""), Value::Object(d))
-            }
+            "licence/activate"
+            | "licence/refresh"
+            | "licence/deactivate"
+            | "licence/devices"
+            | "licence/release"
+            | "licence/rename"
+            | "licence/recover"
+            | "licence/recover-confirm" => self.licence(r.strip_prefix("licence/").unwrap_or(""), Value::Object(d)),
             "carry/pick" => match self.session.shell.pick_folder() {
                 None => Reply::error(400, msg("Choosing a folder is not available in this mode – enter the path by hand.", &[])),
                 Some(None) => Reply::json(200, &json!({"ok": true, "cancelled": true})),

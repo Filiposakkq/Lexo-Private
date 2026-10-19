@@ -1,6 +1,6 @@
-import { hmacSha256Hex, safeEqual, signFile, verifyFile } from "./crypto.ts";
+import { hmacSha256Hex, safeEqual, signFile, verifyFileWithKeys } from "./crypto.ts";
 import type { Env } from "./env.ts";
-import { DEVICE_RE, keyHash, newKey, newLicenceId, payloadFor, type LicenceRow } from "./licence.ts";
+import { DEVICE_RE, kidOf, keyHash, newKey, newLicenceId, payloadFor, trustedKeys, type LicenceRow } from "./licence.ts";
 import { mailKey } from "./mail.ts";
 import * as store from "./store.ts";
 
@@ -23,13 +23,12 @@ export const str = (v: unknown) => (typeof v === "string" ? v : "");
 /** A text from the application that goes into the database and the admin page: no control characters, a limited length. */
 export const clean = (v: unknown, max: number) => str(v).replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max);
 
-/** Releasing a computer by the user (from the application) is limited: this many times in this many days. The owner can free a computer in the admin without the limit. */
+/** Releasing a computer by the user (from the application) is limited: this many times for the whole life of the licence. The owner can free a computer in the admin without the limit. */
 export const RELEASE_LIMIT = 2;
-export const RELEASE_DAYS = 30;
 
-async function releaseRoom(env: Env, id: string, now: number): Promise<{ left: number; next: number | null }> {
-  const used = await store.userReleases(env.DB, id, now - RELEASE_DAYS * 86400);
-  return { left: Math.max(0, RELEASE_LIMIT - used.count), next: used.count >= RELEASE_LIMIT && used.oldest ? used.oldest + RELEASE_DAYS * 86400 : null };
+async function releaseRoom(env: Env, id: string, _now: number): Promise<{ left: number }> {
+  const used = await store.userReleases(env.DB, id, 0);
+  return { left: Math.max(0, RELEASE_LIMIT - used.count) };
 }
 
 // ---------------------------------------------------------------- the calls of the application
@@ -61,7 +60,7 @@ export async function activate(req: Request, env: Env, now: number): Promise<Res
     await store.touch(env.DB, l.id, device, now, clean(b.name, 40), clean(b.version, 20));
     await store.logEvent(env.DB, now, l.id, "activate-again", device.slice(0, 8));
   }
-  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, payloadFor(l, device, now)) });
+  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, { ...payloadFor(l, device, now), kid: kidOf(env) }) });
 }
 
 /** The licence of a request that carries a licence file made by this server and a device: `refresh` and `deactivate` use it. */
@@ -69,7 +68,7 @@ async function ownLicence(req: Request, env: Env): Promise<{ l: LicenceRow; devi
   const b = await body(req);
   const device = str(b?.device);
   if (!b || !DEVICE_RE.test(device)) return fail("bad_request", 400);
-  const p = await verifyFile(env.LICENCE_PUBLIC_KEY, b.licence);
+  const p = await verifyFileWithKeys(trustedKeys(env), b.licence);
   if (!p) return fail("bad_licence", 403);
   const l = await store.byId(env.DB, str(p.id));
   if (!l) return fail("bad_licence", 403);
@@ -90,7 +89,7 @@ export async function refresh(req: Request, env: Env, now: number): Promise<Resp
   if (!mine || mine.released !== null) return fail("not_activated", 403);
   await store.touch(env.DB, l.id, device, now, clean(r.b.name, 40), clean(r.b.version, 20));
   await store.logEvent(env.DB, now, l.id, "refresh", device.slice(0, 8));
-  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, payloadFor(l, device, now)) });
+  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, { ...payloadFor(l, device, now), kid: kidOf(env) }) });
 }
 
 /** `deactivate {licence, device}`: frees the place of this device. */
@@ -100,7 +99,7 @@ export async function deactivate(req: Request, env: Env, now: number): Promise<R
   const room = await releaseRoom(env, r.l.id, now);
   if (room.left === 0) {
     await store.logEvent(env.DB, now, r.l.id, "refused", "release limit (deactivate)");
-    return fail("release_limit", 429, { next: room.next, limit: RELEASE_LIMIT, days: RELEASE_DAYS });
+    return fail("release_limit", 429, { limit: RELEASE_LIMIT });
   }
   await store.release(env.DB, r.l.id, r.device, now);
   await store.logEvent(env.DB, now, r.l.id, "deactivate", r.device.slice(0, 8));
@@ -119,8 +118,6 @@ export async function devices(req: Request, env: Env, now: number): Promise<Resp
     max: r.l.max_devices,
     releases_left: room.left,
     release_limit: RELEASE_LIMIT,
-    release_days: RELEASE_DAYS,
-    next_release_at: room.next,
   });
 }
 
@@ -135,7 +132,7 @@ export async function release(req: Request, env: Env, now: number): Promise<Resp
   const room = await releaseRoom(env, r.l.id, now);
   if (room.left === 0) {
     await store.logEvent(env.DB, now, r.l.id, "refused", "release limit");
-    return fail("release_limit", 429, { next: room.next, limit: RELEASE_LIMIT, days: RELEASE_DAYS });
+    return fail("release_limit", 429, { limit: RELEASE_LIMIT });
   }
   await store.release(env.DB, r.l.id, target, now);
   await store.logEvent(env.DB, now, r.l.id, "release-user", target.slice(0, 8));

@@ -1,6 +1,6 @@
 import { env, exports } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
-import { hmacSha256Hex, verifyFile } from "../src/crypto.ts";
+import { hmacSha256Hex, sha256Hex, signFile, verifyFile } from "../src/crypto.ts";
 import type { Env } from "../src/env.ts";
 
 type Json = Record<string, any>;
@@ -39,6 +39,22 @@ describe("the calls of the application", () => {
     // the key is accepted in any case and with spaces
     const again = await call("/v1/activate", { body: { key: ` ${key.toLowerCase()} `, device: device(1) } });
     expect(again.status).toBe(200);
+  });
+
+  it("names the key it signed with, and renews files of the older key (or without a key id) with the current one", async () => {
+    const { key } = await licence();
+    const a = await call("/v1/activate", { body: { key, device: device(1) } });
+    expect(await verifyFile(E.LICENCE_PUBLIC_KEY, a.json.licence)).toMatchObject({ kid: "k1" });
+    // a file from before the key ids: the same payload without `kid`, signed by the same key
+    const { kid, ...old } = (await verifyFile(E.LICENCE_PUBLIC_KEY, a.json.licence))!;
+    expect(kid).toBe("k1");
+    const legacy = await signFile(E.LICENCE_SIGNING_KEY, old);
+    const r = await call("/v1/refresh", { body: { licence: legacy, device: device(1) } });
+    expect(r.status).toBe(200);
+    expect(await verifyFile(E.LICENCE_PUBLIC_KEY, r.json.licence)).toMatchObject({ kid: "k1" });
+    // a file that names a key this server does not trust is not accepted
+    const stranger = await signFile(E.LICENCE_SIGNING_KEY, { ...old, kid: "k9" });
+    expect((await call("/v1/refresh", { body: { licence: stranger, device: device(1) } })).json.error).toBe("bad_licence");
   });
 
   it("refuses an unknown key and a bad request", async () => {
@@ -256,7 +272,7 @@ describe("devices of a licence", () => {
     await call("/v1/activate", { body: { key, device: device(2), name: "Home PC" } });
     const list = await call("/v1/devices", { body: { licence: a.json.licence, device: device(1) } });
     expect(list.status).toBe(200);
-    expect(list.json).toMatchObject({ max: 2, releases_left: 2, release_limit: 2, release_days: 30 });
+    expect(list.json).toMatchObject({ max: 2, releases_left: 2, release_limit: 2 });
     const byId = Object.fromEntries(list.json.devices.map((d: Json) => [d.id, d]));
     expect(byId[device(1)]).toMatchObject({ name: "Notebook", version: "0.3.1", current: true });
     expect(byId[device(2)]).toMatchObject({ name: "Home PC", current: false });
@@ -270,19 +286,18 @@ describe("devices of a licence", () => {
     expect((await call("/v1/devices", { body: { licence: forged, device: device(1) } })).status).toBe(403);
   });
 
-  it("lets the user free another computer twice in 30 days, and the owner without a limit", async () => {
+  it("lets the user free another computer twice for good, and the owner without a limit", async () => {
     const { id, key } = await licence({ max_devices: 3 });
     const first = await call("/v1/activate", { body: { key, device: device(1) } });
     for (const n of [2, 3]) await call("/v1/activate", { body: { key, device: device(n) } });
     const free = (target: string) => call("/v1/release", { body: { licence: first.json.licence, device: device(1), target } });
     expect((await free(device(2))).json).toMatchObject({ ok: true, releases_left: 1 });
     expect((await free(device(3))).json).toMatchObject({ ok: true, releases_left: 0 });
-    // nothing is left of the two places, and a third release is refused with the date it will be possible again
+    // nothing is left of the two places, and a third release is refused (for good: it does not come back with time)
     await call("/v1/activate", { body: { key, device: device(4) } });
     const refused = await free(device(4));
     expect(refused.status).toBe(429);
-    expect(refused.json).toMatchObject({ error: "release_limit", limit: 2, days: 30 });
-    expect(refused.json.next).toBeGreaterThan(Date.now() / 1000);
+    expect(refused.json).toMatchObject({ error: "release_limit", limit: 2 });
     // deactivating counts too
     expect((await call("/v1/deactivate", { body: { licence: first.json.licence, device: device(1) } })).status).toBe(429);
     // a place that is not held, and a bad request
@@ -299,5 +314,97 @@ describe("devices of a licence", () => {
     const first = await call("/v1/activate", { body: { key, device: device(1) } });
     expect((await call("/v1/release", { body: { licence: first.json.licence, device: device(1), target: device(7) } })).status).toBe(404);
     expect((await call("/v1/release", { body: { licence: first.json.licence, device: device(1), target: "nope" } })).status).toBe(400);
+  });
+});
+
+describe("a lost key", () => {
+  const request = (email: string) => call("/v1/recover/request", { body: { email } });
+  const confirm = (email: string, code: string) => call("/v1/recover/confirm", { body: { email, code } });
+  /** The code is only mailed, so the tests put a known one in the database (as the hash the server keeps). */
+  async function setCode(id: string, code: string, expires = Math.floor(Date.now() / 1000) + 600, attempts = 0) {
+    await E.DB.prepare("INSERT OR REPLACE INTO recovery_codes (licence_id, code_hash, expires, attempts) VALUES (?,?,?,?)")
+      .bind(id, await sha256Hex(`aside-code:${id}:${code.replace(/[^A-Z0-9]/gi, "").toUpperCase()}`), expires, attempts)
+      .run();
+  }
+
+  it("answers the same for every address and keeps a code only for a real licence", async () => {
+    const { id } = await licence({ email: "owner@example.com" });
+    expect(await request("owner@example.com")).toMatchObject({ status: 200, json: { ok: true } });
+    expect(await request("stranger@example.com")).toMatchObject({ status: 200, json: { ok: true } });
+    expect((await E.DB.prepare("SELECT COUNT(*) AS n FROM recovery_codes").first<{ n: number }>())?.n).toBe(1);
+    expect((await E.DB.prepare("SELECT licence_id FROM recovery_codes").first<{ licence_id: string }>())?.licence_id).toBe(id);
+    expect((await call("/v1/recover/request", { body: { email: "not an address" } })).status).toBe(400);
+  });
+
+  it("asks for a code twice only after an hour, and three times a day", async () => {
+    await licence({ email: "limit@example.com" });
+    expect((await request("limit@example.com")).status).toBe(200);
+    const again = await request("limit@example.com");
+    expect(again.status).toBe(429);
+    expect(again.json).toMatchObject({ error: "too_many" });
+    // the limit counts requests for any address, so it tells nothing about who is a customer
+    expect((await request("nobody@example.com")).status).toBe(200);
+    expect((await request("nobody@example.com")).status).toBe(429);
+    // three a day: move the earlier ones back by more than an hour
+    const h = await sha256Hex("aside-recover:limit@example.com");
+    const t0 = Math.floor(Date.now() / 1000);
+    await E.DB.prepare("UPDATE recovery_requests SET at = ? WHERE email_hash = ?").bind(t0 - 7200, h).run();
+    expect((await request("limit@example.com")).status).toBe(200);
+    await E.DB.prepare("UPDATE recovery_requests SET at = ? WHERE email_hash = ? AND at > ?").bind(t0 - 3700, h, t0 - 10).run();
+    expect((await request("limit@example.com")).status).toBe(200);
+    await E.DB.prepare("UPDATE recovery_requests SET at = ? WHERE email_hash = ? AND at > ?").bind(t0 - 3600 - 100, h, t0 - 10).run();
+    expect((await request("limit@example.com")).status).toBe(429);
+  });
+
+  it("replaces the key only with the right code, and the old key stops working while the computers keep working", async () => {
+    const { id, key } = await licence({ email: "buyer2@example.com" });
+    const act = await call("/v1/activate", { body: { key, device: device(1) } });
+    await request("buyer2@example.com");
+    await setCode(id, "ABCD-2345");
+    expect((await confirm("buyer2@example.com", "WRONG-000")).json).toMatchObject({ error: "invalid_code" });
+    // the old key still works until the right code is entered
+    expect((await call("/v1/activate", { body: { key, device: device(1) } })).status).toBe(200);
+    const done = await confirm("buyer2@example.com", "abcd 2345");
+    expect(done.status).toBe(200);
+    expect(done.json.key).toMatch(/^ASIDE-/);
+    expect(done.json.key).not.toBe(key);
+    expect((await call("/v1/activate", { body: { key, device: device(2) } })).json.error).toBe("invalid_key");
+    expect((await call("/v1/activate", { body: { key: done.json.key, device: device(2) } })).status).toBe(200);
+    // the licence file of the first computer is still good
+    expect((await call("/v1/refresh", { body: { licence: act.json.licence, device: device(1) } })).status).toBe(200);
+    // a code works once
+    expect((await confirm("buyer2@example.com", "ABCD-2345")).json.error).toBe("invalid_code");
+  });
+
+  it("allows five attempts and a code of fifteen minutes, and a recovery only once per licence", async () => {
+    const { id } = await licence({ email: "buyer3@example.com" });
+    await setCode(id, "AAAA-2222", Math.floor(Date.now() / 1000) - 5); // expired
+    expect((await confirm("buyer3@example.com", "AAAA-2222")).json.error).toBe("invalid_code");
+    await setCode(id, "AAAA-2222");
+    for (let i = 0; i < 5; i++) expect((await confirm("buyer3@example.com", "BBBB-3333")).json.error).toBe("invalid_code");
+    expect((await confirm("buyer3@example.com", "AAAA-2222")).json.error).toBe("invalid_code"); // locked after five wrong tries
+    await setCode(id, "CCCC-4444");
+    expect((await confirm("buyer3@example.com", "CCCC-4444")).status).toBe(200);
+    // the second recovery is refused: no new code, and a confirm with a planted one is refused too
+    expect((await request("buyer3@example.com")).status).toBe(200);
+    expect((await E.DB.prepare("SELECT COUNT(*) AS n FROM recovery_codes WHERE licence_id = ?").bind(id).first<{ n: number }>())?.n).toBe(0);
+    await setCode(id, "DDDD-5555");
+    expect((await confirm("buyer3@example.com", "DDDD-5555")).json.error).toBe("already_used");
+  });
+
+  it("counts parallel guesses one by one, so a burst cannot try more than five codes", async () => {
+    const { id } = await licence({ email: "burst@example.com" });
+    await setCode(id, "EEEE-6666");
+    const wrong = await Promise.all(Array.from({ length: 12 }, (_, i) => confirm("burst@example.com", `GUESS-${i}00`)));
+    expect(wrong.every((r) => r.json.error === "invalid_code")).toBe(true);
+    // the code is locked now, even for the right one
+    expect((await confirm("burst@example.com", "EEEE-6666")).json.error).toBe("invalid_code");
+  });
+
+  it("does nothing for a cancelled licence", async () => {
+    const { id } = await licence({ email: "gone@example.com" });
+    await admin(`licence/${id}/revoke`, {});
+    await request("gone@example.com");
+    expect((await E.DB.prepare("SELECT COUNT(*) AS n FROM recovery_codes WHERE licence_id = ?").bind(id).first<{ n: number }>())?.n).toBe(0);
   });
 });

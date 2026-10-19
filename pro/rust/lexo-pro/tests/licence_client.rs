@@ -68,9 +68,18 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
                     json!({"ok": true, "devices": [{"id": b["device"], "name": "Notebook", "current": true}, {"id": "bbbb", "name": "", "current": false}], "max": 2, "releases_left": 1}).to_string(),
                 ),
                 ("release", _) => match b["target"].as_str() {
-                    Some("dead") => (429, json!({"ok": false, "error": "release_limit", "limit": 2, "days": 30}).to_string()),
+                    Some("dead") => (429, json!({"ok": false, "error": "release_limit", "limit": 2}).to_string()),
                     Some("gone") => (404, json!({"ok": false, "error": "not_found"}).to_string()),
                     _ => (200, json!({"ok": true, "releases_left": 0}).to_string()),
+                },
+                ("recover/request", _) => match b["email"].as_str() {
+                    Some("again@example.com") => (429, json!({"ok": false, "error": "too_many", "minutes": 42}).to_string()),
+                    _ => (200, json!({"ok": true, "minutes": 15}).to_string()),
+                },
+                ("recover/confirm", _) => match b["code"].as_str() {
+                    Some("ABCD-2345") => (200, json!({"ok": true, "key": "ASIDE-NEW"}).to_string()),
+                    Some("USED") => (403, json!({"ok": false, "error": "already_used"}).to_string()),
+                    _ => (400, json!({"ok": false, "error": "invalid_code"}).to_string()),
                 },
                 _ => (404, "{}".to_string()),
             })
@@ -160,8 +169,15 @@ fn the_client_talks_to_the_server_and_keeps_a_good_file() {
     let d = call("devices", json!({})).unwrap();
     assert_eq!((d["devices"].as_array().unwrap().len(), d["releases_left"].as_i64()), (2, Some(1)));
     assert_eq!(call("release", json!({"target": "bbbb"})).unwrap()["releases_left"], 0);
-    assert!(text(call("release", json!({"target": "dead"}))).contains("freed computers 2 times in the last 30 days"));
+    assert!(text(call("release", json!({"target": "dead"}))).contains("freed computers 2 times."));
     assert!(text(call("release", json!({"target": "gone"}))).contains("not on this licence"));
+    // a lost key: the code is asked for and then the new key comes back; the refusals are readable
+    assert_eq!(call("recover", json!({"email": " me@example.com "})).unwrap()["minutes"], 15);
+    assert_eq!(last("recover/request")["email"], "me@example.com");
+    assert!(text(call("recover", json!({"email": "again@example.com"}))).contains("Try again in 42 minutes"));
+    assert_eq!(call("recover-confirm", json!({"email": "me@example.com", "code": "ABCD-2345"})).unwrap()["key"], "ASIDE-NEW");
+    assert!(text(call("recover-confirm", json!({"email": "me@example.com", "code": "nope"}))).contains("not valid or has expired"));
+    assert!(text(call("recover-confirm", json!({"email": "me@example.com", "code": "USED"}))).contains("already replaced once"));
 
     // a computer whose place was freed stops like a cancelled licence, with its own reason; a new activation brings it back
     revoked.store(false, Ordering::SeqCst);

@@ -125,6 +125,10 @@ impl Provider for LexoProProvider {
             ("licence", "deactivate") => licence_client::deactivate(self.http()),
             ("licence", "devices") => licence_client::devices(self.http()),
             ("licence", "release") => licence_client::release(payload["target"].as_str().unwrap_or(""), self.http()),
+            ("licence", "recover") => licence_client::recover_request(payload["email"].as_str().unwrap_or(""), self.http()),
+            ("licence", "recover-confirm") => {
+                licence_client::recover_confirm(payload["email"].as_str().unwrap_or(""), payload["code"].as_str().unwrap_or(""), self.http())
+            }
             ("licence", "rename") => licence_client::rename(payload["name"].as_str().unwrap_or(""), self.http()),
             ("licence", "check") => {
                 licence_client::refresh_if_stale(self.http());
