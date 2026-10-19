@@ -56,16 +56,20 @@ export async function activeCount(db: D1Database, id: string): Promise<number> {
 }
 
 /** Takes a place for a device (or takes the place of a released one again). An empty name or version keeps what is stored. */
-export const takePlace = (db: D1Database, id: string, device: string, now: number, name = "", version = "") =>
-  db
+/** Takes a place for a device in ONE statement that also checks the limit, so parallel activations cannot together get past `max`. Returns whether a place was taken. */
+export async function takePlace(db: D1Database, id: string, device: string, now: number, max: number, name = "", version = ""): Promise<boolean> {
+  const r = await db
     .prepare(
-      `INSERT INTO activations (licence_id, device, created, last_seen, released, name, app_version) VALUES (?,?,?,?,NULL,?,?)
+      `INSERT INTO activations (licence_id, device, created, last_seen, released, name, app_version)
+       SELECT ?1, ?2, ?3, ?3, NULL, ?4, ?5 WHERE (SELECT COUNT(*) FROM activations WHERE licence_id = ?1 AND released IS NULL) < ?6
        ON CONFLICT(licence_id, device) DO UPDATE SET released = NULL, last_seen = excluded.last_seen,
          name = CASE WHEN excluded.name <> '' THEN excluded.name ELSE name END,
          app_version = CASE WHEN excluded.app_version <> '' THEN excluded.app_version ELSE app_version END`,
     )
-    .bind(id, device, now, now, name, version)
+    .bind(id, device, now, name, version, max)
     .run();
+  return r.meta.changes > 0;
+}
 
 export const touch = (db: D1Database, id: string, device: string, now: number, name = "", version = "") =>
   db
