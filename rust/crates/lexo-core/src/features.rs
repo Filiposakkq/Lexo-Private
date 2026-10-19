@@ -10,7 +10,7 @@ pub struct Feature {
     pub title: &'static str,
 }
 
-/// The single list of gated features (docs/FEATURES.md); every one of them lives in the Pro pack.
+/// The single list of gated features (docs/product/FEATURES.md); every one of them lives in the Pro pack.
 pub const CATALOG: [Feature; 5] = [
     Feature { id: "mt.batch", title: "Batch machine translation" },
     Feature { id: "fixes.safe", title: "Safe bulk fixes with preview" },

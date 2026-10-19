@@ -4,11 +4,11 @@ Roadmap step 7. This document is the plan; the table "Progress" at the end is ke
 Scope: **Free Core first** (what `testdata/golden` covers); the Pro pack was ported after M9 (see the Progress table); how it connects is in section 9 and in PRO-DESIGN.md.
 
 ## 1. Goal and principles
-- One executable without Python: a Rust Core inside a Tauri application, with the existing browser UI. Behaviour **identical** to the Python Core, checked by data (`testdata/golden`, docs/GOLDEN.md), not by reading code.
+- One executable without Python: a Rust Core inside a Tauri application, with the existing browser UI. Behaviour **identical** to the Python Core, checked by data (`testdata/golden`, docs/technical/GOLDEN.md), not by reading code.
 - **No feature work during the port.** A port that also changes behaviour cannot be checked. Bugs found in the Python Core are fixed in Python first (golden answers regenerated, diff read), then ported.
 - **Python stays the reference** until every milestone passes; it is not deleted in this step.
 - **Small, verifiable milestones.** Each one: (a) golden cases for the module exist (added on the Python side first when missing), (b) the Rust module passes them, (c) the documents are updated. One PR per milestone, stacked when they depend on each other.
-- The interface does not change: the 80 operations (docs/API.md) keep their names, parameters and JSON answers. The UI changes in one place only: how a call reaches Core (section 8).
+- The interface does not change: the 80 operations (docs/technical/API.md) keep their names, parameters and JSON answers. The UI changes in one place only: how a call reaches Core (section 8).
 
 ## 2. Repository layout
 ```
@@ -65,7 +65,7 @@ Each milestone ends with: its golden cases pass (`cargo test`), the CI job is gr
 
 **M5 Game tools.** `gameimages` (the index of pictures, layered recognition, the stack of shown pictures), `missed`, `gametools` (workspace, unrpyc and SDK as external programs), `lint`, `editor`, `mt` (HTTP). External programs and the network are replaced by fakes in the golden cases. *Done when:* `entry/context`, `entry/scene`, `game/scene`, `scenes`, `entry/menu`, `game/characters`, `missed` answer as recorded.
 
-**M6 The operations.** The 73 Free operations of the table on top of the modules, `call(app, op, params)` with the same coercion of parameters (docs/API.md, `Param.coerce`), the locked answers of the five Pro features, the extension host (interface 1, the plain-JSON rule). *Done when:* all four scenarios (93 calls and the files after them) match, and `api.json` equals the Rust table (a test compares them).
+**M6 The operations.** The 73 Free operations of the table on top of the modules, `call(app, op, params)` with the same coercion of parameters (docs/technical/API.md, `Param.coerce`), the locked answers of the five Pro features, the extension host (interface 1, the plain-JSON rule). *Done when:* all four scenarios (93 calls and the files after them) match, and `api.json` equals the Rust table (a test compares them).
 
 **M7 Dev server and the UI against the Rust Core.** `lexo-server` serves the UI files and the same routes as Free's server; the UI self-test (Playwright) runs unchanged against it. *Done when:* the UI self-test is 139/139 against the Rust server.
 
@@ -76,7 +76,7 @@ Each milestone ends with: its golden cases pass (`cargo test`), the CI job is gr
 **M10 Switch-over.** Installer from the Tauri bundler, the application of the release uses the Rust Core; the Python Core stays in the repository as the reference and for the golden tool until the owner decides to retire it.
 
 ## 6. Test strategy
-1. **Golden data** (docs/GOLDEN.md) per module and per scenario: the main check, run on every PR (`cargo test`).
+1. **Golden data** (docs/technical/GOLDEN.md) per module and per scenario: the main check, run on every PR (`cargo test`).
 2. **Ported unit tests where a module has none in golden**: each milestone first adds golden cases on the Python side (inputs plus regenerated expected answers, reviewed), then ports.
 3. **Differential run on the real games** (M9), and a **UI self-test** against the Rust server (M7) and inside the application (M8).
 4. **Property checks** for the writer: a random edit followed by a re-parse gives the same entries (fuzzed inputs, also with CRLF and BOM), run on both cores.

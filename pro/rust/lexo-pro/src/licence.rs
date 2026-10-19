@@ -1,4 +1,4 @@
-//! What the pack offers, and with which limits: the licence check (docs/PRO-DESIGN.md, "Entering a licence").
+//! What the pack offers, and with which limits: the licence check (docs/product/PRO-DESIGN.md, "Entering a licence").
 //!
 //! Two kinds of Pro features: the "taste" features work in demo mode with a limit, everything else is offered only with a licence.
 //!

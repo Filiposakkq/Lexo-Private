@@ -1,4 +1,4 @@
-"""Compares the parser of Rust Core with the one of Python Core on real translation files (the first step of M9 in docs/RUST-PORT.md).
+"""Compares the parser of Rust Core with the one of Python Core on real translation files (the first step of M9 in docs/technical/RUST-PORT.md).
 
     py rust/tools/diff_rpy_real_files.py <folder holding games> [--exe path\\to\\lexo-golden.exe] [--lang cs]
 

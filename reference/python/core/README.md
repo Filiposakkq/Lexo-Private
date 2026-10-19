@@ -1,4 +1,4 @@
-> **This is the Python reference implementation.** The product is the Rust core in [`../rust/`](../../../rust/); this folder is what the port was checked against, the generator of the golden data (`golden/`, `tests/golden_tool.py`) and the interface contract (`contract/`). `lexo/packs/` (the language packs) is used by the product. Map of the repository: [`../README.md`](../../../README.md), plan to tidy it: [`../docs/REPO-CLEANUP.md`](../../../docs/REPO-CLEANUP.md).
+> **This is the Python reference implementation.** The product is the Rust core in [`../rust/`](../../../rust/); this folder is what the port was checked against, the generator of the golden data (`golden/`, `tests/golden_tool.py`) and the interface contract (`contract/`). `lexo/packs/` (the language packs) is used by the product. Map of the repository: [`../README.md`](../../../README.md), plan to tidy it: [`../docs/project/REPO-CLEANUP.md`](../../../docs/project/REPO-CLEANUP.md).
 
 # Core (`reference/python/core/lexo`)
 
@@ -16,4 +16,4 @@ print(app.overview()["totals"])          # the same data the UI shows
 ```
 
 Tests: `py reference/python/run_tests.py core` from the repository root (`reference/python/core/tests`; Free is not on the import path of this suite, which is how it proves that Core does not need it).
-Layout of the repository: see `../../../docs/ARCHITECTURE.md`.
+Layout of the repository: see `../../../docs/technical/ARCHITECTURE.md`.

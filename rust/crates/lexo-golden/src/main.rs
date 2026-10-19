@@ -3,7 +3,7 @@
 use lexo_golden::{golden_dir, inventory, run_case, summarize, Outcome};
 
 /// `--dump <cs|neutral> <file>...` (or `--dump-check`, the issues of the checks instead of the parse): one line per file, `path<TAB>json` with the parse of the file in the shape of the golden data (for comparing Rust Core with
-/// Python Core on real files, see docs/RUST-PORT.md M9).
+/// Python Core on real files, see docs/technical/RUST-PORT.md M9).
 fn dump(args: &[String], checks: bool, spell: bool) {
     let root = golden_dir().join("../..");
     let pack = lexo_golden::run::pack_named(&args[0], &root).unwrap_or_else(|e| {

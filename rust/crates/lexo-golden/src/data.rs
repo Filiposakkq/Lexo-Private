@@ -1,4 +1,4 @@
-//! The data scenarios of `testdata/golden/data` (docs/GOLDEN.md): a few files, a fixed clock and a list of steps, each calling one function of Core; the recorded answer
+//! The data scenarios of `testdata/golden/data` (docs/technical/GOLDEN.md): a few files, a fixed clock and a list of steps, each calling one function of Core; the recorded answer
 //! of every step and the bytes of every file at the end are compared. This is the same runner as `run_data_scenario` in `reference/python/core/tests/golden_tool.py`.
 use crate::normalize::normalize;
 use chrono::{DateTime, NaiveDateTime, Utc};

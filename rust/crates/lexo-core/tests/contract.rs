@@ -1,4 +1,4 @@
-//! The interface table of Rust Core is the table of the Python Core (docs/API.md): `testdata/contract/api.json` is generated from the Python one and must equal `api::describe()`.
+//! The interface table of Rust Core is the table of the Python Core (docs/technical/API.md): `testdata/contract/api.json` is generated from the Python one and must equal `api::describe()`.
 use lexo_core::api;
 use serde_json::Value;
 

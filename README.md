@@ -41,9 +41,9 @@ and many paths still say **Lexo** (the first working name), which is intentional
 
 ## Where to start
 
-- A new chat or a new person: [`docs/HANDOFF.md`](docs/HANDOFF.md) (decisions, rules, the loop of a step, commands, current state), then [`docs/ROADMAP.md`](docs/ROADMAP.md).
+- A new chat or a new person: [`docs/project/HANDOFF.md`](docs/project/HANDOFF.md) (decisions, rules, the loop of a step, commands, current state), then [`docs/project/ROADMAP.md`](docs/project/ROADMAP.md).
 - The index of all documents and which ones are current: [`docs/README.md`](docs/README.md).
-- What each Pro feature does: [`docs/PRO-FEATURES.md`](docs/PRO-FEATURES.md).
+- What each Pro feature does: [`docs/guide/PRO-FEATURES.md`](docs/guide/PRO-FEATURES.md).
 
 ## Commands (Windows)
 

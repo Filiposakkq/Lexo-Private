@@ -1,6 +1,6 @@
 [package]
 name = "lexo-golden"
-description = "The golden runner: reads testdata/golden, calls lexo-core, normalises and compares with testdata/golden/expected (docs/GOLDEN.md)"
+description = "The golden runner: reads testdata/golden, calls lexo-core, normalises and compares with testdata/golden/expected (docs/technical/GOLDEN.md)"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

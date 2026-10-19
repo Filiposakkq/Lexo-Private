@@ -116,7 +116,7 @@ class GeneratedFilesTests(unittest.TestCase):
     def test_the_readable_document_is_up_to_date(self):
         doc = Path(ct.DOC)
         if not doc.exists():
-            self.skipTest("docs/API.md is not part of this checkout")
+            self.skipTest("docs/technical/API.md is not part of this checkout")
         self.assertEqual(doc.read_text(encoding="utf-8"), ct.render_doc(), "api.py changed: regenerate with py reference/python/core/tests/contract_tool.py")
 
 

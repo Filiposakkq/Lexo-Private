@@ -1,6 +1,6 @@
 [package]
 name = "lexo-pro"
-description = "The Lexo Pro pack in Rust (private, never part of the public repository): the library with the Pro features and the sidecar program that the application starts (docs/PRO-DESIGN.md)"
+description = "The Lexo Pro pack in Rust (private, never part of the public repository): the library with the Pro features and the sidecar program that the application starts (docs/product/PRO-DESIGN.md)"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

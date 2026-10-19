@@ -3,7 +3,7 @@
 A message is written once, in English, with {placeholders}:  msg("Cannot save {name}: {reason}", name=n, reason=r).
 `str(message)` is the formatted English text (logs, the command line, tests). On the way to the browser the server sends the template and the
 values (see `wire`), and the browser translates the template with the interface language pack (ui.json) and fills the values, exactly like
-the texts of the UI itself (docs/UI-TEXTS.md).
+the texts of the UI itself (docs/technical/UI-TEXTS.md).
 
 Rules: the template is a plain string literal (never built by concatenation) so that it can be found and translated; values go into
 placeholders, also tags such as "{/b}" (pass them as values: tag="{/b}"), because a literal brace would look like a placeholder.

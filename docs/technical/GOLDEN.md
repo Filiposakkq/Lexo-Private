@@ -21,11 +21,11 @@ testdata/golden/
 
 ## Scope: Free Core only, not the Pro pack
 The golden data covers what Core does **without the Pro pack**: the 73 operations that need no Pro feature (of the 80 operations, seven belong to the five gated features: `publish/plan`, `publish/confirm`, `mt/targets`, `mt/batch`, `fix/preview`, `fix/apply`, `assign/suggest`, and the regex mode of `replace/*`; without the pack they answer "locked" and the scenarios do not call them).
-The Pro pack has its own tests (`reference/python/pro/tests`, Python) and is **not part of the Rust port of Core**. How the pack is ported or kept is decided together with the sidecar transport (docs/PRO-DESIGN.md): because it is called through plain JSON
+The Pro pack has its own tests (`reference/python/pro/tests`, Python) and is **not part of the Rust port of Core**. How the pack is ported or kept is decided together with the sidecar transport (docs/product/PRO-DESIGN.md): because it is called through plain JSON
 (feature, method, payload), it can stay a separate program written in any language, and golden data for it (the requests and answers of each Pro method) can be added the same way when that decision is made.
 
 ## What a scenario is
-Open `game/tl/czech` of the project (a copy in a temporary folder), then run every step with `api.call(app, op, params)` (docs/API.md) and record the answer (or the error message).
+Open `game/tl/czech` of the project (a copy in a temporary folder), then run every step with `api.call(app, op, params)` (docs/technical/API.md) and record the answer (or the error message).
 At the end record every `.rpy` of the translation folder: its SHA-1 and its text (or base64 when it is not UTF-8). So reads, writes (`entry/save`, `assign`, `groups/apply` ...) and
 their undo are all compared, and a port that writes a line differently by one byte fails.
 

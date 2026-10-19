@@ -1,7 +1,7 @@
 # Pro features: what they do and how to use them
 
-For the user's view of Pro (what it costs, the licence, the computers) see the page of the website; for how Pro is built and kept apart see [PRO-DESIGN.md](PRO-DESIGN.md); for the status
-of every feature see [FEATURES.md](FEATURES.md). This document says what each feature does, where it is in the application, what it needs, what it sends over the network and how to undo it.
+For the user's view of Pro (what it costs, the licence, the computers) see the page of the website; for how Pro is built and kept apart see [PRO-DESIGN.md](../product/PRO-DESIGN.md); for the status
+of every feature see [FEATURES.md](../product/FEATURES.md). This document says what each feature does, where it is in the application, what it needs, what it sends over the network and how to undo it.
 
 **In general**
 - Without a licence the "taste" features work on a small batch (the demo limits below); the premium features are locked and say so.
@@ -75,4 +75,4 @@ machine translation (one undo step). The service charges by the text sent (the d
 | Group suggestions | 5 files |
 | Regex replace, publishing, profiles | locked |
 
-A licence removes the limits and unlocks the locked features (see [PRO-DESIGN.md](PRO-DESIGN.md) for the licence, the computers and the checks).
+A licence removes the limits and unlocks the locked features (see [PRO-DESIGN.md](../product/PRO-DESIGN.md) for the licence, the computers and the checks).
