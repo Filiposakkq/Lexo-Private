@@ -73,7 +73,7 @@ machine translation (one undo step). The service charges by the text sent (the d
 ## Team (lead: Pro; members: free)
 Several people on one translation without a server: the team is the people who share the translation folder, and every person writes only their own files in it (no conflicts). **The full guide is [TEAMS.md](TEAMS.md).** In short:
 - **Everybody (Free):** *Files › Team…* – say who you are, see the members, roles and your files; the table of files has the column **Assigned to** and the filter **Person** (*My files*); the Team window shows the **news** since your last look; the tab **Team** of a line holds **notes to the team**.
-- **The lead (Pro, `team.manage`):** makes the team, gives roles (translator, proofreader) and files, removes people or takes them back, hands the team over, ends it, and sees the **statistics** per person (progress of their files, changed, approved and marked lines, last activity). Any member can leave. A team belongs to one game (its translation folder).
+- **The lead (Pro, `team.manage`):** makes the team, gives roles (translator, proofreader) and files, removes people or takes them back, offers the lead to another member (who must accept it with their own licence), ends it, and sees the **statistics** per person (progress of their files, changed, approved and marked lines, last activity). Any member can leave. A team belongs to one game (its translation folder).
 - **A team of trust:** whoever has the folder can write in it; roles and assignments say who does what, they do not stop anybody. Only the lead needs a licence.
 
 ## Spelling with a dictionary

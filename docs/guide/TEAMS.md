@@ -22,6 +22,7 @@ The idea that keeps it simple: **every file is written by one person only.** Eac
 | **News** since your last look | yes | yes |
 | **Notes to the team** on lines | yes | yes |
 | **Make a team** (become the lead) | no | **yes** |
+| **Take the lead** that the lead offered you | no | **yes** (on your computer) |
 | Give **roles**, give **files** to people | no | **yes** |
 | **Statistics** per person | no | **yes** |
 
@@ -81,10 +82,10 @@ Everything is in the **Team…** window.
 | **Leave the team** | any member (not the lead) | *Leave the team* (asks "Leave this team?") | Your own file in `members/` is deleted; you can join again later. Your notes and your activity log stay. |
 | **Remove a person** | the lead (Pro) | *Remove* next to the name (asks first) | The person is listed as **removed** in `lead.json`, loses their role and their files, and **cannot join again by themselves** (they see "The lead removed you…"). Their notes and logs stay. |
 | **Take a person back** | the lead (Pro) | *Removed: … Take back* | The person can join again with their name. |
-| **Hand the team over** | the lead (Pro) | *Make lead* next to the new lead's name (asks first) | The other person becomes the lead and you become a translator. The new lead needs a Pro licence to manage the team. |
+| **Hand the team over** | the lead (Pro), then the other person | *Offer the lead* next to the name (asks first); the other person then presses *Accept the lead* in their own **Team…** window | You stay the lead **until the person accepts**. The offer can only be accepted on a computer that has the Pro licence (the application checks it there), so a team never gets a lead who cannot manage it. After the acceptance the person is the lead and you are a translator. You can take the offer back (*Take the offer back*) until then. |
 | **End the team** | the lead (Pro) | *End the team* at the bottom | `lead.json` is deleted. The people's files, the notes and the activity logs stay in the folder (they are not the lead's to delete); a new team can be made later. |
 
-The lead cannot simply leave: hand the team over or end it first. A removed person keeps their copy of the folder and their notes; only the team stops counting them. Because the file of a removed person is not deleted (a sharing tool could bring it back), removal is a list in the lead's file that every copy respects.
+The lead cannot simply leave: hand the team over (the other person must accept) or end it first. A removed person keeps their copy of the folder and their notes; only the team stops counting them. Because the file of a removed person is not deleted (a sharing tool could bring it back), removal is a list in the lead's file that every copy respects.
 
 ## 6. The roles
 
@@ -218,7 +219,7 @@ Limits (the application keeps them even if a file is edited by hand):
 
 **I need to remove a member.** The lead presses *Remove* next to the name in **Team…** (section 5); the person's files become free to give to someone else.
 
-**The lead changes.** The lead presses *Make lead* next to the new lead's name (section 5). **If the lead's computer is lost** and nobody can do that, open `.aside/team/lead.json`, change the `lead` field to the **id** of the new lead (the name of that person's file in `members/` and the `author` value inside it), and share it. The new lead needs a Pro licence to manage the team.
+**The lead changes.** The lead presses *Offer the lead* next to the new lead's name and the new lead presses *Accept the lead* (section 5); this needs a Pro licence on the new lead's computer. **If the lead's computer is lost** and nobody can do that, open `.aside/team/lead.json`, change the `lead` field to the **id** of the new lead (the name of that person's file in `members/` and the `author` value inside it), and share it. The new lead needs a Pro licence to manage the team.
 
 **A member changed their name.** Press **Join** again and type the new name; it replaces the old one.
 

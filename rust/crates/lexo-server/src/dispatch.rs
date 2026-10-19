@@ -332,7 +332,7 @@ impl Dispatcher {
                 }))
             }
             "team/state" | "team/join" | "team/create" | "team/set" | "team/stats" | "team/notes" | "team/note_add" | "team/note_resolve" | "team/changes"
-            | "team/seen" | "team/leave" | "team/remove" | "team/restore" | "team/transfer" | "team/disband" => {
+            | "team/seen" | "team/leave" | "team/remove" | "team/restore" | "team/offer" | "team/offer_cancel" | "team/accept" | "team/disband" => {
                 let (route, d) = (r.to_string(), Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
                     let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
@@ -349,7 +349,9 @@ impl Dispatcher {
                         "team/leave" => app.team_leave()?,
                         "team/remove" => app.team_remove(&text("author"))?,
                         "team/restore" => app.team_restore(&text("author"))?,
-                        "team/transfer" => app.team_transfer(&text("author"))?,
+                        "team/offer" => app.team_offer(&text("author"))?,
+                        "team/offer_cancel" => app.team_offer_cancel()?,
+                        "team/accept" => app.team_accept()?,
                         "team/disband" => app.team_disband()?,
                         _ => app.team_set(&d["roles"], &d["assign"])?,
                     };

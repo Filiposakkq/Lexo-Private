@@ -75,6 +75,7 @@ impl App {
         let members: BTreeMap<String, String> = all_members.iter().filter(|(a, _)| !removed.contains(*a)).map(|(a, n)| (a.clone(), n.clone())).collect();
         let lead = self.team_lead_file()?;
         let lead_author = lead.as_ref().map(|l| py_str(&l["lead"])).unwrap_or_default();
+        let offer_author: Option<String> = lead.as_ref().map(|l| py_str(&l["offer"])).filter(|a| !a.is_empty() && !removed.contains(a) && members.contains_key(a));
         let roles = lead.as_ref().and_then(|l| l["roles"].as_object().cloned()).unwrap_or_default();
         let assign = lead.as_ref().and_then(|l| l["assign"].as_object().cloned()).unwrap_or_default();
         let mut my_files: Vec<&String> =
@@ -93,8 +94,9 @@ impl App {
             "exists": lead.is_some(),
             "news": news,
             "suggest_name": std::fs::read_to_string(App::team_name_file()).unwrap_or_default().trim().to_string(),
+            "offer": offer_author.as_ref().map(|a| json!({"author": a, "name": all_members.get(a).cloned().unwrap_or_default()})),
             "removed": removed.iter().map(|a| json!({"author": a, "name": all_members.get(a).cloned().unwrap_or_default()})).collect::<Vec<_>>(),
-            "me": {"author": me, "removed": removed.contains(&me), "name": members.get(&me).cloned().unwrap_or_default(), "joined": members.contains_key(&me), "lead": !lead_author.is_empty() && lead_author == me},
+            "me": {"author": me, "offered": offer_author.as_deref() == Some(me.as_str()), "removed": removed.contains(&me), "name": members.get(&me).cloned().unwrap_or_default(), "joined": members.contains_key(&me), "lead": !lead_author.is_empty() && lead_author == me},
             "members": list,
             "assign": Value::Object(assign.clone()),
             "my_files": my_files,
@@ -131,7 +133,7 @@ impl App {
             return Err(app_err(msg("This project already has a team.", &[])));
         }
         let path = self.team_dir()?.join("lead.json");
-        self.team_write(&path, &json!({"v": 1, "lead": me, "roles": {}, "assign": {}, "removed": []}))?;
+        self.team_write(&path, &json!({"v": 1, "lead": me, "roles": {}, "assign": {}, "removed": [], "offer": ""}))?;
         self.team_state()
     }
 
@@ -156,6 +158,7 @@ impl App {
         out.insert("roles".into(), res["roles"].clone());
         out.insert("assign".into(), res["assign"].clone());
         out.insert("removed".into(), json!(removed));
+        out.insert("offer".into(), lead["offer"].clone());
         let path = self.team_dir()?.join("lead.json");
         self.team_write(&path, &Value::Object(out))?;
         let mut state = self.team_state()?;
@@ -164,9 +167,9 @@ impl App {
     }
 
     /// Write `lead.json` again with the given roles, assignments and removed people (the lead only).
-    fn team_lead_save(&self, lead: &str, roles: &Value, assign: &Value, removed: &BTreeSet<String>) -> Res<()> {
+    fn team_lead_save(&self, lead: &str, roles: &Value, assign: &Value, removed: &BTreeSet<String>, offer: &str) -> Res<()> {
         let path = self.team_dir()?.join("lead.json");
-        self.team_write(&path, &json!({"v": 1, "lead": lead, "roles": roles, "assign": assign, "removed": removed}))
+        self.team_write(&path, &json!({"v": 1, "lead": lead, "roles": roles, "assign": assign, "removed": removed, "offer": offer}))
     }
 
     /// Your id and the lead's file, when you are the lead of the team and the feature is available.
@@ -215,7 +218,7 @@ impl App {
             }
             a.retain(|_, who| who.as_array().is_some_and(|l| !l.is_empty()));
         }
-        self.team_lead_save(&me, &roles, &assign, &removed)?;
+        self.team_lead_save(&me, &roles, &assign, &removed, &py_str(&lead["offer"]))?;
         self.team_state()
     }
 
@@ -224,23 +227,46 @@ impl App {
         let (me, lead) = self.team_as_lead()?;
         let mut removed = self.team_removed()?;
         removed.remove(author);
-        self.team_lead_save(&me, &lead["roles"], &lead["assign"], &removed)?;
+        self.team_lead_save(&me, &lead["roles"], &lead["assign"], &removed, &py_str(&lead["offer"]))?;
         self.team_state()
     }
 
-    /// Hand the team over to another member (Pro, the lead): they become the lead, you become a translator. The new lead needs a Pro licence to manage the team.
-    pub fn team_transfer(&mut self, author: &str) -> Res<Value> {
+    /// Offer the lead to another member (Pro, the lead). You stay the lead until the person accepts: they accept in their own application, which checks that they have the licence there.
+    pub fn team_offer(&mut self, author: &str) -> Res<Value> {
         let (me, lead) = self.team_as_lead()?;
         let removed = self.team_removed()?;
         if author == me || removed.contains(author) || !self.team_members()?.contains_key(author) {
             return Err(app_err(msg("Choose another member of the team.", &[])));
         }
+        self.team_lead_save(&me, &lead["roles"], &lead["assign"], &removed, author)?;
+        self.team_state()
+    }
+
+    /// Take the offer back (Pro, the lead).
+    pub fn team_offer_cancel(&mut self) -> Res<Value> {
+        let (me, lead) = self.team_as_lead()?;
+        self.team_lead_save(&me, &lead["roles"], &lead["assign"], &self.team_removed()?, "")?;
+        self.team_state()
+    }
+
+    /// Accept the lead of the team that was offered to you. This needs the Pro licence **on this computer** (`team.manage`): without it the offer cannot be accepted and the old lead stays the
+    /// lead, so a team never ends up with a lead who cannot manage it. You become the lead, the old lead becomes a translator.
+    pub fn team_accept(&mut self) -> Res<Value> {
+        self.need_project()?;
+        self.gate(FEATURE)?;
+        let me = self.author_id();
+        let Some(lead) = self.team_lead_file()? else {
+            return Err(app_err(msg("This project has no team yet.", &[])));
+        };
+        if py_str(&lead["offer"]) != me {
+            return Err(app_err(msg("Nobody offered you the lead of this team.", &[])));
+        }
         let mut roles = lead["roles"].clone();
         if let Some(r) = roles.as_object_mut() {
-            r.remove(author); // the lead has no role of their own
-            r.insert(me.clone(), json!("translator"));
+            r.remove(&me); // the lead has no role of their own
+            r.insert(py_str(&lead["lead"]), json!("translator"));
         }
-        self.team_lead_save(author, &roles, &lead["assign"], &removed)?;
+        self.team_lead_save(&me, &roles, &lead["assign"], &self.team_removed()?, "")?;
         self.team_state()
     }
 

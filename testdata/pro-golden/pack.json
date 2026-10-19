@@ -144,7 +144,8 @@
   "Write the note first.": "Nejdřív napiš poznámku.",
   "The lead removed you from this team; ask the lead to take you back.": "Vedoucí tě z tohoto týmu odebral; požádej ho, ať tě vrátí.",
   "You are the lead: hand the team over to someone or disband it first.": "Jsi vedoucí: nejdřív předej tým někomu jinému, nebo ho ukonči.",
-  "Choose another member of the team.": "Vyber jiného člena týmu."
+  "Choose another member of the team.": "Vyber jiného člena týmu.",
+  "Nobody offered you the lead of this team.": "Nikdo ti nenabídl vedení tohoto týmu."
  },
  "ui_xx": {},
  "cases": [

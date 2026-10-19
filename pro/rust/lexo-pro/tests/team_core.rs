@@ -109,13 +109,29 @@ fn a_team_is_made_by_the_lead_and_seen_by_a_member_without_the_pack() {
     lead.team_restore("ann-0001").unwrap();
     assert_eq!(ann.team_join("Ann").unwrap()["me"]["joined"], true);
 
-    // disbanding and making a new team; then handing it over to Ann (who has no pack: she sees she is the lead but cannot manage)
+    // disbanding and making a new team
     assert_eq!(lead.team_disband().unwrap()["exists"], false);
     assert!(lead.team_disband().is_err());
     lead.team_create().unwrap();
-    let s = lead.team_transfer("ann-0001").unwrap();
+
+    // handing the lead over is an offer that the other person accepts on their own computer, with their own licence
+    let mut bob = app_of(&tmp, "bob", &tl, true);
+    bob.team_join("Bob").unwrap();
+    assert!(bob.team_accept().is_err(), "nothing was offered to Bob yet");
+    let s = lead.team_offer("ann-0001").unwrap();
+    assert_eq!((s["offer"]["author"].clone(), s["me"]["lead"].clone()), (json!("ann-0001"), json!(true)), "{s}");
+    assert_eq!(ann.team_state().unwrap()["me"]["offered"], true);
+    assert!(ann.team_accept().is_err(), "Ann has no Pro licence here: she cannot take the lead");
+    let s = lead.team_state().unwrap();
+    assert_eq!((s["me"]["lead"].clone(), s["can_manage"].clone()), (json!(true), json!(true)), "the old lead stays the lead: {s}");
+    assert!(lead.team_offer("lead-0001").is_err());
+    assert_eq!(lead.team_offer_cancel().unwrap()["offer"], json!(null));
+    lead.team_offer("bob-0001").unwrap();
+    let s = bob.team_accept().unwrap();
+    assert_eq!((s["me"]["lead"].clone(), s["can_manage"].clone(), s["offer"].clone()), (json!(true), json!(true), json!(null)), "{s}");
+    let old = s["members"].as_array().unwrap().iter().find(|m| m["author"] == "lead-0001").unwrap();
+    assert_eq!(old["role"], "translator");
+    let s = lead.team_state().unwrap();
     assert_eq!((s["me"]["lead"].clone(), s["can_manage"].clone()), (json!(false), json!(false)), "{s}");
-    let s = ann.team_state().unwrap();
-    assert_eq!((s["me"]["lead"].clone(), s["can_manage"].clone()), (json!(true), json!(false)), "{s}");
-    assert!(lead.team_set(&json!({}), &json!({})).is_err() && lead.team_transfer("ann-0001").is_err(), "the old lead cannot manage any more");
+    assert!(lead.team_set(&json!({}), &json!({})).is_err() && lead.team_offer("ann-0001").is_err(), "the old lead cannot manage any more");
 }

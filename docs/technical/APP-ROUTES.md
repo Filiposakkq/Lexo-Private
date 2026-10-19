@@ -50,7 +50,9 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST team/leave` | | leave the team: your own file in `members/` is deleted (not for the lead) | |
 | `POST team/remove` | `{author}` | the lead removes a person (listed in `removed` of `lead.json`; their role and files are dropped) | `team.manage` |
 | `POST team/restore` | `{author}` | the lead takes a removed person back | `team.manage` |
-| `POST team/transfer` | `{author}` | hand the team over: the person becomes the lead, you become a translator | `team.manage` |
+| `POST team/offer` | `{author}` | the lead offers the lead to a member (`offer` in `lead.json`); the lead stays the lead until the offer is accepted | `team.manage` |
+| `POST team/offer_cancel` | | the lead takes the offer back | `team.manage` |
+| `POST team/accept` | | the offered person takes the lead (the licence is checked on **their** computer); the old lead becomes a translator | `team.manage` |
 | `POST team/disband` | | end the team: `lead.json` is deleted | `team.manage` |
 | `POST team/stats` | `{days?}` | statistics per person for the lead: `{members: [{author, name, role, files, lines, done_pct, proof_pct, edited, approved, marked, proofread_updates, last}], unassigned}` | `team.manage` |
 | `POST team/notes` | `{file, line}` | the notes of a line, oldest first: `{exists, notes: [{id, author, name, t, text, resolved}]}` | |

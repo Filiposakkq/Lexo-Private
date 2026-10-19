@@ -1887,9 +1887,6 @@
   "Leave the team": "Opustit tým",
   "Leave this team?": "Opustit tento tým?",
   "You left the team.": "Opustil jsi tým.",
-  "Make lead": "Předat vedení",
-  "Hand the team over to this person?": "Předat tým této osobě?",
-  "The team was handed over.": "Tým byl předán.",
   "Remove this person?": "Odebrat tuto osobu?",
   "Removed:": "Odebráni:",
   "Take back": "Vrátit",
@@ -1897,6 +1894,16 @@
   "End the team": "Ukončit tým",
   "Ending the team removes the file of the lead; the people, their notes and their logs stay in the folder. You can make a new team later.": "Ukončení týmu smaže soubor vedoucího; lidé, jejich poznámky a záznamy ve složce zůstanou. Později můžeš založit nový tým.",
   "End this team?": "Ukončit tento tým?",
-  "The team was ended.": "Tým byl ukončen."
+  "The team was ended.": "Tým byl ukončen.",
+  "offered the lead": "nabídnuto vedení",
+  "Offer the lead": "Nabídnout vedení",
+  "Offer the lead to this person?": "Nabídnout vedení této osobě?",
+  "The lead was offered.": "Vedení bylo nabídnuto.",
+  "The lead offers you the lead of this team. Taking it needs a Pro licence on this computer; until you accept, the lead stays the lead.": "Vedoucí ti nabízí vedení tohoto týmu. Převzít ho jde jen s licencí Pro na tomto počítači; dokud nepřijmeš, zůstává vedoucím dosavadní vedoucí.",
+  "Accept the lead": "Přijmout vedení",
+  "You are the lead now.": "Teď jsi vedoucí.",
+  "You offered the lead to {name}; you stay the lead until they accept.": "Nabídl jsi vedení osobě {name}; vedoucím zůstáváš, dokud nepřijme.",
+  "Take the offer back": "Vzít nabídku zpět",
+  "Take the offer back?": "Vzít nabídku zpět?"
  }
 }

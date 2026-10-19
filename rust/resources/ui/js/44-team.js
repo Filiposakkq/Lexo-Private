@@ -59,6 +59,16 @@ export async function teamDialog(done) {
         kids.push(h('div', { class: 'toolbar' }, h('span', null, T('You are'), ' ', h('b', null, me.name || me.author), ' · ', labels[me.role] || me.role),
           h('span', { class: 'spacer' }), me.role === 'lead' ? null : sure(T('Leave the team'), T('Leave this team?'), act('team/leave', {}, T('You left the team.')))));
       }
+      if (st.me.offered) {
+        kids.push(h('div', { class: 'notice warn' }, T('The lead offers you the lead of this team. Taking it needs a Pro licence on this computer; until you accept, the lead stays the lead.'),
+          h('div', { class: 'toolbar' }, h('button', { class: 'btn primary', onclick: async () => {
+            if (!await requireFeature('team.manage')) return;
+            try { await reload(await post('team/accept', {})); toast(T('You are the lead now.'), 'ok'); } catch (e) { fail(e); }
+          } }, T('Accept the lead')))));
+      }
+      if (st.can_manage && st.offer) {
+        kids.push(h('div', { class: 'notice' }, T('You offered the lead to {name}; you stay the lead until they accept.', { name: st.offer.name || st.offer.author }), ' ', sure(T('Take the offer back'), T('Take the offer back?'), act('team/offer_cancel', {}))));
+      }
       const roles = {};
       const rows = st.members.map((m) => {
         const mine = !!m.me;
@@ -68,7 +78,7 @@ export async function teamDialog(done) {
         roles[m.author] = m.role;
         return h('tr', null, h('td', null, h('b', null, m.name || m.author), mine ? h('span', { class: 'muted' }, ' ' + T('(you)')) : null), h('td', null, sel), h('td', { class: 'num' }, m.files),
           st.can_manage ? h('td', { style: { whiteSpace: 'nowrap' } }, mine ? null : h('span', null,
-            sure(T('Make lead'), T('Hand the team over to this person?'), act('team/transfer', { author: m.author }, T('The team was handed over.'))), ' ',
+            st.offer && st.offer.author === m.author ? h('span', { class: 'muted' }, T('offered the lead')) : sure(T('Offer the lead'), T('Offer the lead to this person?'), act('team/offer', { author: m.author }, T('The lead was offered.'))), ' ',
             sure(T('Remove'), T('Remove this person?'), act('team/remove', { author: m.author })))) : null);
       });
       kids.push(h('div', { class: 'tablewrap' }, h('table', { class: 'data' },
