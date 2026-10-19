@@ -40,4 +40,9 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST style/targets` | `{file?, lines?}` | the translated lines a check would look at (cut to the limit of the licence) | `style.check` |
 | `POST style/batch` | `{items}` | verdicts for up to 5 lines `{file, line, ok, remarks, fix, issues}` or an error that stops the batch | `style.check` |
 
+| `POST release/state` | | the settings, the releases so far, the game (name and version from `config.*`), the language | `release.build` |
+| `POST release/settings` | `{settings}` | save the attached files, the options, credits, the output folder (`.aside/release.json`) | `release.build` |
+| `POST release/preview` | `{version, notes}` | the checks, the changes since the last release, the texts; nothing is written | `release.build` |
+| `POST release/build` | `{version, notes, force?}` | write the zip, `.sha256` and the release notes, record the release; `force` builds despite the errors of the check of the translation | `release.build` |
+
 A selection is `[{file, line}]`. The corrections of the style check are written with the operation `mt/apply`. A locked feature answers with the message "“…” is a Pro feature."
