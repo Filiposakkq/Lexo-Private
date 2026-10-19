@@ -36,7 +36,7 @@ const alreadyRecovered = async (env: Env, id: string) =>
   ((await env.DB.prepare("SELECT COUNT(*) AS n FROM events WHERE licence_id = ? AND kind = 'key-recovered'").bind(id).first<{ n: number }>())?.n ?? 0) > 0;
 
 /** `recover/request {email}`: mails a code to the address of a licence; the answer is `ok` for every address. */
-export async function recoverRequest(req: Request, env: Env, now: number): Promise<Response> {
+export async function recoverRequest(req: Request, env: Env, now: number, defer: (work: Promise<unknown>) => void = () => {}): Promise<Response> {
   const b = await body(req);
   const email = cleanEmail(b?.email);
   if (!b || !/^[^@\s]+@[^@\s]+$/.test(email)) return fail("bad_request", 400);
@@ -52,12 +52,12 @@ export async function recoverRequest(req: Request, env: Env, now: number): Promi
   if (l) {
     if (await alreadyRecovered(env, l.id)) {
       await store.logEvent(env.DB, now, l.id, "recover-refused", "already used");
-      await mailCode(env, email, null);
+      defer(mailCode(env, email, null));
     } else {
       const code = newCode();
       await env.DB.prepare("INSERT OR REPLACE INTO recovery_codes (licence_id, code_hash, expires, attempts) VALUES (?,?,?,0)").bind(l.id, await codeHash(l.id, code), now + CODE_MINUTES * 60).run();
       await store.logEvent(env.DB, now, l.id, "recover-request", "");
-      await mailCode(env, email, code);
+      defer(mailCode(env, email, code));
     }
   }
   return json({ ok: true, minutes: CODE_MINUTES });
@@ -70,12 +70,12 @@ export async function recoverConfirm(req: Request, env: Env, now: number): Promi
   const code = str(b?.code);
   if (!b || !email || !normalizeCode(code)) return fail("bad_request", 400);
   const l = await licenceOf(env, email);
-  const row = l ? await env.DB.prepare("SELECT * FROM recovery_codes WHERE licence_id = ?").bind(l.id).first<{ code_hash: string; expires: number; attempts: number }>() : null;
-  if (!l || !row || row.expires < now || row.attempts >= CODE_ATTEMPTS) return fail("invalid_code", 400);
-  if ((await codeHash(l.id, code)) !== row.code_hash) {
-    await env.DB.prepare("UPDATE recovery_codes SET attempts = attempts + 1 WHERE licence_id = ?").bind(l.id).run();
-    return fail("invalid_code", 400);
-  }
+  if (!l) return fail("invalid_code", 400);
+  // an attempt is counted in one statement BEFORE the code is compared: parallel guesses cannot all pass as the first one
+  const counted = await env.DB.prepare("UPDATE recovery_codes SET attempts = attempts + 1 WHERE licence_id = ? AND attempts < ? AND expires >= ?").bind(l.id, CODE_ATTEMPTS, now).run();
+  if (!counted.meta.changes) return fail("invalid_code", 400);
+  const row = await env.DB.prepare("SELECT code_hash FROM recovery_codes WHERE licence_id = ?").bind(l.id).first<{ code_hash: string }>();
+  if (!row || (await codeHash(l.id, code)) !== row.code_hash) return fail("invalid_code", 400);
   if (await alreadyRecovered(env, l.id)) return fail("already_used", 403);
   const key = newKey();
   await store.setKeyHash(env.DB, l.id, await keyHash(key));

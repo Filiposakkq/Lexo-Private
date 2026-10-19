@@ -392,6 +392,15 @@ describe("a lost key", () => {
     expect((await confirm("buyer3@example.com", "DDDD-5555")).json.error).toBe("already_used");
   });
 
+  it("counts parallel guesses one by one, so a burst cannot try more than five codes", async () => {
+    const { id } = await licence({ email: "burst@example.com" });
+    await setCode(id, "EEEE-6666");
+    const wrong = await Promise.all(Array.from({ length: 12 }, (_, i) => confirm("burst@example.com", `GUESS-${i}00`)));
+    expect(wrong.every((r) => r.json.error === "invalid_code")).toBe(true);
+    // the code is locked now, even for the right one
+    expect((await confirm("burst@example.com", "EEEE-6666")).json.error).toBe("invalid_code");
+  });
+
   it("does nothing for a cancelled licence", async () => {
     const { id } = await licence({ email: "gone@example.com" });
     await admin(`licence/${id}/revoke`, {});

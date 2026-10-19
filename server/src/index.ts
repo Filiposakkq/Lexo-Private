@@ -7,7 +7,7 @@ import { recoverConfirm, recoverRequest } from "./recovery.ts";
 const now = () => Math.floor(Date.now() / 1000);
 
 export default {
-  async fetch(req: Request, env: Env): Promise<Response> {
+  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(req.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
     try {
@@ -31,7 +31,7 @@ export default {
           case "/v1/release":
             return await release(req, env, now());
           case "/v1/recover/request":
-            return await recoverRequest(req, env, now());
+            return await recoverRequest(req, env, now(), (work) => ctx.waitUntil(work));
           case "/v1/recover/confirm":
             return await recoverConfirm(req, env, now());
           case "/v1/webhook/lemonsqueezy":
