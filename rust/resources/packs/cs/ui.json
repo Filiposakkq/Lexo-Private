@@ -2055,6 +2055,7 @@
   "That is not enough: choose a folder on a disk with more room, or work in the game itself.": "To nestačí: vyber složku na disku s více místem, nebo pracuj přímo ve hře.",
   "The working copy must not be inside the game folder.": "Pracovní kopie nesmí být uvnitř složky hry.",
   "The working copy cannot go there: {path} is a file.": "Pracovní kopie tam jít nemůže: {path} je soubor.",
-  "There is not enough room on that disk for the working copy: it needs about {need} and {free} is free. Choose a folder on a disk with more room, or work in the game itself (without a copy).": "Na tom disku není dost místa pro pracovní kopii: potřebuje asi {need}, volných je {free}. Vyber složku na disku s více místem, nebo pracuj přímo ve hře (bez kopie)."
+  "There is not enough room on that disk for the working copy: it needs about {need} and {free} is free. Choose a folder on a disk with more room, or work in the game itself (without a copy).": "Na tom disku není dost místa pro pracovní kopii: potřebuje asi {need}, volných je {free}. Vyber složku na disku s více místem, nebo pracuj přímo ve hře (bez kopie).",
+  "The scripts are read with unrpyc, which comes with Aside (version {v}).": "Skripty se čtou programem unrpyc, který je součástí Aside (verze {v})."
  }
 }

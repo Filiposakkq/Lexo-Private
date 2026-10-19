@@ -84,12 +84,25 @@ impl App {
     }
 
     /// The unrpyc the user chose before, or one that lies where it is likely to be (beside the game, in Downloads, on the Desktop).
-    fn prepare_unrpyc(&self, root: &Path) -> Option<PathBuf> {
+    /// unrpyc comes with the application (`tools/unrpyc/v1` for Python 2.7, i.e. Ren'Py 7 and older, and `v2` for Python 3.9+, Ren'Py 8): the one that fits the Python of the game.
+    fn bundled_unrpyc(&self, python: &Path) -> Option<PathBuf> {
+        let py3 = python.components().any(|c| c.as_os_str().to_string_lossy().starts_with("py3-"));
+        let tools = self.packs.bundled.parent()?.join("tools").join("unrpyc");
+        let script = tools.join(if py3 { "v2" } else { "v1" }).join("unrpyc.py");
+        script.is_file().then_some(script)
+    }
+
+    /// Which unrpyc, and where it comes from: `chosen` (the user pointed at one), `bundled` (the one of the application that fits the game's Python) or `found` (one that lies beside the game,
+    /// in Downloads or on the Desktop).
+    fn prepare_unrpyc(&self, root: &Path) -> Option<(PathBuf, &'static str)> {
         let text = std::fs::read_to_string(self.prepare_settings_file()).unwrap_or_default();
         let saved =
             serde_json::from_str::<Value>(&text).ok().map(|v| py_str(&v["unrpyc"])).filter(|p| !p.is_empty()).map(PathBuf::from).filter(|p| p.is_file());
-        if saved.is_some() {
-            return saved;
+        if let Some(p) = saved {
+            return Some((p, "chosen"));
+        }
+        if let Some(b) = lint::find_python(root, Platform::current()).and_then(|py| self.bundled_unrpyc(&py)) {
+            return Some((b, "bundled"));
         }
         let home = ["USERPROFILE", "HOME"].into_iter().find_map(std::env::var_os).map(PathBuf::from);
         let mut places: Vec<PathBuf> = vec![root.to_path_buf()];
@@ -97,7 +110,7 @@ impl App {
         if let Some(h) = home {
             places.extend([h.join("Downloads"), h.join("Desktop")]);
         }
-        places.iter().find_map(|d| unrpyc_in(d))
+        places.iter().find_map(|d| unrpyc_in(d)).map(|p| (p, "found"))
     }
 
     /// Remember where `unrpyc.py` is (the file, or the folder that holds it).
@@ -147,7 +160,8 @@ impl App {
         let name = root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
         Ok(json!({
             "ok": true, "root": root.to_string_lossy(), "name": name, "archives": archives, "scripts": rpy, "bytecode_only": rpyc_only, "translations": translations,
-            "engine": python.is_some() && launcher.is_some(), "unrpyc": unrpyc.map(|p| p.to_string_lossy().into_owned()), "needs_unrpyc": needs_unrpyc,
+            "engine": python.is_some() && launcher.is_some(), "unrpyc": unrpyc.as_ref().map(|u| u.0.to_string_lossy().into_owned()), "unrpyc_source": unrpyc.as_ref().map(|u| u.1),
+            "unrpyc_version": unrpyc.as_ref().filter(|u| u.1 == "bundled").and_then(|u| u.0.parent()?.file_name().map(|n| n.to_string_lossy().into_owned())), "needs_unrpyc": needs_unrpyc,
             "problems": problems.iter().map(Message::wire).collect::<Vec<_>>(), "ready": problems.is_empty(),
             "default_workspace": self.prepare_default_workspace(&root).to_string_lossy(),
         }))

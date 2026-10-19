@@ -16,7 +16,7 @@ fn app_in(tmp: &Path) -> App {
 }
 
 /// A built game: its own engine (a launcher and a Python in lib), a script as source or as bytecode only.
-fn game(root: &Path, bytecode_only: bool) {
+fn game(root: &Path, bytecode_only: bool, py_dir: &str) {
     let plat = if cfg!(windows) {
         "windows"
     } else if cfg!(target_os = "macos") {
@@ -24,7 +24,7 @@ fn game(root: &Path, bytecode_only: bool) {
     } else {
         "linux"
     };
-    let py = root.join("lib").join(format!("py3-{plat}-x86_64"));
+    let py = root.join("lib").join(format!("{py_dir}-{plat}-x86_64"));
     std::fs::create_dir_all(&py).unwrap();
     for f in ["python.exe", "python"] {
         std::fs::write(py.join(f), "").unwrap();
@@ -82,7 +82,7 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
 
     // a game whose scripts are sources: nothing needs unrpyc; the folder of the `game` folder is accepted as well
     let a = tmp.join("Source Game");
-    game(&a, false);
+    game(&a, false, "py3");
     let i = app.prepare_inspect(&a.join("game").to_string_lossy()).unwrap();
     assert_eq!(
         (i["engine"].clone(), i["needs_unrpyc"].clone(), i["ready"].clone(), i["bytecode_only"].clone()),
@@ -117,27 +117,35 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
     app.open_project(folder, false).unwrap();
     assert!(app.library_list().unwrap()["games"].as_array().unwrap().iter().any(|g| g["state"] == "ready"));
 
-    // a game that has only bytecode needs unrpyc: refused until the user says where it is, then decompiled
+    // a game that has only bytecode needs unrpyc: the one that comes with the application is used, of the version that fits the Python of the game (3 -> v2, 2 -> v1)
     let b = tmp.join("Bytecode Game");
-    game(&b, true);
+    game(&b, true, "py3");
     let i = app.prepare_inspect(&b.to_string_lossy()).unwrap();
-    assert_eq!((i["bytecode_only"].clone(), i["needs_unrpyc"].clone(), i["ready"].clone()), (1.into(), true.into(), false.into()), "{i}");
-    assert!(app.prepare_start_with(&b.to_string_lossy(), "czech", "copy", "", runner).is_err());
-    assert!(app.prepare_set_unrpyc(&tmp.join("nothing.py").to_string_lossy()).is_err());
-    let unrpyc = tmp.join("tools/unrpyc");
-    std::fs::create_dir_all(&unrpyc).unwrap();
-    std::fs::write(unrpyc.join("unrpyc.py"), "").unwrap();
-    app.prepare_set_unrpyc(&unrpyc.to_string_lossy()).unwrap();
-    let i = app.prepare_inspect(&b.to_string_lossy()).unwrap();
-    assert_eq!(i["ready"], true, "{i}");
+    assert_eq!((i["bytecode_only"].clone(), i["needs_unrpyc"].clone(), i["ready"].clone()), (1.into(), true.into(), true.into()), "{i}");
+    assert_eq!((i["unrpyc_source"].clone(), i["unrpyc_version"].clone()), ("bundled".into(), "v2".into()), "{i}");
+    let old = tmp.join("Old Game");
+    game(&old, true, "py2");
+    let i = app.prepare_inspect(&old.to_string_lossy()).unwrap();
+    assert_eq!((i["unrpyc_source"].clone(), i["unrpyc_version"].clone(), i["ready"].clone()), ("bundled".into(), "v1".into(), true.into()), "{i}");
+    let v1 = i["unrpyc"].as_str().unwrap().to_string();
+    assert!(Path::new(&v1).is_file() && v1.replace('\\', "/").ends_with("tools/unrpyc/v1/unrpyc.py"), "{v1}");
     let job = app.prepare_start_with(&b.to_string_lossy(), "czech", "copy", "", runner).unwrap()["job"].as_str().unwrap().to_string();
     let done = wait(&app, &job);
     assert_eq!(done["success"], true, "{done}");
     assert!(done["steps"].as_array().unwrap().iter().any(|s| s == "decompile"));
 
+    // one the user points at wins over the bundled one
+    assert!(app.prepare_set_unrpyc(&tmp.join("nothing.py").to_string_lossy()).is_err());
+    let mine = tmp.join("tools/unrpyc");
+    std::fs::create_dir_all(&mine).unwrap();
+    std::fs::write(mine.join("unrpyc.py"), "").unwrap();
+    app.prepare_set_unrpyc(&mine.to_string_lossy()).unwrap();
+    let i = app.prepare_inspect(&b.to_string_lossy()).unwrap();
+    assert_eq!((i["unrpyc_source"].clone(), i["ready"].clone()), ("chosen".into(), true.into()), "{i}");
+
     // in the game itself: no copy at all, the translation is written into the game (the way many translators work)
     let c = tmp.join("In Place Game");
-    game(&c, false);
+    game(&c, false, "py3");
     let job = app.prepare_start_with(&c.to_string_lossy(), "czech", "inplace", "", runner).unwrap()["job"].as_str().unwrap().to_string();
     let done = wait(&app, &job);
     assert_eq!(done["success"], true, "{done}");

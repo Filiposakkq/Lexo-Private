@@ -47,10 +47,11 @@ jobs:
           Start-Process -FilePath $setup.FullName -ArgumentList "/S", "/D=$dir" -PassThru -Wait | Out-Null
           Get-ChildItem $dir -Recurse | Select-Object -ExpandProperty FullName
           $exe = Get-ChildItem $dir -Filter *.exe | Where-Object { $_.Name -notmatch "uninstall" } | Select-Object -First 1
-          foreach ($need in "ui\index.html", "packs\cs\pack.json", "pack\lexo-pro-sidecar.exe") { if (-not (Test-Path (Join-Path $dir $need))) { throw "the installer did not install $need" } }
+          foreach ($need in "ui\index.html", "packs\cs\pack.json", "tools\unrpyc\v1\unrpyc.py", "tools\unrpyc\v2\unrpyc.py", "tools\unrpyc\v2\LICENSE", "pack\lexo-pro-sidecar.exe") { if (-not (Test-Path (Join-Path $dir $need))) { throw "the installer did not install $need" } }
           # hide the folders of the repository, so that the installed copy cannot fall back to them
           Rename-Item rust/resources/ui-classic ui_hidden
           Rename-Item rust/resources/packs packs_hidden
+          Rename-Item rust/resources/tools tools_hidden
           $env:LEXO_SELFTEST = "1"
           $p = Start-Process -FilePath $exe.FullName -RedirectStandardOutput selftest.out -PassThru
           if (-not $p.WaitForExit(240000)) { Stop-Process -Id $p.Id -Force; Get-Content selftest.out; throw "the self-test did not finish" }

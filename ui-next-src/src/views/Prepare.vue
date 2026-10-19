@@ -39,6 +39,7 @@ const checks = computed(() => {
   return [
     { ok: i.engine, text: i.engine ? t('The game has its own engine, so nothing else is needed to write the translation.') : t('The game has no engine of its own (no program of the game with its .py file and a lib folder beside it), so it cannot be prepared here.') },
     { ok: true, text: t('Scripts: {a} as text, {b} only as bytecode; archives: {c}.', { a: i.scripts, b: i.bytecode_only, c: i.archives }) },
+    ...(i.needs_unrpyc && i.unrpyc_source === 'bundled' ? [{ ok: true, text: t('The scripts are read with unrpyc, which comes with Aside (version {v}).', { v: i.unrpyc_version === 'v1' ? '1.3.2' : '2.0.4' }) }] : []),
     ...(i.translations.length ? [{ ok: true, text: t('Translations that already exist: {names}.', { names: i.translations.join(', ') }) }] : []),
   ];
 });
