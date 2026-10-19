@@ -54,3 +54,15 @@ The admin page is `https://api.aside.filiposakkq.dev/admin`: type the admin toke
 ## Changes of the database (do this BEFORE merging code that needs it)
 
 The deploy does not touch the database. When a change adds a file to `migrations/`, run its SQL in the D1 console (Cloudflare, Storage and databases, D1, `aside-licence`, Console) first, and only then merge the code. Executed so far by hand: `0001_init.sql`, then `0002_devices.sql` (the name and the version of a computer).
+
+## Rotating the signing key
+
+Every licence file names the key that signed it (`kid` in the payload; a file without one was signed by `k1`). The pack trusts a list of keys (`TRUSTED_KEYS` in `pro/rust/lexo-pro/src/licence.rs`), the server signs with one (`LICENCE_KID`, default `k1`) and verifies files of older keys (`LICENCE_OLD_PUBLIC_KEYS`). Do this **before** the first release if you can: the first builds then already know the list.
+
+**Planned rotation** (no leak):
+1. `lexo-pro-licence keygen <folder>` makes a new pair; keep the private key outside the repository.
+2. Add `("k2", "<new public hex>")` to `TRUSTED_KEYS`, release a pack version, wait until it has spread (the licence check renews files only when it is due, so allow a few weeks).
+3. In Cloudflare: `LICENCE_SIGNING_KEY` = the new private key; in `wrangler.toml`: `LICENCE_KID = "k2"`, `LICENCE_PUBLIC_KEY` = the new public key, `LICENCE_OLD_PUBLIC_KEYS = '{"k1": "<old public hex>"}'`. Deploy. From now on every renewed file is signed by `k2`; files of `k1` keep working until they are renewed.
+4. Later, remove `k1` from the pack and from `LICENCE_OLD_PUBLIC_KEYS`.
+
+**After a leak of the private key:** as above, and in the same pack release put the old id into `DISTRUSTED_KEYS` (files signed by it are refused, with the reason "no longer trusted"). The server keeps renewing them while `LICENCE_OLD_PUBLIC_KEYS` lists the old key, so honest users get a new file at their next check; drop the old key from that list once the licence ids in the database are checked, because with it the server accepts a forged file of a real licence id. Users whose pack is not yet updated see the licence refused until they update.
