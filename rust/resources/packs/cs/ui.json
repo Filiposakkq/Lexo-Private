@@ -1645,7 +1645,6 @@
   "Looking for translations…": "Hledám překlady…",
   "Nothing could be carried over from that folder.": "Z té složky se nedá nic přenést.",
   "Found {exact} identical and {near} changed lines of {total}; {none} have no match.": "Nalezeno {exact} shodných a {near} změněných řádků z {total}; {none} nemá shodu.",
-  "The demo carries over only the first {limit} lines ({total} were found). A licence removes the limit.": "Demo přenese jen prvních {limit} řádků (nalezeno {total}). Licence limit odstraní.",
   "changed {pct} %": "změněn {pct} %",
   "other variables": "jiné proměnné",
   "Original (the old one below if it changed)": "Originál (starý pod ním, pokud se změnil)",
@@ -1696,7 +1695,6 @@
   "other": "jiné",
   "The style check needs a language model": "Kontrola stylu potřebuje jazykový model",
   "Choose the OpenAI-compatible service, enter the key and give the consent to send text in {where}. DeepL and LibreTranslate are not language models and cannot check the style.": "Vyber službu kompatibilní s OpenAI, zadej klíč a souhlas s odesíláním textu v {where}. DeepL a LibreTranslate nejsou jazykové modely a styl zkontrolovat neumí.",
-  "The demo checks only the first {limit} lines ({total} found). A licence removes the limit.": "Demo zkontroluje jen prvních {limit} řádků (nalezeno {total}). Licence limit odstraní.",
   "At most {n} lines at once – the first {n} will be checked, run again for the rest.": "Najednou nejvýš {n} řádků – zkontroluje se prvních {n}, zbytek spusť znovu.",
   "Nothing to check": "Není co kontrolovat",
   "Unticks the lines where the validator found something in the correction": "Odškrtne řádky, kde validátor v opravě něco našel",
@@ -1726,6 +1724,8 @@
    "Zapsat {n} opravu",
    "Zapsat {n} opravy",
    "Zapsat {n} oprav"
-  ]
+  ],
+  "The demo handles only the first {limit} files ({total} found). A licence removes the limit.": "Demo zpracuje jen prvních {limit} souborů (nalezeno {total}). Licence limit odstraní.",
+  "The demo handles only the first {limit} lines ({total} found). A licence removes the limit.": "Demo zpracuje jen prvních {limit} řádků (nalezeno {total}). Licence limit odstraní."
  }
 }

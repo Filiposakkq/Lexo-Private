@@ -5,7 +5,7 @@ import { speakerLabel } from './11-state.js';
 import { dialog, fail, toast } from './13-feedback.js';
 import { chip, fmtText, fname } from './14-renderers.js';
 import { go } from './16-tabs.js';
-import { requireFeature } from './38-pro.js';
+import { requireFeature, demoNotice } from './38-pro.js';
 /* The style check (a Pro feature): the translated lines are sent, with the original, the profile of the speaker and the lines before, to the language model set up for the machine
    translation; it says what is wrong (the form of address, the gender forms, the tone, the meaning) and gives a corrected text. Lines with a remark are shown with the correction
    you can edit and tick; only the ticked ones are written (the same step as the machine translation, undoable). Approved lines are never overwritten. */
@@ -42,7 +42,7 @@ export async function styleDialog({ picked = [], anchor = null, file = '', scope
     } catch (e) { info.textContent = e.message; return; }
     const n = target.items.length, over = n > LIMIT;
     info.replaceChildren(T('{lines}, about {chars} characters will be sent to {provider}.', { lines: tn(target.total, '{n} translated line', '{n} translated lines'), chars: (target.chars || 0).toLocaleString(locale()), provider: cfg.provider }),
-      target.limited ? h('div', { class: 'notice warn' }, T('The demo checks only the first {limit} lines ({total} found). A licence removes the limit.', { limit: target.limited.limit, total: target.limited.total })) : null,
+      demoNotice(target.limited),
       over ? h('div', { class: 'notice bad' }, T('At most {n} lines at once – the first {n} will be checked, run again for the rest.', { n: LIMIT })) : null,
       h('div', null, T('The service charges by the text sent – check the price with your provider.')));
     run.disabled = !n || running;

@@ -6,7 +6,7 @@ import { dialog, fail, toast } from './13-feedback.js';
 import { chip, fname } from './14-renderers.js';
 import { go } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
-import { requireFeature } from './38-pro.js';
+import { requireFeature, demoNotice } from './38-pro.js';
 /* Fix speaker / attributes / trailing code from the original (the only operation that edits the .rpy files). */
 /* Shows what changed between two texts: common start / end stay plain, the middle is marked. */
 export function diffSpans(before, after) {
@@ -43,6 +43,7 @@ export async function fixDialog({ items = [], file = '', kinds = ['speaker', 'sp
       ...Object.keys(data.counts).filter((k) => data.counts[k]).map((k) => h('button', { class: only === k ? 'on' : '', onclick: () => { only = k; paint(); } }, `${FIX_KIND_LABEL[k]} (${data.counts[k]})`)));
     const vis = visible();
     head.replaceChildren(
+      demoNotice(data.limited),
       only ? h('p', null, FIX_KIND_HELP[only]) : h('p', { class: 'muted' }, tx('Choose what to fix. A backup of the file is made in the subfolder {folder} of the local project data before writing; the change can be undone with the button “Undo the last file change”. The files must be saved in the editor.', { folder: h('b', null, 'backups') })),
       h('div', { class: 'toolbar' }, seg, h('span', { class: 'spacer' }),
         h('button', { class: 'btn small', onclick: () => { vis.forEach((it) => { if (!it.skip) sel.add(key(it)); }); paint(); } }, T('Select all')),

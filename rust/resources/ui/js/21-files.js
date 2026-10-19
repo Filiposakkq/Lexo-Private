@@ -9,7 +9,7 @@ import { groupsDialog } from './37-groups.js';
 import { filterGroup } from './15-filterbar.js';
 import { go, render } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
-import { requireFeature } from './38-pro.js';
+import { requireFeature, demoNotice } from './38-pro.js';
 /* ================================================================ FILES */
 const FL_COLS = () => [
   { k: 'pick', w: 38, label: '', resize: false }, { k: 'name', w: 430, label: T('File'), sortable: true },
@@ -185,7 +185,7 @@ async function bulkAssignDialog(names) {
   let closeFn = () => {};
   paint(); upd();
   closeFn = dialog({ title: names ? tn(rows.length, 'Assignment of {n} selected file', 'Assignment of {n} selected files') : T('Suggested assignment of files to groups'),
-    body: h('div', null, data.groups_defined ? null : h('div', { class: 'notice warn' }, T('The project has no groups yet, so nothing can be suggested except “General”. Set the groups first.'), ' ', h('button', { class: 'btn small', onclick: () => { closeFn(); groupsDialog(() => render()); } }, T('Set up groups…'))), h('p', { class: 'muted' }, T('The suggestion is based on file and folder names (epN, updateN, folder seasonN) and on the assignment of the other files in the same folder. Nothing is written until you confirm. A manually set assignment is overwritten only in the rows you tick yourself.')),
+    body: h('div', null, demoNotice(data.limited), data.groups_defined ? null : h('div', { class: 'notice warn' }, T('The project has no groups yet, so nothing can be suggested except “General”. Set the groups first.'), ' ', h('button', { class: 'btn small', onclick: () => { closeFn(); groupsDialog(() => render()); } }, T('Set up groups…'))), h('p', { class: 'muted' }, T('The suggestion is based on file and folder names (epN, updateN, folder seasonN) and on the assignment of the other files in the same folder. Nothing is written until you confirm. A manually set assignment is overwritten only in the rows you tick yourself.')),
       h('div', { class: 'toolbar' }, filterSel, summary), h('div', { class: 'tablewrap', style: { maxHeight: '55vh' } }, table)),
     buttons: [{ label: T('Cancel') }, { node: applyBtn }] });
 }
