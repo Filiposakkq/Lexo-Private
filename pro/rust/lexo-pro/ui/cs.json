@@ -94,6 +94,15 @@
   "The folder of the release could not be made: {reason}": "Složku vydání se nepodařilo vytvořit: {reason}",
   "The archive could not be written: {reason}": "Archiv se nepodařilo zapsat: {reason}",
   "The archive could not be saved: {reason}": "Archiv se nepodařilo uložit: {reason}",
-  "{n} files are translated only partly; the players will see English in the rest.": "{n} souborů je přeložených jen částečně; hráči v zbytku uvidí angličtinu."
+  "{n} files are translated only partly; the players will see English in the rest.": "{n} souborů je přeložených jen částečně; hráči v zbytku uvidí angličtinu.",
+  "There is no dictionary (.dic file) in this folder.": "V této složce není žádný slovník (soubor .dic).",
+  "There are several dictionaries in this folder ({names}); choose the .dic file itself.": "V této složce je několik slovníků ({names}); vyber přímo soubor .dic.",
+  "The dictionary was not found: {path}": "Slovník nebyl nalezen: {path}",
+  "The dictionary needs its .aff file next to it ({name}).": "Slovník potřebuje vedle sebe svůj soubor .aff ({name}).",
+  "The dictionary could not be copied: {reason}": "Slovník se nepodařilo zkopírovat: {reason}",
+  "The list of ignored words could not be saved: {reason}": "Seznam ignorovaných slov se nepodařilo uložit: {reason}",
+  "No dictionary is added for this language yet.": "Pro tento jazyk zatím není přidaný žádný slovník.",
+  "Enter the word and its replacement.": "Zadej slovo a jeho náhradu.",
+  "The dictionary could not be read: {reason}": "Slovník se nepodařilo přečíst: {reason}"
  }
 }

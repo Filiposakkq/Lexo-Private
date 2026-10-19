@@ -13,6 +13,7 @@ import { diffSpans, fixDialog } from './23-fixes.js';
 import { carryDialog } from './39-carry.js';
 import { mtDialog } from './24-machine-translation.js';
 import { styleDialog } from './41-style-check.js';
+import { spellDialog } from './43-spell.js';
 import { releaseDialog } from './42-release.js';
 import { replaceDialog } from './25-replace.js';
 import { ruleApproveDialog } from './26-approve-rules.js';
@@ -108,6 +109,7 @@ export async function viewEntries() {
         { label: T('Fix…'), hint: T('speaker, spaces, typos'), run: () => fixDialog({ file: pref('entries.file', '') }, async () => { S.files = null; await refreshHeader(); load(true); }) },
         { label: T('Translate with a machine…'), hint: T('selected lines, scene, file'), run: () => openMtDialog() },
         { label: T('Check the style…'), hint: T('Pro: address, gender, tone (language model)'), run: () => openStyleDialog() },
+        { label: T('Check the spelling…'), hint: T('Pro: with a dictionary of the language'), run: () => spellDialog({ file: pref('entries.file', '') }, async () => { S.files = null; await refreshHeader(); load(true); }) },
         { label: T('Build a release…'), hint: T('Pro: a zip for the players'), run: () => releaseDialog() },
       ], { title: T('Bulk edits of translations') }),
       pickInfo, h('span', { class: 'spacer' }), counter,

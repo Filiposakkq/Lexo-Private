@@ -11,7 +11,7 @@ pub struct Feature {
 }
 
 /// The single list of gated features (docs/product/FEATURES.md); every one of them lives in the Pro pack.
-pub const CATALOG: [Feature; 10] = [
+pub const CATALOG: [Feature; 11] = [
     Feature { id: "mt.batch", title: "Batch machine translation" },
     Feature { id: "fixes.safe", title: "Safe bulk fixes with preview" },
     Feature { id: "replace.regex", title: "Regex find & replace" },
@@ -22,6 +22,7 @@ pub const CATALOG: [Feature; 10] = [
     Feature { id: "mt.profiles", title: "Profiles of characters" },
     Feature { id: "style.check", title: "Style check" },
     Feature { id: "release.build", title: "Release builder" },
+    Feature { id: "spell.hunspell", title: "Spelling with a dictionary" },
 ];
 
 pub fn feature(id: &str) -> Option<&'static Feature> {

@@ -138,6 +138,7 @@ fn offers_and_texts_are_the_same() {
     offers.remove("mt.profiles");
     offers.remove("style.check");
     offers.remove("release.build");
+    offers.remove("spell.hunspell");
     assert_eq!(Value::Object(offers), g["offers"]["licensed"]);
     assert_eq!(Value::Object(provider.ui_strings("cs")), g["ui_cs"]);
     assert_eq!(Value::Object(provider.ui_strings("xx")), g["ui_xx"]);

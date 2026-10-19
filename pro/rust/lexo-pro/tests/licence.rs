@@ -41,7 +41,7 @@ fn the_pack_follows_the_licence_file() {
     // all features: everything without a limit
     let all = issue(&mine, &[], "all.json");
     let o = offers(&all, &my_public);
-    assert_eq!(o.len(), 10);
+    assert_eq!(o.len(), 11);
     assert!(o.values().all(|v| v["limit"].is_null()), "{o:?}");
 
     // a licence for one feature: that one is free, the taste features keep their demo limits, the other premium feature is not offered
