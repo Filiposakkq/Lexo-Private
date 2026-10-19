@@ -22,7 +22,7 @@ function Q($s) { '"' + $s + '"' }
 function Stop-Aside { Get-Process lexo-server, lexo-app, lexo-pro-sidecar -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue }
 
 $form = New-Object Windows.Forms.Form
-$form.Text = 'Aside - test launcher'; $form.Size = New-Object Drawing.Size(520, 510); $form.StartPosition = 'CenterScreen'
+$form.Text = 'Aside - test launcher'; $form.Size = New-Object Drawing.Size(520, 540); $form.StartPosition = 'CenterScreen'
 $form.Font = New-Object Drawing.Font('Segoe UI', 10); $form.FormBorderStyle = 'FixedDialog'; $form.MaximizeBox = $false
 
 $modes = [ordered]@{
@@ -55,14 +55,16 @@ $selftest = New-Object Windows.Forms.CheckBox; $selftest.Text = 'Zkusebni projek
 $form.Controls.Add($selftest)
 $clean = New-Object Windows.Forms.CheckBox; $clean.Text = 'Cista nastaveni (docasna slozka, nic se neulozi do tvych)'; $clean.Location = '14,294'; $clean.Size = '470,26'
 $form.Controls.Add($clean)
+$ui = New-Object Windows.Forms.CheckBox; $ui.Text = 'Nove rozhrani (/next/) misto klasickeho'; $ui.Location = '14,370'; $ui.Size = '470,26'
+$form.Controls.Add($ui)
 $build = New-Object Windows.Forms.CheckBox; $build.Text = 'Nejdriv sestavit (cargo build, chvili to trva)'; $build.Location = '14,322'; $build.Size = '470,26'
 $form.Controls.Add($build)
 
 $asapp = New-Object Windows.Forms.CheckBox; $asapp.Text = 'Jako appka (okno Tauri) misto prohlizece'; $asapp.Location = '14,346'; $asapp.Size = '470,26'
 $form.Controls.Add($asapp)
-$go = New-Object Windows.Forms.Button; $go.Text = 'Spustit'; $go.Location = '14,380'; $go.Size = '150,40'; $go.BackColor = [Drawing.Color]::FromArgb(150, 30, 30); $go.ForeColor = 'White'
-$stop = New-Object Windows.Forms.Button; $stop.Text = 'Zastavit'; $stop.Location = '172,380'; $stop.Size = '110,40'
-$status = New-Object Windows.Forms.Label; $status.Location = '14,428'; $status.Size = '480,26'; $status.Text = ''
+$go = New-Object Windows.Forms.Button; $go.Text = 'Spustit'; $go.Location = '14,408'; $go.Size = '150,40'; $go.BackColor = [Drawing.Color]::FromArgb(150, 30, 30); $go.ForeColor = 'White'
+$stop = New-Object Windows.Forms.Button; $stop.Text = 'Zastavit'; $stop.Location = '172,408'; $stop.Size = '110,40'
+$status = New-Object Windows.Forms.Label; $status.Location = '14,456'; $status.Size = '480,26'; $status.Text = ''
 $form.Controls.AddRange(@($go, $stop, $status))
 
 $stop.Add_Click({ Stop-Aside; $status.Text = 'Zastaveno.' })
@@ -94,7 +96,7 @@ $go.Add_Click({
       if (-not $selftest.Checked -and $folder.Text.Trim()) { Set-Content $State $folder.Text.Trim(); Start-Process $App -ArgumentList (Q $folder.Text.Trim()) } else { Start-Process $App }
       $status.Text = 'Appka spustena.'; return
     }
-    $args2 = @('--ui', (Q (Join-Path $Repo 'rust\resources\ui')), '--packs', (Q (Join-Path $Repo 'rust\resources\packs')))
+    $args2 = @('--ui', (Q (Join-Path $Repo 'rust\resources\ui-classic')), '--packs', (Q (Join-Path $Repo 'rust\resources\packs')))
     if ($selftest.Checked) { $args2 += '--selftest' }
     elseif ($folder.Text.Trim()) { $args2 += @('--project', (Q $folder.Text.Trim())); Set-Content $State $folder.Text.Trim() }
     if (Test-Path $Log) { Remove-Item $Log -Force }
@@ -105,6 +107,7 @@ $go.Add_Click({
       if (Test-Path $Log) { $m = Select-String -Path $Log -Pattern 'http://\S+' | Select-Object -First 1; if ($m) { $url = $m.Matches[0].Value } }
       if ($p.HasExited) { break }
     }
+    if ($url -and $ui.Checked) { $url = ($url -replace '\?.*$', '').TrimEnd('/') + '/next/' }
     if ($url) { Start-Process $url; $status.Text = "Bezi: $url" } else { $status.Text = 'Server se nespustil (log: ' + $Log + ')' }
   } catch { $status.Text = 'Chyba: ' + $_.Exception.Message }
 })

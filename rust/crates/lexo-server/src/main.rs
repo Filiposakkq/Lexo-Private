@@ -1,14 +1,14 @@
 //! `lexo-server`: the local server with the UI, on the Rust Core.
 //!
 //!     lexo-server [--project <translation folder>] [--port N] [--ui <folder>] [--packs <folder>]
-//!     lexo-server --selftest         a synthetic project in a temporary folder, for the UI self-test (rust/resources/ui/selftest.js)
+//!     lexo-server --selftest         a synthetic project in a temporary folder, for the UI self-test (rust/resources/ui-classic/selftest.js)
 //!
 //! It prints the address and serves until it is stopped (Ctrl+C); the settings are in the usual folder of the settings (`LEXO_CONFIG_DIR`).
 use lexo_core::app::App;
 use lexo_core::config::Config;
 use lexo_core::lang::Packs;
 use lexo_server::selftest::make_project;
-use lexo_server::{default_packs_dir, default_ui_dir, start, ServerOptions};
+use lexo_server::{default_packs_dir, default_ui_dir, default_ui_next_dir, start, ServerOptions};
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
@@ -51,7 +51,7 @@ fn main() {
             }
             app
         },
-        ServerOptions { ui_dir: ui, port, shell: Box::new(lexo_server::dispatch::NoShell) },
+        ServerOptions { ui_dir: ui, ui_next_dir: default_ui_next_dir(), port, shell: Box::new(lexo_server::dispatch::NoShell) },
     )
     .expect("the server could not be started");
     let mut url = server.url();

@@ -153,6 +153,12 @@ pub fn content_type(name: &str) -> &'static str {
         "json" => "application/json; charset=utf-8",
         "svg" => "image/svg+xml",
         "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "webp" => "image/webp",
+        "woff2" => "font/woff2",
+        "woff" => "font/woff",
+        "mjs" => "text/javascript; charset=utf-8",
+        "txt" => "text/plain; charset=utf-8",
         "ico" => "image/x-icon",
         _ => "application/octet-stream",
     }

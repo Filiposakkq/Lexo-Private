@@ -22,6 +22,61 @@ fn request(port: u16, method: &str, path: &str, headers: &[(&str, &str)], body: 
 }
 
 #[test]
+fn the_new_interface_is_served_at_next_beside_the_classic_one() {
+    std::env::set_var("LEXO_NO_PRO", "1");
+    let tmp = std::env::temp_dir().join(format!("lexo-server-next-{}", std::process::id()));
+    let next = tmp.join("next");
+    std::fs::create_dir_all(next.join("assets")).unwrap();
+    std::fs::write(next.join("index.html"), "<html>NEW __TOKEN__</html>").unwrap();
+    std::fs::write(next.join("assets/app.mjs"), "export const x = 1;").unwrap();
+    std::fs::write(tmp.join("secret.txt"), "no").unwrap();
+    let cfg = tmp.join("cfg");
+    let mut opts = ServerOptions::new(default_ui_dir());
+    opts.ui_next_dir = Some(next.clone());
+    let server = start(
+        move || {
+            let mut config = Config::new(Some(&cfg.join("config.json")));
+            config.load();
+            App::new(config, Packs { bundled: default_packs_dir(), user: None })
+        },
+        opts,
+    )
+    .unwrap();
+    let port = server.addr.port();
+    let token = server.session.token.clone();
+    // the classic one stays at "/", the new one is at "/next/" (also "/next") and carries the token of the run
+    let (code, body) = request(port, "GET", "/", &[], "");
+    assert!(code == 200 && !body.contains("NEW"));
+    for p in ["/next/", "/next"] {
+        let (code, body) = request(port, "GET", p, &[], "");
+        assert_eq!((code, body.contains(&format!("NEW {token}"))), (200, true), "{p}");
+    }
+    assert_eq!(request(port, "GET", "/next/assets/app.mjs", &[], "").0, 200);
+    // nothing outside the folder, and nothing that is not a plain path
+    for p in ["/next/../secret.txt", "/next/assets/../../secret.txt", "/next//etc", "/next/%2e%2e/secret.txt", "/next/missing.js"] {
+        assert_eq!(request(port, "GET", p, &[], "").0, 404, "{p}");
+    }
+}
+
+#[test]
+fn without_a_new_interface_next_is_not_found() {
+    std::env::set_var("LEXO_NO_PRO", "1");
+    let tmp = std::env::temp_dir().join(format!("lexo-server-nonext-{}", std::process::id()));
+    std::fs::create_dir_all(&tmp).unwrap();
+    let cfg = tmp.join("cfg");
+    let server = start(
+        move || {
+            let mut config = Config::new(Some(&cfg.join("config.json")));
+            config.load();
+            App::new(config, Packs { bundled: default_packs_dir(), user: None })
+        },
+        ServerOptions::new(default_ui_dir()),
+    )
+    .unwrap();
+    assert_eq!(request(server.addr.port(), "GET", "/next/", &[], "").0, 404);
+}
+
+#[test]
 fn the_server_serves_the_ui_and_the_operations() {
     std::env::set_var("LEXO_NO_PRO", "1");
     let tmp = std::env::temp_dir().join(format!("lexo-server-test-{}", std::process::id()));

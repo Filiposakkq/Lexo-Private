@@ -3,7 +3,7 @@
 The app is **English first**. English needs no table: **the English text is the key** (`t('Overview')`). Another language is a language pack with a `ui.json`
 (`rust/resources/packs/cs/ui.json` is the first one); the server hands it out (`/api/ui-lang?code=cs`, list: `/api/ui-langs`).
 
-## In the code (`rust/resources/ui/js/05-i18n.js`)
+## In the code (`rust/resources/ui-classic/js/05-i18n.js`)
 | Call | Use |
 |---|---|
 | `t('Text {name}', { name })` | a text with placeholders |

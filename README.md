@@ -13,7 +13,7 @@ and many paths still say **Lexo** (the first working name), which is intentional
   ┌─────▼──────────────────────────┐      ┌────────────────────────────┐
   │ Aside application (Tauri)      │─────▶│ licence server (server/)   │  activate, refresh, lost key
   │  Rust core  +  web UI          │      │  Cloudflare Worker + D1    │
-  │  rust/      rust/resources/ui  │      └────────────────────────────┘
+  │  rust/      rust/resources/ui-classic  │      └────────────────────────────┘
   └─────▲──────────────────────────┘
         │ JSON lines (stdin/stdout)
   ┌─────┴──────────────────────────┐      ┌────────────────────────────┐
@@ -27,7 +27,7 @@ and many paths still say **Lexo** (the first working name), which is intentional
 | Folder | What it is | Kind |
 |---|---|---|
 | [`rust/`](rust/) | **The product.** Cargo workspace: `crates/lexo-core` (the library: parser, writer, checks, project, operations), `lexo-server` (local server for the UI: development and the UI self-test), `lexo-app` (the Tauri application), `lexo-golden` (checks the Rust core against the golden data); `tools/` (comparison scripts against real games) | product |
-| [`rust/resources/ui/`](rust/resources/ui/) | **The user interface** (ES modules `js/NN-name.js`, `index.html`, CSS), shared by the Rust server and the Tauri app | product |
+| [`rust/resources/ui-classic/`](rust/resources/ui-classic/) | **The user interface** (ES modules `js/NN-name.js`, `index.html`, CSS), shared by the Rust server and the Tauri app | product |
 | [`rust/resources/packs/`](rust/resources/packs/) | **Language packs** (`cs`: rules, UI texts) | product |
 | [`rust/resources/assets/`](rust/resources/assets/) | icons and the brand sheet | product |
 | [`pro/rust/`](pro/rust/) | **The Pro pack** (private Cargo workspace): batch machine translation, safe fixes, regex replace, group suggestions, publishing, carry-over, fill from similar translations, profiles of characters, style check, the licence client; `pro/rust/lexo-pro/ui/` has its Czech texts | product (private) |
@@ -60,7 +60,7 @@ cd web\worker & npx.cmd vitest run                                              
 py reference/python/run_tests.py core | free | pro | (no argument = all)
 
 # running the UI against the Rust server (use LEXO_UI_DIR: a stale copy of the UI may sit next to the program in target/)
-set LEXO_UI_DIR=rust\resources\ui & set LEXO_PACKS_DIR=rust\resources\packs
+set LEXO_UI_DIR=rust\resources\ui-classic & set LEXO_PACKS_DIR=rust\resources\packs
 rust\target\debug\lexo-server.exe --project "D:\games\MyGame\game\tl\czech"
 ```
 

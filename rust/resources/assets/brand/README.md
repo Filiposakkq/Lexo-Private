@@ -11,7 +11,7 @@ The vector sources of the logo (colours `#FF315C` to `#FF7043`, ink `#0F0F14`, l
 
 The text in the logos uses the fonts Inter / Manrope when they are installed; for printing or the website convert the text to outlines first.
 
-The icons of the application (`rust/crates/lexo-app/icons/`, `rust/resources/assets/icon.*`, `rust/resources/ui/aside.png`) are PNG renders of `app-icon-1024.svg` cropped to the rounded square (the viewBox has a margin of 64 units); `icon.ico` holds the sizes 16 to 256.
+The icons of the application (`rust/crates/lexo-app/icons/`, `rust/resources/assets/icon.*`, `rust/resources/ui-classic/aside.png`) are PNG renders of `app-icon-1024.svg` cropped to the rounded square (the viewBox has a margin of 64 units); `icon.ico` holds the sizes 16 to 256.
 
 ## The skewed symbol
 

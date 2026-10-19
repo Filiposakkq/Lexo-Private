@@ -3,11 +3,11 @@ name: Rust port
 
 on:
   pull_request:
-    paths: ["rust/**", "pro/**", "testdata/golden/**", "rust/resources/ui/**", ".github/workflows/rust.yml"]
+    paths: ["rust/**", "pro/**", "testdata/golden/**", "rust/resources/ui-classic/**", ".github/workflows/rust.yml"]
   push:
     # a run on main saves the build cache that the pull requests restore (a branch sees only its own caches and those of main)
     branches: [main]
-    paths: ["rust/**", "pro/**", "testdata/golden/**", "rust/resources/ui/**", ".github/workflows/rust.yml"]
+    paths: ["rust/**", "pro/**", "testdata/golden/**", "rust/resources/ui-classic/**", ".github/workflows/rust.yml"]
   workflow_dispatch:
 
 permissions:

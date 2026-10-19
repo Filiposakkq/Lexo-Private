@@ -22,7 +22,7 @@ from lexo.config import config_dir
 from lexo.project import check_project_dir
 from lexo.util import WriteFailed
 
-UI_DIR = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui"   # the UI belongs to the product (rust/resources)
+UI_DIR = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui-classic"   # the UI belongs to the product (rust/resources)
 MAX_BODY = 5 * 1024 * 1024
 
 

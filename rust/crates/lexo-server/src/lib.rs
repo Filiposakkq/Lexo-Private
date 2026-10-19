@@ -18,13 +18,15 @@ use std::sync::Arc;
 
 pub struct ServerOptions {
     pub ui_dir: PathBuf,
+    /// The new interface under development (`rust/resources/ui-next`), served at `/next/` beside the classic one; `None` when there is none.
+    pub ui_next_dir: Option<PathBuf>,
     pub port: u16,
     pub shell: Box<dyn Shell>,
 }
 
 impl ServerOptions {
     pub fn new(ui_dir: PathBuf) -> ServerOptions {
-        ServerOptions { ui_dir, port: 0, shell: Box::new(NoShell) }
+        ServerOptions { ui_dir, ui_next_dir: None, port: 0, shell: Box::new(NoShell) }
     }
 }
 
@@ -57,7 +59,7 @@ impl RunningServer {
 pub fn start(make_app: impl FnOnce() -> App + Send + 'static, options: ServerOptions) -> std::io::Result<RunningServer> {
     let listener = TcpListener::bind(("127.0.0.1", options.port))?;
     let addr = listener.local_addr()?;
-    let session = Arc::new(Session::new(options.ui_dir, format!("http://127.0.0.1:{}/", addr.port()), options.shell));
+    let session = Arc::new(Session::new(options.ui_dir, format!("http://127.0.0.1:{}/", addr.port()), options.shell).with_next(options.ui_next_dir));
     let dispatcher = Dispatcher { session: session.clone(), backend: Backend::spawn(make_app) };
     let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
     {
@@ -125,12 +127,21 @@ fn installed_dir(name: &str, probe: &str) -> Option<PathBuf> {
     dir.join(probe).exists().then_some(dir)
 }
 
-/// The folder with the UI files: `LEXO_UI_DIR`, the `ui` folder next to the program (an installed application), or the folder of this repository.
+/// The folder with the classic UI files: `LEXO_UI_DIR`, the `ui` folder next to the program (an installed application), or `rust/resources/ui-classic` of this repository.
 pub fn default_ui_dir() -> PathBuf {
     if let Some(d) = std::env::var_os("LEXO_UI_DIR") {
         return PathBuf::from(d);
     }
-    installed_dir("ui", "index.html").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/ui"))
+    installed_dir("ui", "index.html").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/ui-classic"))
+}
+
+/// The folder of the new interface under development (served at `/next/`): `LEXO_UI_NEXT_DIR`, the `ui-next` folder next to the program, or `rust/resources/ui-next` of this repository; `None` when it has no `index.html`.
+pub fn default_ui_next_dir() -> Option<PathBuf> {
+    let dir = match std::env::var_os("LEXO_UI_NEXT_DIR") {
+        Some(d) => PathBuf::from(d),
+        None => installed_dir("ui-next", "index.html").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/ui-next")),
+    };
+    dir.join("index.html").is_file().then_some(dir)
 }
 
 /// The folder with the language packs shipped with the application (`LEXO_PACKS_DIR`, the `packs` folder next to the program, or the repository).
