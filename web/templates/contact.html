@@ -75,7 +75,7 @@ sub: Contact
     var btn = document.getElementById("c-send"); btn.disabled = true; btn.textContent = "Sending…";
     AsideAPI.call("contact", { name: v("name"), email: v("email"), topic: topic(), message: v("msg"), website: v("website"), turnstile: token() }).then(function (j) {
       if (!j.ok) { btn.disabled = false; btn.textContent = "Send message"; err.textContent = AsideAPI.why(j); return; }
-      form.innerHTML = '<div class="fdone"><div class="big">✓</div><h2>Message sent.</h2><p>Thank you. The answer goes to the e-mail you gave, usually within a few days.</p></div>';
+      form.innerHTML = '<div class="fdone"><div class="big">✓</div><h2>Message sent.</h2><p>Thank you. The answer goes to the e-mail you gave, usually within a few days. For now it may land in spam or junk, so look there too.</p></div>';
     }, function () { btn.disabled = false; btn.textContent = "Send message"; err.textContent = AsideAPI.why(null); });
   });
 })();

@@ -58,9 +58,10 @@ export const tokenOk = (req: Request, env: Env) => {
 
 export const adminConfigured = (env: Env) => !!(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD) || (!!env.ADMIN_TOKEN && env.ADMIN_TOKEN.length >= 16);
 
-/** How the request got in: "access", "token", or null. */
-export async function admitted(req: Request, env: Env, now: number): Promise<"access" | "token" | null> {
-  if (await accessEmail(req, env, now)) return "access";
+/** Who got in: the Access e-mail, "token" for the emergency token, or null. */
+export async function admitted(req: Request, env: Env, now: number): Promise<string | null> {
+  const email = await accessEmail(req, env, now);
+  if (email) return email;
   if (tokenOk(req, env)) return "token";
   return null;
 }

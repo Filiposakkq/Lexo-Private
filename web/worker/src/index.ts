@@ -14,8 +14,8 @@ async function api(req: Request, env: Env, path: string): Promise<Response> {
     switch (a) {
       case "config": return pub.config(env);
       case "roadmap": return pub.roadmap(req, env);
-      case "feedback": return b ? pub.feedbackInfo(env, b, now()) : fail("not_found", 404);
-      case "tester": return b ? pub.testerInfo(env, b) : fail("not_found", 404);
+      case "feedback": return b ? pub.feedbackInfo(req, env, b, now()) : fail("not_found", 404);
+      case "tester": return b ? pub.testerInfo(req, env, b, now()) : fail("not_found", 404);
       case "showcase": return pub.showcaseList(env);
       case "releases": return pub.releases(env);
       case "download": return b ? pub.download(env, b) : fail("not_found", 404);
@@ -25,6 +25,7 @@ async function api(req: Request, env: Env, path: string): Promise<Response> {
   if (req.method === "POST") {
     switch (a) {
       case "apply": return pub.apply(req, env, now());
+      case "confirm": return pub.confirm(req, env, now());
       case "vote": return pub.vote(req, env, now());
       case "feedback": return b ? pub.feedbackSend(req, env, b, now()) : fail("not_found", 404);
       case "bug": return pub.bugSend(req, env, now());

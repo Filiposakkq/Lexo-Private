@@ -1,10 +1,10 @@
 import type { Env } from "./env.ts";
 import * as mail from "./mail.ts";
-import { body, fail, human, ipHash, isEmail, isUrl, json, line, randomId, salt, sha256Hex, str, text, within } from "./util.ts";
+import { body, fail, hit, human, ipHash, isEmail, isUrl, json, line, over, randomId, salt, sha256Hex, str, text, within } from "./util.ts";
 
 const DAY = 86400;
-/** Applications a day (from everyone together) after which the mails stop, and after which nothing more is taken. */
-const APPLY_QUIET = 25, APPLY_HARD = 150;
+/** How long the link of the confirmation e-mail works. */
+const CONFIRM_HOURS = 48;
 
 // ---------------------------------------------------------------- settings and the round
 
@@ -88,14 +88,14 @@ export async function apply(req: Request, env: Env, now: number): Promise<Respon
   if (!p.open) return fail("closed", 409);
   if (!(await human(env, b.turnstile, req))) return fail("not_human", 403);
   const email = line(f.email, 200);
-  // one open application per e-mail and route (after a "no" the person may apply again)
+  // one open application per e-mail and route (also an unconfirmed one; after a "no" the person may apply again)
   const twin = await env.DB.prepare("SELECT 1 FROM applications WHERE route = ? AND lower(email) = lower(?) AND state != 'declined' LIMIT 1").bind(route, email).first();
   if (twin) return fail("already", 409);
   const ip = await ipHash(req, env);
-  if (!(await within(env, ip, "apply", 3, DAY, now))) return fail("too_many", 429);
-  // a flood from many addresses: past HARD a day nothing is saved, past QUIET it is saved without any e-mail (no mail to strangers, no full inbox)
+  if (!(await within(env, ip, "apply", 2, DAY, now))) return fail("too_many", 429);
   const today = (await env.DB.prepare("SELECT COUNT(*) AS n FROM applications WHERE created > ?").bind(now - DAY).first<{ n: number }>())?.n ?? 0;
-  if (today >= APPLY_HARD) return fail("too_many", 429);
+  // applications a day from everyone together (setting apply_day); past it the form says "try tomorrow", so no flood of confirmation e-mails to strangers
+  if (today >= Number((await settings(env)).apply_day ?? 30)) return fail("busy", 429);
   // what the applicant saw, as label / value pairs, cleaned and limited
   const answers = (Array.isArray(b.answers) ? b.answers : [])
     .slice(0, 40)
@@ -103,17 +103,53 @@ export async function apply(req: Request, env: Env, now: number): Promise<Respon
     .filter(Boolean);
   const id = randomId(10);
   const nick = line(f.nick, 60);
-  await env.DB.prepare("INSERT INTO applications (id, route, created, nick, email, lang, answers, ip_hash) VALUES (?,?,?,?,?,?,?,?)")
-    .bind(id, route, now, nick, email, line(f.lang ?? (Array.isArray(f.speak) ? f.speak.join(", ") : ""), 120), JSON.stringify(answers), ip)
+  // without e-mail (development) there is no way to confirm, so the application counts at once
+  const token = env.RESEND_API_KEY ? randomId(24) : null;
+  await env.DB.prepare("INSERT INTO applications (id, route, created, nick, email, lang, answers, ip_hash, verify_token, verified) VALUES (?,?,?,?,?,?,?,?,?,?)")
+    .bind(id, route, now, nick, email, line(f.lang ?? (Array.isArray(f.speak) ? f.speak.join(", ") : ""), 120), JSON.stringify(answers), ip, token, token ? null : now)
     .run();
-  const left = route === "test" ? p.test.places - p.test.taken : p.licence.places - p.licence.taken;
-  if (today >= APPLY_QUIET) return json({ ok: true, id, waitlist: left <= 0 });
-  await mail.send(env, email, mail.received(route, nick, p.round, left <= 0));
-  await mail.notifyOwner(env, `New application: ${route === "test" ? "testing" : "licence"} · ${nick}`, [
-    `${nick} <${email}> applied for ${route === "test" ? "testing" : "a sponsored licence"} in ${p.round}.`,
-    route === "licence" ? `Game: ${line(f.game, 120)} · ${line(f.lang, 60)}` + (f.exception ? " · asks for an exception" : "") : `Experience: ${line(f.exp, 80)}`,
+  if (!token) {
+    await announce(env, id);
+    return json({ ok: true, id, confirm: false, waitlist: left(p, route) <= 0 });
+  }
+  const mailed = await mail.send(env, email, mail.verify(route, nick, p.round, token, env), { kind: "verify", app: id });
+  return json({ ok: true, id, confirm: true, mailed });
+}
+
+const left = (p: Program, route: string) => (route === "test" ? p.test.places - p.test.taken : p.licence.places - p.licence.taken);
+
+/** Tells the owner about a (confirmed) application. */
+async function announce(env: Env, id: string): Promise<void> {
+  const a = await env.DB.prepare("SELECT route, nick, email, answers FROM applications WHERE id = ?").bind(id).first<{ route: string; nick: string; email: string; answers: string }>();
+  if (!a) return;
+  const p = await program(env);
+  let pairs: [string, unknown][] = [];
+  try {
+    pairs = JSON.parse(a.answers) as [string, unknown][];
+  } catch {}
+  const find = (re: RegExp) => String(pairs.find((x) => re.test(x[0]))?.[1] ?? "");
+  await mail.notifyOwner(env, `New application: ${a.route === "test" ? "testing" : "licence"} · ${a.nick}`, [
+    `${a.nick} <${a.email}> applied for ${a.route === "test" ? "testing" : "a sponsored licence"} in ${p.round} and confirmed the e-mail.`,
+    a.route === "licence" ? `Game: ${find(/^game/i)}` : `Experience: ${find(/experience/i)}`,
   ]);
-  return json({ ok: true, id, waitlist: left <= 0 });
+}
+
+/** The link of the confirmation e-mail: the page sends the token here when the person presses "Confirm". */
+export async function confirm(req: Request, env: Env, now: number): Promise<Response> {
+  const b = await body(req, 2000);
+  const token = str(b?.token);
+  const ip = await ipHash(req, env);
+  if (await over(env, ip, "badcode", 20, 3600, now)) return fail("too_many", 429);
+  const a = CODE_RE.test(token)
+    ? await env.DB.prepare("SELECT id, route, nick FROM applications WHERE verify_token = ? AND verified IS NULL AND created > ?").bind(token, now - CONFIRM_HOURS * 3600).first<{ id: string; route: string; nick: string }>()
+    : null;
+  if (!a) {
+    await hit(env, ip, "badcode", now);
+    return fail("not_found", 404);
+  }
+  await env.DB.prepare("UPDATE applications SET verified = ?, verify_token = NULL WHERE id = ?").bind(now, a.id).run();
+  await announce(env, a.id);
+  return json({ ok: true, nick: a.nick, route: a.route, waitlist: left(await program(env), a.route) <= 0 });
 }
 
 // ---------------------------------------------------------------- roadmap and votes
@@ -159,8 +195,21 @@ interface AppRow {
   fb2_sent: number | null; fb2_done: number | null; fb4_sent: number | null; fb4_done: number | null;
 }
 const CODE_RE = /^[a-z2-9]{16,40}$/;
-const byCode = (env: Env, code: string) =>
-  CODE_RE.test(code) ? env.DB.prepare("SELECT * FROM applications WHERE code = ? AND state = 'accepted'").bind(code).first<AppRow>() : Promise.resolve(null);
+
+/** The accepted person of a personal link. Wrong links are counted per address: after 20 in an hour the address gets nothing for a while,
+ *  so links cannot be guessed (they are 24 random characters anyway). Pages can be switched off for everyone in the admin. */
+async function byCode(req: Request, env: Env, code: string, now: number): Promise<AppRow | Response> {
+  const ip = await ipHash(req, env);
+  if (await over(env, ip, "badcode", 20, 3600, now)) return fail("too_many", 429);
+  const a = CODE_RE.test(code) ? await env.DB.prepare("SELECT * FROM applications WHERE code = ? AND state = 'accepted'").bind(code).first<AppRow>() : null;
+  if (!a) {
+    await hit(env, ip, "badcode", now);
+    return fail("not_found", 404);
+  }
+  if ((await settings(env)).pages_open === "0") return fail("paused", 403);
+  await env.DB.prepare("UPDATE applications SET last_seen = ? WHERE id = ?").bind(now, a.id).run();
+  return a;
+}
 
 const gameOf = (a: AppRow) => {
   try {
@@ -171,17 +220,19 @@ const gameOf = (a: AppRow) => {
   }
 };
 
-export async function feedbackInfo(env: Env, code: string, now: number): Promise<Response> {
-  const a = await byCode(env, code);
-  if (!a || a.route !== "licence") return fail("not_found", 404);
+export async function feedbackInfo(req: Request, env: Env, code: string, now: number): Promise<Response> {
+  const a = await byCode(req, env, code, now);
+  if (a instanceof Response) return a;
+  if (a.route !== "licence") return fail("not_found", 404);
   const next = !a.fb2_done ? "2w" : !a.fb4_done ? "4w" : null;
   const day = a.trial_start ? Math.floor((now - a.trial_start) / DAY) : null;
   return json({ ok: true, nick: a.nick, game: gameOf(a), next, done: { "2w": !!a.fb2_done, "4w": !!a.fb4_done }, day });
 }
 
 export async function feedbackSend(req: Request, env: Env, code: string, now: number): Promise<Response> {
-  const a = await byCode(env, code);
-  if (!a || a.route !== "licence") return fail("not_found", 404);
+  const a = await byCode(req, env, code, now);
+  if (a instanceof Response) return a;
+  if (a.route !== "licence") return fail("not_found", 404);
   const b = await body(req, 30_000);
   const which = b?.which === "2w" || b?.which === "4w" ? b.which : null;
   if (!b || !which) return fail("bad_request", 400);
@@ -198,10 +249,10 @@ export async function feedbackSend(req: Request, env: Env, code: string, now: nu
   return json({ ok: true });
 }
 
-export async function testerInfo(env: Env, code: string): Promise<Response> {
-  const a = await byCode(env, code);
-  if (!a) return fail("not_found", 404);
-  const bugs = (await env.DB.prepare("SELECT id, created, title, severity, state FROM bugs WHERE application_id = ? ORDER BY id DESC LIMIT 50").bind(a.id).all()).results;
+export async function testerInfo(req: Request, env: Env, code: string, now: number): Promise<Response> {
+  const a = await byCode(req, env, code, now);
+  if (a instanceof Response) return a;
+  const bugs = (await env.DB.prepare("SELECT id, created, title, severity, state, reply, replied FROM bugs WHERE application_id = ? ORDER BY id DESC LIMIT 50").bind(a.id).all()).results;
   return json({ ok: true, nick: a.nick, bugs });
 }
 
@@ -209,8 +260,9 @@ const IMAGE_RE = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/;
 
 export async function bugSend(req: Request, env: Env, now: number): Promise<Response> {
   const b = await body(req, 2_000_000);
-  const a = await byCode(env, str(b?.code));
-  if (!b || !a) return fail("not_found", 404);
+  if (!b) return fail("bad_request", 400);
+  const a = await byCode(req, env, str(b.code), now);
+  if (a instanceof Response) return a;
   const title = line(b.title, 140);
   const steps = text(b.steps, 4000);
   if (title.length < 5 || steps.length < 20) return fail("missing", 422, { field: title.length < 5 ? "title" : "steps" });

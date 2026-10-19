@@ -1,5 +1,5 @@
 import { env, exports } from "cloudflare:workers";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { daily } from "../src/cron.ts";
 import type { Env } from "../src/env.ts";
 import { render } from "../src/mail.ts";
@@ -43,6 +43,11 @@ const licensee = (extra: Json = {}) => ({
   answers: [["Game and version", "Eternum 0.9"]],
 });
 
+beforeAll(async () => {
+  // many applications are made in this file within one "day"
+  await admin("settings", { apply_day: 500 });
+});
+
 describe("beta applications", () => {
   it("accepts a complete application and counts places only for accepted ones", async () => {
     const r = await call("/api/apply", { body: tester() });
@@ -76,12 +81,12 @@ describe("beta applications", () => {
     await admin("settings", { open: true, places_licence: 3 });
   });
 
-  it("the hidden field silently drops bots, and one address may apply at most three times a day", async () => {
+  it("the hidden field silently drops bots, and one address may apply at most twice a day", async () => {
     const bot = await call("/api/apply", { body: { ...tester({ nick: "Robot" }), website: "spam" } });
     expect(bot.json.ok).toBe(true);
     expect(((await admin("applications?state=")).json.items as Json[]).some((a) => a.nick === "Robot")).toBe(false);
     const same = { "cf-connecting-ip": "203.0.113.9" };
-    for (let i = 0; i < 3; i++) expect((await call("/api/apply", { body: tester(), headers: same })).status).toBe(200);
+    for (let i = 0; i < 2; i++) expect((await call("/api/apply", { body: tester(), headers: same })).status).toBe(200);
     expect((await call("/api/apply", { body: tester(), headers: same })).json.error).toBe("too_many");
   });
 
@@ -95,6 +100,85 @@ describe("beta applications", () => {
     expect((await call("/api/apply", { body: licensee({ email }) })).status).toBe(200);
     await admin(`application/${first.json.id}/decide`, { state: "declined" });
     expect((await call("/api/apply", { body: tester({ email }) })).status).toBe(200);
+  });
+});
+
+describe("confirming the e-mail", () => {
+  it("with e-mail set up, an application counts only after the link in the confirmation e-mail", async () => {
+    const sent: Json[] = [];
+    const real = globalThis.fetch;
+    const spy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const u = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (u.startsWith("https://api.resend.com/")) {
+        sent.push(JSON.parse(String(init?.body)));
+        return new Response('{"id":"x"}', { status: 200 });
+      }
+      return real(input, init);
+    });
+    (E as { RESEND_API_KEY?: string }).RESEND_API_KEY = "re_test";
+    try {
+      const email = `confirm${uid()}@example.com`;
+      const r = await call("/api/apply", { body: tester({ email }) });
+      expect(r.json).toMatchObject({ ok: true, confirm: true, mailed: true });
+      expect(sent.at(-1)!.to).toBe(email);
+      const token = /#confirm=([a-z2-9]+)/.exec(sent.at(-1)!.text)![1]!;
+      // not in the list yet, and the owner was not told
+      expect(((await admin("applications?state=")).json.items as Json[]).some((a) => a.id === r.json.id)).toBe(false);
+      expect(((await admin("applications?state=unconfirmed")).json.items as Json[]).some((a) => a.id === r.json.id)).toBe(true);
+      expect(sent).toHaveLength(1);
+      // the same e-mail cannot be used again while it waits
+      expect((await call("/api/apply", { body: tester({ email }) })).json.error).toBe("already");
+      expect((await call("/api/confirm", { body: { token: "abcdefghjkmnpqrstuvwxyz2" } })).status).toBe(404);
+      const ok = await call("/api/confirm", { body: { token } });
+      expect(ok.json).toMatchObject({ ok: true, nick: "Mira" });
+      expect(sent.at(-1)!.subject).toContain("New application");
+      expect((await call("/api/confirm", { body: { token } })).status).toBe(404);
+      expect(((await admin("applications?state=new")).json.items as Json[]).some((a) => a.id === r.json.id)).toBe(true);
+      // the history of e-mails of the person has the confirmation e-mail
+      expect(((await admin(`application/${r.json.id}`)).json.mails as Json[]).map((m) => m.kind)).toContain("verify");
+    } finally {
+      delete (E as { RESEND_API_KEY?: string }).RESEND_API_KEY;
+      spy.mockRestore();
+    }
+  });
+
+  it("unconfirmed applications disappear after 48 hours", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    await E.DB.prepare("INSERT INTO applications (id, route, created, nick, email, answers, verify_token) VALUES ('oldunconf', 'test', ?, 'Old', 'old@example.com', '[]', 'oldtokenoldtokenoldtoken')").bind(now - 3 * DAY).run();
+    await daily(E, now);
+    expect((await admin("application/oldunconf")).status).toBe(404);
+  });
+});
+
+describe("people", () => {
+  it("an accepted person can only be removed (not declined), which kills the link; readmitting gives a new link", async () => {
+    const id = (await call("/api/apply", { body: tester() })).json.id;
+    const code = (await admin(`application/${id}/decide`, { state: "accepted" })).json.code;
+    expect((await call(`/api/tester/${code}`)).status).toBe(200);
+    expect((await admin(`application/${id}/decide`, { state: "declined" })).json.error).toBe("use_remove");
+    expect(((await admin("people")).json.items as Json[]).find((p) => p.id === id)).toMatchObject({ state: "accepted", has_link: 1 });
+    await admin(`application/${id}/remove`, { reason: "Never tested" });
+    expect((await call(`/api/tester/${code}`)).status).toBe(404);
+    expect((await call("/api/config")).json.program.test.taken).toBe(((await admin("people?route=test")).json.items as Json[]).filter((p) => p.state === "accepted").length);
+    const again = (await admin(`application/${id}/readmit`, {})).json.code;
+    expect(again).not.toBe(code);
+    expect((await call(`/api/tester/${again}`)).status).toBe(200);
+    const fresh = (await admin(`application/${id}/newcode`, {})).json.code;
+    expect((await call(`/api/tester/${again}`)).status).toBe(404);
+    expect((await call(`/api/tester/${fresh}`)).status).toBe(200);
+    expect(((await admin(`application/${id}`)).json.log as Json[]).map((l) => l.action)).toEqual(expect.arrayContaining(["remove", "readmit", "new link"]));
+  });
+
+  it("wrong links are limited per address, and the pages can be switched off", async () => {
+    const ip = { "cf-connecting-ip": "203.0.113.77" };
+    for (let i = 0; i < 20; i++) await call("/api/tester/abcdefghjkmnpqrstuvw" + i, { headers: ip });
+    expect((await call("/api/tester/abcdefghjkmnpqrstuvwx", { headers: ip })).status).toBe(429);
+    const id = (await call("/api/apply", { body: tester() })).json.id;
+    const code = (await admin(`application/${id}/decide`, { state: "accepted" })).json.code;
+    await admin("settings", { pages_open: false });
+    expect((await call(`/api/tester/${code}`)).json.error).toBe("paused");
+    await admin("settings", { pages_open: true });
+    expect((await call(`/api/tester/${code}`)).status).toBe(200);
   });
 });
 
@@ -142,10 +226,20 @@ describe("bug reports of testers", () => {
     expect((await call(`/api/tester/${code}`)).json.bugs[0]).toMatchObject({ title: "Save fails twice", state: "new" });
     const img = await call(`/admin/api/bug/${r.json.id}/image`, { headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } });
     expect(img.res.headers.get("content-type")).toBe("image/png");
+    expect(new Uint8Array(await img.res.arrayBuffer()).slice(0, 4)).toEqual(new Uint8Array([0x89, 0x50, 0x4e, 0x47]));
     expect((await call(`/admin/api/bug/${r.json.id}/image`)).status).toBe(401);
     expect((await call("/api/bug", { body: { ...bug, code, title: "x" } })).json.field).toBe("title");
-    await admin(`bug/${r.json.id}`, { state: "fixed", note: "in 2.0.1" });
-    expect((await call(`/api/tester/${code}`)).json.bugs[0].state).toBe("fixed");
+    await admin(`bug/${r.json.id}`, { state: "fixed", note: "in 2.0.1", reply: "Fixed in 2.0.1, thanks!" });
+    const mine = (await call(`/api/tester/${code}`)).json.bugs[0];
+    expect(mine).toMatchObject({ state: "fixed", reply: "Fixed in 2.0.1, thanks!" });
+    expect(mine.note).toBeUndefined();
+    const listed = ((await admin("bugs?state=fixed")).json.items as Json[]).find((b) => b.id === r.json.id)!;
+    expect(listed.closed).toBeGreaterThan(0);
+    expect(listed.image_size).toBeGreaterThan(0);
+    await admin(`bug/${r.json.id}/delete-image`, {});
+    expect((await call(`/admin/api/bug/${r.json.id}/image`, { headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } })).status).toBe(404);
+    await admin(`bug/${r.json.id}/delete`, {});
+    expect((await call(`/api/tester/${code}`)).json.bugs).toHaveLength(0);
   });
 });
 
@@ -230,6 +324,34 @@ describe("the admin", () => {
     await admin(`application/${id}/delete`, {});
     expect((await admin(`application/${id}`)).status).toBe(404);
     expect(((await admin("bugs")).json.items as Json[]).some((b) => b.title === "Crash on start")).toBe(false);
+  });
+});
+
+describe("data tools", () => {
+  it("bulk delete, clean-up, search, export and the log", async () => {
+    const a = (await call("/api/apply", { body: tester({ nick: "Searchable Sam" }) })).json.id;
+    const b = (await call("/api/apply", { body: tester() })).json.id;
+    await admin(`application/${b}/decide`, { state: "declined" });
+    expect(((await admin("search?q=Searchable")).json.items as Json[]).some((x) => x.id === a)).toBe(true);
+    const csv = await call("/admin/api/export/applications", { headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } });
+    expect(csv.res.headers.get("content-type")).toContain("text/csv");
+    expect(await csv.res.text()).toContain("Searchable Sam");
+    const backup = await call("/admin/api/export/backup", { headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } });
+    expect(Object.keys(backup.json)).toEqual(expect.arrayContaining(["applications", "bugs", "mails", "log"]));
+    expect((await admin("cleanup", { what: "declined", days: 0 })).json.deleted).toBeGreaterThan(0);
+    expect((await admin(`application/${b}`)).status).toBe(404);
+    expect((await admin("bulk", { kind: "applications", ids: [a] })).json.deleted).toBe(1);
+    expect((await admin(`application/${a}`)).status).toBe(404);
+    const st = (await admin("storage")).json;
+    expect(st.rows.applications).toBeGreaterThan(0);
+    expect(((await admin("log")).json.items as Json[]).map((l) => l.action)).toEqual(expect.arrayContaining(["bulk delete", "clean up"]));
+  });
+
+  it("group e-mails need e-mail set up; templates are kept", async () => {
+    expect((await admin("mail/send", { to: "test", subject: "Hi", body: "Hello {nick}" })).json.error).toBe("mail_not_configured");
+    expect(((await admin("templates")).json.items as Json[]).map((t) => t.id)).toEqual(expect.arrayContaining(["build", "key"]));
+    await admin("template", { name: "Thanks", subject: "Thank you", body: "Thanks {nick}" });
+    expect(((await admin("templates")).json.items as Json[]).some((t) => t.name === "Thanks")).toBe(true);
   });
 });
 

@@ -32,38 +32,52 @@ ${parts.join("\n")}
   return { text, html };
 }
 
-/** Sends a mail through Resend. Returns whether it was sent; without RESEND_API_KEY nothing is sent (the data is still saved). */
-export async function send(env: Env, to: string, m: Mail): Promise<boolean> {
-  if (!env.RESEND_API_KEY || !to) return false;
+/** Who a mail belongs to and what kind it is, for the history of e-mails in the admin. Without it the mail is not recorded. */
+export interface Meta { kind: string; app?: string | null }
+
+/** Sends a mail through Resend and records it (with `meta`) in the history. Returns whether it was sent; without RESEND_API_KEY nothing is sent (the data is still saved). */
+export async function send(env: Env, to: string, m: Mail, meta?: Meta): Promise<boolean> {
+  if (!to) return false;
   const { text, html } = render(m);
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: env.MAIL_FROM ?? "Filip from Aside <aside@filiposakkq.dev>", to, subject: m.subject, text, html, reply_to: env.OWNER_EMAIL ?? "aside@filiposakkq.dev" }),
-    });
-    return r.ok;
-  } catch {
-    return false;
+  let ok = false;
+  if (env.RESEND_API_KEY) {
+    try {
+      const r = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
+        body: JSON.stringify({ from: env.MAIL_FROM ?? "Filip from Aside <aside@filiposakkq.dev>", to, subject: m.subject, text, html, reply_to: env.OWNER_EMAIL ?? "aside@filiposakkq.dev" }),
+      });
+      ok = r.ok;
+    } catch {
+      ok = false;
+    }
   }
+  if (meta)
+    await env.DB.prepare("INSERT INTO mails (created, application_id, to_email, kind, subject, body, sent) VALUES (?,?,?,?,?,?,?)")
+      .bind(Math.floor(Date.now() / 1000), meta.app ?? null, to, meta.kind, m.subject, text.slice(0, 20000), ok ? 1 : 0)
+      .run();
+  return ok;
 }
 
 /** A short notice to the owner (new application, message, bug, showcase entry). */
 export const notifyOwner = (env: Env, subject: string, lines: string[]) =>
   send(env, env.OWNER_EMAIL ?? "aside@filiposakkq.dev", { subject, lines: [...lines, site(env) + "/admin"] });
 
+/** The personal page of an accepted person: bug reports for testers, feedback for licences. */
+export const pageLink = (env: Env, route: string, code: string | null) => (code ? `${site(env)}/${route === "test" ? "report" : "feedback"}.html#${code}` : "");
+
 // ---------------------------------------------------------------- the mails to people
 
 const ROUTE = { test: "testing", licence: "a sponsored licence" } as const;
 
-export function received(route: "test" | "licence", nick: string, round: string, waitlist: boolean): Mail {
+export function verify(route: "test" | "licence", nick: string, round: string, token: string, env: Env): Mail {
   return {
-    subject: "Your Aside application arrived",
+    subject: "Confirm your Aside application",
     lines: [
       `Hi ${nick},`,
-      `thank you for applying for ${ROUTE[route]} in ${round}.` + (waitlist ? " This round is full, so your application is on the waiting list; you will hear from me when a place opens." : ""),
-      "Every application is read by hand. You will get an answer within 14 days, yes or no.",
-      "If you want to add something, just reply to this e-mail.",
+      `someone (hopefully you) applied for ${ROUTE[route]} in ${round} with this e-mail address. Please confirm it was you; only confirmed applications are read:`,
+      `${site(env)}/beta.html#confirm=${token}`,
+      "The link works for 48 hours. If you did not apply, ignore this e-mail and the application is deleted by itself.",
     ],
   };
 }
@@ -119,6 +133,40 @@ export function feedbackInvite(which: "2w" | "4w", nick: string, code: string, e
       which === "4w" ? "After this one, your full licence follows." : "Thank you!",
     ],
   };
+}
+
+export function removed(route: "test" | "licence", nick: string, extra: string): Mail {
+  return {
+    subject: route === "test" ? "About your place in the Aside test team" : "About your sponsored Aside licence",
+    lines: [
+      `Hi ${nick},`,
+      route === "test"
+        ? "I have taken you out of the Aside test team, and your bug report page no longer works. Thank you for the time you gave to Aside."
+        : "I have ended your sponsored Aside licence, and your feedback page no longer works.",
+      ...(extra ? [extra] : []),
+      "If you think this is a mistake, just reply to this e-mail.",
+    ],
+  };
+}
+
+export function newLink(route: "test" | "licence", nick: string, link: string): Mail {
+  return {
+    subject: route === "test" ? "Your new bug report link" : "Your new feedback link",
+    lines: [`Hi ${nick},`, "here is your new personal link. The old one no longer works; keep this one to yourself:", link],
+  };
+}
+
+export function bugReply(nick: string, id: number, title: string, state: string, answer: string, link: string): Mail {
+  return {
+    subject: `Bug #${id}: ${title}`.slice(0, 140),
+    lines: [`Hi ${nick},`, `about your report #${id} "${title}"` + (state ? ` (now: ${state})` : "") + ":", answer, "You can see all your reports on your page:", link].filter(Boolean),
+  };
+}
+
+/** A mail written in the admin: {nick} and {link} are filled in; paragraphs are separated by an empty line. */
+export function custom(subject: string, body: string, nick: string, link: string): Mail {
+  const fill = (t: string) => t.replace(/\{nick\}/g, nick).replace(/\{link\}/g, link);
+  return { subject: fill(subject), lines: fill(body).split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) };
 }
 
 export function reply(nick: string, body: string, original: string): Mail {

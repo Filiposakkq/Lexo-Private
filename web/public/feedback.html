@@ -109,7 +109,7 @@
   AsideAPI.live().then(function (live) {
     if (!live) return fail("The feedback form works on the Aside website. Open your personal link from the e-mail there.");
     AsideAPI.call("feedback/" + code).then(function (j) {
-      if (!j.ok) return fail("This link is not valid any more. If you think that is a mistake, write to aside@filiposakkq.dev.");
+      if (!j.ok) return fail(j.error === "paused" ? "The feedback page is paused for a while. Please try again later." : j.error === "too_many" ? "Too many tries from this address. Please wait an hour." : "This link is not valid any more. If you got a new link by e-mail, use that one; otherwise write to aside@filiposakkq.dev.");
       document.getElementById("fb-state").hidden = false;
       document.getElementById("st-2").className = j.done["2w"] ? "done" : j.next === "2w" ? "now" : "";
       document.getElementById("st-4").className = j.done["4w"] ? "done" : j.next === "4w" ? "now" : "";
