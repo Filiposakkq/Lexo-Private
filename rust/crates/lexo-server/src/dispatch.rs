@@ -331,6 +331,44 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "git/state" | "git/pull" | "git/push" => {
+                let route = r.to_string();
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let out = match route.as_str() {
+                        "git/state" => app.git_state()?,
+                        "git/pull" => app.git_pull()?,
+                        _ => app.git_push()?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
+            "team/state" | "team/join" | "team/create" | "team/set" | "team/stats" | "team/notes" | "team/note_add" | "team/note_resolve" | "team/changes"
+            | "team/seen" | "team/leave" | "team/remove" | "team/restore" | "team/offer" | "team/offer_cancel" | "team/accept" | "team/disband" => {
+                let (route, d) = (r.to_string(), Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
+                    let out = match route.as_str() {
+                        "team/state" => app.team_state()?,
+                        "team/join" => app.team_join(d["name"].as_str().unwrap_or(""))?,
+                        "team/create" => app.team_create()?,
+                        "team/stats" => app.team_stats(d["days"].as_i64())?,
+                        "team/notes" => app.team_notes(&text("file"), d["line"].as_i64().unwrap_or(0))?,
+                        "team/note_add" => app.team_note_add(&text("file"), d["line"].as_i64().unwrap_or(0), &text("text"))?,
+                        "team/note_resolve" => app.team_note_resolve(&text("id"), &text("file"), d["line"].as_i64().unwrap_or(0))?,
+                        "team/changes" => app.team_changes()?,
+                        "team/seen" => app.team_mark_seen()?,
+                        "team/leave" => app.team_leave()?,
+                        "team/remove" => app.team_remove(&text("author"))?,
+                        "team/restore" => app.team_restore(&text("author"))?,
+                        "team/offer" => app.team_offer(&text("author"))?,
+                        "team/offer_cancel" => app.team_offer_cancel()?,
+                        "team/accept" => app.team_accept()?,
+                        "team/disband" => app.team_disband()?,
+                        _ => app.team_set(&d["roles"], &d["assign"])?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "profile/list" | "profile/set" => {
                 let (set, d) = (r == "profile/set", Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {

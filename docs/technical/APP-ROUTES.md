@@ -43,6 +43,26 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST release/state` | | the settings, the releases so far, the game (name and version from `config.*`), the language | `release.build` |
 | `POST release/settings` | `{settings}` | save the attached files, the options, credits, the output folder (`.aside/release.json`) | `release.build` |
 | `POST release/preview` | `{version, notes}` | the checks, the changes since the last release, the texts; nothing is written | `release.build` |
+| `POST git/state` | | `{available, repo, branch, remote, upstream, behind, ahead, changes}`: git in the translation folder (no change is made) | |
+| `POST git/pull` | | `git pull --rebase --autostash` and read the files again; on a failure the rebase is cancelled | |
+| `POST git/push` | | add the translation folder, commit ("Translation update by …") when it changed, push; when the server is ahead, pull and push once more | |
+| `POST team/state` | | `{exists, me: {author, name, joined, lead}, members: [{author, name, role, me, files}], assign: {file: [author]}, my_files, can_manage}` | |
+| `POST team/join` | `{name}` | write your own file `.aside/team/members/<author>.json` | |
+| `POST team/create` | | make the project a team with you as the lead (`.aside/team/lead.json`) | `team.manage` |
+| `POST team/set` | `{roles, assign}` | the lead's roles and assignments; the pack cleans them; `dropped` counts what it removed | `team.manage` |
+| `POST team/leave` | | leave the team: your own file in `members/` is deleted (not for the lead) | |
+| `POST team/remove` | `{author}` | the lead removes a person (listed in `removed` of `lead.json`; their role and files are dropped) | `team.manage` |
+| `POST team/restore` | `{author}` | the lead takes a removed person back | `team.manage` |
+| `POST team/offer` | `{author}` | the lead offers the lead to a member (`offer` in `lead.json`); the lead stays the lead until the offer is accepted | `team.manage` |
+| `POST team/offer_cancel` | | the lead takes the offer back | `team.manage` |
+| `POST team/accept` | | the offered person takes the lead (the licence is checked on **their** computer); the old lead becomes a translator | `team.manage` |
+| `POST team/disband` | | end the team: `lead.json` is deleted | `team.manage` |
+| `POST team/stats` | `{days?}` | statistics per person for the lead: `{members: [{author, name, role, files, lines, done_pct, proof_pct, edited, approved, marked, proofread_updates, last}], unassigned}` | `team.manage` |
+| `POST team/notes` | `{file, line}` | the notes of a line, oldest first: `{exists, notes: [{id, author, name, t, text, resolved}]}` | |
+| `POST team/note_add` | `{file, line, text}` | a note to the team on a line (own file `.aside/team/notes/<author>.jsonl`) | |
+| `POST team/note_resolve` | `{id, file, line}` | mark a note as dealt with (a line of your own file) | |
+| `POST team/changes` | | what the others did since your last look: `{since, items: [{author, name, what, file, n}], notes, total}` | |
+| `POST team/seen` | | move the point of your last look to now (local file `team-seen.json`) | |
 | `POST spell/state` | | the language of the project, whether a dictionary is added (and its name), how many words are ignored | |
 | `POST spell/add` | `{path}` | copy the dictionary (a `.dic` file or a folder with one; the `.aff` file next to it) to the settings of the application; the pack reads it once to prove it works | `spell.hunspell` |
 | `POST spell/remove` | | remove the dictionary of this language | |

@@ -10,6 +10,7 @@ import { filterGroup } from './15-filterbar.js';
 import { go, render } from './16-tabs.js';
 import { refreshHeader } from './17-project.js';
 import { requireFeature, demoNotice } from './38-pro.js';
+import { teamState, teamDialog, rolesOf } from './44-team.js';
 /* ================================================================ FILES */
 const FL_COLS = () => [
   { k: 'pick', w: 38, label: '', resize: false }, { k: 'name', w: 430, label: T('File'), sortable: true },
@@ -18,10 +19,16 @@ const FL_COLS = () => [
   { k: 'order', w: 112, label: T('State'), sortable: true }, { k: 'warn', w: 84, label: T('Check'), sortable: true },
 ];
 const assignKey = (a) => (!a ? 1000 : a === 'gen' ? 900 : parseInt(a.slice(3), 10));
+/* The team of the project (null or {exists: false} without one): who the files are assigned to. */
+let TEAM = null;
+const whoOf = (r) => (TEAM && TEAM.exists ? TEAM.assign[r.name] || [] : []);
+const nameOf = (a) => { const m = TEAM && TEAM.members.find((x) => x.author === a); return m ? (m.name || a) : a; };
 function fileView() {
   const f = pref('files', {});
   const q = (f.q || '').toLowerCase();
+  const who = f.who || '*';
   let rows = S.files.filter((r) => (!q || r.name.toLowerCase().includes(q)) &&
+    (who === '*' || !TEAM || !TEAM.exists || (who === 'mine' ? whoOf(r).includes(TEAM.me.author) : who === 'none' ? !whoOf(r).length : whoOf(r).includes(who))) &&
     (f.assign === undefined || f.assign === '*' || f.assign === r.assign) &&
     ((f.filter || 'all') === 'all' || (f.filter === 'open' && r.todo > 0) || (f.filter === 'rev' && r.todo === 0 && r.corr < r.total) || (f.filter === 'done' && r.corr >= r.total)));
   const sk = f.sortk || 'name', dir = f.sortdir || 1;
@@ -32,6 +39,7 @@ function fileView() {
 }
 export async function viewFiles() {
   S.files = await get('files').then((r) => r.files);
+  TEAM = await teamState();
   S.overview = S.overview || await get('overview');
   const f = pref('files', {});
   const root = h('div', { class: 'split cols', style: { '--detail-w': pref('files.detailw', 350) + 'px' } });
@@ -47,9 +55,15 @@ export async function viewFiles() {
     h('option', { value: '*' }, T('Assignment: all')), h('option', { value: '' }, T('Unassigned')), h('option', { value: 'gen' }, T('General')),
     ...groupNumbers().map((n) => h('option', { value: 'ep:' + n }, groupName(n))));
   asel.value = f.assign === undefined ? '*' : f.assign;
+  const whoSel = h('select', { title: T('Filter by person'), onchange: (e) => { setPref('files.who', e.target.value); draw(); } },
+    h('option', { value: '*' }, T('Person: all')), h('option', { value: 'mine' }, T('My files')), h('option', { value: 'none' }, T('Nobody')),
+    ...(TEAM && TEAM.exists ? TEAM.members.map((m) => h('option', { value: m.author }, m.name || m.author)) : []));
+  whoSel.value = f.who || '*';
   main.append(h('div', { class: 'pane-head' }, h('div', { class: 'toolbar filterbar' }, search, filterGroup(T('State'), seg), filterGroup(T('Assignment'), asel),
     h('button', { class: 'btn', onclick: () => bulkAssignDialog(null) }, T('Suggest assignment…')), pickBtn,
-    h('button', { class: 'btn', title: T('What the groups (episodes, chapters…) are called and which numbers exist'), onclick: () => groupsDialog(() => render()) }, T('Groups…')), h('span', { class: 'spacer' }), counter)));
+    h('button', { class: 'btn', title: T('What the groups (episodes, chapters…) are called and which numbers exist'), onclick: () => groupsDialog(() => render()) }, T('Groups…')),
+    h('button', { class: 'btn', title: T('Who is in the team of this project and who has which files'), onclick: () => teamDialog(() => render()) }, T('Team…')),
+    TEAM && TEAM.exists ? filterGroup(T('Person'), whoSel) : null, h('span', { class: 'spacer' }), counter)));
   const wrap = h('div', { class: 'pane-body' });
   main.append(wrap);
   root.append(main, makeSplitter(root, 'h', { key: 'files.detailw', def: 350, min: 260, maxFrac: 0.6 }), detail);
@@ -57,7 +71,9 @@ export async function viewFiles() {
   function draw() {
     const rows = fileView();
     const sk = pref('files.sortk', 'name'), dir = pref('files.sortdir', 1);
-    const cols = FL_COLS().map((c) => c.k === 'pick' ? { ...c, node: h('input', { type: 'checkbox', title: T('Select all shown'), checked: rows.length && rows.every((r) => S.fl.picked.has(r.name)),
+    const cols0 = FL_COLS();
+    if (TEAM && TEAM.exists) cols0.splice(3, 0, { k: 'who', w: 180, label: T('Assigned to') });
+    const cols = cols0.map((c) => c.k === 'pick' ? { ...c, node: h('input', { type: 'checkbox', title: T('Select all shown'), checked: rows.length && rows.every((r) => S.fl.picked.has(r.name)),
       onchange: (e) => { rows.forEach((r) => e.target.checked ? S.fl.picked.add(r.name) : S.fl.picked.delete(r.name)); draw(); } }) } : c);
     const t = buildTable({ key: 'files', cols, sort: { k: sk, dir }, onSort: (k) => { setPref('files.sortdir', k === sk ? -dir : 1); setPref('files.sortk', k); draw(); } });
     const tw = h('div', { class: 'tablewrap' }, t.table);
@@ -77,18 +93,30 @@ export async function viewFiles() {
         h('td', null, h('select', { class: 'asg', value: r.assign, onclick: (e) => e.stopPropagation(), onchange: async (e) => {
           try { await post('assign', { name: r.name, v: e.target.value }); r.assign = e.target.value; toast(T('Assignment: {name} → {value}', { name: r.name.split(/[\\/]/).pop(), value: e.target.selectedOptions[0].text })); refreshHeader(); draw(); drawDetail(); } catch (err) { fail(err); e.target.value = r.assign; }
         } }, h('option', { value: '' }, T('Unassigned')), h('option', { value: 'gen' }, T('General')), groupNumbers().map((n) => h('option', { value: 'ep:' + n }, groupName(n))))),
+        TEAM && TEAM.exists ? h('td', null, personCell(r)) : null,
         h('td', null, numCell(r, 't')), h('td', null, numCell(r, 'c')),
         h('td', { class: 'num' }, fmtN(r.todo)), h('td', { class: 'num' }, fmtN(Math.max(0, r.total - r.corr))), h('td', null, chip(r.status, STATUS_LABEL[r.status])),
         h('td', null, r.errors ? h('span', { class: 'badge', title: T('Errors') }, r.errors) : null, ' ', r.warnings ? h('span', { class: 'badge warn', title: T('Warnings') }, r.warnings) : null));
       t.tbody.append(tr);
     });
-    t.tfoot.append(h('tr', null, h('td'), h('td', null, T('Total ({n} shown)', { n: rows.length })), h('td'),
+    t.tfoot.append(h('tr', null, h('td'), h('td', null, T('Total ({n} shown)', { n: rows.length })), h('td'), TEAM && TEAM.exists ? h('td') : null,
       h('td', { class: 'num' }, `${fmtN(d)} / ${fmtN(tot)}  (${fmtPct(tot ? d / tot * 100 : 0)})`), h('td', { class: 'num' }, `${fmtN(c)} (${fmtPct(tot ? c / tot * 100 : 0)})`), h('td', { class: 'num' }, fmtN(rem)), h('td', { class: 'num' }, fmtN(remRev)), h('td'), h('td')));
     const keep = wrap.scrollTop;
     wrap.replaceChildren(tw); wrap.scrollTop = keep;
     counter.textContent = T('Showing {n} of {total} files', { n: rows.length, total: S.files.length });
     pickBtn.disabled = !S.fl.picked.size;
     pickBtn.textContent = S.fl.picked.size ? T('Assign selected ({n})…', { n: S.fl.picked.size }) : T('Assign selected…');
+  }
+  /* The person a file is given to: the lead (Pro) picks it, the others see it. */
+  function personCell(r) {
+    const who = whoOf(r);
+    const mine = TEAM.me && who.includes(TEAM.me.author);
+    if (!TEAM.can_manage) return h('span', { class: mine ? '' : 'muted', title: mine ? T('This file is yours.') : '' }, who.length ? who.map(nameOf).join(', ') : '–');
+    return h('select', { class: 'asg', onclick: (e) => e.stopPropagation(), onchange: async (e) => {
+      const assign = { ...TEAM.assign };
+      if (e.target.value) assign[r.name] = [e.target.value]; else delete assign[r.name];
+      try { TEAM = await post('team/set', { roles: rolesOf(TEAM), assign }); draw(); } catch (err) { fail(err); }
+    } }, h('option', { value: '' }, '–'), TEAM.members.map((m) => h('option', { value: m.author, selected: who[0] === m.author }, m.name || m.author)));
   }
   function numCell(r, which) {
     const isT = which === 't';

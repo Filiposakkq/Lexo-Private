@@ -20,6 +20,7 @@ of every feature see [FEATURES.md](../product/FEATURES.md). This document says w
 | Fill from similar translations (`memory.fuzzy`) | Lines › Tools › *Fill from similar translations…* | locked | – | no |
 | Profiles of characters (`mt.profiles`) | Glossary › *Profile…* per speaker | locked | a language model for the batch translation | with the batch translation only |
 | Style check (`style.check`) | Lines › Tools › *Check the style…* | locked | an OpenAI-compatible service, the consent | **yes**, to that service |
+| Team management (`team.manage`) | Files › *Team…*, column *Assigned to* | locked (members need no licence) | – | no |
 | Spelling with a dictionary (`spell.hunspell`) | Lines › Tools › *Check the spelling…* | locked | a Hunspell dictionary added by you | no |
 | Release builder (`release.build`) | Lines › Tools › *Build a release…* | locked | – | no (nothing is uploaded) |
 
@@ -68,6 +69,12 @@ sends the profile with every line of that speaker, so that a language model keep
 Sends each translated line, with its original, the two lines before it and the profile of the speaker, to the language model of the machine translation (OpenAI-compatible service only), and shows
 what is wrong: the **form of address**, the **gender forms**, the **tone**, the **meaning**, with a corrected text. Lines without a remark are only counted. The corrections you tick are written like a
 machine translation (one undo step). The service charges by the text sent (the dialog shows how much will be sent). The quality of the remarks depends on the model; read them before ticking.
+
+## Team (lead: Pro; members: free)
+Several people on one translation without a server: the team is the people who share the translation folder, and every person writes only their own files in it (no conflicts). **The full guide is [TEAMS.md](TEAMS.md).** In short:
+- **Everybody (Free):** *Files › Team…* – say who you are, see the members, roles and your files; the table of files has the column **Assigned to** and the filter **Person** (*My files*); the Team window shows the **news** since your last look; the tab **Team** of a line holds **notes to the team**.
+- **The lead (Pro, `team.manage`):** makes the team, gives roles (translator, proofreader) and files, removes people or takes them back, offers the lead to another member (who must accept it with their own licence), ends it, and sees the **statistics** per person (progress of their files, changed, approved and marked lines, last activity). Any member can leave. A team belongs to one game (its translation folder). If the folder is shared with git, the Team window has the buttons **Get changes** and **Send changes** (Free, for everybody).
+- **A team of trust:** whoever has the folder can write in it; roles and assignments say who does what, they do not stop anybody. Only the lead needs a licence.
 
 ## Spelling with a dictionary
 Checks the translated lines against a **Hunspell dictionary** (a `.dic` file with its `.aff` file) of the language of the project. The free check from the project's own vocabulary stays as it is; this one knows real words, so it also finds words that are wrong everywhere in the project.

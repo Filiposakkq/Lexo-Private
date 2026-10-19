@@ -105,6 +105,7 @@ Every tool shows a **preview**, writes only what you tick, and is **one undoable
 | **Carry over from the previous version…** | Pro: the translation of an old version of the game by the original text. |
 | **Fill from similar translations…** | Pro: untranslated lines from similar originals of the same speaker in the project. |
 | **Check the style…** | Pro: a language model checks the form of address, gender forms, tone and meaning. |
+| **Team…** (Files) | The people who share the folder: who is in the team, their roles and files; the lead (Pro) makes the team and gives roles and files. |
 | **Check the spelling…** | Pro: the lines are checked against a Hunspell dictionary of the language, with suggestions and corrections. |
 | **Build a release…** | Pro: the translation as a zip for the players, with the files you attach, a README, a changelog and your own numbering. |
 
@@ -183,7 +184,7 @@ Without a key by default (find them in the palette): quick translating, quick pr
 | Anything | **Snapshots**: restore the whole translation (or chosen files) from an earlier state |
 
 ## 11. Working in a team
-Put the translation folder in a shared place (git, Dropbox, Syncthing). Each person's changes of state (approvals, proofreading, glossary, assignments) go to their own log in `.aside/events/`; the logs are merged when the project is opened or refreshed, so they never conflict. Split the work by files. Real team features (assignments, roles, merging edits per block) are planned (see [TEAMWORK.md](../product/TEAMWORK.md)).
+Put the translation folder in a shared place (git, Dropbox, Syncthing). Each person's changes of state (approvals, proofreading, glossary, assignments) go to their own log in `.aside/events/`; the logs are merged when the project is opened or refreshed, so they never conflict. Split the work by files. For teams there is **Files › Team…** (members, roles, files given to people, news, notes to the team; the lead needs a Pro licence): the full guide is [TEAMS.md](TEAMS.md). With git, the Team window has the buttons **Get changes** and **Send changes**. Merging edits of one file per block is not built (see [TEAMWORK.md](../product/TEAMWORK.md)).
 
 ## 12. The Pro features in short
 | Feature | Where |

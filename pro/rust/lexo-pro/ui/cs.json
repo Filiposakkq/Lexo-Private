@@ -103,6 +103,25 @@
   "The list of ignored words could not be saved: {reason}": "Seznam ignorovaných slov se nepodařilo uložit: {reason}",
   "No dictionary is added for this language yet.": "Pro tento jazyk zatím není přidaný žádný slovník.",
   "Enter the word and its replacement.": "Zadej slovo a jeho náhradu.",
-  "The dictionary could not be read: {reason}": "Slovník se nepodařilo přečíst: {reason}"
+  "The dictionary could not be read: {reason}": "Slovník se nepodařilo přečíst: {reason}",
+  "The team data could not be saved: {reason}": "Data týmu se nepodařilo uložit: {reason}",
+  "Enter your name.": "Zadej své jméno.",
+  "Enter your name first.": "Nejdřív zadej své jméno.",
+  "This project already has a team.": "Tento projekt už tým má.",
+  "This project has no team yet.": "Tento projekt zatím nemá tým.",
+  "Only the lead of the team can change roles and assignments.": "Role a přidělení souborů může měnit jen vedoucí týmu.",
+  "Only the lead of the team can see the statistics.": "Statistiky může vidět jen vedoucí týmu.",
+  "Write the note first.": "Nejdřív napiš poznámku.",
+  "The lead removed you from this team; ask the lead to take you back.": "Vedoucí tě z tohoto týmu odebral; požádej ho, ať tě vrátí.",
+  "You are the lead: hand the team over to someone or disband it first.": "Jsi vedoucí: nejdřív předej tým někomu jinému, nebo ho ukonči.",
+  "Choose another member of the team.": "Vyber jiného člena týmu.",
+  "Nobody offered you the lead of this team.": "Nikdo ti nenabídl vedení tohoto týmu.",
+  "git is not installed on this computer.": "Na tomto počítači není nainstalovaný git.",
+  "This folder is not a git repository.": "Tato složka není repozitář gitu.",
+  "{what} did not work: {reason}": "{what} se nepovedlo: {reason}",
+  "Getting the changes": "Stažení změn",
+  "Adding the changes": "Přidání změn",
+  "Saving the changes": "Uložení změn",
+  "Sending the changes": "Odeslání změn"
  }
 }

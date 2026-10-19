@@ -13,6 +13,7 @@ const TITLES = {
   'style.check': () => T('Style check'),
   'release.build': () => T('Release builder'),
   'spell.hunspell': () => T('Spelling with a dictionary'),
+  'team.manage': () => T('Team management'),
 };
 let cache = null;
 /* {tier, features: {id: {available, limit}}, problems}; without an answer everything counts as available so the real call can report the truth. */

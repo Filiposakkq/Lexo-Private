@@ -28,7 +28,7 @@ fn the_sidecar_speaks_the_protocol_and_the_application_uses_it() {
     // 1. the protocol, directly
     let p = SidecarProvider::start(Path::new(SIDECAR)).unwrap();
     assert_eq!((p.api(), p.version()), (1, env!("CARGO_PKG_VERSION").to_string()));
-    assert_eq!(p.offers().len(), 11);
+    assert_eq!(p.offers().len(), 12);
     assert!(p.ui_strings("cs").len() > 5 && p.ui_strings("xx").is_empty());
     let ok = p.call("replace.regex", "substitute", &json!({"pattern": "a", "replace": "b", "texts": ["banana"]})).unwrap();
     assert_eq!(ok["results"][0], json!({"new": "bbnbnb", "n": 3}));
