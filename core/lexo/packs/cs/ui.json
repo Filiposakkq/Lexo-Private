@@ -1634,6 +1634,32 @@
   "If the address belongs to a licence, a code was sent to it (valid for {n} minutes). Enter it here.": "Pokud adresa patří k nějaké licenci, byl na ni poslán kód (platí {n} min). Zadej ho sem.",
   "You get a new key and the old one stops working. Computers where Aside is already activated keep working. This can be done once per licence.": "Dostaneš nový klíč a starý přestane fungovat. Počítače, kde je Aside už aktivovaný, fungují dál. Jde to jednou na licenci.",
   "Your new key": "Tvůj nový klíč",
-  "Your new key is {key}. The old key no longer works. It was also sent to your e-mail.": "Tvůj nový klíč je {key}. Starý klíč už nefunguje. Poslali jsme ho také e-mailem."
+  "Your new key is {key}. The old key no longer works. It was also sent to your e-mail.": "Tvůj nový klíč je {key}. Starý klíč už nefunguje. Poslali jsme ho také e-mailem.",
+  "Carry over from the previous version…": "Přenést překlad z předchozí verze…",
+  "Pro: translation of the old game version": "Pro: překlad staré verze hry",
+  "Carry a translation over to a new version": "Přenos překladu do nové verze",
+  "Carry the translation over from the previous version": "Přenést překlad z předchozí verze",
+  "Folder of the previous (translated) version": "Složka předchozí (přeložené) verze",
+  "Find": "Najít",
+  "The open project is the NEW version of the game. Choose the folder of the OLD, translated version: the translation of every line whose original is the same (or almost the same) is looked up there. Nothing is written until you confirm; the change can be undone.": "Otevřený projekt je NOVÁ verze hry. Vyber složku STARÉ, přeložené verze: hledá se v ní překlad každého řádku, jehož originál je stejný (nebo skoro stejný). Dokud nepotvrdíš, nic se nezapisuje; změnu lze vrátit zpět.",
+  "Looking for translations…": "Hledám překlady…",
+  "Nothing could be carried over from that folder.": "Z té složky se nedá nic přenést.",
+  "Found {exact} identical and {near} changed lines of {total}; {none} have no match.": "Nalezeno {exact} shodných a {near} změněných řádků z {total}; {none} nemá shodu.",
+  "The demo carries over only the first {limit} lines ({total} were found). A licence removes the limit.": "Demo přenese jen prvních {limit} řádků (nalezeno {total}). Licence limit odstraní.",
+  "Undo: “Undo”.": "Zpět: „Zpět“.",
+  "changed {pct} %": "změněn {pct} %",
+  "other variables": "jiné proměnné",
+  "Original (the old one below if it changed)": "Originál (starý pod ním, pokud se změnil)",
+  "Translation from the previous version": "Překlad z předchozí verze",
+  "Carried over {n} line|Carried over {n} lines": [
+   "Přenesen {n} řádek",
+   "Přeneseny {n} řádky",
+   "Přeneseno {n} řádků"
+  ],
+  "Carry over {n} line|Carry over {n} lines": [
+   "Přenést {n} řádek",
+   "Přenést {n} řádky",
+   "Přenést {n} řádků"
+  ]
  }
 }

@@ -17,7 +17,8 @@ UI_JS = Path(__file__).resolve().parent.parent / "lexo_free" / "ui" / "js"
 SESSION = {("GET", "focus"), ("GET", "ping"), ("POST", "focus"), ("POST", "window/open"), ("POST", "window/fullscreen"), ("POST", "project/pick"), ("POST", "bye"),
            ("GET", "licence"), ("POST", "licence/activate"), ("POST", "licence/refresh"), ("POST", "licence/deactivate"),
            ("POST", "licence/devices"), ("POST", "licence/release"), ("POST", "licence/rename"),
-           ("POST", "licence/recover"), ("POST", "licence/recover-confirm")}
+           ("POST", "licence/recover"), ("POST", "licence/recover-confirm"),
+           ("POST", "carry/pick"), ("POST", "carry/preview"), ("POST", "carry/apply")}
 CALL = re.compile(r"""(?<![.\w])(get|post)\(\s*['"]([\w/.-]+)['"]""")          # get('x') / post('x'), not params.get('x')
 URL = re.compile(r"""['"`]/api/([\w/.-]+)""")
 

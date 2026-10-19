@@ -275,6 +275,23 @@ impl Dispatcher {
             | "licence/rename"
             | "licence/recover"
             | "licence/recover-confirm" => self.licence(r.strip_prefix("licence/").unwrap_or(""), Value::Object(d)),
+            "carry/pick" => match self.session.shell.pick_folder() {
+                None => Reply::error(400, msg("Choosing a folder is not available in this mode – enter the path by hand.", &[])),
+                Some(None) => Reply::json(200, &json!({"ok": true, "cancelled": true})),
+                Some(Some(path)) => Reply::json(200, &json!({"ok": true, "cancelled": false, "path": path})),
+            },
+            "carry/preview" | "carry/apply" => {
+                let (apply, d) = (r == "carry/apply", Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let (path, ratio) = (d["old"].as_str().unwrap_or("").to_string(), d["min_ratio"].as_f64().unwrap_or(0.8));
+                    let out = if apply {
+                        app.carry_apply(&path, ratio, d["selections"].as_array().map_or(&[][..], |v| v.as_slice()))?
+                    } else {
+                        app.carry_preview(&path, ratio)?
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "focus" => {
                 if !self.backend.run(|app| app.ready()).unwrap_or(false) {
                     return Reply::error(400, msg("No project is open.", &[]));
