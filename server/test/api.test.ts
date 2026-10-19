@@ -57,6 +57,13 @@ describe("the calls of the application", () => {
     expect((await call("/v1/refresh", { body: { licence: stranger, device: device(1) } })).json.error).toBe("bad_licence");
   });
 
+  it("never gives more places than the licence has, even when the computers activate at the same moment", async () => {
+    const { key } = await licence({ max_devices: 2 });
+    const answers = await Promise.all(Array.from({ length: 8 }, (_, i) => call("/v1/activate", { body: { key, device: device(20 + i) } })));
+    expect(answers.filter((r) => r.status === 200).length).toBe(2);
+    expect(answers.filter((r) => r.json.error === "device_limit").length).toBe(6);
+  });
+
   it("refuses an unknown key and a bad request", async () => {
     expect((await call("/v1/activate", { body: { key: "ASIDE-NOPE0-NOPE0-NOPE0-NOPE0", device: device(1) } })).json.error).toBe("invalid_key");
     expect((await call("/v1/activate", { body: { key: "x", device: "not a device" } })).json.error).toBe("bad_request");

@@ -82,3 +82,10 @@ The key is stored only as a hash, so it cannot be sent again; the user gets a **
 Limits: **1 code per hour and 3 per day** for an address (also counted for unknown addresses), the code is valid **15 minutes** and has **5 attempts**, and a licence can be recovered this way **once**; the next time goes through the owner (admin: "New key"). If an address has several licences, the newest active one is used.
 
 **Database change before the code is deployed** (D1 console; it is `migrations/0003_recovery.sql`): create the tables `recovery_requests` and `recovery_codes`.
+
+## What the licence does and does not stop (hardening)
+
+- The age of a licence file is measured with the later of the clock, the highest time the computer has seen (`clock.seen` next to the licence) and the signed time of issue, so turning the clock back does not keep a cancelled licence alive. Someone who deletes `clock.seen` gets back at most the time to the end of the file (14 + 14 days).
+- The device id includes the identifier of the machine, so copying `licence.json` and `device.id` to another computer gives another device that has to take a place. (After this change, computers activated before it need to enter the key once more.)
+- A place is taken in one statement that checks the limit, so parallel activations cannot exceed `max_devices`.
+- Not stopped: patching the program, a replaced Core (it is open source), a licence file kept offline until it ends. Rate limits by IP belong to Cloudflare (a rule on `/v1/activate`, `/v1/refresh`, `/v1/recover/request`).
