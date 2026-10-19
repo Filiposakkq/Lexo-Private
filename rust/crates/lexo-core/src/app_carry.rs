@@ -90,12 +90,20 @@ impl App {
     }
 
     /// Writes the translations of the ticked lines (`selections`: `[{file, line}]`) as one undoable step with backups.
-    pub fn carry_apply(&mut self, old_path: &str, min_ratio: f64, selections: &[Value]) -> Res<Value> {
+    /// With `mark`, the lines whose original had changed ("near") are marked "to fix" with a note, so that they show in the filter of lines to check; lines with the same original are not.
+    pub fn carry_apply(&mut self, old_path: &str, min_ratio: f64, selections: &[Value], mark: bool) -> Res<Value> {
         let chosen: BTreeSet<(String, i64)> = selections.iter().map(|x| (py_str(&x["file"]), x["line"].as_i64().unwrap_or(0))).collect();
         if chosen.is_empty() {
             return Err(app_err(msg("No line is selected.", &[])));
         }
         let plan = self.carry_plan(old_path, min_ratio)?;
+        let plan_near: Vec<(String, usize)> = plan["items"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|i| i["kind"] == "near" && chosen.contains(&(py_str(&i["file"]), i["line"].as_i64().unwrap_or(0))))
+            .map(|i| (py_str(&i["file"]), i["line"].as_u64().unwrap_or(0) as usize))
+            .collect();
         let edits: Vec<(String, usize, String)> = plan["items"]
             .as_array()
             .into_iter()
@@ -122,6 +130,26 @@ impl App {
         let mut out = self.changed("carry")?;
         out.insert("changed".into(), json!(res.changed));
         out.insert("files".into(), json!(res.files));
+        // the lines that were carried over from a changed original are marked for a check (an own undo step of the marks)
+        let mut marked = 0;
+        if mark {
+            let near: Vec<(String, usize)> = plan_near;
+            let items: Vec<Value> = {
+                let o = self.o()?;
+                near.iter()
+                    .filter_map(|(rel, line)| {
+                        let e = o.project.entries(rel).iter().find(|e| e.line == *line)?;
+                        let key = e.key();
+                        Some(json!({"file": rel, "key": [key.0, key.1]}))
+                    })
+                    .collect()
+            };
+            if !items.is_empty() {
+                let note = msg("Carried over from the previous version: the original had changed", &[]).text();
+                marked = self.proof_set(&items, "fix", &json!(note))?["changed"].as_u64().unwrap_or(0);
+            }
+        }
+        out.insert("marked".into(), json!(marked));
         Ok(Value::Object(out))
     }
 }
