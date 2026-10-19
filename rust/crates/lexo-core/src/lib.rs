@@ -26,6 +26,7 @@ pub mod app_release;
 pub mod app_snapshots;
 pub mod app_spell;
 pub mod app_style;
+pub mod app_team;
 pub mod app_validation;
 pub mod bulk;
 pub mod clock;

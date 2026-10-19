@@ -1123,6 +1123,23 @@
        }
       },
       "type": "object"
+     },
+     "team.manage": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
      }
     },
     "type": "object"

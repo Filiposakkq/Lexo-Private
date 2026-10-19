@@ -331,6 +331,18 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "team/state" | "team/join" | "team/create" | "team/set" => {
+                let (route, d) = (r.to_string(), Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let out = match route.as_str() {
+                        "team/state" => app.team_state()?,
+                        "team/join" => app.team_join(d["name"].as_str().unwrap_or(""))?,
+                        "team/create" => app.team_create()?,
+                        _ => app.team_set(&d["roles"], &d["assign"])?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "profile/list" | "profile/set" => {
                 let (set, d) = (r == "profile/set", Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {

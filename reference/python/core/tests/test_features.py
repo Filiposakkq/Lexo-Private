@@ -109,7 +109,7 @@ class AppGateTests(TempCase):
             "fixes.safe": lambda: self.app.fix_preview(kinds=["spaces"]),
             "bulk.categorize": lambda: self.app.assign_suggest(),
         }
-        self.assertEqual(set(locked), set(features.CATALOG) - {"carry.over", "memory.fuzzy", "mt.profiles", "style.check", "release.build", "spell.hunspell"})   # those six live only in the Rust Core and the pack
+        self.assertEqual(set(locked), set(features.CATALOG) - {"carry.over", "memory.fuzzy", "mt.profiles", "style.check", "release.build", "spell.hunspell", "team.manage"})   # those seven live only in the Rust Core and the pack
         for fid, call in locked.items():
             with self.assertRaises(FeatureLocked, msg=fid) as cm:
                 call()

@@ -1808,6 +1808,32 @@
    "Opraven {n} řádek.",
    "Opraveny {n} řádky.",
    "Opraveno {n} řádků."
-  ]
+  ],
+  "lead": "vedoucí",
+  "translator": "překladatel",
+  "proofreader": "korektor",
+  "The team could not be read.": "Tým se nepodařilo načíst.",
+  "Your name": "Tvoje jméno",
+  "Say who you are in this project. Your name is shown to the others in the team; it is written in your own file in the shared folder.": "Řekni, kdo jsi v tomto projektu. Tvoje jméno uvidí ostatní v týmu; zapíše se do tvého vlastního souboru ve sdílené složce.",
+  "Join": "Připojit se",
+  "This project has no team yet. A team is made by the person who leads it (this needs a Pro licence); the others join by opening the same folder and entering their name here.": "Tento projekt zatím nemá tým. Tým založí ten, kdo ho vede (potřebuje licenci Pro); ostatní se připojí tím, že otevřou stejnou složku a zadají tady své jméno.",
+  "Make this a team (I am the lead)": "Udělat z toho tým (já jsem vedoucí)",
+  "Role": "Role",
+  "(you)": "(ty)",
+  "You are the lead: give roles here and files in the table of files (the column “Assigned to”). Everybody in the folder sees them.": "Jsi vedoucí: role dáváš tady a soubory v tabulce souborů (sloupec „Přiděleno“). Vidí je všichni ve složce.",
+  "Roles and files are given by the lead. Your files are marked in the table of files.": "Role a soubory dává vedoucí. Tvoje soubory jsou označené v tabulce souborů.",
+  "Your files:": "Tvoje soubory:",
+  "Save roles": "Uložit role",
+  "Team": "Tým",
+  "Team…": "Tým…",
+  "Who is in the team of this project and who has which files": "Kdo je v týmu tohoto projektu a kdo má které soubory",
+  "Person": "Osoba",
+  "Person: all": "Osoba: všichni",
+  "My files": "Moje soubory",
+  "Nobody": "Nikdo",
+  "Filter by person": "Filtrovat podle osoby",
+  "Assigned to": "Přiděleno",
+  "This file is yours.": "Tento soubor je tvůj.",
+  "Team management": "Správa týmu"
  }
 }

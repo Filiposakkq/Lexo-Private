@@ -105,6 +105,7 @@ Every tool shows a **preview**, writes only what you tick, and is **one undoable
 | **Carry over from the previous version…** | Pro: the translation of an old version of the game by the original text. |
 | **Fill from similar translations…** | Pro: untranslated lines from similar originals of the same speaker in the project. |
 | **Check the style…** | Pro: a language model checks the form of address, gender forms, tone and meaning. |
+| **Team…** (Files) | The people who share the folder: who is in the team, their roles and files; the lead (Pro) makes the team and gives roles and files. |
 | **Check the spelling…** | Pro: the lines are checked against a Hunspell dictionary of the language, with suggestions and corrections. |
 | **Build a release…** | Pro: the translation as a zip for the players, with the files you attach, a README, a changelog and your own numbering. |
 

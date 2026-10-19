@@ -1956,6 +1956,12 @@
       "limit": null,
       "pro": false,
       "title": "Style check"
+     },
+     "team.manage": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Team management"
      }
     },
     "ok": true,

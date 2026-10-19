@@ -43,6 +43,10 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST release/state` | | the settings, the releases so far, the game (name and version from `config.*`), the language | `release.build` |
 | `POST release/settings` | `{settings}` | save the attached files, the options, credits, the output folder (`.aside/release.json`) | `release.build` |
 | `POST release/preview` | `{version, notes}` | the checks, the changes since the last release, the texts; nothing is written | `release.build` |
+| `POST team/state` | | `{exists, me: {author, name, joined, lead}, members: [{author, name, role, me, files}], assign: {file: [author]}, my_files, can_manage}` | |
+| `POST team/join` | `{name}` | write your own file `.aside/team/members/<author>.json` | |
+| `POST team/create` | | make the project a team with you as the lead (`.aside/team/lead.json`) | `team.manage` |
+| `POST team/set` | `{roles, assign}` | the lead's roles and assignments; the pack cleans them; `dropped` counts what it removed | `team.manage` |
 | `POST spell/state` | | the language of the project, whether a dictionary is added (and its name), how many words are ignored | |
 | `POST spell/add` | `{path}` | copy the dictionary (a `.dic` file or a folder with one; the `.aff` file next to it) to the settings of the application; the pack reads it once to prove it works | `spell.hunspell` |
 | `POST spell/remove` | | remove the dictionary of this language | |

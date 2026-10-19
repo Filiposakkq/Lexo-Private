@@ -103,6 +103,12 @@
   "The list of ignored words could not be saved: {reason}": "Seznam ignorovaných slov se nepodařilo uložit: {reason}",
   "No dictionary is added for this language yet.": "Pro tento jazyk zatím není přidaný žádný slovník.",
   "Enter the word and its replacement.": "Zadej slovo a jeho náhradu.",
-  "The dictionary could not be read: {reason}": "Slovník se nepodařilo přečíst: {reason}"
+  "The dictionary could not be read: {reason}": "Slovník se nepodařilo přečíst: {reason}",
+  "The team data could not be saved: {reason}": "Data týmu se nepodařilo uložit: {reason}",
+  "Enter your name.": "Zadej své jméno.",
+  "Enter your name first.": "Nejdřív zadej své jméno.",
+  "This project already has a team.": "Tento projekt už tým má.",
+  "This project has no team yet.": "Tento projekt zatím nemá tým.",
+  "Only the lead of the team can change roles and assignments.": "Role a přidělení souborů může měnit jen vedoucí týmu."
  }
 }

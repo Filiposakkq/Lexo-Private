@@ -15,6 +15,7 @@ pub mod publish;
 pub mod regex_replace;
 pub mod release_build;
 pub mod style_check;
+pub mod team;
 
 use lexo_core::extensions::{ExtensionError, Provider, API};
 use lexo_core::layout;
@@ -27,7 +28,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// The Czech texts of the messages of this pack (`pro/rust/lexo-pro/ui/cs.json`, the same file the Python pack reads).
 const UI_CS: &str = include_str!("../ui/cs.json");
 
-const FEATURES: [&str; 11] = [
+const FEATURES: [&str; 12] = [
     "publish.web",
     "bulk.categorize",
     "replace.regex",
@@ -39,6 +40,7 @@ const FEATURES: [&str; 11] = [
     "style.check",
     "release.build",
     "spell.hunspell",
+    "team.manage",
 ];
 
 fn plain(text: String) -> ExtensionError {
@@ -163,6 +165,7 @@ impl Provider for LexoProProvider {
                 Ok(out)
             }
             ("spell.hunspell", "check") => self.spell_check(payload),
+            ("team.manage", "normalize") => Ok(team::normalize(payload)),
             ("release.build", "plan") => Ok(release_build::plan(payload)),
             ("style.check", "targets") => Ok(style_check::targets(payload)),
             ("style.check", "check") => style_check::check(payload, self.http()),

@@ -29,6 +29,7 @@ CATALOG = {f.id: f for f in (
     Feature("style.check", "Style check"),
     Feature("release.build", "Release builder"),
     Feature("spell.hunspell", "Spelling with a dictionary"),
+    Feature("team.manage", "Team management"),
 )}
 
 

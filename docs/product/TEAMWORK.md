@@ -18,5 +18,8 @@ Built (roadmap 2c): the per-author event log for the project state (`events.py`,
 
 The per-author event log and the stable line identity (block id + text hash) (see DATA-LAYOUT.md). Team work is then an addition, and the same identity serves "carry a translation over to a new game version".
 
+## Built so far (version 1, first part)
+Team (`app_team.rs`, pack `team.rs`, UI `44-team.js`): joining with your name, the lead makes the team and gives roles and files, everybody sees the members and their files (column *Assigned to*, filter *Person*). Files written by one person only: `.aside/team/members/<author>.json` and `.aside/team/lead.json` (the lead). Pro only for making and managing the team (`team.manage`); the members work in Free. Not built: notes to the team on lines, "what changed since last time", statistics per person, the merge of `.rpy` files by block, the git buttons.
+
 ## Plan
 After the Free release. Most Ren'Py translators work alone; teams with bigger projects are the ones who would pay for this.
