@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { post } from '../api.js';
 import { t, tn } from '../i18n.js';
 
@@ -16,7 +16,22 @@ const phase = ref('form');           // form | running | done | failed
 const status = ref({ current: '', steps: [] });
 const result = ref(null);
 const unrpycPath = ref('');
+const where = ref('beside');         // beside (a working copy beside the game) | folder (a copy in a folder of your choice) | inplace (no copy: in the game itself)
+const folder = ref('');
+const plan = ref(null);
 let timer = null;
+
+const mb = 1024 * 1024;
+const size = (n) => (n >= 1024 * mb ? (n / (1024 * mb)).toFixed(1) + ' GB' : n >= mb ? Math.round(n / mb) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' kB');
+const mode = computed(() => (where.value === 'inplace' ? 'inplace' : 'copy'));
+const workspace = computed(() => (where.value === 'folder' ? folder.value.trim() : ''));
+async function replan() {
+  plan.value = null;
+  if (!info.value || !info.value.ready) return;
+  if (where.value === 'folder' && !folder.value.trim()) return;
+  try { plan.value = await post('prepare/plan', { path: path.value.trim(), mode: mode.value, workspace: workspace.value }); error.value = ''; } catch (e) { error.value = e.message; }
+}
+watch([where, folder, info], replan);
 
 const checks = computed(() => {
   const i = info.value;
@@ -28,7 +43,7 @@ const checks = computed(() => {
   ];
 });
 const needsUnrpyc = computed(() => info.value && info.value.needs_unrpyc && !info.value.unrpyc);
-const canStart = computed(() => info.value && info.value.ready && (phase.value === 'form' || phase.value === 'failed'));
+const canStart = computed(() => info.value && info.value.ready && plan.value && plan.value.enough && (phase.value === 'form' || phase.value === 'failed'));
 
 const STEPS = [
   { key: 'workspace', label: () => t('Make a working copy'), note: () => t('Links to the files of the game; it takes almost no space.') },
@@ -37,6 +52,7 @@ const STEPS = [
   { key: 'generate', label: () => t('Write the translation'), note: () => t('The game itself creates the files of the translation.') },
 ];
 const state = (key) => {
+  if (where.value === 'inplace' && key === 'workspace') return 'skipped';
   if (phase.value === 'done') return key === 'decompile' && !(status.value.steps || []).includes('decompile') ? 'skipped' : 'done';
   if ((status.value.steps || []).includes(key)) return 'done';
   if (status.value.current === key) return phase.value === 'failed' ? 'failed' : 'active';
@@ -49,6 +65,10 @@ async function look() {
   try { info.value = await post('prepare/inspect', { path: path.value.trim() }); unrpycPath.value = info.value.unrpyc || ''; } catch (e) { error.value = e.message; }
 }
 async function choose(target) {
+  if (target === 'folder') {
+    try { const r = await post('carry/pick', {}); if (!r.cancelled) folder.value = r.path; } catch (e) { error.value = e.message; }
+    return;
+  }
   try {
     const r = await post('carry/pick', {});
     if (r.cancelled) return;
@@ -62,7 +82,7 @@ async function saveUnrpyc() {
 async function start() {
   error.value = '';
   try {
-    const r = await post('prepare/start', { path: path.value.trim(), language: language.value.trim() });
+    const r = await post('prepare/start', { path: path.value.trim(), language: language.value.trim(), mode: mode.value, workspace: workspace.value });
     phase.value = 'running'; status.value = { current: 'workspace', steps: [] };
     timer = setInterval(() => poll(r.job), 700);
   } catch (e) { error.value = e.message; }
@@ -103,7 +123,21 @@ onBeforeUnmount(() => clearInterval(timer));
             <div>{{ t('unrpyc is needed to read the scripts of this game. Choose the file unrpyc.py (a free helper).') }}
               <div class="row-f"><label class="field grow"><input v-model="unrpycPath" placeholder="unrpyc.py"></label><button class="btn" @click="choose('unrpyc')">{{ t('Browse…') }}</button><button class="btn" @click="saveUnrpyc">{{ t('Use it') }}</button></div></div>
           </div>
-          <p class="muted small shield">{{ t('The game is only read. The working copy and the translation are in the settings folder of the application, not in the game.') }}</p>
+          <fieldset class="where" v-if="info && info.ready">
+            <legend class="label">{{ t('Where to work') }}</legend>
+            <label><input type="radio" value="beside" v-model="where"> {{ t('A working copy beside the game (recommended)') }}</label>
+            <label><input type="radio" value="folder" v-model="where"> {{ t('A working copy in a folder of my choice') }}</label>
+            <div v-if="where === 'folder'" class="row-f"><label class="field grow"><input v-model="folder" :placeholder="t('Folder for the working copy')"></label><button class="btn" @click="choose('folder')">{{ t('Browse…') }}</button></div>
+            <label><input type="radio" value="inplace" v-model="where"> {{ t('In the game itself, without a copy') }}</label>
+            <p v-if="where === 'inplace'" class="muted small">{{ t('The scripts that are read and the translation are written into the game folder. Keep a backup of the game.') }}</p>
+            <p v-else class="muted small">{{ t('The game stays untouched. The working copy links to the files of the game when it is on the same disk, so it takes almost no room.') }}</p>
+            <p v-if="plan && mode === 'copy'" class="small" :class="plan.enough ? 'muted' : 'bad'">
+              {{ plan.links ? t('The copy will be linked: about {size} to write.', { size: size(plan.need) }) : t('The copy is on another disk, so the game is copied: about {size}.', { size: size(plan.need) }) }}
+              <template v-if="plan.free !== null"> {{ t('Free on that disk: {size}.', { size: size(plan.free) }) }}</template>
+              <template v-if="!plan.enough"> {{ t('That is not enough: choose a folder on a disk with more room, or work in the game itself.') }}</template>
+            </p>
+            <p v-if="plan && mode === 'copy'" class="faint small mono">{{ plan.workspace }}</p>
+          </fieldset>
         </template>
         <template v-else-if="phase === 'running'"><p>{{ t('Working… this can take a few minutes.') }}</p><div class="skeleton" style="height: 8px"></div></template>
         <template v-else>
@@ -142,5 +176,10 @@ onBeforeUnmount(() => clearInterval(timer));
 .actions { display: flex; gap: var(--s-2); justify-content: flex-end; margin-top: var(--s-2); }
 .unrpyc { flex-direction: column; align-items: stretch; }
 .shield { margin: 0; }
+.where { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.where label { display: flex; gap: var(--s-2); align-items: center; font-size: var(--fs-body); cursor: pointer; }
+.where .field { flex: 1; }
+.where p { margin: 0; }
+.bad { color: var(--danger); }
 @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
 </style>

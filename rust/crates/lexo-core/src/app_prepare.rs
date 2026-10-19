@@ -5,6 +5,7 @@
 //! (`translate`). The work takes minutes, so it runs as a job on its own thread: `prepare/start` returns at once, `prepare/status` says how far it is. These calls are not in the contract of Core.
 use crate::app::App;
 use crate::app_base::{app_err, Res};
+use crate::diskspace;
 use crate::fsutil::resolve;
 use crate::gametools::{self, below, find_archives, rglob_suffix, ToolError};
 use crate::lint::{self, Platform};
@@ -148,7 +149,51 @@ impl App {
             "ok": true, "root": root.to_string_lossy(), "name": name, "archives": archives, "scripts": rpy, "bytecode_only": rpyc_only, "translations": translations,
             "engine": python.is_some() && launcher.is_some(), "unrpyc": unrpyc.map(|p| p.to_string_lossy().into_owned()), "needs_unrpyc": needs_unrpyc,
             "problems": problems.iter().map(Message::wire).collect::<Vec<_>>(), "ready": problems.is_empty(),
+            "default_workspace": self.prepare_default_workspace(&root).to_string_lossy(),
         }))
+    }
+
+    /// What the chosen way costs: `{mode, workspace, links, need, free, enough}`. `mode` is `copy` (a working copy, in `workspace` or beside the game) or `inplace` (no copy: the game is
+    /// worked on where it is). A copy is linked when the disks are the same, so it takes almost no room; on another disk everything is copied.
+    pub fn prepare_plan(&self, path: &str, mode: &str, workspace: &str) -> Res<Value> {
+        let p = PathBuf::from(crate::util::py_strip(path).trim_matches('"'));
+        let Some(root) = game_root_of(&p) else {
+            return Err(app_err(msg("There is no game folder in this folder: {path}", &[("path", json!(path))])));
+        };
+        if mode == "inplace" {
+            return Ok(
+                json!({"ok": true, "mode": "inplace", "workspace": root.to_string_lossy(), "links": false, "need": 0, "free": diskspace::free_bytes(&root), "enough": true}),
+            );
+        }
+        let ws = self.prepare_target(&root, workspace)?;
+        let (links, need) = gametools::workspace_cost(&root, &ws);
+        let free = diskspace::free_bytes(&ws);
+        // a margin: the engine writes its own files (caches, the translation) too
+        let enough = free.is_none_or(|f| f > need.saturating_add(need / 10).saturating_add(200 * 1024 * 1024));
+        Ok(json!({"ok": true, "mode": "copy", "workspace": ws.to_string_lossy(), "links": links, "need": need, "free": free, "enough": enough}))
+    }
+
+    /// The folder of a working copy: the one the user chose, or the default; never inside the game (and not a file).
+    fn prepare_target(&self, root: &Path, chosen: &str) -> Res<PathBuf> {
+        let chosen = crate::util::py_strip(chosen).trim_matches('"').to_string();
+        let ws = if chosen.is_empty() { self.prepare_default_workspace(root) } else { resolve(Path::new(&chosen)) };
+        if ws == root || ws.starts_with(root) || root.starts_with(&ws) {
+            return Err(app_err(msg("The working copy must not be inside the game folder.", &[])));
+        }
+        if ws.is_file() {
+            return Err(app_err(msg("The working copy cannot go there: {path} is a file.", &[("path", json!(ws.to_string_lossy()))])));
+        }
+        Ok(ws)
+    }
+
+    /// Where the working copy goes when the user does not choose: **beside the game** (`<game>-aside`), on the same disk, so that its files can be linked instead of copied. When the folder
+    /// of the game cannot hold it, the settings folder of the application.
+    fn prepare_default_workspace(&self, root: &Path) -> PathBuf {
+        let name = root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "game".into());
+        match root.parent() {
+            Some(parent) if parent.is_dir() => parent.join(format!("{name}-aside")),
+            _ => self.prepare_workspace(root),
+        }
     }
 
     fn prepare_workspace(&self, root: &Path) -> PathBuf {
@@ -164,12 +209,12 @@ impl App {
     }
 
     /// Start the preparation as a job: `{job}`.
-    pub fn prepare_start(&mut self, path: &str, language: &str) -> Res<Value> {
-        self.prepare_start_with(path, language, gametools::run_process)
+    pub fn prepare_start(&mut self, path: &str, language: &str, mode: &str, workspace: &str) -> Res<Value> {
+        self.prepare_start_with(path, language, mode, workspace, gametools::run_process)
     }
 
     /// The same with the program runner chosen by the caller (tests put a fake in its place).
-    pub fn prepare_start_with(&mut self, path: &str, language: &str, runner: RunFn) -> Res<Value> {
+    pub fn prepare_start_with(&mut self, path: &str, language: &str, mode: &str, workspace: &str, runner: RunFn) -> Res<Value> {
         if !valid_language(language) {
             return Err(app_err(msg("The language name may contain only letters, digits and an underscore and must not start with a digit.", &[])));
         }
@@ -188,7 +233,17 @@ impl App {
             return Err(app_err(refusal));
         }
         let root = PathBuf::from(py_str(&info["root"]));
-        let workspace = self.prepare_workspace(&root);
+        let inplace = mode == "inplace";
+        let workspace = if inplace { root.clone() } else { self.prepare_target(&root, workspace)? };
+        if !inplace {
+            let plan = self.prepare_plan(path, "copy", &workspace.to_string_lossy())?;
+            if !plan["enough"].as_bool().unwrap_or(true) {
+                return Err(app_err(msg(
+                    "There is not enough room on that disk for the working copy: it needs about {need} and {free} is free. Choose a folder on a disk with more room, or work in the game itself (without a copy).",
+                    &[("need", json!(human(plan["need"].as_u64().unwrap_or(0)))), ("free", json!(human(plan["free"].as_u64().unwrap_or(0))))],
+                )));
+            }
+        }
         let python = lint::find_python(&root, Platform::current()).unwrap_or_default();
         let unrpyc = info["unrpyc"].as_str().map(PathBuf::from);
         let id = format!("{}-{}", crate::fsutil::token_hex(4), crate::util::sha1_hex(language.as_bytes()).get(..4).unwrap_or(""));
@@ -201,7 +256,7 @@ impl App {
         }
         let language = language.to_string();
         let job = id.clone();
-        std::thread::spawn(move || run_job(&job, &root, &workspace, &language, &python, unrpyc.as_deref(), runner));
+        std::thread::spawn(move || run_job(&job, &root, &workspace, &language, &python, unrpyc.as_deref(), inplace, runner));
         Ok(json!({"ok": true, "job": id}))
     }
 
@@ -220,7 +275,8 @@ fn tool_err(e: ToolError) -> Value {
 }
 
 /// The whole way, on the thread of the job. The game is only read; everything is written in `workspace`.
-fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, python: &Path, unrpyc: Option<&Path>, runner: RunFn) {
+#[allow(clippy::too_many_arguments)]
+fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, python: &Path, unrpyc: Option<&Path>, inplace: bool, runner: RunFn) {
     let step = |name: &str| {
         let name = name.to_string();
         with_job(id, move |j| {
@@ -249,8 +305,11 @@ fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, python: &Pat
         return;
     }
     step("workspace");
-    if let Err(e) = gametools::make_workspace(root, workspace) {
-        return fail(tool_err(e));
+    if !inplace {
+        // (in the game itself there is nothing to copy)
+        if let Err(e) = gametools::make_workspace(root, workspace) {
+            return fail(tool_err(e));
+        }
     }
     step("extract");
     if let Err(e) = gametools::extract_scripts(workspace) {
@@ -319,5 +378,18 @@ fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, python: &Pat
             .wire(),
         ),
         None => fail(msg("The game did not write the translation.", &[]).wire()),
+    }
+}
+
+/// 1.5 GB, 320 MB: a size for a message.
+fn human(bytes: u64) -> String {
+    let (kb, mb, gb) = (1024f64, 1024f64 * 1024.0, 1024f64 * 1024.0 * 1024.0);
+    let b = bytes as f64;
+    if b >= gb {
+        format!("{:.1} GB", b / gb)
+    } else if b >= mb {
+        format!("{:.0} MB", b / mb)
+    } else {
+        format!("{:.0} kB", b / kb)
     }
 }

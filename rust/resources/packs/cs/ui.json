@@ -2000,7 +2000,6 @@
   "Steps": "Kroky",
   "The game has its own engine, so nothing else is needed to write the translation.": "Hra má vlastní engine, takže k vytvoření překladu nic dalšího není potřeba.",
   "The game has no engine of its own (no program of the game with its .py file and a lib folder beside it), so it cannot be prepared here.": "Hra nemá vlastní engine (vedle není program hry s jejím souborem .py a složka lib), takže se tady připravit nedá.",
-  "The game is only read. The working copy and the translation are in the settings folder of the application, not in the game.": "Hra se jen čte. Pracovní kopie a překlad jsou ve složce nastavení aplikace, ne ve hře.",
   "The game itself creates the files of the translation.": "Soubory překladu vytvoří samotná hra.",
   "The scripts inside .rpa files.": "Skripty uvnitř souborů .rpa.",
   "The translation is ready: {n} file.|The translation is ready: {n} files.": [
@@ -2042,6 +2041,20 @@
   "This project has no team yet.": "Tento projekt zatím nemá tým.",
   "Write the note first.": "Nejdřív napiš poznámku.",
   "The lead removed you from this team; ask the lead to take you back.": "Vedoucí tě z tohoto týmu odebral; požádej ho, ať tě vrátí.",
-  "You are the lead: hand the team over to someone or disband it first.": "Jsi vedoucí: nejdřív předej tým někomu jinému, nebo ho ukonči."
+  "You are the lead: hand the team over to someone or disband it first.": "Jsi vedoucí: nejdřív předej tým někomu jinému, nebo ho ukonči.",
+  "Where to work": "Kde pracovat",
+  "A working copy beside the game (recommended)": "Pracovní kopie vedle hry (doporučeno)",
+  "A working copy in a folder of my choice": "Pracovní kopie ve složce, kterou vyberu",
+  "Folder for the working copy": "Složka pro pracovní kopii",
+  "In the game itself, without a copy": "Přímo ve hře, bez kopie",
+  "The scripts that are read and the translation are written into the game folder. Keep a backup of the game.": "Přečtené skripty a překlad se zapíšou do složky hry. Uschovej si zálohu hry.",
+  "The game stays untouched. The working copy links to the files of the game when it is on the same disk, so it takes almost no room.": "Hra zůstane nedotčená. Pracovní kopie odkazuje na soubory hry, když je na stejném disku, takže zabere skoro žádné místo.",
+  "The copy will be linked: about {size} to write.": "Kopie bude propojená: zapíše se asi {size}.",
+  "The copy is on another disk, so the game is copied: about {size}.": "Kopie je na jiném disku, takže se hra zkopíruje: asi {size}.",
+  "Free on that disk: {size}.": "Volné místo na tom disku: {size}.",
+  "That is not enough: choose a folder on a disk with more room, or work in the game itself.": "To nestačí: vyber složku na disku s více místem, nebo pracuj přímo ve hře.",
+  "The working copy must not be inside the game folder.": "Pracovní kopie nesmí být uvnitř složky hry.",
+  "The working copy cannot go there: {path} is a file.": "Pracovní kopie tam jít nemůže: {path} je soubor.",
+  "There is not enough room on that disk for the working copy: it needs about {need} and {free} is free. Choose a folder on a disk with more room, or work in the game itself (without a copy).": "Na tom disku není dost místa pro pracovní kopii: potřebuje asi {need}, volných je {free}. Vyber složku na disku s více místem, nebo pracuj přímo ve hře (bez kopie)."
  }
 }

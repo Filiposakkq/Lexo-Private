@@ -78,7 +78,7 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
     std::fs::write(plain.join("game/script.rpy"), "label start:\n").unwrap();
     let i = app.prepare_inspect(&plain.to_string_lossy()).unwrap();
     assert_eq!((i["engine"].clone(), i["ready"].clone(), i["scripts"].clone()), (false.into(), false.into(), 1.into()), "{i}");
-    assert!(app.prepare_start_with(&plain.to_string_lossy(), "czech", runner).is_err());
+    assert!(app.prepare_start_with(&plain.to_string_lossy(), "czech", "copy", "", runner).is_err());
 
     // a game whose scripts are sources: nothing needs unrpyc; the folder of the `game` folder is accepted as well
     let a = tmp.join("Source Game");
@@ -89,8 +89,20 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
         (true.into(), false.into(), true.into(), 0.into()),
         "{i}"
     );
-    assert!(app.prepare_start_with(&a.to_string_lossy(), "1bad", runner).is_err(), "the language name is checked");
-    let job = app.prepare_start_with(&a.to_string_lossy(), "czech", runner).unwrap()["job"].as_str().unwrap().to_string();
+    assert!(app.prepare_start_with(&a.to_string_lossy(), "1bad", "copy", "", runner).is_err(), "the language name is checked");
+    let plan = app.prepare_plan(&a.to_string_lossy(), "copy", "").unwrap();
+    assert_eq!(
+        plan["workspace"].as_str().unwrap().replace('\\', "/"),
+        format!("{}-aside", a.to_string_lossy().replace('\\', "/")),
+        "the copy is beside the game: {plan}"
+    );
+    assert_eq!((plan["links"].clone(), plan["enough"].clone()), (true.into(), true.into()), "the same disk: linked, little to copy: {plan}");
+    assert!(plan["need"].as_u64().unwrap() < 10_000, "{plan}");
+    let plan = app.prepare_plan(&a.to_string_lossy(), "inplace", "").unwrap();
+    assert_eq!((plan["need"].clone(), plan["enough"].clone()), (0.into(), true.into()), "{plan}");
+    // the copy must not go inside the game
+    assert!(app.prepare_start_with(&a.to_string_lossy(), "czech", "copy", &a.join("game").join("copy").to_string_lossy(), runner).is_err());
+    let job = app.prepare_start_with(&a.to_string_lossy(), "czech", "copy", "", runner).unwrap()["job"].as_str().unwrap().to_string();
     let done = wait(&app, &job);
     assert_eq!((done["done"].clone(), done["success"].clone()), (true.into(), true.into()), "{done}");
     let folder = done["result"]["folder"].as_str().unwrap();
@@ -98,7 +110,7 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
     assert!(!a.join("game/tl").exists(), "the game itself is only read");
     assert!(done["steps"].as_array().unwrap().iter().any(|s| s == "workspace"));
     // prepared before: it is not made again
-    let job = app.prepare_start_with(&a.to_string_lossy(), "czech", runner).unwrap()["job"].as_str().unwrap().to_string();
+    let job = app.prepare_start_with(&a.to_string_lossy(), "czech", "copy", "", runner).unwrap()["job"].as_str().unwrap().to_string();
     assert_eq!(wait(&app, &job)["result"]["reused"], true);
 
     // the translation folder opens in the application, and then Home has it
@@ -110,7 +122,7 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
     game(&b, true);
     let i = app.prepare_inspect(&b.to_string_lossy()).unwrap();
     assert_eq!((i["bytecode_only"].clone(), i["needs_unrpyc"].clone(), i["ready"].clone()), (1.into(), true.into(), false.into()), "{i}");
-    assert!(app.prepare_start_with(&b.to_string_lossy(), "czech", runner).is_err());
+    assert!(app.prepare_start_with(&b.to_string_lossy(), "czech", "copy", "", runner).is_err());
     assert!(app.prepare_set_unrpyc(&tmp.join("nothing.py").to_string_lossy()).is_err());
     let unrpyc = tmp.join("tools/unrpyc");
     std::fs::create_dir_all(&unrpyc).unwrap();
@@ -118,8 +130,17 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
     app.prepare_set_unrpyc(&unrpyc.to_string_lossy()).unwrap();
     let i = app.prepare_inspect(&b.to_string_lossy()).unwrap();
     assert_eq!(i["ready"], true, "{i}");
-    let job = app.prepare_start_with(&b.to_string_lossy(), "czech", runner).unwrap()["job"].as_str().unwrap().to_string();
+    let job = app.prepare_start_with(&b.to_string_lossy(), "czech", "copy", "", runner).unwrap()["job"].as_str().unwrap().to_string();
     let done = wait(&app, &job);
     assert_eq!(done["success"], true, "{done}");
     assert!(done["steps"].as_array().unwrap().iter().any(|s| s == "decompile"));
+
+    // in the game itself: no copy at all, the translation is written into the game (the way many translators work)
+    let c = tmp.join("In Place Game");
+    game(&c, false);
+    let job = app.prepare_start_with(&c.to_string_lossy(), "czech", "inplace", "", runner).unwrap()["job"].as_str().unwrap().to_string();
+    let done = wait(&app, &job);
+    assert_eq!(done["success"], true, "{done}");
+    assert!(c.join("game/tl/czech/script.rpy").is_file(), "written in the game");
+    assert!(!tmp.join("In Place Game-aside").exists(), "and nothing was copied");
 }

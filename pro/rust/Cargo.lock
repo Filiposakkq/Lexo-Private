@@ -464,6 +464,7 @@ dependencies = [
  "fancy-regex",
  "flate2",
  "indexmap",
+ "libc",
  "regex",
  "serde",
  "serde_json",

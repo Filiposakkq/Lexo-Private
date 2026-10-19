@@ -37,6 +37,7 @@ pub mod clock;
 pub mod config;
 pub mod csvio;
 pub mod datadir;
+pub mod diskspace;
 pub mod editor;
 pub mod events;
 pub mod export;
