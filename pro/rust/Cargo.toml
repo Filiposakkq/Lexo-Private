@@ -7,3 +7,12 @@ version = "0.2.0"
 edition = "2021"
 publish = false
 license = "UNLICENSED"
+
+# The release build of the Pack (the sidecar): no names of functions in the file, the whole program optimised as one piece so that the check of the licence is not one findable function,
+# and a failure ends the program at once (the application then reports that the pack stopped). The symbols are not kept; a build that has to be debugged is made without --release.
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true
+panic = "abort"

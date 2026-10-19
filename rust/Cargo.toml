@@ -9,3 +9,9 @@ version = "0.0.0"
 edition = "2021"
 publish = false
 license = "UNLICENSED"
+
+# The release build of the application: names of functions are stripped and the code is linked as one piece (thin: a full one would make the installer take much longer). `panic` stays
+# as it is, because a failure of one thread must not end the whole application.
+[profile.release]
+lto = "thin"
+strip = true
