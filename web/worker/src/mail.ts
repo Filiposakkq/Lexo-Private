@@ -11,7 +11,7 @@ export interface Mail {
 
 /** Plain text and HTML of a mail from the same paragraphs (the HTML is table-based with inline styles, as mail programs need). */
 export function render(m: Mail): { text: string; html: string } {
-  const text = m.lines.join("\n\n") + "\n\n— Aside · aside@filiposakkq.dev";
+  const text = m.lines.join("\n\n") + "\n\n— Filip from Aside · aside@filiposakkq.dev";
   const parts = m.lines.map((p) => {
     if (/^https?:\/\/\S+$/.test(p))
       return `<p style="margin:22px 0"><a href="${esc(p)}" style="display:inline-block;background:#ff315c;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px">Open</a><br><span style="font-size:12px;color:#8a8a90;word-break:break-all">${esc(p)}</span></p>`;
@@ -40,7 +40,7 @@ export async function send(env: Env, to: string, m: Mail): Promise<boolean> {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ from: env.MAIL_FROM ?? "Aside <aside@filiposakkq.dev>", to, subject: m.subject, text, html, reply_to: env.OWNER_EMAIL ?? "aside@filiposakkq.dev" }),
+      body: JSON.stringify({ from: env.MAIL_FROM ?? "Filip from Aside <aside@filiposakkq.dev>", to, subject: m.subject, text, html, reply_to: env.OWNER_EMAIL ?? "aside@filiposakkq.dev" }),
     });
     return r.ok;
   } catch {

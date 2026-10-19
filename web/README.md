@@ -41,7 +41,7 @@ Without the server every form still works by e-mail (it opens the visitor's mail
 - **Contact form**: messages in the admin; reply from the admin (sent from aside@filiposakkq.dev) or from your mail app.
 - **Releases**: entered in the admin; the Releases page shows them, downloads go through `/api/download/<id>` and are counted.
 
-Every e-mail goes from `Aside <aside@filiposakkq.dev>` with replies to the same address, so answers of people reach you through the existing forwarding.
+Every e-mail goes from `Filip from Aside <aside@filiposakkq.dev>` with replies to the same address, so answers of people reach you through the existing forwarding.
 
 ## Set up (once; everything works in a browser, also on a phone)
 
