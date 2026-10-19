@@ -23,6 +23,8 @@ fn copy_tree(from: &Path, to: &Path) {
 
 #[test]
 fn the_sidecar_speaks_the_protocol_and_the_application_uses_it() {
+    // the licence of this computer must not matter: no file here means the development default (everything offered)
+    std::env::set_var("LEXO_LICENCE_FILE", std::env::temp_dir().join(format!("no-licence-{}.json", std::process::id())));
     // 1. the protocol, directly
     let p = SidecarProvider::start(Path::new(SIDECAR)).unwrap();
     assert_eq!((p.api(), p.version()), (1, env!("CARGO_PKG_VERSION").to_string()));
