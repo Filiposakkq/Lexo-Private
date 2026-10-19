@@ -1,3 +1,5 @@
+> **The Python application (`lexo_free/*.py`, `run_lexo.py`, the `.bat` files, `Lexo.spec`) is the old, unshipped version.** The product is the Tauri application in [`../rust/`](../rust/). What is still used by the product here: the **user interface** `lexo_free/ui/` (shared by the Rust server and the Tauri app) and `assets/` (icons, brand). Map of the repository: [`../README.md`](../README.md).
+
 # Lexo (the application)
 
 A translation manager for Ren'Py games: open the translation of any Ren'Py game, edit it, proofread it, check it and follow the progress.
