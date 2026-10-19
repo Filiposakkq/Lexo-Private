@@ -250,7 +250,7 @@ MyGame/
       <h2><span class="n">9</span>Scene preview</h2>
       <p>Next to the line, Aside draws the picture the player sees: it follows the script back to the last <code>scene</code> and adds every picture <code>show</code>n since, at its place, with the text in the game's font.</p>
       <div class="box ok"><svg><use href="#i-ok"/></svg><p><b>Full-screen renders and scenes: fully supported.</b> Games whose scenes are whole pictures preview well. In the tests, five of eight games had at most 3 lines without a picture in a sample of 250.</p></div>
-      <div class="box warn"><svg><use href="#i-warn"/></svg><p><b>Layered images: not supported yet.</b> Pictures built from parts (<code>layeredimage</code>, composites, conditional images) are recognised and never drawn wrong. A layered character on a background shows the background with a note; a layered scene shows no picture and says why. Drawing layers is planned.</p></div>
+      <div class="box warn"><svg><use href="#i-warn"/></svg><p><b>Layered images: not supported yet.</b> Pictures built from parts (<code>layeredimage</code>, composites, conditional images) are recognised and never drawn wrong. A layered character on a background shows the background with a note; a layered scene shows no picture and says why.</p><p><b>Why it is hard:</b> a full-screen render is one finished picture, the same in every game. A layered picture is put together while the game runs, and every developer builds it differently: their own attributes and groups, conditions on variables (an outfit, a mood, the time of day), Python code, screens and transforms. To draw it right, Aside would have to run the game's logic at that exact moment. Support is planned step by step, starting with the common <code>layeredimage</code> patterns; until then Aside shows nothing rather than a wrong picture.</p></div>
       <p>The preview is an estimate from the script, not a screenshot: jumps, conditions and animations are not followed, and the frames of the text box and name box can look different in the game. When the game's font cannot be found, a substitute is used and the preview tells you.</p>
     </section>
 
@@ -327,7 +327,7 @@ MyGame/
       <h3>The game opens, but there are no lines</h3>
       <p>The game has no translation files yet. Prepare it first, so that <code>game/tl/&lt;language&gt;</code> exists.</p>
       <h3>The scene preview shows no picture</h3>
-      <p>The scene is probably built from layered images, which are not drawn yet. The note under the preview says so.</p>
+      <p>The scene is probably built from layered images. Each game builds those in its own way while it runs, so they are not drawn yet (see <a href="#scene">Scene preview</a>). The note under the preview says so.</p>
       <h3>The Menu tab is missing</h3>
       <p>Menus are read from <code>.rpy</code> scripts. A game that has only <code>.rpyc</code> files has to be decompiled first.</p>
       <h3>Machine translation says consent is missing</h3>

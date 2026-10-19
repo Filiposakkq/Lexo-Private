@@ -718,7 +718,8 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         }
         else await run(env, `DELETE FROM ${kind.table} WHERE id = ?`, kind.key === "num" ? Number(id) : String(id));
       }
-      await log("bulk delete", "", `${ids.length} × ${str(p.kind)}`);
+      // deleting log entries leaves no new entry behind (else the log is never empty)
+      if (str(p.kind) !== "log") await log("bulk delete", "", `${ids.length} × ${str(p.kind)}`);
       return json({ ok: true, deleted: ids.length });
     }
     case "cleanup": {
@@ -759,7 +760,7 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         default:
           return fail("bad_request", 400);
       }
-      await log("clean up", "", `${str(p.what)}${days ? ` older than ${days} d` : ""}: ${n}`);
+      if (str(p.what) !== "log") await log("clean up", "", `${str(p.what)}${days ? ` older than ${days} d` : ""}: ${n}`);
       return json({ ok: true, deleted: n });
     }
   }
