@@ -27,6 +27,7 @@ CATALOG = {f.id: f for f in (
     Feature("memory.fuzzy", "Fill from similar translations"),
     Feature("mt.profiles", "Profiles of characters"),
     Feature("style.check", "Style check"),
+    Feature("release.build", "Release builder"),
 )}
 
 

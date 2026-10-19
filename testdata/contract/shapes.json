@@ -1056,6 +1056,23 @@
       },
       "type": "object"
      },
+     "release.build": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
      "replace.regex": {
       "keys": {
        "available": {
