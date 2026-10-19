@@ -2,6 +2,7 @@ import { t as T, tx } from './05-i18n.js';
 import { h } from './00-core.js';
 import { get, post } from './10-api.js';
 import { dialog, fail, toast } from './13-feedback.js';
+import { S } from './11-state.js';
 /* Pro features that still live in this UI (variant A, see docs/technical/RUST-PORT.md): the UI asks Core what is available and shows a clear message instead of a failing call.
    The decision is Core's (features.py, the Pro pack); nothing here switches a feature on. */
 const TITLES = {
@@ -23,6 +24,15 @@ export async function features(fresh = false) {
   return cache;
 }
 export const resetFeatures = () => { cache = null; };
+/* Pro is on when the pack offers a feature without a limit (a licence that works, or the development unlock): the title of the application says so. */
+export async function updateBrand() {
+  const f = await features(true);
+  const pro = Object.values(f.features || {}).some((x) => x.available && (x.limit === null || x.limit === undefined));
+  const el = document.getElementById('brandText');
+  if (el) el.textContent = `${pro ? 'Aside Pro' : 'Aside'} ${S.version || ''}`.trim();
+  document.title = document.title.replace(/^Aside( Pro)?/, pro ? 'Aside Pro' : 'Aside'); // a second window keeps its suffix
+  return pro;
+}
 export async function featureOf(id) {
   const f = ((await features()).features || {})[id];
   return f || { available: true, limit: null };
@@ -118,7 +128,7 @@ export function licencePanel() {
     let st;
     try { st = await get('licence'); } catch (e) { box.replaceChildren(h('div', { class: 'notice bad' }, e.message)); return; }
     const run = async (path, body, done) => {
-      try { await post(path, body); resetFeatures(); toast(done, 'ok'); } catch (e) { fail(e); }
+      try { await post(path, body); resetFeatures(); updateBrand().catch(() => {}); toast(done, 'ok'); } catch (e) { fail(e); }
       paint();
     };
     const key = h('input', { type: 'text', id: 'lic_key', style: { minWidth: '300px' }, placeholder: 'ASIDE-XXXXX-XXXXX-XXXXX-XXXXX', autocomplete: 'off', spellcheck: false });

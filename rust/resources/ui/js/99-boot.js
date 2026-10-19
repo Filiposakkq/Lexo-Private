@@ -10,6 +10,7 @@ import { pickProject, refreshHeader } from './17-project.js';
 import { doRefresh, doUndo } from './18-refresh.js';
 import { openDetailWindow, startFollowing } from './21-files.js';
 import { mtDialog } from './24-machine-translation.js';
+import { updateBrand } from './38-pro.js';
 import { ACTIONS, comboOf, findAction, helpDialog, keysOf, toggleFullscreen } from './35-keyboard.js';
 /* ================================================================ boot */
 $('#refreshBtn').addEventListener('click', () => doRefresh());
@@ -40,7 +41,7 @@ if (new URLSearchParams(location.search).has('selftest')) {      // UI self-test
     S.langs = await availableLanguages();
     try { setLanguage(await loadLanguage(chooseLanguage(pref('ui.lang', ''), S.langs))); } catch { setLanguage(null); }
     renderTabs();
-    applyTheme(); applyDensity(); $('#brandText').textContent = `Aside ${S.version || ''}`.trim(); S.notices = st.notices || []; S.projectDir = st.project_dir || '';
+    applyTheme(); applyDensity(); $('#brandText').textContent = `Aside ${S.version || ''}`.trim(); updateBrand().catch(() => {}); S.notices = st.notices || []; S.projectDir = st.project_dir || '';
     if (st.config_error) S.notices.push(st.config_error);
     S.view = pref('view', 'overview');
     if (SECONDARY) {
