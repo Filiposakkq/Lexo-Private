@@ -1090,6 +1090,23 @@
       },
       "type": "object"
      },
+     "spell.hunspell": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
      "style.check": {
       "keys": {
        "available": {

@@ -1766,6 +1766,48 @@
   "not translated": "nepřeloženo",
   "no lines": "bez řádků",
   "Take": "Vzít",
-  "Files in the release: {files}, attached files: {extras}; {pct} % translated.": "Soubory ve vydání: {files}, přiložené soubory: {extras}; přeloženo {pct} %."
+  "Files in the release: {files}, attached files: {extras}; {pct} % translated.": "Soubory ve vydání: {files}, přiložené soubory: {extras}; přeloženo {pct} %.",
+  "Spelling with a dictionary": "Pravopis se slovníkem",
+  "Word": "Slovo",
+  "Times": "Počet",
+  "Replace with": "Nahradit za",
+  "the correct word": "správné slovo",
+  "No line contains this word on its own.": "Žádný řádek neobsahuje toto slovo samostatně.",
+  "(approved: stays)": "(schváleno: zůstane)",
+  "Enter the word to replace it with.": "Zadej slovo, kterým se nahradí.",
+  "Replace…": "Nahradit…",
+  "Do not report this word again in this project": "Toto slovo v tomto projektu znovu nehlásit",
+  "Checking…": "Kontroluji…",
+  "No unknown words.": "Žádná neznámá slova.",
+  "Only the first ones are listed; correct or ignore them and check again.": "Zobrazují se jen první; oprav je nebo je ignoruj a zkontroluj znovu.",
+  "Dictionary: {name}. Words of the original and of the glossary, tags and variables are not reported. A correction is written as one step that can be undone; approved lines are never overwritten.": "Slovník: {name}. Slova z originálu a z glosáře, značky a proměnné se nehlásí. Oprava se zapíše jedním krokem, který lze vrátit; schválené řádky se nikdy nepřepíšou.",
+  "Dictionary removed.": "Slovník odstraněn.",
+  "Remove the dictionary": "Odstranit slovník",
+  "Folder or .dic file of the dictionary": "Složka nebo soubor .dic se slovníkem",
+  "Dictionary added.": "Slovník přidán.",
+  "Add a Hunspell dictionary for the language of this project ({language}): the .dic file and the .aff file with the same name. It is copied to the settings of the application and checked at once.": "Přidej slovník Hunspell pro jazyk tohoto projektu ({language}): soubor .dic a soubor .aff se stejným názvem. Zkopíruje se do nastavení aplikace a hned se zkontroluje.",
+  "Add the dictionary": "Přidat slovník",
+  "Check the spelling…": "Zkontrolovat pravopis…",
+  "Pro: with a dictionary of the language": "Pro: se slovníkem jazyka",
+  "{n} unknown word.|{n} unknown words.": [
+   "{n} neznámé slovo.",
+   "{n} neznámá slova.",
+   "{n} neznámých slov."
+  ],
+  "… and {n} more line.|… and {n} more lines.": [
+   "… a ještě {n} řádek.",
+   "… a ještě {n} řádky.",
+   "… a ještě {n} řádků."
+  ],
+  "Replace in {n} line|Replace in {n} lines": [
+   "Nahradit v {n} řádku",
+   "Nahradit v {n} řádcích",
+   "Nahradit v {n} řádcích"
+  ],
+  "Corrected {n} line.|Corrected {n} lines.": [
+   "Opraven {n} řádek.",
+   "Opraveny {n} řádky.",
+   "Opraveno {n} řádků."
+  ]
  }
 }

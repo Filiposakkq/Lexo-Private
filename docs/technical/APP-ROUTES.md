@@ -43,6 +43,12 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST release/state` | | the settings, the releases so far, the game (name and version from `config.*`), the language | `release.build` |
 | `POST release/settings` | `{settings}` | save the attached files, the options, credits, the output folder (`.aside/release.json`) | `release.build` |
 | `POST release/preview` | `{version, notes}` | the checks, the changes since the last release, the texts; nothing is written | `release.build` |
+| `POST spell/state` | | the language of the project, whether a dictionary is added (and its name), how many words are ignored | |
+| `POST spell/add` | `{path}` | copy the dictionary (a `.dic` file or a folder with one; the `.aff` file next to it) to the settings of the application; the pack reads it once to prove it works | `spell.hunspell` |
+| `POST spell/remove` | | remove the dictionary of this language | |
+| `POST spell/ignore` | `{words}` | remember words to ignore (`.aside/pro/spelling.json`) | |
+| `POST spell/check` | `{file?, lines?}` | the words the dictionary does not know: `{items: [{word, count, places, suggestions}], words, truncated}` | `spell.hunspell` |
+| `POST spell/replace` | `{word, to}` | the lines that would change (the word whole, not in tags or variables): `{items: [{file, line, before, after, approved}], total}`; written with `mt/apply` | `spell.hunspell` |
 | `POST release/build` | `{version, notes, force?}` | write the zip, `.sha256` and the release notes, record the release; `force` builds despite the errors of the check of the translation | `release.build` |
 
 A selection is `[{file, line}]`. The corrections of the style check are written with the operation `mt/apply`. A locked feature answers with the message "“…” is a Pro feature."

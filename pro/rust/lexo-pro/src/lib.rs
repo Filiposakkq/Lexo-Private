@@ -6,6 +6,7 @@
 pub mod carry_over;
 pub mod categorize;
 pub mod fix_safe;
+pub mod hunspell;
 pub mod licence;
 pub mod licence_client;
 pub mod mt_batch;
@@ -26,8 +27,19 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// The Czech texts of the messages of this pack (`pro/rust/lexo-pro/ui/cs.json`, the same file the Python pack reads).
 const UI_CS: &str = include_str!("../ui/cs.json");
 
-const FEATURES: [&str; 10] =
-    ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over", "memory.fuzzy", "mt.profiles", "style.check", "release.build"];
+const FEATURES: [&str; 11] = [
+    "publish.web",
+    "bulk.categorize",
+    "replace.regex",
+    "mt.batch",
+    "fixes.safe",
+    "carry.over",
+    "memory.fuzzy",
+    "mt.profiles",
+    "style.check",
+    "release.build",
+    "spell.hunspell",
+];
 
 fn plain(text: String) -> ExtensionError {
     ExtensionError(Text::Plain(text))
@@ -39,6 +51,8 @@ type HttpFn = Box<dyn Fn(&str, &[(String, String)], &[u8]) -> Result<(u16, Strin
 #[derive(Default)]
 pub struct LexoProProvider {
     http: Option<HttpFn>,
+    /// The dictionary that was read last (a file is read again only when it changed), kept for the next call.
+    dict: std::sync::Mutex<Option<(String, std::sync::Arc<hunspell::Dict>)>>,
 }
 
 impl LexoProProvider {
@@ -48,7 +62,7 @@ impl LexoProProvider {
 
     /// A provider whose machine translation uses `http` (tests put a fake network here).
     pub fn with_http(http: impl Fn(&str, &[(String, String)], &[u8]) -> Result<(u16, String), MtError> + Send + Sync + 'static) -> LexoProProvider {
-        LexoProProvider { http: Some(Box::new(http)) }
+        LexoProProvider { http: Some(Box::new(http)), ..Default::default() }
     }
 
     /// The function for the network: the one of the tests, or the real one.
@@ -57,6 +71,40 @@ impl LexoProProvider {
             Some(h) => &**h,
             None => &lexo_core::net::post,
         }
+    }
+
+    /// The words of `words` that the Hunspell dictionary (`dic` and `aff`, paths) does not accept, each with suggestions.
+    fn spell_check(&self, p: &Value) -> Result<Value, ExtensionError> {
+        let fail = |reason: String| {
+            ExtensionError(Text::new_msg(lexo_core::messages::msg("The dictionary could not be read: {reason}", &[("reason", json!(reason))])))
+        };
+        let (dic, aff) = (lexo_core::messages::py_str(&p["dic"]), lexo_core::messages::py_str(&p["aff"]));
+        let stamp = |f: &str| {
+            std::fs::metadata(f).and_then(|m| m.modified()).ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map_or(0, |d| d.as_secs())
+        };
+        let key = format!("{dic}|{aff}|{}|{}", stamp(&dic), stamp(&aff));
+        let dict = {
+            let mut cache = self.dict.lock().unwrap_or_else(|e| e.into_inner());
+            match &*cache {
+                Some((k, d)) if *k == key => d.clone(),
+                _ => {
+                    let (dic_b, aff_b) = (std::fs::read(&dic).map_err(|e| fail(e.to_string()))?, std::fs::read(&aff).map_err(|e| fail(e.to_string()))?);
+                    let d = std::sync::Arc::new(hunspell::Dict::load(&dic_b, &aff_b).map_err(fail)?);
+                    *cache = Some((key, d.clone()));
+                    d
+                }
+            }
+        };
+        let unknown: Vec<Value> = p["words"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .map(lexo_core::messages::py_str)
+            .take(20000)
+            .filter(|w| !dict.check(w))
+            .map(|w| json!({"suggestions": dict.suggest(&w, 5), "word": w}))
+            .collect();
+        Ok(json!({"unknown": unknown, "roots": dict.len()}))
     }
 
     fn categorize(&self, p: &Value) -> Result<Value, ExtensionError> {
@@ -114,6 +162,7 @@ impl Provider for LexoProProvider {
                 }
                 Ok(out)
             }
+            ("spell.hunspell", "check") => self.spell_check(payload),
             ("release.build", "plan") => Ok(release_build::plan(payload)),
             ("style.check", "targets") => Ok(style_check::targets(payload)),
             ("style.check", "check") => style_check::check(payload, self.http()),

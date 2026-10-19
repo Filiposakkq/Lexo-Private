@@ -312,6 +312,25 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "spell/state" | "spell/add" | "spell/remove" | "spell/ignore" | "spell/check" | "spell/replace" => {
+                let (route, d) = (r.to_string(), Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
+                    let out = match route.as_str() {
+                        "spell/state" => app.spell_state()?,
+                        "spell/add" => app.spell_dict_add(&text("path"))?,
+                        "spell/remove" => app.spell_dict_remove()?,
+                        "spell/ignore" => app.spell_ignore(&d["words"])?,
+                        "spell/check" => app.spell_check(&text("file"), &d["lines"])?,
+                        _ => app.spell_replace_plan(&text("word"), &text("to"))?,
+                    };
+                    let mut out = out;
+                    if let Some(o) = out.as_object_mut() {
+                        o.entry("ok").or_insert(json!(true)); // the UI treats an answer without `ok` as a failure
+                    }
+                    Ok(Answer::Json(out))
+                }))
+            }
             "profile/list" | "profile/set" => {
                 let (set, d) = (r == "profile/set", Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {

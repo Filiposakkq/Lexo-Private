@@ -20,6 +20,7 @@ of every feature see [FEATURES.md](../product/FEATURES.md). This document says w
 | Fill from similar translations (`memory.fuzzy`) | Lines › Tools › *Fill from similar translations…* | locked | – | no |
 | Profiles of characters (`mt.profiles`) | Glossary › *Profile…* per speaker | locked | a language model for the batch translation | with the batch translation only |
 | Style check (`style.check`) | Lines › Tools › *Check the style…* | locked | an OpenAI-compatible service, the consent | **yes**, to that service |
+| Spelling with a dictionary (`spell.hunspell`) | Lines › Tools › *Check the spelling…* | locked | a Hunspell dictionary added by you | no |
 | Release builder (`release.build`) | Lines › Tools › *Build a release…* | locked | – | no (nothing is uploaded) |
 
 ## Batch machine translation
@@ -68,6 +69,13 @@ Sends each translated line, with its original, the two lines before it and the p
 what is wrong: the **form of address**, the **gender forms**, the **tone**, the **meaning**, with a corrected text. Lines without a remark are only counted. The corrections you tick are written like a
 machine translation (one undo step). The service charges by the text sent (the dialog shows how much will be sent). The quality of the remarks depends on the model; read them before ticking.
 
+## Spelling with a dictionary
+Checks the translated lines against a **Hunspell dictionary** (a `.dic` file with its `.aff` file) of the language of the project. The free check from the project's own vocabulary stays as it is; this one knows real words, so it also finds words that are wrong everywhere in the project.
+- **Add a dictionary:** *Lines › Tools › Check the spelling…*, then choose the folder or the `.dic` file (the `.aff` file lies next to it). Both files are copied to the settings of the application (one dictionary per language of a project; not shared with the project). A broken dictionary is reported when it is added. The application does not include or download any dictionary.
+- **Check:** the file in the filter or all files. The list shows every unknown word with how often and where it occurs and with suggestions (words one edit away, and the word with its diacritics put back). Words of the original, words of the glossary, short words in capitals, tags and variables are never reported.
+- **Correct:** *Replace…* plans the lines first (the word whole, never inside `[variables]` or `{tags}`); one click writes them as one undoable step; approved lines are never overwritten. *Ignore* remembers a word in the project (`.aside/pro/spelling.json`, shared).
+- **What is read:** the flag formats (ASCII, UTF-8, long, num), prefixes and suffixes with their conditions and the cross product, one level of continuation flags, `NEEDAFFIX`, `ONLYINCOMPOUND`, the encodings UTF-8, ISO-8859-1 and ISO-8859-2. Compound words, `REP` and `ICONV` tables and `KEEPCASE` are not used (a language that is built on them may show some words as unknown).
+
 ## Release builder
 Makes the translation into **a zip the players unpack into their game folder**; the result is a file and you put it where you like (nothing is uploaded).
 - **Which files:** a preset, **files translated at least partly** (the default), **only files translated completely**, or **all files**; on top of it you can tick or untick any single file in the list (the dialog shows how far each file is translated). Skipped files (Settings) never go in.
@@ -85,6 +93,6 @@ Makes the translation into **a zip the players unpack into their game folder**; 
 | Batch machine translation, safe fixes | 20 per run |
 | Carry over | 10 lines written per run (the counts show all) |
 | Group suggestions | 5 files |
-| Regex replace, publishing, profiles, release builder, fill from similar translations, style check | locked |
+| Regex replace, publishing, profiles, release builder, fill from similar translations, style check, spelling with a dictionary | locked |
 
 A licence removes the limits and unlocks the locked features (see [PRO-DESIGN.md](../product/PRO-DESIGN.md) for the licence, the computers and the checks).

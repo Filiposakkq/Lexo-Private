@@ -1945,6 +1945,12 @@
       "pro": false,
       "title": "Regex find & replace"
      },
+     "spell.hunspell": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Spelling with a dictionary"
+     },
      "style.check": {
       "available": false,
       "limit": null,
