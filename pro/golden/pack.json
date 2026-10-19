@@ -93,7 +93,8 @@
   "The key of this licence was already replaced once. Write to the seller.": "Klíč této licence už byl jednou nahrazen. Napiš prodejci.",
   "Choose the folder of the OLD version, not the open project.": "Vyber složku STARÉ verze, ne otevřený projekt.",
   "The old version has no translated lines.": "Stará verze nemá žádné přeložené řádky.",
-  "Translation carried over from the previous version": "Překlad přenesený z předchozí verze"
+  "Translation carried over from the previous version": "Překlad přenesený z předchozí verze",
+  "Too many requests from this network. Try again in {minutes} minutes.": "Příliš mnoho požadavků z této sítě. Zkus to znovu za {minutes} min."
  },
  "ui_xx": {},
  "cases": [

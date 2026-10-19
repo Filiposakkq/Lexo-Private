@@ -32,6 +32,7 @@ fn refusal(code: &str, answer: &Value) -> ExtensionError {
         "release_limit" => {
             msg("You have already freed computers {limit} times. Write to the seller to free another place.", &[("limit", answer["limit"].clone())])
         }
+        "rate_limited" => msg("Too many requests from this network. Try again in {minutes} minutes.", &[("minutes", answer["minutes"].clone())]),
         "too_many" => msg("Too many requests for this address. Try again in {minutes} minutes.", &[("minutes", answer["minutes"].clone())]),
         "invalid_code" => msg("That code is not valid or has expired.", &[]),
         "already_used" => msg("The key of this licence was already replaced once. Write to the seller.", &[]),
