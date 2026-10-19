@@ -19,6 +19,7 @@ fn block(id: &str, src: &str, target: &str) -> String {
 #[test]
 fn a_translation_is_carried_over_to_the_new_version_and_undone() {
     let tmp = std::env::temp_dir().join(format!("carry-core-{}", std::process::id()));
+    std::env::set_var("LEXO_LICENCE_FILE", std::env::temp_dir().join("aside-carry-no-licence.json")); // no licence file: the development build counts as licensed, whatever the file of this machine says
     let _ = std::fs::remove_dir_all(&tmp);
     let (old, new) = (tmp.join("old"), tmp.join("new"));
     write(
@@ -74,6 +75,7 @@ fn a_translation_is_carried_over_to_the_new_version_and_undone() {
 #[test]
 fn untranslated_lines_are_filled_from_similar_translations_of_the_project_itself() {
     let tmp = std::env::temp_dir().join(format!("fill-core-{}", std::process::id()));
+    std::env::set_var("LEXO_LICENCE_FILE", std::env::temp_dir().join("aside-carry-no-licence.json")); // as above
     let _ = std::fs::remove_dir_all(&tmp);
     let dir = tmp.join("p");
     write(

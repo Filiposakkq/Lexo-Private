@@ -3,7 +3,7 @@ use crate::features;
 use crate::fsutil::WriteFailed;
 use crate::messages::{msg, Message, Text};
 use regex::Regex;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::sync::OnceLock;
 
 /// The only addresses the app will open in the browser (the UI sends just the id). Empty until the product has a website to point to.
@@ -86,7 +86,7 @@ impl ApiError {
 
 pub fn locked_message(feature: &str) -> Message {
     let title = features::feature(feature).map_or(feature, |f| f.title);
-    msg("“{title}” is a Pro feature.", &[("title", json!(title))])
+    msg("“{title}” is a Pro feature.", &[("title", msg(title, &[]).wire())]) // the title is a message of its own, so that it is translated too
 }
 
 impl std::fmt::Display for ApiError {
