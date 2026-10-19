@@ -10,7 +10,7 @@ It is plain CSS with variables: it does not depend on Vue or any framework, and 
 
 ## Principles
 
-1. **Dark red, one accent.** The window is a dark, warm near-black; red is the only colour that is not grey. Red means "this app": the filled button, progress, the active item. There is no green: *translated* is shown in the accent, *to do* in amber, *checked* in light grey.
+1. **Dark red, one accent.** The window is a dark, warm near-black (a red with almost no tint, so it does not turn rose); red is the only colour that is not grey. The accent is a saturated true red (hue about 357°) and the light text in the accent colour is vivid, not pastel: a pale red on dark reads as pink, which is why the accent text is `#ff6168` and not a lighter tint. Red means "this app": the filled button, progress, the active item. There is no green: *translated* is shown in the accent, *to do* in amber, *checked* in light grey.
 2. **Calm and dense.** Translators read for hours. Text is 13–14 px on a quiet background; one main button per view; nothing moves unless it explains something.
 3. **Same thing, same look.** A state, an action or a number looks the same everywhere (a progress bar is always the same bar). That is what the tokens and the components are for.
 4. **Things that belong together are in one place** (the navigation is in groups; Tools holds the bulk edits; Release holds building and publishing).
@@ -29,7 +29,7 @@ Named by purpose. A component never uses a hex value.
 | Accent | `--accent` `--accent-hover` `--accent-hi` `--accent-soft` `--accent-text` `--on-accent` | the filled button, progress and marks, a chip or the active item, text in the accent colour, text on the button |
 | States | `--todo` `--checked` `--danger` (+ `-bg`) `--track` | to do, checked, a blocking error, the empty part of a bar |
 
-**Contrast** (WCAG, measured by the styleguide): text is at least 4.5 : 1 on its surface; a control or a mark at least 3 : 1. The one text colour that is easy to get wrong is `--text-faint` (hints, headers of columns): it is `#8f787b`, 4.55 : 1 on a card. `--text-disabled` is 3.2 : 1: for disabled controls and decoration only, **never for the only copy of a message**. An earlier sketch used a dimmer grey for hints; it did not pass (3.6 : 1) and was replaced.
+**Contrast** (WCAG, measured by the styleguide): text is at least 4.5 : 1 on its surface; a control or a mark at least 3 : 1. The one text colour that is easy to get wrong is `--text-faint` (hints, headers of columns): it is `#917a7a`, 4.7 : 1 on a card. `--text-disabled` is 3.2 : 1: for disabled controls and decoration only, **never for the only copy of a message**. An earlier sketch used a dimmer grey for hints; it did not pass (3.6 : 1) and was replaced.
 
 ## Type
 

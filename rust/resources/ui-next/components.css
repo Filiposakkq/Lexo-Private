@@ -61,9 +61,9 @@ textarea.field { height: auto; min-height: 64px; padding: var(--s-2) var(--s-3);
 .bar.two > i:first-child { background: var(--line-accent); }
 
 /* ---- notices */
-.notice { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); border: 1px solid var(--line-accent); background: #2a1519; font-size: var(--fs-body); }
+.notice { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); border: 1px solid var(--line-accent); background: var(--bg-notice); font-size: var(--fs-body); }
 .notice .act { margin-left: auto; color: var(--accent-text); cursor: pointer; white-space: nowrap; }
-.notice.warn { border-color: #5a4515; background: #2c2210; }
+.notice.warn { border-color: var(--line-warn); background: var(--bg-warn); }
 .notice.danger { border-color: var(--danger); background: var(--danger-bg); }
 
 /* ---- navigation */
