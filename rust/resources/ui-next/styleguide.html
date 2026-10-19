@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aside – styleguide (nové rozhraní)</title>
+<link rel="stylesheet" href="/next/tokens.css">
+<link rel="stylesheet" href="/next/components.css">
+<style>
+  main { max-width: 980px; margin: 0 auto; padding: var(--s-8) var(--s-6) 80px; }
+  section { margin-top: var(--s-10); }
+  section > h2 { font-size: var(--fs-heading); font-weight: 500; margin-bottom: var(--s-1); }
+  section > p { color: var(--text-muted); margin-bottom: var(--s-4); max-width: 70ch; line-height: var(--lh-normal); }
+  .grid { display: grid; gap: var(--s-3); grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .sw { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--bg-card); }
+  .sw .c { height: 44px; }
+  .sw .t { padding: var(--s-2) var(--s-3); font-size: var(--fs-small); }
+  .sw .t b { font-weight: 500; display: block; } .sw .t span { color: var(--text-faint); font-family: var(--mono); font-size: var(--fs-caption); }
+  .flex { display: flex; gap: var(--s-3); flex-wrap: wrap; align-items: center; }
+  .demo { border: 1px dashed var(--line); border-radius: var(--r-lg); padding: var(--s-5); }
+  table.ct { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+  table.ct td, table.ct th { text-align: left; padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line-soft); }
+  table.ct th { color: var(--text-faint); font-weight: 400; font-size: var(--fs-caption); }
+  .pass { color: var(--accent-text); } .fail { color: var(--danger); }
+  .sp { display: flex; align-items: center; gap: var(--s-3); margin: 6px 0; font-size: var(--fs-small); color: var(--text-muted); }
+  .sp i { display: block; height: 12px; background: var(--accent-hi); border-radius: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="flex" style="margin-bottom: var(--s-2);"><span class="logo" style="width:36px;height:36px;font-size:19px;">A</span>
+    <div><div class="title">Aside <span style="color:var(--accent-text)">Pro</span> · styleguide</div><div class="muted">Základ vzhledu nového rozhraní: barvy, písmo, rozestupy, komponenty. Čte se z <span class="mono">tokens.css</span> a <span class="mono">components.css</span>; popis a pravidla jsou v <span class="mono">docs/project/DESIGN-SYSTEM.md</span>.</div></div>
+    <span style="margin-left:auto" class="tag-pro">Nové rozhraní · ve vývoji</span></div>
+
+  <section><h2>Barvy</h2><p>Tmavě červené téma. Pojmenované podle účelu, ne podle odstínu; komponenty nikdy nepoužívají hexadecimální hodnotu přímo.</p>
+    <div class="grid" id="swatches"></div></section>
+
+  <section><h2>Kontrast textu</h2><p>Počítá se z živých hodnot tokenů (WCAG: text aspoň 4,5 : 1, velký text a ovládací prvky aspoň 3 : 1). Řádek, který neprojde, je vidět hned.</p>
+    <div class="card"><table class="ct" id="contrast"><thead><tr><th>Dvojice</th><th>Ukázka</th><th>Poměr</th><th>Výsledek</th></tr></thead><tbody></tbody></table></div></section>
+
+  <section><h2>Písmo</h2><p>Systémové písmo (nic se nenačítá ani nepřibaluje), dvě tloušťky: 400 a 500.</p>
+    <div class="card" style="display:grid;gap:var(--s-3)">
+      <div style="font-size:var(--fs-hero);font-weight:500">Hrdina 22 · Aside Pro</div>
+      <div style="font-size:var(--fs-title);font-weight:500">Název obrazovky 19 · Soubory</div>
+      <div style="font-size:var(--fs-heading);font-weight:500">Nadpis karty 16 · Co dál</div>
+      <div style="font-size:var(--fs-text)">Čtený text 14 · Překládej hry bez hledání skriptů.</div>
+      <div style="font-size:var(--fs-body)">Hustý text 13 · tabulky, seznamy, tlačítka.</div>
+      <div style="font-size:var(--fs-small);color:var(--text-muted)">Poznámka 12 · metadata, filtry.</div>
+      <div style="font-size:var(--fs-caption);color:var(--text-faint)">POPISEK 11 · záhlaví sloupců, odznaky</div>
+      <div class="mono">monospace 12 · script.rpy:48</div></div></section>
+
+  <section><h2>Rozestupy a zaoblení</h2><p>Krok 4 px. Zaoblení: 6 štítky, 8 ovládací prvky a řádky, 12 karty, 14 hlavní karta a dialog.</p>
+    <div class="card"><div class="sp"><span style="width:44px">4</span><i style="width:4px"></i></div><div class="sp"><span style="width:44px">8</span><i style="width:8px"></i></div><div class="sp"><span style="width:44px">12</span><i style="width:12px"></i></div><div class="sp"><span style="width:44px">16</span><i style="width:16px"></i></div><div class="sp"><span style="width:44px">24</span><i style="width:24px"></i></div><div class="sp"><span style="width:44px">32</span><i style="width:32px"></i></div></div></section>
+
+  <section><h2>Tlačítka</h2><p>V jednom pohledu nejvýš jedno hlavní (červené) tlačítko. Ostatní jsou obrysová nebo bez rámečku.</p>
+    <div class="demo flex"><button class="btn primary">Hlavní</button><button class="btn">Obrysové</button><button class="btn ghost">Bez rámečku</button><button class="btn danger">Odebrat</button><button class="btn sm">Malé</button><button class="btn" disabled>Vypnuté</button></div></section>
+
+  <section><h2>Filtry, stavy, odznaky</h2><p>Filtr (čip) je ovladač, stav (pilulka) jen sděluje. „Přeloženo“ je v aplikaci vždy v barvě akcentu, zelená se nepoužívá.</p>
+    <div class="demo flex"><span class="chip on">K překladu 210</span><span class="chip">Přeloženo</span><span class="chip">Ke korektuře</span>
+      <span class="pill todo">K překladu</span><span class="pill ok">Přeloženo</span><span class="pill checked">Zkontrolováno</span><span class="pill danger">Chyba</span><span class="pill none">Nezačatý</span>
+      <span class="badge">12</span><span class="tag-pro">Pro</span></div></section>
+
+  <section><h2>Karty, pole, průběh</h2><p>Karta je základní plocha. Hlavní karta (hrdina) je větší a zaoblenější. Aktivní má akcentový rámeček.</p>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+      <div class="card active"><div class="card-title">Being a DIK<span class="more">Otevřít</span></div><div class="muted" style="margin-bottom:var(--s-3)">verze 0.14 · čeština</div><div class="bar"><i style="width:61%"></i></div><div class="flex" style="justify-content:space-between;margin-top:6px"><span class="muted">61 %</span><span class="muted">4 120 / 6 800</span></div></div>
+      <div class="card"><div class="label">Číslo vydání</div><div class="field"><input value="1.1"></div><div class="hint">Číslo se použije jednou.</div><div class="label" style="margin-top:var(--s-3)">Poznámky</div><div class="field invalid"><input placeholder="Co je nového…"></div><div class="hint" style="color:var(--danger)">Vyplň poznámky.</div></div></div></section>
+
+  <section><h2>Upozornění</h2><p>Jedna věta, co se děje, a jedna akce. Žádná vyskakovací okna.</p>
+    <div style="display:grid;gap:var(--s-2)"><div class="notice">Kontrola licence je za 3 dny. Připoj se k internetu.<span class="act">Zkontrolovat teď</span></div><div class="notice warn">Hra má novou verzi 0.15.<span class="act">Přenést překlad</span></div><div class="notice danger">Soubor se nepodařilo zapsat.<span class="act">Zkusit znovu</span></div></div></section>
+
+  <section><h2>Navigace a záložky</h2><p>Boční lišta projektu, ikonová lišta na obrazovce Domů a záložky v detailu.</p>
+    <div class="flex" style="align-items:flex-start"><div class="nav" style="border:1px solid var(--line);border-radius:var(--r-md)"><div class="nav-item">Přehled</div><div class="nav-item">Soubory</div><div class="nav-item on">Řádky</div><div class="nav-item">Kontrola<span class="badge">12</span></div><div class="nav-item">Tým<span class="badge">2</span></div></div>
+      <div class="rail" style="border:1px solid var(--line);border-radius:var(--r-md)"><div class="rail-item on">A</div><div class="rail-item">B</div><div class="rail-item">C</div></div>
+      <div style="flex:1;min-width:260px"><div class="tabs"><span class="tab on">Kontrola</span><span class="tab">Paměť</span><span class="tab">Scéna</span><span class="tab">Historie</span></div></div></div></section>
+
+  <section><h2>Řádky tabulky</h2><p>Výška 36 px, vybraný řádek má akcentový proužek vlevo.</p>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="row head" style="grid-template-columns:48px 80px 1fr 90px"><span>Řádek</span><span>Mluvčí</span><span>Text</span><span>Stav</span></div>
+      <div class="row" style="grid-template-columns:48px 80px 1fr 90px"><span class="muted">12</span><span>Anna</span><span class="muted">Well, that's one way to put it.</span><span class="pill todo">K překladu</span></div>
+      <div class="row sel" style="grid-template-columns:48px 80px 1fr 90px"><span>13</span><span>Já</span><span>You can't be serious right now.</span><span class="pill todo">K překladu</span></div>
+      <div class="row" style="grid-template-columns:48px 80px 1fr 90px"><span class="muted">14</span><span>Anna</span><span class="muted">Watch me.</span><span class="pill checked">Zkontrolováno</span></div></div></section>
+
+  <section><h2>Nabídka, dialog, oznámení, načítání</h2><p>Plovoucí věci mají rámeček a stín. Dialog a nabídka najednou nejvýš dvě plovoucí úrovně.</p>
+    <div class="flex" style="align-items:flex-start;gap:var(--s-6)">
+      <div class="menu"><div class="menu-item">Otevřít</div><div class="menu-item">Připnout nahoru</div><hr><div class="menu-item danger">Odebrat ze seznamu</div></div>
+      <div class="veil" style="flex:1;min-width:300px;border-radius:var(--r-lg)"><div class="dialog"><header>Opustit tento tým?</header><div class="body">Tvůj soubor ve složce týmu se smaže. Poznámky a záznamy zůstanou.</div><footer><button class="btn">Ne</button><button class="btn danger">Ano, opustit</button></footer></div></div></div>
+    <div class="flex" style="margin-top:var(--s-4)"><div class="toast">Změny odeslány.</div><div class="skeleton" style="width:180px;height:14px"></div><div class="skeleton" style="width:120px;height:14px"></div></div></section>
+</main>
+<script src="/next/styleguide.js"></script>
+</body>
+</html>

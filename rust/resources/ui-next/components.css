@@ -1,0 +1,114 @@
+/* Components of the new interface (ui-next). Only reads the names of tokens.css. Class names are plain and short; a component never sets a colour by hand.
+   What each is for, and its states, is in docs/project/DESIGN-SYSTEM.md. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg-app); color: var(--text); font: var(--fs-body)/var(--lh-tight) var(--font); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: var(--r-md); }
+::selection { background: var(--accent-soft); }
+.muted { color: var(--text-muted); } .faint { color: var(--text-faint); } .mono { font-family: var(--mono); font-size: var(--fs-small); }
+.title { font-size: var(--fs-title); font-weight: 500; } .heading { font-size: var(--fs-heading); font-weight: 500; } .caption { font-size: var(--fs-caption); color: var(--text-faint); }
+
+/* ---- buttons: one .primary per view */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); height: var(--h-control); padding: 0 var(--s-4); border-radius: var(--r-md); border: 1px solid var(--line); background: transparent; color: var(--text-2); cursor: pointer; transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease); white-space: nowrap; }
+.btn:hover { background: var(--bg-hover); border-color: var(--line-accent); color: var(--text); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 500; }
+.btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.btn.ghost { border-color: transparent; color: var(--text-muted); }
+.btn.ghost:hover { background: var(--bg-hover); color: var(--text); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn.danger:hover { background: var(--danger-bg); }
+.btn.sm { height: var(--h-control-sm); padding: 0 var(--s-3); font-size: var(--fs-small); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+
+/* ---- chips (filters) and pills (states) and badges (counts) */
+.chip { display: inline-flex; align-items: center; gap: var(--s-1); height: 26px; padding: 0 var(--s-3); border-radius: var(--r-pill); border: 1px solid var(--line); color: var(--text-muted); font-size: var(--fs-small); cursor: pointer; background: transparent; }
+.chip:hover { border-color: var(--line-accent); color: var(--text); }
+.chip.on { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--accent-text); }
+.pill { display: inline-block; padding: 1px var(--s-2); border-radius: var(--r-pill); font-size: var(--fs-caption); line-height: 1.6; text-align: center; white-space: nowrap; }
+.pill.todo { background: var(--todo-bg); color: var(--todo); }
+.pill.ok { background: var(--ok-bg); color: var(--accent-text); }
+.pill.checked { background: var(--checked-bg); color: var(--checked); }
+.pill.danger { background: var(--danger-bg); color: var(--danger); }
+.pill.none { background: var(--bg-hover); color: var(--text-muted); }
+.pill::first-letter, .tag-pro::first-letter { text-transform: uppercase; } /* a safety net: a state or a tag always begins with a capital letter */
+.badge { display: inline-block; min-width: 18px; padding: 0 6px; border-radius: var(--r-pill); background: var(--accent); color: var(--on-accent); font-size: var(--fs-caption); text-align: center; line-height: 18px; }
+.tag-pro { display: inline-flex; align-items: center; gap: 4px; padding: 0 var(--s-2); height: 18px; border-radius: var(--r-pill); border: 1px solid var(--line-accent); color: var(--accent-text); font-size: var(--fs-caption); }
+
+/* ---- surfaces */
+.card { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-4); }
+.card.hero { border-radius: var(--r-xl); padding: var(--s-5); }
+.card.active { border-color: var(--accent); }
+.card-title { display: flex; align-items: center; margin-bottom: var(--s-2); font-size: var(--fs-text); font-weight: 500; }
+.card-title .more { margin-left: auto; font-size: var(--fs-small); font-weight: 400; color: var(--accent-text); cursor: pointer; }
+.sep { border: 0; border-top: 1px solid var(--line-soft); margin: var(--s-3) 0; }
+
+/* ---- fields */
+.field { display: flex; align-items: center; gap: var(--s-2); height: var(--h-control); padding: 0 var(--s-3); background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--r-md); color: var(--text); min-width: 0; }
+.field:hover { border-color: var(--line-accent); }
+.field:focus-within { border-color: var(--accent-hi); box-shadow: var(--focus); }
+.field input, .field select { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: inherit; }
+.field input::placeholder { color: var(--text-faint); }
+textarea.field { height: auto; min-height: 64px; padding: var(--s-2) var(--s-3); line-height: var(--lh-normal); resize: vertical; width: 100%; }
+.label { display: block; margin-bottom: var(--s-1); font-size: var(--fs-small); color: var(--text-muted); }
+.hint { margin-top: var(--s-1); font-size: var(--fs-small); color: var(--text-faint); }
+.field.invalid { border-color: var(--danger); }
+
+/* ---- progress */
+.bar { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: 3px; background: var(--accent-hi); transition: width var(--t-slow) var(--ease); }
+.bar.thin { height: 4px; }
+.bar.two > i:first-child { background: var(--line-accent); }
+
+/* ---- notices */
+.notice { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); border: 1px solid var(--line-accent); background: var(--bg-notice); font-size: var(--fs-body); }
+.notice .act { margin-left: auto; color: var(--accent-text); cursor: pointer; white-space: nowrap; }
+.notice.warn { border-color: var(--line-warn); background: var(--bg-warn); }
+.notice.danger { border-color: var(--danger); background: var(--danger-bg); }
+
+/* ---- navigation */
+.nav { display: flex; flex-direction: column; gap: 2px; padding: var(--s-2); background: var(--bg-rail); border-right: 1px solid var(--line); width: var(--w-nav); }
+.nav-item { display: flex; align-items: center; gap: 9px; height: 36px; padding: 0 var(--s-3); border-radius: var(--r-md); color: var(--text-muted); cursor: pointer; transition: background var(--t-fast) var(--ease); }
+.nav-item:hover { background: var(--bg-hover); color: var(--text); }
+.nav-item.on { background: var(--accent-soft); color: var(--text); }
+.nav-item .pill::first-letter, .tag-pro::first-letter { text-transform: uppercase; } /* a safety net: a state or a tag always begins with a capital letter */
+.badge { margin-left: auto; }
+.rail { width: var(--w-rail); background: var(--bg-rail); border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 6px; padding: var(--s-3) 0; }
+.rail-item { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-faint); cursor: pointer; }
+.rail-item.on { background: var(--accent-soft); color: var(--accent-text); }
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tab { padding: var(--s-2) var(--s-3); font-size: var(--fs-small); color: var(--text-muted); border-bottom: 2px solid transparent; cursor: pointer; }
+.tab:hover { color: var(--text); }
+.tab.on { color: var(--text); border-bottom-color: var(--accent-hi); }
+
+/* ---- the shell: top bar, content, status bar */
+.topbar { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-4); background: var(--bg-bar); border-bottom: 1px solid var(--line); }
+.statusbar { display: flex; gap: var(--s-4); padding: 6px var(--s-4); background: var(--bg-bar); border-top: 1px solid var(--line); font-size: var(--fs-caption); color: var(--text-faint); }
+.logo { width: 26px; height: 26px; border-radius: 7px; background: var(--accent); color: var(--on-accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 500; }
+
+/* ---- tables and lists */
+.row { display: grid; gap: var(--s-2); align-items: center; min-height: var(--h-row); padding: 0 var(--s-3); border-bottom: 1px solid var(--line-soft); font-size: var(--fs-small); }
+.row.head { color: var(--text-faint); font-size: var(--fs-caption); min-height: 30px; border-bottom-color: var(--line); }
+.row:hover { background: var(--bg-hover); }
+.row.sel { background: var(--bg-hover); box-shadow: inset 2px 0 0 var(--accent-hi); }
+
+/* ---- floating: menu, dialog, toast */
+.menu { background: var(--bg-hover); border: 1px solid var(--line-accent); border-radius: 10px; padding: var(--s-1); box-shadow: var(--shadow-float); min-width: 180px; }
+.menu-item { display: flex; align-items: center; gap: var(--s-2); padding: 7px var(--s-3); border-radius: var(--r-sm); cursor: pointer; color: var(--text-2); }
+.menu-item:hover { background: var(--accent-soft); color: var(--text); }
+.menu-item.danger { color: var(--accent-text); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: var(--s-1) 0; }
+.veil { background: var(--veil); display: flex; align-items: center; justify-content: center; padding: var(--s-6); }
+.dialog { width: min(520px, 100%); background: var(--bg-card); border: 1px solid var(--line-accent); border-radius: var(--r-xl); box-shadow: var(--shadow-float); }
+.dialog > header { padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--line); font-size: var(--fs-heading); font-weight: 500; }
+.dialog > .body { padding: var(--s-5); line-height: var(--lh-normal); }
+.dialog > footer { display: flex; gap: var(--s-2); justify-content: flex-end; padding: var(--s-3) var(--s-5); border-top: 1px solid var(--line); background: var(--bg-bar); border-radius: 0 0 var(--r-xl) var(--r-xl); }
+.toast { display: inline-flex; gap: var(--s-3); align-items: center; padding: var(--s-3) var(--s-4); background: var(--bg-hover); border: 1px solid var(--line-accent); border-radius: var(--r-md); box-shadow: var(--shadow-float); }
+
+/* ---- loading */
+.skeleton { background: var(--bg-hover); border-radius: var(--r-sm); animation: pulse 1.2s var(--ease) infinite alternate; min-height: 12px; }
+@keyframes pulse { from { opacity: .45; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+
+/* ---- scrollbars that belong to the theme */
+* { scrollbar-width: thin; scrollbar-color: var(--line-accent) transparent; }
