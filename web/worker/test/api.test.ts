@@ -345,6 +345,12 @@ describe("data tools", () => {
     const st = (await admin("storage")).json;
     expect(st.rows.applications).toBeGreaterThan(0);
     expect(((await admin("log")).json.items as Json[]).map((l) => l.action)).toEqual(expect.arrayContaining(["bulk delete", "clean up"]));
+    // deleting the log empties it, without a new entry about it
+    const ids = ((await admin("log")).json.items as Json[]).map((l) => l.id);
+    await admin("bulk", { kind: "log", ids });
+    expect((await admin("log")).json.items).toHaveLength(0);
+    await admin("cleanup", { what: "log", days: 0 });
+    expect((await admin("log")).json.items).toHaveLength(0);
   });
 
   it("group e-mails need e-mail set up; templates are kept", async () => {
