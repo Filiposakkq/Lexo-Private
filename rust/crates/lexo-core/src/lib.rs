@@ -2,7 +2,7 @@
 //! No UI, no HTTP: the library only reads and writes files through `std::fs`.
 
 /// The version of Core (`__version__` of the Python package).
-pub const VERSION: &str = "1.7.0";
+pub const VERSION: &str = "1.0.0";
 
 pub mod api;
 pub mod app;

@@ -19,7 +19,7 @@
     "prefs": {},
     "project_dir": "<TMP>/p/game/tl/czech",
     "ready": true,
-    "version": "1.7.0"
+    "version": "1.0.0"
    },
    "op": "state",
    "params": {}
@@ -2391,7 +2391,7 @@
    "answer": {
     "ok": true,
     "snapshot": {
-     "app": "1.7.0",
+     "app": "1.0.0",
      "bytes": 1114,
      "files": 2,
      "name": "snap-<stamp>-manual.zip",

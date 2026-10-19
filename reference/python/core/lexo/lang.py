@@ -3,7 +3,7 @@
 Core checks (tags, variables, brackets, length, dialogue box) are language-neutral and live in `validator`.
 What depends on the target language is a `Pack`, loaded from DATA FILES (no executable code, so a downloaded pack is safe):
 
-    <pack folder>/pack.json    {"format": 1, "code": "cs", "name": "Čeština", "version": 1, "min_app": "1.7.0"}
+    <pack folder>/pack.json    {"format": 1, "code": "cs", "name": "Čeština", "version": 1, "min_app": "1.0.0"}
     <pack folder>/rules.json   {"check_repeats": true, "repeat_ok": [...], "number_words_ok": true,
                                 "stem": {"type": "cut", "drop": 2, "min": 3}}
 
