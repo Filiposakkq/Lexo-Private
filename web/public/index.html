@@ -817,7 +817,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
 
   /* feature tour */
   var SCENE = '<div class="mock"><div class="col"><div class="cap">Full-screen render <b class="ok">supported</b></div><div class="sc"><div class="fig"></div><span class="tagn">Mira</span><div class="box">Lampa na tebe čekala.</div></div><p>The background and every picture shown over it, in place, with the game\'s own font.</p></div>' +
-    '<div class="col"><div class="cap">Layered image <b class="part">partly</b></div><div class="sc layer"><div class="ghost"></div><div class="note">Characters built from layers are not drawn yet.</div><span class="tagn">Mira</span><div class="box">Lampa na tebe čekala.</div></div><p>The background is shown with a note. Drawing the layers is planned.</p></div></div>';
+    '<div class="col"><div class="cap">Layered image <b class="part">partly</b></div><div class="sc layer"><div class="ghost"></div><div class="note">Characters built from layers are not drawn yet.</div><span class="tagn">Mira</span><div class="box">Lampa na tebe čekala.</div></div><p>The background is shown with a note. Layered characters are put together while the game runs, and every developer does it differently, so they are not drawn yet.</p></div></div>';
   var MENU = '<div class="mmock"><div class="cap">Menu · ep1_arrival.rpy:88</div><div class="q">Mira: <b>"So, are you staying?"</b></div>' +
     '<div class="o"><span>Stay the night</span><span>Zůstat přes noc</span><em>if trust &gt; 2</em></div>' +
     '<div class="o"><span>Walk home</span><span>Jít domů</span><em></em></div>' +
@@ -827,7 +827,7 @@ table.cmp { width: 100%; border-collapse: collapse; min-width: 520px; font-size:
   var PANELS = {
     editor: { html: '<img class="zoom" src="assets/img/app-lines.webp" width="1440" height="816" alt="The Lines tab with the editor.">', note: "Demo project with made-up dialogue. Tap the picture to enlarge it." },
     check: { html: '<img class="zoom" src="assets/img/app-check.webp" width="1440" height="816" alt="The Check tab with errors and warnings.">', note: "Errors would crash the game or break the script; warnings may be intended. Nothing is rewritten without you." },
-    scene: { html: SCENE, note: "Games made of full-screen renders and scenes preview fully (5 of the 8 tested games). Games that build pictures from layers show the background and say what is missing." },
+    scene: { html: SCENE, note: "Games made of full-screen renders and scenes preview fully (5 of the 8 tested games). Games that build pictures from layers show the background and say what is missing: each developer assembles layered pictures in their own way while the game runs, so drawing them right is much harder than a finished render." },
     menu: { html: MENU, note: "Read from the decompiled .rpy scripts; jumps and menus built in Python are not followed." },
     overview: { html: '<img class="zoom" src="assets/img/app-overview.webp" width="1440" height="816" alt="The Overview tab with progress.">', note: "Groups are found from file names (episode, chapter, day, script2…) or from folders." },
     glossary: { html: '<img class="zoom" src="assets/img/app-glossary.webp" width="1440" height="816" alt="The Glossary tab.">', note: "Names are imported from the game's Character definitions." }
