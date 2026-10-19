@@ -1,9 +1,13 @@
 import { safeEqual } from "./crypto.ts";
 import type { Env } from "./env.ts";
-import { fail, json, issue, body, str, RELEASE_LIMIT } from "./handlers.ts";
+import { fail, json, issue, body, str, clean, RELEASE_LIMIT } from "./handlers.ts";
 import { keyHash, newKey } from "./licence.ts";
-import { mailKey } from "./mail.ts";
+import { mailKey, sendTest } from "./mail.ts";
+import { kidOf, trustedKeys } from "./licence.ts";
 import * as store from "./store.ts";
+
+/** The version of the server (shown on the page; change it with a release). */
+export const SERVER_VERSION = "0.2.0";
 
 /** What the admin sees of a licence: everything except the hash of the key. */
 const view = ({ key_hash: _hash, ...rest }: store.ListedLicence | NonNullable<Awaited<ReturnType<typeof store.byId>>>) => rest;
@@ -25,6 +29,26 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
     const events = /^[a-z-]{1,24}$/.test(kind) ? await store.eventsByKind(env.DB, kind, 50) : await store.recentEvents(env.DB, 30);
     return json({ ok: true, stats: await store.stats(env.DB, now), licences: (await store.list(env.DB, url.searchParams.get("q") ?? "")).map(view), events });
   }
+  if (req.method === "GET" && parts[0] === "insights") {
+    const keys = Object.keys(trustedKeys(env));
+    const c = await store.counts(env.DB);
+    return json({
+      ok: true,
+      attention: await store.attention(env.DB, now),
+      not_activated: await store.notActivated(env.DB, now),
+      versions: await store.versions(env.DB),
+      limits: await store.limitsOverview(env.DB, now),
+      health: {
+        version: SERVER_VERSION,
+        time: now,
+        mail: { configured: !!env.RESEND_API_KEY, from: env.MAIL_FROM ?? "Aside <licence@aside.filiposakkq.dev>", reply_to: env.REPLY_TO ?? "", last_mailed: c.last_mailed, last_failed: c.last_mail_failed },
+        signing: { configured: !!env.LICENCE_SIGNING_KEY, kid: kidOf(env), trusted_kids: keys },
+        webhook_configured: !!env.WEBHOOK_SECRET,
+        product_major: Number(env.PRODUCT_MAJOR) || 1,
+        counts: { licences: c.licences, activations: c.activations, events: c.events },
+      },
+    });
+  }
   if (req.method === "GET" && parts[0] === "export") {
     // all licences as CSV (no key and no hash: the keys are not stored)
     const rows = await store.list(env.DB, "", 5000);
@@ -41,10 +65,24 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
     if (!l) return fail("not_found", 404);
     const used = await store.userReleases(env.DB, l.id, 0);
     const recovered = (await store.events(env.DB, l.id, 500)).some((e) => e.kind === "key-recovered");
-    return json({ ok: true, licence: view(l), activations: await store.activations(env.DB, l.id), events: await store.events(env.DB, l.id), user_releases: used.count, release_limit: RELEASE_LIMIT, recovered });
+    const acts = await store.activations(env.DB, l.id);
+    const activations = await Promise.all(acts.map(async (a) => ({ ...a, also_on: await store.sharedWith(env.DB, l.id, a.device) })));
+    return json({ ok: true, licence: view(l), activations, events: await store.events(env.DB, l.id), notes: await store.notes(env.DB, l.id), user_releases: used.count, release_limit: RELEASE_LIMIT, recovered });
   }
   if (req.method !== "POST") return fail("not_found", 404);
   const b = (await body(req)) ?? {};
+  if (parts[0] === "test-mail") {
+    const to = str(b.to).trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return fail("bad_request", 400);
+    const r = await sendTest(env, to);
+    await store.logEvent(env.DB, now, null, "test-mail", r.sent ? "sent" : `failed: ${r.reason ?? ""}`.slice(0, 120));
+    return json({ ok: true, sent: r.sent, reason: r.reason ?? "" });
+  }
+  if (parts[0] === "limits" && parts[1] === "reset") {
+    await store.resetLimits(env.DB);
+    await store.logEvent(env.DB, now, null, "limits-reset", "by the owner");
+    return json({ ok: true });
+  }
   if (parts[0] === "issue") {
     const email = str(b.email).trim();
     const checkDays = Number(b.check_days) || 14;
@@ -96,9 +134,22 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         await store.scrubEvents(env.DB, l.id);
         await store.logEvent(env.DB, now, l.id, "erased", "personal data removed");
         return json({ ok: true });
-      case "revoke":
+      case "revoke": {
+        // the reason is kept in the log as "<kind>: <text>" (kinds: refund, abuse, test, other) so that the list can say why
+        const kind = ["refund", "abuse", "test", "other"].includes(str(b.category)) ? str(b.category) : "";
+        const text = clean(b.reason, 200) || "by the owner";
         await store.setState(env.DB, l.id, "revoked");
-        await store.logEvent(env.DB, now, l.id, "revoked", str(b.reason) || "by the owner");
+        await store.logEvent(env.DB, now, l.id, "revoked", kind ? `${kind}: ${text}` : text);
+        return json({ ok: true });
+      }
+      case "note": {
+        const text = clean(b.text, 500);
+        if (!text) return fail("bad_request", 400);
+        await store.logEvent(env.DB, now, l.id, "note", text);
+        return json({ ok: true });
+      }
+      case "note-delete":
+        await store.deleteNote(env.DB, l.id, Math.round(Number(b.id)));
         return json({ ok: true });
       case "restore":
         await store.setState(env.DB, l.id, "active");

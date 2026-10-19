@@ -84,6 +84,18 @@ tr.cancelled td{opacity:.62}
 .events .sub{grid-column:2/4;color:var(--mute);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .events a{cursor:pointer;white-space:nowrap}
 
+/* the panels beside the list */
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.list{list-style:none;margin:0;padding:4px 0}
+.list li{padding:9px 14px;border-bottom:1px solid rgba(59,28,32,.55);cursor:pointer}.list li:last-child{border-bottom:0}.list li:hover{background:var(--accentbg)}
+.list .why{display:block;color:var(--warn);font-size:12px}.list .none{cursor:default;color:var(--mute)}.list .none:hover{background:transparent}
+.pad{padding:12px 14px}
+.vrow{display:grid;grid-template-columns:90px 1fr 34px;gap:10px;align-items:center;margin:5px 0}.vrow i{display:block;height:8px;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--accent2))}.vrow b{text-align:right;font-weight:600}
+.sys{margin:0;padding:12px 14px 4px;grid-template-columns:110px 1fr}
+.note{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}.note:last-child{border-bottom:0}.note div{flex:1;word-break:break-word}
+.addnote{display:flex;gap:8px;margin-top:8px}
+select{background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:8px 12px;width:100%}
+
 /* drawer and dialogs */
 .scrim{position:fixed;inset:0;background:rgba(5,1,2,.66);backdrop-filter:blur(2px);z-index:9;animation:fade .14s}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(500px,100%);overflow:auto;background:var(--panel);border-left:1px solid var(--line2);box-shadow:var(--shadow);z-index:10;padding:22px 24px 40px;animation:slide .18s ease-out}
@@ -118,20 +130,26 @@ tr.cancelled td{opacity:.62}
   <div class="stats" id="stats"></div>
   <div class="grid">
     <section class="panel">
-      <div class="panel-head"><h2>Licences</h2><input type="search" id="q" placeholder="Search by licence id or e-mail"><div class="chips" id="chips"></div></div>
+      <div class="panel-head"><h2>Licences</h2><input type="search" id="q" placeholder="Search id, e-mail, note, computer name or computer id" title="Searches the licence id, the e-mail, the note and the notes of the history, and the name and the id of the computers"><div class="chips" id="chips"></div></div>
       <div style="overflow:auto"><table><thead><tr><th>Licence</th><th>E-mail</th><th>Version</th><th>Computers</th><th>Last check</th><th>State</th></tr></thead><tbody id="rows"></tbody></table></div>
       <div class="empty" id="none" hidden>No licences found.</div>
     </section>
-    <aside class="panel">
-      <div class="panel-head"><h2>Recent activity</h2><div class="chips" id="evchips"></div></div>
-      <ul class="events" id="events"></ul>
-    </aside>
+    <div class="side">
+      <aside class="panel"><div class="panel-head"><h2>Needs a look</h2><span class="mute small" id="attncount"></span></div><ul class="list" id="attn"></ul></aside>
+      <aside class="panel"><div class="panel-head"><h2>Not activated yet</h2><span class="mute small">bought more than 7 days ago</span></div><ul class="list" id="idle"></ul></aside>
+      <aside class="panel">
+        <div class="panel-head"><h2>Recent activity</h2><div class="chips" id="evchips"></div></div>
+        <ul class="events" id="events"></ul>
+      </aside>
+      <aside class="panel"><div class="panel-head"><h2>Versions in use</h2></div><div class="pad" id="versions"></div></aside>
+      <aside class="panel"><div class="panel-head"><h2>System</h2><button id="testmail" class="ghost">Send test e-mail</button></div><dl class="kv sys" id="health"></dl><div class="pad" id="limits"></div></aside>
+    </div>
   </div>
 </main>
 <div id="layer"></div>
 <script>
 const $=(s)=>document.querySelector(s);let token=sessionStorage.getItem('aside_admin')||'';
-let data={licences:[],events:[],stats:{}},filter='all',query='',timer=0,evFilter='';
+let data={licences:[],events:[],stats:{}},ins={attention:[],not_activated:[],versions:[],limits:{},health:{}},filter='all',rfilter='',query='',timer=0,evFilter='';
 const NL=String.fromCharCode(10),DAY=86400;
 const el=(t,txt,cls)=>{const e=document.createElement(t);if(txt!==undefined&&txt!==null)e.textContent=txt;if(cls)e.className=cls;return e};
 const when=(s)=>s?new Date(s*1000).toLocaleString():'never';
@@ -146,34 +164,66 @@ async function copy(text,what){try{await navigator.clipboard.writeText(text);toa
 function status(l){if(l.state!=='active')return ['revoked','bad'];if(!l.last_seen)return ['not activated','warn'];if(Date.now()/1000-l.last_seen>l.check_days*DAY)return ['check overdue','warn'];return ['active','ok']}
 function dots(l){const w=el('span','','dots');for(let i=0;i<l.max_devices;i++)w.append(el('i','',i<l.devices?'on':''));const b=el('span');b.append(w,el('span',l.devices+' / '+l.max_devices));return b}
 function endsAt(l,lastSeen){return lastSeen?lastSeen+2*l.check_days*DAY:null}
-const KINDS={issued:['Licence issued','acc'],activate:['Activated on a computer','ok'],'activate-again':['Activated again','ok'],refresh:['Regular check','ok'],deactivate:['Computer removed by the user',''],'release-user':['Computer freed by the user',''],refused:['Refused','bad'],revoked:['Licence revoked','bad'],restored:['Licence restored','ok'],released:['Computer freed by the owner',''],'check-days':['Check interval changed',''],'max-devices':['Computers allowed changed',''],updated:['Contact changed',''],erased:['Personal data erased',''],rekeyed:['New key made by the owner','acc'],'key-mailed':['Key mailed','ok'],'key-not-mailed':['Key not mailed (e-mail is not set up)','warn'],'recover-request':['Lost key: code requested','acc'],'recover-refused':['Lost key: already used once','warn'],'key-recovered':['Lost key: replaced by the user','acc']};
+const KINDS={issued:['Licence issued','acc'],activate:['Activated on a computer','ok'],'activate-again':['Activated again','ok'],refresh:['Regular check','ok'],deactivate:['Computer removed by the user',''],'release-user':['Computer freed by the user',''],refused:['Refused','bad'],revoked:['Licence revoked','bad'],restored:['Licence restored','ok'],released:['Computer freed by the owner',''],'check-days':['Check interval changed',''],'max-devices':['Computers allowed changed',''],updated:['Contact changed',''],erased:['Personal data erased',''],rekeyed:['New key made by the owner','acc'],'key-mailed':['Key mailed','ok'],'key-not-mailed':['Key not mailed (e-mail is not set up)','warn'],'recover-request':['Lost key: code requested','acc'],'recover-refused':['Lost key: already used once','warn'],'key-recovered':['Lost key: replaced by the user','acc'],note:['Note',''],'rate-limited':['Limit per address hit','warn'],'test-mail':['Test e-mail',''],'limits-reset':['Limits reset by the owner','']};
 function eventList(ul,events,link){ul.replaceChildren();if(!events.length){const li=el('li');li.style.display='block';li.append(el('span','Nothing yet.','mute'));ul.append(li);return}
 events.forEach(e=>{const k=KINDS[e.kind]||[e.kind,''];const li=el('li');const w=el('span','','what');w.append(el('span',k[0]));
 if(link&&e.licence_id){const a=el('a',e.licence_id,'mono');a.style.marginLeft='8px';a.onclick=()=>openLicence(e.licence_id);w.append(a)}
 const t=el('span',rel(e.at),'t');t.title=when(e.at);li.append(el('span','','dot '+k[1]),w,t);if(e.detail)li.append(el('span',e.detail,'sub mono'));ul.append(li)})}
 
+/* the panels beside the list: what needs a look, what was never activated, versions, the state of the server */
+async function loadInsights(){try{ins=await api('insights');paintInsights()}catch(e){}}
+function paintInsights(){
+  const at=$('#attn');at.replaceChildren();$('#attncount').textContent=ins.attention.length?ins.attention.length+' licences':'';
+  if(!ins.attention.length){const li=el('li','Nothing unusual.','none');at.append(li)}
+  ins.attention.forEach(a=>{const li=el('li');li.onclick=()=>openLicence(a.id);const top=el('div');top.append(el('b',a.id,'mono'),el('span','  '+(a.email||''),'mute small'));li.append(top);a.reasons.forEach(r=>li.append(el('span',r,'why')));at.append(li)});
+  const idle=$('#idle');idle.replaceChildren();
+  if(!ins.not_activated.length)idle.append(el('li','All bought licences are in use.','none'));
+  ins.not_activated.forEach(a=>{const li=el('li');li.onclick=()=>openLicence(a.id);li.append(el('b',a.id,'mono'),el('span','  '+(a.email||'no e-mail'),'mute small'),el('span',Math.round((Date.now()/1000-a.created)/DAY)+' days since the purchase','why'));idle.append(li)});
+  const vs=$('#versions');vs.replaceChildren();const total=ins.versions.reduce((s,v)=>s+v.n,0);
+  if(!total)vs.append(el('span','No computer yet.','mute'));
+  ins.versions.forEach(v=>{const r=el('div','','vrow');const bar=el('i');bar.style.width=Math.max(4,Math.round(100*v.n/total))+'%';const cell=el('span');cell.append(bar);r.append(el('span',v.version,'mono'),cell,el('b',String(v.n)));vs.append(r)});
+  const h=ins.health,hl=$('#health');hl.replaceChildren();
+  const row=(k,node)=>{hl.append(el('dt',k));const d=el('dd');d.append(node);hl.append(d)};
+  const pill=(txt,cls)=>el('span',txt,'pill '+cls);
+  if(h.version){
+    row('Server',el('span','v'+h.version));
+    row('E-mail',h.mail.configured?pill('set up','ok'):pill('not set up','warn'));
+    if(h.mail.configured)row('Sent from',el('span',h.mail.from,'small mute'));
+    row('Last key mailed',el('span',h.mail.last_mailed?rel(h.mail.last_mailed):'never','mute'));
+    if(h.mail.last_failed)row('Last not mailed',el('span',rel(h.mail.last_failed),'mute'));
+    row('Signing key',el('span',h.signing.configured?h.signing.kid+'  (trusted: '+h.signing.trusted_kids.join(', ')+')':'missing!','mono'));
+    row('Payment hook',h.webhook_configured?pill('set up','ok'):pill('not set up','warn'));
+    row('Database',el('span',h.counts.licences+' licences · '+h.counts.activations+' computers · '+h.counts.events+' events','small mute'))}
+  const lm=$('#limits');lm.replaceChildren();const L=ins.limits||{};
+  if(h.version){const line=el('div');line.append(el('b','Limits per address: '),el('span',(L.blocked_day||0)+' blocked in 24 h'+(L.counters?' · '+L.counters+' counters now':'')));lm.append(line);
+    (L.by_route||[]).forEach(r=>lm.append(el('div',r.route+'  ×'+r.n,'small mute mono')));
+    const b=el('button','Reset the counters','ghost');b.style.marginTop='6px';b.onclick=async()=>{if(!await ask('Reset the limits?','All counters of the limits per address are deleted: an address that was blocked can go on at once.','Reset'))return;try{await post('limits/reset',{});toast('Counters deleted','ok');loadInsights()}catch(e){toast(e.message,'bad')}};lm.append(b)}
+}
 /* the page */
 function stat(label,value,cls,note){const d=el('div','','stat '+(cls||''));d.append(el('span',label),el('b',String(value)));if(note)d.append(el('small',note));return d}
 function paint(){const s=data.stats;const st=$('#stats');st.replaceChildren(
   stat('Active licences',s.active,'good'),stat('Computers in use',s.devices,''),stat('Check overdue',s.overdue,s.overdue?'warn':'','no contact for a whole interval'),
   stat('Revoked',s.revoked,s.revoked?'bad':''),stat('Lost keys replaced',s.recovered||0,'acc','by the buyers, once each'),stat('Refused, 24 h',s.refused_day||0,s.refused_day?'warn':'','wrong keys, limits'));
 const chips=$('#chips');chips.replaceChildren();[['all','All'],['active','Active'],['overdue','Overdue'],['revoked','Revoked']].forEach(([k,l])=>{const b=el('button',l,'chip'+(filter===k?' on':''));b.onclick=()=>{filter=k;paint()};chips.append(b)});
-const rows=data.licences.filter(l=>{const name=status(l)[0];return filter==='all'||(filter==='active'&&l.state==='active')||(filter==='revoked'&&l.state!=='active')||(filter==='overdue'&&name==='check overdue')});
+if(filter==='revoked')[['','any reason'],['refund','refund'],['abuse','abuse'],['test','test'],['other','other']].forEach(([k,l])=>{const b=el('button',l,'chip'+(rfilter===k?' on':''));b.onclick=()=>{rfilter=k;paint()};chips.append(b)});
+const rows=data.licences.filter(l=>{const name=status(l)[0];return filter==='all'||(filter==='active'&&l.state==='active')||(filter==='revoked'&&l.state!=='active'&&(!rfilter||(l.revoke_reason||'').indexOf(rfilter+':')===0||(rfilter==='other'&&(l.revoke_reason||'').indexOf(':')<0)))||(filter==='overdue'&&name==='check overdue')});
 const tb=$('#rows');tb.replaceChildren();rows.forEach(l=>{const tr=el('tr','',l.state!=='active'?'cancelled':'');tr.onclick=()=>openLicence(l.id);
-const id=el('td');id.append(el('span',l.id,'mono'));const bd=el('span','','badges');if(l.recovered)bd.append(el('span','key replaced','badge'));if(l.user_releases>=2)bd.append(el('span','no releases left','badge'));if(bd.childNodes.length)id.append(bd);
+const id=el('td');id.append(el('span',l.id,'mono'));const bd=el('span','','badges');if(l.recovered)bd.append(el('span','key replaced','badge'));if(l.user_releases>=2)bd.append(el('span','no releases left','badge'));if(l.shared_devices)bd.append(el('span','shared computer id','badge'));if(bd.childNodes.length)id.append(bd);
 tr.append(id,el('td',l.email||'–','mute'),el('td',l.major+'.x'));const d=el('td');d.append(dots(l));tr.append(d);
-tr.append(el('td',l.last_seen?rel(l.last_seen):'never','mute'));const c=el('td');const [n,k]=status(l);c.append(el('span',n,'pill '+k));tr.append(c);tb.append(tr)});
+tr.append(el('td',l.last_seen?rel(l.last_seen):'never','mute'));const c=el('td');const [n,k]=status(l);c.append(el('span',n,'pill '+k));if(l.state!=='active'&&l.revoke_reason)c.append(el('div',l.revoke_reason,'small faint'));tr.append(c);tb.append(tr)});
 $('#none').hidden=rows.length>0;
 const ec=$('#evchips');ec.replaceChildren();[['','All'],['refused','Refused'],['key-recovered','Lost keys']].forEach(([k,l])=>{const b=el('button',l,'chip'+(evFilter===k?' on':''));b.onclick=()=>{evFilter=k;load()};ec.append(b)});
 eventList($('#events'),data.events,true)}
-async function load(){try{const j=await api('overview?q='+encodeURIComponent(query)+(evFilter?'&events='+evFilter:''));data=j;$('#login').hidden=true;$('#app').hidden=false;['reload','exportbtn','bulkbtn','newbtn','logout'].forEach(i=>{$('#'+i).hidden=false});paint()}
+async function load(skipInsights){try{const j=await api('overview?q='+encodeURIComponent(query)+(evFilter?'&events='+evFilter:''));data=j;$('#login').hidden=true;$('#app').hidden=false;['reload','exportbtn','bulkbtn','newbtn','logout'].forEach(i=>{$('#'+i).hidden=false});paint();if(!skipInsights)loadInsights()}
 catch(e){$('#loginmsg').textContent=e.message==='unauthorised'?'That token is not right.':(e.message==='admin_not_configured'?'The server has no ADMIN_TOKEN (at least 16 characters).':e.message);if(e.message==='unauthorised'){sessionStorage.removeItem('aside_admin');$('#app').hidden=true;$('#login').hidden=false}}}
 
 /* the dialogs of the page (not the ones of the browser) */
 function close(){$('#layer').replaceChildren()}
 function dialog(title,text,fields,opts){opts=opts||{};return new Promise((resolve)=>{
   const m=el('div','','modal');const box=el('div','','box');box.append(el('h3',title));if(text)box.append(el('p',text));
-  const inputs={};(fields||[]).forEach(f=>{const w=el('div','','field');const i=el('input');i.type=f.type||'text';
+  const inputs={};(fields||[]).forEach(f=>{const w=el('div','','field');
+    if(f.type==='select'){const s=el('select');(f.options||[]).forEach(([v,tx])=>{const o=el('option',tx);o.value=v;s.append(o)});s.value=f.value||'';w.append(el('label',f.label),s);inputs[f.id]=s;box.append(w);return}
+    const i=el('input');i.type=f.type||'text';
     if(f.type==='checkbox'){i.checked=!!f.value;const row=el('label','','check');row.append(i,f.label);w.append(row)}
     else{i.value=f.value===undefined?'':f.value;if(f.placeholder)i.placeholder=f.placeholder;w.append(el('label',f.label),i)}
     inputs[f.id]=i;box.append(w)});
@@ -203,15 +253,23 @@ async function openLicence(id){let j;try{j=await api('licence/'+id)}catch(e){toa
   acts.append(act('Computers allowed',async()=>{const r=await dialog('Computers allowed','How many computers may use this licence? (1–20)',[{id:'n',label:'Number',type:'number',value:l.max_devices}],{ok:'Save'});if(!r)return false;await post('licence/'+l.id+'/max_devices',{n:Number(r.n)})}));
   acts.append(act('Check interval',async()=>{const r=await dialog('Check interval','How often Aside asks the server (days, 1–365). The file stays valid for the same time again without a connection.',[{id:'days',label:'Days',type:'number',value:l.check_days}],{ok:'Save'});if(!r)return false;await post('licence/'+l.id+'/check_days',{days:Number(r.days)})}));
   acts.append(act('Edit contact',async()=>{const r=await dialog('Contact','The e-mail is where the key and the codes for a lost key go.',[{id:'email',label:'E-mail of the buyer',type:'email',value:l.email||''},{id:'note',label:'Note',value:l.note||''}],{ok:'Save'});if(!r)return false;await post('licence/'+l.id+'/update',{email:r.email,note:r.note})}));
+  acts.append(act('Send key again',async()=>{if(!l.email){toast('This licence has no e-mail address. Edit the contact first.','bad');return false}if(!await ask('Send the key again?','The key itself cannot be read back, so a NEW key is made and mailed to '+l.email+'. The old key stops working for new computers; computers that are already activated keep working.','Send a new key'))return false;const out=await post('licence/'+l.id+'/rekey',{send:true});toast(out.mailed?'Mailed to '+l.email:'Not mailed: the mail service is not set up. Copy the key from the next window.',out.mailed?'ok':'bad');showKey(out.key,l.id,out.mailed,l.email);return false}));
   acts.append(act('New key',async()=>{const r=await dialog('New key','The old key stops working for new computers at once. Computers that are already activated keep working, unless you free them too.',(l.email?[{id:'send',label:'Mail the new key to '+l.email,type:'checkbox',value:true}]:[]).concat([{id:'freeall',label:'Also free all computers (if the key leaked): every computer has to enter the new key',type:'checkbox',value:false}]),{ok:'Make a new key',danger:true});if(!r)return false;const out=await post('licence/'+l.id+'/rekey',{send:!!r.send,free_all:!!r.freeall});if(out.freed)toast(out.freed+' computer(s) freed','ok');showKey(out.key,l.id,out.mailed,l.email);return false}));
   d.append(acts);
   d.append(el('h4','Danger zone','sec'));const dz=el('div','','acts');
-  if(l.state==='active')dz.append(act('Revoke licence',async()=>{const ends=live.map(a=>endsAt(l,a.last_seen)).filter(Boolean);const when2=ends.length?dshort(Math.max.apply(null,ends)):'–';const r=await dialog('Revoke '+l.id+'?','Computers that are online stop within hours. Computers that stay offline stop at the latest on '+when2+'.',[{id:'reason',label:'Reason (for the history)',value:''}],{ok:'Revoke',danger:true});if(!r)return false;await post('licence/'+l.id+'/revoke',{reason:r.reason})},'danger'));
+  if(l.state==='active')dz.append(act('Revoke licence',async()=>{const ends=live.map(a=>endsAt(l,a.last_seen)).filter(Boolean);const when2=ends.length?dshort(Math.max.apply(null,ends)):'–';const r=await dialog('Revoke '+l.id+'?','Computers that are online stop within hours. Computers that stay offline stop at the latest on '+when2+'.',[{id:'category',label:'Kind',type:'select',value:'refund',options:[['refund','Refund'],['abuse','Abuse (shared or leaked key)'],['test','Test licence'],['other','Other']]},{id:'reason',label:'Reason (for the history)',value:''}],{ok:'Revoke',danger:true});if(!r)return false;await post('licence/'+l.id+'/revoke',{reason:r.reason,category:r.category})},'danger'));
   else dz.append(act('Restore licence',()=>post('licence/'+l.id+'/restore')));
   dz.append(act('Erase personal data',async()=>{if(!await ask('Erase personal data?','The e-mail and the note of '+l.id+' go, also from its history. The licence itself stays.','Erase',true))return false;await post('licence/'+l.id+'/erase',{})},'danger'));
   d.append(dz);
+  d.append(el('h4','Notes','sec'));
+  const nl=el('div');(j.notes||[]).forEach(n=>{const r=el('div','','note');const body=el('div');body.append(el('div',n.detail),el('div',when(n.at),'small faint'));const del=el('button','Delete','ghost');del.onclick=async()=>{try{await post('licence/'+l.id+'/note-delete',{id:n.id});await reload()}catch(e){toast(e.message,'bad')}};r.append(body,del);nl.append(r)});
+  if(!(j.notes||[]).length)nl.append(el('p','No notes yet.','mute'));d.append(nl);
+  const add=el('div','','addnote');const ni=el('input');ni.placeholder='A note (for you; the buyer never sees it)';ni.maxLength=500;const nb=el('button','Add','primary');
+  const addNote=async()=>{if(!ni.value.trim())return;try{await post('licence/'+l.id+'/note',{text:ni.value});await reload()}catch(e){toast(e.message,'bad')}};nb.onclick=addNote;ni.onkeydown=(e)=>{if(e.key==='Enter')addNote()};add.append(ni,nb);d.append(add);
   d.append(el('h4','Computers','sec'));if(!j.activations.length)d.append(el('p','No computer has activated this licence yet.','mute'));
-  j.activations.forEach(a=>{const r=el('div','','dev');const t=el('div','','grow');t.append(el('div',a.name||'Unnamed computer'),el('div',a.device.slice(0,12)+'…'+(a.app_version?'  ·  v'+a.app_version:''),'mono faint'),el('div','since '+when(a.created)+'  ·  last seen '+rel(a.last_seen)+(l.state!=='active'&&!a.released?'  ·  stops by '+dshort(endsAt(l,a.last_seen)):''),'small mute'));r.append(t);
+  j.activations.forEach(a=>{const r=el('div','','dev');const idl=el('div','','mono faint');const idb=el('a',a.device.slice(0,12)+'…');idb.title='Click to copy the whole id';idb.style.cursor='pointer';idb.onclick=()=>copy(a.device,'Computer id');idl.append(idb,a.app_version?'  ·  v'+a.app_version:'');
+    let also=null;if(a.also_on&&a.also_on.length){also=el('div','','small');also.style.color='var(--warn)';also.append('The same computer id is on ');a.also_on.forEach(o=>{const lk=el('a',o,'mono');lk.style.cursor='pointer';lk.onclick=()=>openLicence(o);also.append(lk,' ')})}
+    const t=el('div','','grow');t.append(el('div',a.name||'Unnamed computer'),idl,el('div','since '+when(a.created)+'  ·  last seen '+rel(a.last_seen)+(l.state!=='active'&&!a.released?'  ·  stops by '+dshort(endsAt(l,a.last_seen)):''),'small mute'));if(also)t.append(also);r.append(t);
     if(a.released)r.append(el('span','freed','pill'));else{const b=el('button','Free');b.onclick=async()=>{if(!await ask('Free this place?','The computer stops working with this licence. This does not count against the limit of the user.','Free'))return;try{await post('licence/'+l.id+'/release',{device:a.device});await reload()}catch(e){toast(e.message,'bad')}};r.append(b)}d.append(r)});
   d.append(el('h4','History','sec'));const ul=el('ul','','events');ul.style.maxHeight='none';eventList(ul,j.events,false);d.append(ul);L.append(scrim,d)}
 
@@ -236,8 +294,10 @@ async function exportCsv(){try{const r=await fetch('/admin/api/export',{headers:
 function signIn(){token=$('#token').value.trim();sessionStorage.setItem('aside_admin',token);$('#loginmsg').textContent='';load()}
 $('#go').onclick=signIn;$('#token').onkeydown=(e)=>{if(e.key==='Enter')signIn()};
 $('#logout').onclick=()=>{sessionStorage.removeItem('aside_admin');token='';location.reload()};
+$('#testmail').onclick=async()=>{const r=await dialog('Send a test e-mail','Tells whether the mail service takes it, and if not, why. Nothing about a licence is in the mail.',[{id:'to',label:'Send it to',type:'email',placeholder:'you@example.com'}],{ok:'Send'});if(!r)return;
+  try{const o=await post('test-mail',{to:r.to.trim()});if(o.sent)toast('Sent. Look into the mailbox (and the spam folder).','ok');else toast('Not sent: '+(o.reason==='not_configured'?'the server has no RESEND_API_KEY':o.reason),'bad');loadInsights()}catch(e){toast(e.message,'bad')}};
 $('#newbtn').onclick=issueForm;$('#bulkbtn').onclick=bulkForm;$('#exportbtn').onclick=exportCsv;$('#reload').onclick=load;
-$('#q').oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>{query=$('#q').value;load()},250)};
+$('#q').oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>{query=$('#q').value;load(true)},250)};
 document.addEventListener('keydown',(e)=>{if(e.key==='Escape')close()});
 if(token)load();else $('#token').focus();
 </script></body></html>`;
