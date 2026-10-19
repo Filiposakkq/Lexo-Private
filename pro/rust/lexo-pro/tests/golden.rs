@@ -55,6 +55,8 @@ fn fake_http(url: &str, headers: &[(String, String)], data: &[u8]) -> Result<(u1
 }
 
 fn golden() -> Value {
+    // the licence file of the machine must not matter: without one the development default offers everything
+    std::env::set_var("LEXO_LICENCE_FILE", std::env::temp_dir().join("aside-golden-no-licence.json"));
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../golden/pack.json");
     serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
