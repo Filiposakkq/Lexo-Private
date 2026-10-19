@@ -292,6 +292,19 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "release/state" | "release/settings" | "release/preview" | "release/build" => {
+                let (what, d) = (r.to_string(), Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
+                    let out = match what.as_str() {
+                        "release/state" => app.release_state()?,
+                        "release/settings" => app.release_set(&d["settings"])?,
+                        "release/preview" => app.release_preview(&text("version"), &text("notes"))?,
+                        _ => app.release_build(&text("version"), &text("notes"), d["force"].as_bool().unwrap_or(false))?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "style/targets" | "style/batch" => {
                 let (batch, d) = (r == "style/batch", Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {

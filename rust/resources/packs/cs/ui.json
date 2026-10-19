@@ -1726,6 +1726,40 @@
    "Zapsat {n} opravu",
    "Zapsat {n} opravy",
    "Zapsat {n} oprav"
-  ]
+  ],
+  "What is new, in your words (goes to the changelog and the release notes)": "Co je nového, vlastními slovy (jde do changelogu a do poznámek k vydání)",
+  "README for the players (how to install, credits)": "README pro hráče (jak nainstalovat, autoři)",
+  "Release notes (a Markdown file for a page: GitHub, F95, Patreon)": "Poznámky k vydání (soubor Markdown pro stránku: GitHub, F95, Patreon)",
+  "A script that makes the language the one the game starts in": "Skript, který nastaví jazyk, ve kterém hra startuje",
+  "Credits: who translated and proofread": "Autoři: kdo překládal a kontroloval",
+  "Anything else for the README (a link, a note)": "Cokoli dalšího do README (odkaz, poznámka)",
+  "Folder for the files (empty: the local data of the project)": "Složka pro soubory (prázdné: lokální data projektu)",
+  "Build the release": "Sestavit vydání",
+  "Build anyway (the errors of the check of the translation do not stop it)": "Sestavit i tak (chyby kontroly překladu to nezastaví)",
+  "Files to attach": "Přiložené soubory",
+  "For example a font with the diacritics of your language, or a changed gui file. Each goes into the archive at the place you give (inside the game folder, like game/tl/czech/fonts/Font.ttf).": "Například písmo s diakritikou tvého jazyka, nebo upravený soubor gui. Každý půjde do archivu na místo, které zadáš (uvnitř složky hry, třeba game/tl/czech/fonts/Font.ttf).",
+  "File on this computer": "Soubor v tomto počítači",
+  "+ Attach a file": "+ Přiložit soubor",
+  "Checks": "Kontroly",
+  "The last release: {v} ({date}).": "Poslední vydání: {v} ({date}).",
+  "This is the first release.": "Je to první vydání.",
+  "The release {v} is built.": "Vydání {v} je sestavené.",
+  "The file is ready": "Soubor je hotový",
+  "{size} kB; SHA-256 {sha}": "{size} kB; SHA-256 {sha}",
+  "Release notes: {file}": "Poznámky k vydání: {file}",
+  "The path is copied.": "Cesta je zkopírovaná.",
+  "Build a release": "Sestavit vydání",
+  "The translation as a zip the players unpack into their game folder. The result is a file: you put it where you like. Nothing is uploaded.": "Překlad jako zip, který hráči rozbalí do složky hry. Výsledkem je soubor: nahraješ ho, kam chceš. Nic se nenahrává.",
+  "Game: {name} {v}; language: {lang}.": "Hra: {name} {v}; jazyk: {lang}.",
+  "Number of the release": "Číslo vydání",
+  "{n} release so far, the last {v}.|{n} releases so far, the last {v}.": [
+   "Zatím {n} vydání, poslední {v}.",
+   "Zatím {n} vydání, poslední {v}.",
+   "Zatím {n} vydání, poslední {v}."
+  ],
+  "Build a release…": "Sestavit vydání…",
+  "Pro: a zip for the players": "Pro: zip pro hráče",
+  "Release builder": "Sestavení vydání",
+  "Files of the translation: {files}, attached files: {extras}; {pct} % translated.": "Soubory překladu: {files}, přiložené soubory: {extras}; přeloženo {pct} %."
  }
 }
