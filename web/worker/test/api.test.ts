@@ -23,10 +23,12 @@ async function call(path: string, init: { method?: string; body?: unknown; heade
 }
 const admin = (path: string, body?: unknown) => call("/admin/api/" + path, { body, headers: { authorization: `Bearer ${E.ADMIN_TOKEN}` } });
 
+// every application comes from another e-mail unless a test says otherwise
+const uid = () => Math.random().toString(36).slice(2, 10);
 const tester = (extra: Json = {}) => ({
   route: "test",
   fields: {
-    nick: "Mira", email: "mira@example.com", speak: ["English"], win: "Windows 11", ram: "16 GB", exp: "I translate regularly",
+    nick: "Mira", email: `mira${uid()}@example.com`, speak: ["English"], win: "Windows 11", ram: "16 GB", exp: "I translate regularly",
     games: "Eternum, Being a DIK", bug: "When I pressed save twice quickly the app showed an error and the line was not saved, I expected it to save once.",
     hours: "3–5 h a week", agree: ["a", "b", "c", "d"], ...extra,
   },
@@ -35,7 +37,7 @@ const tester = (extra: Json = {}) => ({
 const licensee = (extra: Json = {}) => ({
   route: "licence",
   fields: {
-    nick: "Tom", email: "tom@example.com", lang: "Czech", game: "Eternum 0.9", link: "https://example.com/thread", progress: "25–75 %", size: "50k–150k",
+    nick: "Tom", email: `tom${uid()}@example.com`, lang: "Czech", game: "Eternum 0.9", link: "https://example.com/thread", progress: "25–75 %", size: "50k–150k",
     team: "Just me", tools: "Notepad++", why: "Proofreading seventy thousand lines by hand takes me months, I want the checks.", agree: ["a", "b", "c", "d"], ...extra,
   },
   answers: [["Game and version", "Eternum 0.9"]],
@@ -74,13 +76,25 @@ describe("beta applications", () => {
     await admin("settings", { open: true, places_licence: 3 });
   });
 
-  it("the hidden field silently drops bots, and one address may apply at most five times a day", async () => {
+  it("the hidden field silently drops bots, and one address may apply at most three times a day", async () => {
     const bot = await call("/api/apply", { body: { ...tester({ nick: "Robot" }), website: "spam" } });
     expect(bot.json.ok).toBe(true);
     expect(((await admin("applications?state=")).json.items as Json[]).some((a) => a.nick === "Robot")).toBe(false);
     const same = { "cf-connecting-ip": "203.0.113.9" };
-    for (let i = 0; i < 5; i++) expect((await call("/api/apply", { body: tester(), headers: same })).status).toBe(200);
+    for (let i = 0; i < 3; i++) expect((await call("/api/apply", { body: tester(), headers: same })).status).toBe(200);
     expect((await call("/api/apply", { body: tester(), headers: same })).json.error).toBe("too_many");
+  });
+
+  it("one open application per e-mail and route; after a no the person may apply again", async () => {
+    const email = `twin${uid()}@example.com`;
+    const first = await call("/api/apply", { body: tester({ email }) });
+    expect(first.status).toBe(200);
+    const again = await call("/api/apply", { body: tester({ email: email.toUpperCase() }) });
+    expect(again.status).toBe(409);
+    expect(again.json.error).toBe("already");
+    expect((await call("/api/apply", { body: licensee({ email }) })).status).toBe(200);
+    await admin(`application/${first.json.id}/decide`, { state: "declined" });
+    expect((await call("/api/apply", { body: tester({ email }) })).status).toBe(200);
   });
 });
 
