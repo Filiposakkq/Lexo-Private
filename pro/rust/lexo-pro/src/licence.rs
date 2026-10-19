@@ -30,7 +30,7 @@ const PUBLIC_KEY_HEX: &str = "1317d76f9189e042509235a6d05e0b8664f4cfffad8f346384
 
 /// The keys this build trusts, by the key id (`kid`) a licence file names. A file without `kid` was signed by the first key. To rotate the key: add the new one here and release;
 /// when the server signs with it, files signed by the old one are still accepted until it is moved to `DISTRUSTED_KEYS` (after a leak) or removed.
-const TRUSTED_KEYS: [(&str, &str); 1] = [("k1", PUBLIC_KEY_HEX)];
+const TRUSTED_KEYS: [(&str, &str); 2] = [("k1", PUBLIC_KEY_HEX), ("k2", "fadc26d4f240120f8deb03598a145121a2dd2f2b226e02073102699f3c57c9f4")];
 
 /// Key ids that are known to be compromised: a file signed by one of them is refused even though the key is listed above (the pack asks the server for a new file).
 const DISTRUSTED_KEYS: [&str; 0] = [];
@@ -329,6 +329,13 @@ mod tests {
         let mut p = json!({"v": 1, "id": "L-1", "features": ["all"], "major": 1, "device": "any", "issued": NOW - 5 * DAY, "check_days": 30});
         edit(&mut p);
         sign(s, &p).to_string()
+    }
+
+    #[test]
+    fn the_built_in_keys_are_valid_and_different() {
+        let keys: Vec<_> = TRUSTED_KEYS.iter().map(|(k, _)| public_key_for(k)).collect();
+        assert!(keys.iter().all(|k| k.is_some()), "every listed key must be a valid public key");
+        assert_ne!(keys[0].unwrap().to_bytes(), keys[1].unwrap().to_bytes());
     }
 
     #[test]
