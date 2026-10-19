@@ -1,6 +1,6 @@
 [package]
 name = "lexo-server"
-description = "The local server of Lexo: serves the UI and the same routes as the server of Free, on top of lexo-core (docs/RUST-PORT.md, milestone M7)"
+description = "The local server of Lexo: serves the UI and the same routes as the server of Free, on top of lexo-core (docs/technical/RUST-PORT.md, milestone M7)"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

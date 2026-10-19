@@ -1,6 +1,6 @@
 [package]
 name = "lexo-core"
-description = "Lexo Core in Rust: the port of reference/python/core/lexo (see docs/RUST-PORT.md)"
+description = "Lexo Core in Rust: the port of reference/python/core/lexo (see docs/technical/RUST-PORT.md)"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true

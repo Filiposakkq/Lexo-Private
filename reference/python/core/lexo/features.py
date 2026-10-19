@@ -6,7 +6,7 @@ extension host (extensions.py) `decide(feature)` and gets an answer:
     available   the Pro pack offers the feature right now (without the pack, nothing is available)
     limit       None = unlimited, N = at most N items per action (the "taste" of the demo pack; the pack enforces it itself)
 
-The catalog below is the single list of gated features (see docs/FEATURES.md). Everything not in the catalog is free. Every feature of it lives in the Pro pack (reference/python/pro/lexo_pro).
+The catalog below is the single list of gated features (see docs/product/FEATURES.md). Everything not in the catalog is free. Every feature of it lives in the Pro pack (reference/python/pro/lexo_pro).
 """
 from dataclasses import dataclass
 

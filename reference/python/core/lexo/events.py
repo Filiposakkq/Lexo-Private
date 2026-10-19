@@ -1,4 +1,4 @@
-"""Event log: every change of the shared project state, one append-only file per author (docs/DATA-LAYOUT.md, docs/TEAMWORK.md).
+"""Event log: every change of the shared project state, one append-only file per author (docs/technical/DATA-LAYOUT.md, docs/product/TEAMWORK.md).
 
     <translation folder>/.aside/events/<author>.jsonl      one JSON object per line, written only by that author
     <config folder>/projects/<id>/events-seen.json         local: how many bytes of each file this computer has already read

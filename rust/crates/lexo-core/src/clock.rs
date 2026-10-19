@@ -1,5 +1,5 @@
 //! The clock. Core reads the time in a few places (the names of backups, the stamps of the event log, the age of a lock); they all ask a `Clock`, so a test can
-//! fix the time. The Python Core calls `datetime.now()` and `time.time()` directly and the golden tool replaces those calls (docs/GOLDEN.md, "data scenarios").
+//! fix the time. The Python Core calls `datetime.now()` and `time.time()` directly and the golden tool replaces those calls (docs/technical/GOLDEN.md, "data scenarios").
 //!
 //! The local time of the system comes from the operating system through two tiny declarations (`GetLocalTime`, `localtime_r`): the `chrono` features that would do
 //! it pull in the Windows import libraries, which the GNU toolchain used for development cannot link without MinGW's `dlltool`.

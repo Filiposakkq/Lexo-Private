@@ -1,9 +1,9 @@
 """The interface contract of Core: a fixture project, the shapes of the answers, and the generated documents.
 
-    py reference/python/core/tests/contract_tool.py            rewrite testdata/contract/api.json, testdata/contract/shapes.json and docs/API.md
+    py reference/python/core/tests/contract_tool.py            rewrite testdata/contract/api.json, testdata/contract/shapes.json and docs/technical/API.md
 
 `api.json` is `lexo.api.describe()` (what every operation takes), `shapes.json` is what every operation answered on the fixture project (names and types of the
-keys, no values), `docs/API.md` is the readable form. `test_contract.py` keeps them in step with the code: changing an operation without regenerating them fails
+keys, no values), `docs/technical/API.md` is the readable form. `test_contract.py` keeps them in step with the code: changing an operation without regenerating them fails
 a test, which is the point: the interface changes on purpose, in one visible place. The same files are what the Rust port of Core is checked against.
 """
 import json
@@ -21,7 +21,7 @@ from lexo import api                      # noqa: E402
 from lexo.messages import render, wire    # noqa: E402
 
 CONTRACT_DIR = ROOT / "testdata" / "contract"
-DOC = ROOT / "docs" / "API.md"
+DOC = ROOT / "docs" / "technical" / "API.md"
 DYNAMIC_AFTER = 25          # an object with more keys than this is a map of unknown keys (texts, names), not a record
 MAX_DEPTH = 5
 
@@ -172,7 +172,7 @@ def render_doc():
              "Generated from `reference/python/core/lexo/api.py` by `py reference/python/core/tests/contract_tool.py`; do not edit by hand (a test fails when it is out of date).", "",
              "Every operation is a JSON call: parameters in, a dict with `\"ok\": true` out. Over HTTP (Free) a GET takes its parameters in the query string, a POST in the JSON body;",
              "a script or the Rust port calls the operation by name. Errors come back as `{\"ok\": false, \"error\": ...}`. Messages in answers are `{\"$m\": template, \"p\": values}`",
-             "(see `docs/UI-TEXTS.md`). Effects: **read** changes nothing, **write** changes the project or its data folder, **external** also reaches outside",
+             "(see `docs/technical/UI-TEXTS.md`). Effects: **read** changes nothing, **write** changes the project or its data folder, **external** also reaches outside",
              "(a program, a window, the network). `*` marks a required parameter. The recorded shapes of the answers are in `testdata/contract/shapes.json`.", "",
              f"{len(ops)} operations.", "",
              "| Operation | Method / path | Effect | Parameters | What it does |", "|---|---|---|---|---|"]

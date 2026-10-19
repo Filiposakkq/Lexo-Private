@@ -1,4 +1,4 @@
-//! The golden runner (docs/GOLDEN.md): reads the inputs and the recorded answers of `testdata/golden`, asks `lexo-core` for its own answers,
+//! The golden runner (docs/technical/GOLDEN.md): reads the inputs and the recorded answers of `testdata/golden`, asks `lexo-core` for its own answers,
 //! normalises them like `reference/python/core/tests/golden_tool.py` does and compares. M0 was the skeleton (the inventory and the report); each milestone from M1 on
 //! replaces `NotImplemented` for the cases of the modules it ports.
 pub mod data;

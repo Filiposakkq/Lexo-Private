@@ -5,7 +5,7 @@
 The inputs are plain files under `testdata/golden/` (the source of truth, committed): `.rpy` cases for the parser, `.rpa` archives, cases for the layout proposals, the
 menu finder and the validator, whole projects (`projects/<name>/game/...`) and scenarios (`scenarios/<name>.json`: a project and a list of operation calls).
 The answers are in `testdata/golden/expected/` (JSON, normalised: no absolute paths, no times, no random ids). `test_golden.py` checks that Core still gives exactly them.
-A port to another language implements the same small runner (read the inputs, call, normalise, compare), see docs/GOLDEN.md.
+A port to another language implements the same small runner (read the inputs, call, normalise, compare), see docs/technical/GOLDEN.md.
 """
 import base64
 import hashlib
@@ -250,7 +250,7 @@ def data_names():
     return sorted(p.stem for p in (GOLDEN / "data").glob("*.json"))
 
 
-# =========================================================================================================================== data files (docs/GOLDEN.md "data scenarios")
+# =========================================================================================================================== data files (docs/technical/GOLDEN.md "data scenarios")
 class _Clock:
     """The clock of a data scenario: local and UTC time fixed (so the names and lines Core writes are the same in every run), the epoch real but shifted
     by `advance` steps (file times are real, so only a shift lets the "is the newest backup old enough" rule be tested), or fixed by `set_epoch`."""

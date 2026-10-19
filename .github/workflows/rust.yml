@@ -1,4 +1,4 @@
-# Tests the Rust port of Core (docs/RUST-PORT.md). Read-only: no release, no deploy, nothing is pushed.
+# Tests the Rust port of Core (docs/technical/RUST-PORT.md). Read-only: no release, no deploy, nothing is pushed.
 name: Rust port
 
 on:

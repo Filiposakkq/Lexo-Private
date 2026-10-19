@@ -131,4 +131,4 @@ Without `RESEND_API_KEY` nothing is mailed and without `TURNSTILE_SECRET` the fo
 
 The server stores what people type into the forms, a salted hash of their address for the flood limits (removed after two days) and to mark applications from the same address, a salted hash of a random browser id for the votes (the salt is `HASH_SALT`, known only to the server), a copy of every e-mail it sent, a log of admin actions, newsletter subscribers (e-mail and topics, deleted when they unsubscribe), and test builds with who downloaded them. No cookies, no analytics. An application can be deleted in the admin (with its feedback, bug reports and e-mail history) when its author asks; the Data section cleans up the rest.
 
-The texts and numbers of the pages come from docs/RUST-PORT.md, docs/GAME-TESTS.md, docs/FEATURES.md and docs/PRIVACY.md; update them when those change.
+The texts and numbers of the pages come from docs/technical/RUST-PORT.md, docs/history/GAME-TESTS.md, docs/product/FEATURES.md and docs/product/PRIVACY.md; update them when those change.

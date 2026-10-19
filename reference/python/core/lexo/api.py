@@ -22,7 +22,7 @@ The answer is a dict with `"ok": true`; an error is raised as `AppError` (a mess
 `ProjectBusy`; the transport turns them into `{"ok": false, "error": ...}`. Messages in answers are `Message` objects; `messages.wire` makes them JSON.
 Binary answers (`kind == "binary"`: a font, a picture) return `(bytes, mime)`.
 
-`describe()` gives the whole table as plain data (`docs/API.md` and `testdata/contract/api.json` are generated from it, and tests keep them in step).
+`describe()` gives the whole table as plain data (`docs/technical/API.md` and `testdata/contract/api.json` are generated from it, and tests keep them in step).
 """
 from . import __version__, lang
 from .app_base import AppError

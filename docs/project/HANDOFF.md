@@ -12,7 +12,7 @@ Goals, in order: (1) generalise from one game and one language to most Ren'Py ga
 (3) **port Core to Rust (Tauri: Rust core, web UI)**, module by module against the golden data (**done up to M9**, M10 installer in progress); (4) only then the menu with game selection and the "prepare a game" window, a new UI, the licence server, the installer, the Free and Pro release.
 
 ## 2. Layout of the repository
-The map with every folder and what kind it is (product, service, Python reference, test data) is in the root [README.md](../README.md); the plan to tidy it is [REPO-CLEANUP.md](REPO-CLEANUP.md). The older tree below is the Python-era layout and is kept for the reference code.
+The map with every folder and what kind it is (product, service, Python reference, test data) is in the root [README.md](../../README.md); the plan to tidy it is [REPO-CLEANUP.md](REPO-CLEANUP.md). The older tree below is the Python-era layout and is kept for the reference code.
 ```
 reference/python/core/lexo/        package `lexo` = Core: project model, parser, writer, checks, App (app_*.py), the operations table (api.py), the extension host (extensions.py), language packs (packs/)
 reference/python/core/tests/       Core tests + helpers.py, contract_tool.py, golden_tool.py
@@ -26,24 +26,29 @@ docs/             all documents; reference/python/run_tests.py runs the suites
 ```
 The app is a local HTTP JSON server + a pywebview window (Edge/Chrome app window as a fallback). Core never imports Free or the pack; Free imports Core as `lexo`; the pack imports Core; Core finds the pack by name at run time.
 
-## 3. Documents (what each one answers)
+## 3. Documents (what each one answers; the folders `guide/`, `product/`, `technical/`, `project/`, `history/` of `docs/`)
 | File | Question it answers |
 |---|---|
 | README.md | The index of the documents and which ones are current |
-| ROADMAP.md | What are the steps, what is done, what is next (the table "Where we are" and the open decisions are kept current; the log is the history) |
-| ARCHITECTURE.md | Layers, where things are, the operations table and the contract, how Pro attaches |
-| API.md | The interface of Core: every operation (generated) |
-| GOLDEN.md | The golden data: inputs, answers, normalisation, how a port is checked |
-| RUST-PORT.md | The plan of the port to Rust: layout, modules, milestones M0 to M10 with "done when", tests, risks, the Pro connection; the Progress table is kept current |
-| PRO-DESIGN.md | How Pro is kept apart, delivered, licensed, updated; limits and demo; the licence server proposal; what is done and open |
-| FEATURES.md | Free and Pro features with their status; coupling; licensing options |
-| GAME-TOOLS.md | `.rpa` extraction, unrpyc helper, generating translation files, scene preview, layered images, choices and their menu |
-| UI-TEXTS.md | How texts are translated (`t`, `msg`, packs), tests that guard it |
-| DATA-LAYOUT.md | Data layout (`.aside/`, local data, events) |
-| PROJECT-FILE.md | `.aside/aside.json`: groups, language |
-| TEAMWORK.md | How several translators would work together |
-| HARDCODED-AUDIT.md | What was tied to one game or one language and what is left on purpose |
-| GAME-TESTS.md | The eight games the app was tried on and what they showed |
+| guide/USER-GUIDE.md | Everything the application can do, by tab |
+| guide/PRO-FEATURES.md | What each Pro feature does, the demo limits, what it sends |
+| technical/APP-ROUTES.md | What the application serves outside the contract of Core |
+| project/REPO-CLEANUP.md | What was untidy in the repository and what was moved |
+| product/PRIVACY.md | Everything that leaves the user's computer |
+| project/ROADMAP.md | What are the steps, what is done, what is next (the table "Where we are" and the open decisions are kept current; the log is the history) |
+| technical/ARCHITECTURE.md | Layers, where things are, the operations table and the contract, how Pro attaches |
+| technical/API.md | The interface of Core: every operation (generated) |
+| technical/GOLDEN.md | The golden data: inputs, answers, normalisation, how a port is checked |
+| technical/RUST-PORT.md | The plan of the port to Rust: layout, modules, milestones M0 to M10 with "done when", tests, risks, the Pro connection; the Progress table is kept current |
+| product/PRO-DESIGN.md | How Pro is kept apart, delivered, licensed, updated; limits and demo; the licence server proposal; what is done and open |
+| product/FEATURES.md | Free and Pro features with their status; coupling; licensing options |
+| technical/GAME-TOOLS.md | `.rpa` extraction, unrpyc helper, generating translation files, scene preview, layered images, choices and their menu |
+| technical/UI-TEXTS.md | How texts are translated (`t`, `msg`, packs), tests that guard it |
+| technical/DATA-LAYOUT.md | Data layout (`.aside/`, local data, events) |
+| technical/PROJECT-FILE.md | `.aside/aside.json`: groups, language |
+| product/TEAMWORK.md | How several translators would work together |
+| history/HARDCODED-AUDIT.md | What was tied to one game or one language and what is left on purpose |
+| history/GAME-TESTS.md | The eight games the app was tried on and what they showed |
 
 ## 4. Decisions already made (do not re-open without the owner)
 - **English text is the key** for every user-visible string. UI: `t("...")`, `tn`, `tx`, `labels`, `N_`. Python: `msg("... {x}", x=...)`, `msgn`, `join`. Czech lives only in `rust/resources/packs/cs/ui.json` (keep it sorted), in the pack rules and in `pro/rust/lexo-pro/ui/cs.json` (texts of messages written in the pack). Never wrap a string at module load time (guarded by a test).
@@ -82,7 +87,7 @@ The app is a local HTTP JSON server + a pywebview window (Edge/Chrome app window
 ## 7. Commands (Windows; from the repository root `D:\RenPy Stuff\Lexo` unless said)
 ```
 py reference/python/run_tests.py                                  # all suites: core, free, pro (pro only where reference/python/pro/tests exists); `core`, `free` or `pro` runs one; more arguments go to unittest
-py reference/python/core/tests/contract_tool.py                   # regenerate testdata/contract/*.json and docs/API.md after a change in reference/python/core/lexo/api.py
+py reference/python/core/tests/contract_tool.py                   # regenerate testdata/contract/*.json and docs/technical/API.md after a change in reference/python/core/lexo/api.py
 py reference/python/core/tests/golden_tool.py                     # regenerate testdata/golden/expected after a change of behaviour that is meant
 py reference/python/free/run_lexo.py [folder]                     # the app (the pack is on the path when pro/ exists; LEXO_NO_PRO=1 = as Free; LEXO_PRO_DEMO=1 = the demo limits)
 cd free; py tests/ui/serve_selftest.py --no-open # synthetic project + a URL; open it with ?selftest=1&lang=cs; free\run_ui_selftest.bat opens the browser

@@ -1,6 +1,6 @@
 """What the pack offers, and with which limits. The licence check will live here (roadmap step 6).
 
-Two kinds of Pro features (docs/PRO-DESIGN.md): "taste" features work in demo mode with a limit, everything else is offered only with a licence.
+Two kinds of Pro features (docs/product/PRO-DESIGN.md): "taste" features work in demo mode with a limit, everything else is offered only with a licence.
 Until the licence file exists the pack is "licensed" in a development checkout; `LEXO_PRO_DEMO=1` shows the demo (unlicensed) behaviour.
 """
 import os
