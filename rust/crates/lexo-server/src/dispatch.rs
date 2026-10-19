@@ -292,6 +292,18 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "profile/list" | "profile/set" => {
+                let (set, d) = (r == "profile/set", Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let out = if set {
+                        let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
+                        app.profile_set(&text("code"), &text("gender"), &text("style"), &d["to"])?
+                    } else {
+                        app.profiles()?
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "memory/fill-preview" | "memory/fill-apply" => {
                 let (apply, d) = (r == "memory/fill-apply", Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {

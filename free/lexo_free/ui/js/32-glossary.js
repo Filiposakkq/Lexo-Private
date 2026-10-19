@@ -8,6 +8,7 @@ import { buildTable, chip, empty } from './14-renderers.js';
 import { filterGroup, wordToggle } from './15-filterbar.js';
 import { go } from './16-tabs.js';
 import { occurrencesDialog } from './27-glossary-terms.js';
+import { profileDialog } from './40-profiles.js';
 /* ================================================================ GLOSSARY */
 export async function viewGlossary() {
   let data = await get('glossary');
@@ -51,6 +52,7 @@ export async function viewGlossary() {
         h('td', { class: 'mono' }, it.code), h('td', null, name), h('td', null, note), h('td', { class: 'num' }, it.count || '–'),
         h('td', { class: 'txt muted' }, it.example), h('td', null,
           it.type === 'term' ? h('button', { class: 'btn small', title: T('Where the term occurs in the original and whether it is translated according to the glossary'), onclick: () => occurrencesDialog(it.code) }, T('Occurrences')) : null, ' ',
+          it.type === 'speaker' ? h('button', { class: 'btn small', title: T('Pro: gender, way of speaking and form of address of this character, used by the batch machine translation'), onclick: () => profileDialog(it.code, it.name) }, T('Profile…')) : null, ' ',
           it.count ? h('button', { class: 'btn small', title: T('Show the lines of this speaker'), onclick: () => go('entries', { file: '', q: it.code, status: 'all' }) }, T('Lines')) : null, ' ',
           (it.name || it.note) ? h('button', { class: 'btn small ghost', title: T('Delete the entry from the glossary'), onclick: async () => {
             try { data = await post('glossary/delete', { codes: [it.code] }); S.gl = data.names; draw(); toast(T('Entry deleted. Undo: Ctrl+Z')); } catch (e) { fail(e); } } }, T('Delete')) : null)));

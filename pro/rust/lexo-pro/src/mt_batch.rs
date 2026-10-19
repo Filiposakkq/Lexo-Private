@@ -3,6 +3,7 @@
 //! Core chooses the candidate lines, gathers each line's context and glossary terms and later checks and writes the suggestions; this module cuts the list to the limit of the licence and
 //! does the translating (it uses Core's single-line `mt::translate`, which stays free). Plain data in, plain data out.
 use crate::licence;
+use crate::profiles;
 use lexo_core::extensions::ExtensionError;
 use lexo_core::messages::{py_str, Text};
 use lexo_core::mt::{self, Http};
@@ -32,7 +33,15 @@ pub fn translate(p: &Value, http: Http) -> Result<Value, ExtensionError> {
     for r in p["requests"].as_array().into_iter().flatten() {
         let terms: Vec<(String, String)> = r["terms"].as_object().into_iter().flatten().map(|(k, v)| (k.clone(), py_str(v))).collect();
         let context: Vec<String> = r["context"].as_array().into_iter().flatten().map(py_str).collect();
-        match mt::translate(&cfg, &py_str(&r["source"]), &terms, &context, http) {
+        // the profile of the speaker goes into the request of a language model (a premium feature: without it the profile is not used)
+        let mut cfg_line = cfg.clone();
+        if licence::offer("mt.profiles").is_some() && r["profile"].is_object() {
+            let text = profiles::describe(&r["profile"]);
+            if !text.is_empty() {
+                cfg_line.insert("profile".into(), json!(text));
+            }
+        }
+        match mt::translate(&cfg_line, &py_str(&r["source"]), &terms, &context, http) {
             Err(e) => {
                 let err = e.0.wire();
                 out.push(json!({"id": r["id"], "error": err}));

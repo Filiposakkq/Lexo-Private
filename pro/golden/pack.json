@@ -97,7 +97,9 @@
   "Too many requests from this network. Try again in {minutes} minutes.": "Příliš mnoho požadavků z této sítě. Zkus to znovu za {minutes} min.",
   "The project has no translated lines yet.": "Projekt zatím nemá žádné přeložené řádky.",
   "Filled from similar translations": "Doplněno z podobných překladů",
-  "Filled from a similar original: check it": "Doplněno z podobného originálu: zkontroluj"
+  "Filled from a similar original: check it": "Doplněno z podobného originálu: zkontroluj",
+  "Invalid gender of a character.": "Neplatné pohlaví postavy.",
+  "Profile of a character": "Profil postavy"
  },
  "ui_xx": {},
  "cases": [

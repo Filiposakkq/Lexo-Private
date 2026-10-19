@@ -135,6 +135,7 @@ fn offers_and_texts_are_the_same() {
     let mut offers = provider.offers();
     offers.remove("carry.over");
     offers.remove("memory.fuzzy");
+    offers.remove("mt.profiles");
     assert_eq!(Value::Object(offers), g["offers"]["licensed"]);
     assert_eq!(Value::Object(provider.ui_strings("cs")), g["ui_cs"]);
     assert_eq!(Value::Object(provider.ui_strings("xx")), g["ui_xx"]);

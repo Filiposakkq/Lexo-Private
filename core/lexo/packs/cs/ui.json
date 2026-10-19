@@ -1671,6 +1671,23 @@
    "Doplněn {n} řádek",
    "Doplněny {n} řádky",
    "Doplněno {n} řádků"
-  ]
+  ],
+  "not set": "nenastaveno",
+  "female": "žena",
+  "male": "muž",
+  "neither": "ani jedno",
+  "e.g. sarcastic, short sentences, speaks slowly": "např. sarkastická, krátké věty, mluví pomalu",
+  "informal (tykání)": "neformálně (tykání)",
+  "formal (vykání)": "formálně (vykání)",
+  "Profile of {name}": "Profil: {name}",
+  "The batch machine translation tells the language model who speaks: it keeps the feminine and masculine forms right and the form of address (tykání / vykání) the same. Only a language model (OpenAI-compatible service) can use it; DeepL and LibreTranslate cannot.": "Dávkový strojový překlad řekne jazykovému modelu, kdo mluví: drží správně ženské a mužské tvary a stejné oslovení (tykání / vykání). Využije to jen jazykový model (služba kompatibilní s OpenAI); DeepL a LibreTranslate to neumí.",
+  "Gender": "Pohlaví",
+  "How the character speaks": "Jak postava mluví",
+  "Addresses the others": "Oslovuje ostatní",
+  "Form": "Oslovení",
+  "There are no other speakers in the project yet.": "V projektu zatím nejsou jiní mluvčí.",
+  "Profile…": "Profil…",
+  "Pro: gender, way of speaking and form of address of this character, used by the batch machine translation": "Pro: pohlaví, způsob mluvy a oslovování této postavy, využívá dávkový strojový překlad",
+  "Profiles of characters": "Profily postav"
  }
 }
