@@ -1,6 +1,6 @@
-import { hmacSha256Hex, safeEqual, signFile, verifyFile } from "./crypto.ts";
+import { hmacSha256Hex, safeEqual, signFile, verifyFileWithKeys } from "./crypto.ts";
 import type { Env } from "./env.ts";
-import { DEVICE_RE, keyHash, newKey, newLicenceId, payloadFor, type LicenceRow } from "./licence.ts";
+import { DEVICE_RE, kidOf, keyHash, newKey, newLicenceId, payloadFor, trustedKeys, type LicenceRow } from "./licence.ts";
 import { mailKey } from "./mail.ts";
 import * as store from "./store.ts";
 
@@ -61,7 +61,7 @@ export async function activate(req: Request, env: Env, now: number): Promise<Res
     await store.touch(env.DB, l.id, device, now, clean(b.name, 40), clean(b.version, 20));
     await store.logEvent(env.DB, now, l.id, "activate-again", device.slice(0, 8));
   }
-  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, payloadFor(l, device, now)) });
+  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, { ...payloadFor(l, device, now), kid: kidOf(env) }) });
 }
 
 /** The licence of a request that carries a licence file made by this server and a device: `refresh` and `deactivate` use it. */
@@ -69,7 +69,7 @@ async function ownLicence(req: Request, env: Env): Promise<{ l: LicenceRow; devi
   const b = await body(req);
   const device = str(b?.device);
   if (!b || !DEVICE_RE.test(device)) return fail("bad_request", 400);
-  const p = await verifyFile(env.LICENCE_PUBLIC_KEY, b.licence);
+  const p = await verifyFileWithKeys(trustedKeys(env), b.licence);
   if (!p) return fail("bad_licence", 403);
   const l = await store.byId(env.DB, str(p.id));
   if (!l) return fail("bad_licence", 403);
@@ -90,7 +90,7 @@ export async function refresh(req: Request, env: Env, now: number): Promise<Resp
   if (!mine || mine.released !== null) return fail("not_activated", 403);
   await store.touch(env.DB, l.id, device, now, clean(r.b.name, 40), clean(r.b.version, 20));
   await store.logEvent(env.DB, now, l.id, "refresh", device.slice(0, 8));
-  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, payloadFor(l, device, now)) });
+  return json({ ok: true, licence: await signFile(env.LICENCE_SIGNING_KEY, { ...payloadFor(l, device, now), kid: kidOf(env) }) });
 }
 
 /** `deactivate {licence, device}`: frees the place of this device. */

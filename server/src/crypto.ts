@@ -75,3 +75,17 @@ export async function verifyFile(publicHex: string, file: unknown): Promise<Reco
     return null;
   }
 }
+
+/** The payload of a licence file made by this server: the key id it names is looked up in `keys` ({kid: public key hex}); a file without `kid` was signed by `k1`. */
+export async function verifyFileWithKeys(keys: Record<string, string>, file: unknown): Promise<Record<string, unknown> | null> {
+  try {
+    const f = file as Partial<LicenceFile>;
+    if (typeof f?.payload !== "string") return null;
+    const named = (JSON.parse(new TextDecoder().decode(b64urlDecode(f.payload))) as { kid?: unknown }).kid;
+    const kid = typeof named === "string" ? named : "k1";
+    const hex = Object.hasOwn(keys, kid) ? keys[kid] : undefined;
+    return hex ? await verifyFile(hex, file) : null;
+  } catch {
+    return null;
+  }
+}

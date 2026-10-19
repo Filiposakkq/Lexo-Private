@@ -1,6 +1,6 @@
 import { env, exports } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
-import { hmacSha256Hex, verifyFile } from "../src/crypto.ts";
+import { hmacSha256Hex, signFile, verifyFile } from "../src/crypto.ts";
 import type { Env } from "../src/env.ts";
 
 type Json = Record<string, any>;
@@ -39,6 +39,22 @@ describe("the calls of the application", () => {
     // the key is accepted in any case and with spaces
     const again = await call("/v1/activate", { body: { key: ` ${key.toLowerCase()} `, device: device(1) } });
     expect(again.status).toBe(200);
+  });
+
+  it("names the key it signed with, and renews files of the older key (or without a key id) with the current one", async () => {
+    const { key } = await licence();
+    const a = await call("/v1/activate", { body: { key, device: device(1) } });
+    expect(await verifyFile(E.LICENCE_PUBLIC_KEY, a.json.licence)).toMatchObject({ kid: "k1" });
+    // a file from before the key ids: the same payload without `kid`, signed by the same key
+    const { kid, ...old } = (await verifyFile(E.LICENCE_PUBLIC_KEY, a.json.licence))!;
+    expect(kid).toBe("k1");
+    const legacy = await signFile(E.LICENCE_SIGNING_KEY, old);
+    const r = await call("/v1/refresh", { body: { licence: legacy, device: device(1) } });
+    expect(r.status).toBe(200);
+    expect(await verifyFile(E.LICENCE_PUBLIC_KEY, r.json.licence)).toMatchObject({ kid: "k1" });
+    // a file that names a key this server does not trust is not accepted
+    const stranger = await signFile(E.LICENCE_SIGNING_KEY, { ...old, kid: "k9" });
+    expect((await call("/v1/refresh", { body: { licence: stranger, device: device(1) } })).json.error).toBe("bad_licence");
   });
 
   it("refuses an unknown key and a bad request", async () => {

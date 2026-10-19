@@ -56,3 +56,18 @@ export function payloadFor(l: LicenceRow, device: string, now: number): Record<s
 }
 
 export const DEVICE_RE = /^[0-9a-f]{16,64}$/;
+
+/** The id of the key this server signs with. */
+export const kidOf = (env: { LICENCE_KID?: string }) => (env.LICENCE_KID || "k1").trim();
+
+/** The public keys a licence file may have been signed with: the current one and the older ones. */
+export function trustedKeys(env: { LICENCE_KID?: string; LICENCE_PUBLIC_KEY: string; LICENCE_OLD_PUBLIC_KEYS?: string }): Record<string, string> {
+  let old: Record<string, string> = {};
+  try {
+    const v = JSON.parse(env.LICENCE_OLD_PUBLIC_KEYS || "{}");
+    if (v && typeof v === "object") old = v as Record<string, string>;
+  } catch {
+    /* a broken value trusts nothing extra */
+  }
+  return { ...old, [kidOf(env)]: env.LICENCE_PUBLIC_KEY };
+}

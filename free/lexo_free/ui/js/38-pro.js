@@ -41,6 +41,8 @@ const reasonText = (r) => ({
   'the licence belongs to another computer': () => T('the licence belongs to another computer'),
   'the licence covers another major version of the application': () => T('the licence covers another major version of the application'),
   'this build cannot verify licences': () => T('this build cannot verify licences'),
+  'the licence was signed with a key this version does not know': () => T('the licence was signed with a key this version does not know'),
+  'the licence was signed with a key that is no longer trusted': () => T('the licence was signed with a key that is no longer trusted'),
   'the licence file comes from a newer version of the licence system': () => T('the licence file comes from a newer version of the licence system'),
   'this licence was cancelled': () => T('this licence was cancelled'),
   'this computer was removed from the licence': () => T('this computer was removed from the licence'),

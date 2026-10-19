@@ -4,6 +4,10 @@ export interface Env {
   LICENCE_SIGNING_KEY: string;
   /** The public key that goes with it (the one built into the Pro pack). */
   LICENCE_PUBLIC_KEY: string;
+  /** The id of the signing key (`kid` in the licence file); `k1` when not set. A new key gets a new id. */
+  LICENCE_KID?: string;
+  /** Older public keys that still count when a licence file is checked (JSON, {"k1": "<hex>"}); files signed by them are renewed with the current key. */
+  LICENCE_OLD_PUBLIC_KEYS?: string;
   /** The signing secret of the webhook of the payment provider. A secret. */
   WEBHOOK_SECRET: string;
   /** A long random string; the admin page and its API need it. A secret. */
