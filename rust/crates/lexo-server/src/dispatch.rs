@@ -292,6 +292,18 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "memory/fill-preview" | "memory/fill-apply" => {
+                let (apply, d) = (r == "memory/fill-apply", Value::Object(d));
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let ratio = d["min_ratio"].as_f64().unwrap_or(0.85);
+                    let out = if apply {
+                        app.fill_apply(ratio, d["selections"].as_array().map_or(&[][..], |v| v.as_slice()), d["mark"].as_bool().unwrap_or(true))?
+                    } else {
+                        app.fill_preview(ratio)?
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "focus" => {
                 if !self.backend.run(|app| app.ready()).unwrap_or(false) {
                     return Reply::error(400, msg("No project is open.", &[]));

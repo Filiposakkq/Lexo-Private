@@ -1661,6 +1661,16 @@
    "Přenést {n} řádků"
   ],
   "Mark the lines whose original changed as “to fix”, so that they can be checked in the list": "Řádky, jejichž originál se změnil, označit „K opravě“, aby šly zkontrolovat v seznamu",
-  "{n} marked “to fix”": "{n} označeno „K opravě“"
+  "{n} marked “to fix”": "{n} označeno „K opravě“",
+  "Fill from similar translations…": "Doplnit z podobných překladů…",
+  "Pro: similar originals of this project": "Pro: podobné originály v tomto projektu",
+  "Fill from similar translations": "Doplnění z podobných překladů",
+  "Untranslated lines get the translation of a similar original of the same speaker from this project. Nothing is written until you confirm; the change can be undone.": "Nepřeložené řádky dostanou překlad podobného originálu stejného mluvčího z tohoto projektu. Dokud nepotvrdíš, nic se nezapisuje; změnu lze vrátit zpět.",
+  "Mark the filled lines as “to fix”, so that they can be checked in the list": "Doplněné řádky označit „K opravě“, aby šly zkontrolovat v seznamu",
+  "Filled {n} line|Filled {n} lines": [
+   "Doplněn {n} řádek",
+   "Doplněny {n} řádky",
+   "Doplněno {n} řádků"
+  ]
  }
 }

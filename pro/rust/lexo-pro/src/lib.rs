@@ -23,7 +23,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// The Czech texts of the messages of this pack (`pro/lexo_pro/ui/cs.json`, the same file the Python pack reads).
 const UI_CS: &str = include_str!("../../../lexo_pro/ui/cs.json");
 
-const FEATURES: [&str; 6] = ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over"];
+const FEATURES: [&str; 7] = ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over", "memory.fuzzy"];
 
 fn plain(text: String) -> ExtensionError {
     ExtensionError(Text::Plain(text))
@@ -97,10 +97,11 @@ impl Provider for LexoProProvider {
             ("fixes.safe", "chain") => Ok(fix_safe::chain(payload)),
             ("mt.batch", "targets") => Ok(mt_batch::targets(payload)),
             ("mt.batch", "translate") => mt_batch::translate(payload, self.http()),
-            ("carry.over", "match") => {
+            // the same matcher: the translations of a previous version (`carry.over`) or of the project itself (`memory.fuzzy`)
+            (f @ ("carry.over" | "memory.fuzzy"), "match") => {
                 let mut out = carry_over::run(payload);
                 let items = out["items"].as_array().cloned().unwrap_or_default();
-                let (items, cut) = licence::cap("carry.over", items); // without a licence only the first lines are carried over; the counts still show the value
+                let (items, cut) = licence::cap(f, items); // without a licence only the first lines are written; the counts still show the value
                 out["items"] = Value::Array(items);
                 if let Some(Value::Object(info)) = cut {
                     if let Some(o) = out.as_object_mut() {
