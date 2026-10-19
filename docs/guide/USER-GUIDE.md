@@ -184,7 +184,7 @@ Without a key by default (find them in the palette): quick translating, quick pr
 | Anything | **Snapshots**: restore the whole translation (or chosen files) from an earlier state |
 
 ## 11. Working in a team
-Put the translation folder in a shared place (git, Dropbox, Syncthing). Each person's changes of state (approvals, proofreading, glossary, assignments) go to their own log in `.aside/events/`; the logs are merged when the project is opened or refreshed, so they never conflict. Split the work by files. Real team features (assignments, roles, merging edits per block) are planned (see [TEAMWORK.md](../product/TEAMWORK.md)).
+Put the translation folder in a shared place (git, Dropbox, Syncthing). Each person's changes of state (approvals, proofreading, glossary, assignments) go to their own log in `.aside/events/`; the logs are merged when the project is opened or refreshed, so they never conflict. Split the work by files. For teams there is **Files › Team…** (members, roles, files given to people, news, notes to the team; the lead needs a Pro licence): the full guide is [TEAMS.md](TEAMS.md). Merging edits of one file per block and git buttons are not built yet (see [TEAMWORK.md](../product/TEAMWORK.md)).
 
 ## 12. The Pro features in short
 | Feature | Where |

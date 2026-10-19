@@ -139,7 +139,9 @@
   "Enter your name first.": "Nejdřív zadej své jméno.",
   "This project already has a team.": "Tento projekt už tým má.",
   "This project has no team yet.": "Tento projekt zatím nemá tým.",
-  "Only the lead of the team can change roles and assignments.": "Role a přidělení souborů může měnit jen vedoucí týmu."
+  "Only the lead of the team can change roles and assignments.": "Role a přidělení souborů může měnit jen vedoucí týmu.",
+  "Only the lead of the team can see the statistics.": "Statistiky může vidět jen vedoucí týmu.",
+  "Write the note first.": "Nejdřív napiš poznámku."
  },
  "ui_xx": {},
  "cases": [

@@ -42,7 +42,7 @@ Where Lexo writes, and why.
   glossary.json          glossary: names of characters and terms                          [shared]
   events/<author>.jsonl  every change of state, append-only, one file per author          [shared]
   pro/                   data of Pro features (character profiles, project memory)        [shared]
-  team/                  members/<author>.json (each person's own name), lead.json (the lead only) [shared]
+  team/                  members/, lead.json, activity/, notes/ (one file per author; see docs/guide/TEAMS.md) [shared]
   .gitignore             excludes local/
   local/                                                                                  [local only]
     (moved out of the game folder, see above:)

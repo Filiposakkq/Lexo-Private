@@ -166,6 +166,7 @@ impl Provider for LexoProProvider {
             }
             ("spell.hunspell", "check") => self.spell_check(payload),
             ("team.manage", "normalize") => Ok(team::normalize(payload)),
+            ("team.manage", "stats") => Ok(team::stats(payload)),
             ("release.build", "plan") => Ok(release_build::plan(payload)),
             ("style.check", "targets") => Ok(style_check::targets(payload)),
             ("style.check", "check") => style_check::check(payload, self.http()),

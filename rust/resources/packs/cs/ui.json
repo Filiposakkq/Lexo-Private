@@ -1834,6 +1834,49 @@
   "Filter by person": "Filtrovat podle osoby",
   "Assigned to": "Přiděleno",
   "This file is yours.": "Tento soubor je tvůj.",
-  "Team management": "Správa týmu"
+  "Team management": "Správa týmu",
+  "Looking for news…": "Hledám novinky…",
+  "Nothing new since your last look.": "Od tvého posledního pohledu nic nového.",
+  "Since your last look:": "Od tvého posledního pohledu:",
+  "Mark as seen": "Označit jako viděné",
+  "changed {n} line|changed {n} lines": [
+   "změněn {n} řádek",
+   "změněny {n} řádky",
+   "změněno {n} řádků"
+  ],
+  "approved {n} line|approved {n} lines": [
+   "schválen {n} řádek",
+   "schváleny {n} řádky",
+   "schváleno {n} řádků"
+  ],
+  "marked {n} line|marked {n} lines": [
+   "označen {n} řádek",
+   "označeny {n} řádky",
+   "označeno {n} řádků"
+  ],
+  "moved {n} file to a group|moved {n} files to groups": [
+   "zařazen {n} soubor do skupiny",
+   "zařazeny {n} soubory do skupiny",
+   "zařazeno {n} souborů do skupiny"
+  ],
+  "{n} new note to the team.|{n} new notes to the team.": [
+   "{n} nová poznámka pro tým.",
+   "{n} nové poznámky pro tým.",
+   "{n} nových poznámek pro tým."
+  ],
+  "Last 7 days": "Posledních 7 dní",
+  "Last 30 days": "Posledních 30 dní",
+  "All time": "Za celou dobu",
+  "Changed lines": "Změněné řádky",
+  "Marked": "Označeno",
+  "Last activity": "Poslední aktivita",
+  "Statistics": "Statistiky",
+  "Files nobody has: {files} ({pct} % translated).": "Soubory, které nikdo nemá: {files} ({pct} % přeloženo).",
+  "“Changed lines” counts texts written in the app since the team was made; approved and marked come from the shared log. The period applies to these numbers, not to the progress of the files.": "„Změněné řádky“ počítají texty zapsané v aplikaci od založení týmu; schválené a označené jsou ze sdíleného záznamu. Období platí pro tato čísla, ne pro postup souborů.",
+  "A note to the team about this line…": "Poznámka pro tým k tomuto řádku…",
+  "dealt with": "vyřízeno",
+  "Mark as dealt with": "Označit jako vyřízené",
+  "No note on this line yet.": "K tomuto řádku zatím není žádná poznámka.",
+  "Add the note": "Přidat poznámku"
  }
 }

@@ -331,13 +331,21 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
-            "team/state" | "team/join" | "team/create" | "team/set" => {
+            "team/state" | "team/join" | "team/create" | "team/set" | "team/stats" | "team/notes" | "team/note_add" | "team/note_resolve" | "team/changes"
+            | "team/seen" => {
                 let (route, d) = (r.to_string(), Value::Object(d));
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let text = |k: &str| d[k].as_str().unwrap_or("").to_string();
                     let out = match route.as_str() {
                         "team/state" => app.team_state()?,
                         "team/join" => app.team_join(d["name"].as_str().unwrap_or(""))?,
                         "team/create" => app.team_create()?,
+                        "team/stats" => app.team_stats(d["days"].as_i64())?,
+                        "team/notes" => app.team_notes(&text("file"), d["line"].as_i64().unwrap_or(0))?,
+                        "team/note_add" => app.team_note_add(&text("file"), d["line"].as_i64().unwrap_or(0), &text("text"))?,
+                        "team/note_resolve" => app.team_note_resolve(&text("id"), &text("file"), d["line"].as_i64().unwrap_or(0))?,
+                        "team/changes" => app.team_changes()?,
+                        "team/seen" => app.team_mark_seen()?,
                         _ => app.team_set(&d["roles"], &d["assign"])?,
                     };
                     Ok(Answer::Json(out))

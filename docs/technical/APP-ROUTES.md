@@ -47,6 +47,12 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST team/join` | `{name}` | write your own file `.aside/team/members/<author>.json` | |
 | `POST team/create` | | make the project a team with you as the lead (`.aside/team/lead.json`) | `team.manage` |
 | `POST team/set` | `{roles, assign}` | the lead's roles and assignments; the pack cleans them; `dropped` counts what it removed | `team.manage` |
+| `POST team/stats` | `{days?}` | statistics per person for the lead: `{members: [{author, name, role, files, lines, done_pct, proof_pct, edited, approved, marked, proofread_updates, last}], unassigned}` | `team.manage` |
+| `POST team/notes` | `{file, line}` | the notes of a line, oldest first: `{exists, notes: [{id, author, name, t, text, resolved}]}` | |
+| `POST team/note_add` | `{file, line, text}` | a note to the team on a line (own file `.aside/team/notes/<author>.jsonl`) | |
+| `POST team/note_resolve` | `{id, file, line}` | mark a note as dealt with (a line of your own file) | |
+| `POST team/changes` | | what the others did since your last look: `{since, items: [{author, name, what, file, n}], notes, total}` | |
+| `POST team/seen` | | move the point of your last look to now (local file `team-seen.json`) | |
 | `POST spell/state` | | the language of the project, whether a dictionary is added (and its name), how many words are ignored | |
 | `POST spell/add` | `{path}` | copy the dictionary (a `.dic` file or a folder with one; the `.aff` file next to it) to the settings of the application; the pack reads it once to prove it works | `spell.hunspell` |
 | `POST spell/remove` | | remove the dictionary of this language | |

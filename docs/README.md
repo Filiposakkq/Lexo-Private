@@ -6,6 +6,7 @@ The documents are in five folders by who needs them. **Current** = describes how
 | Document | Question it answers | State |
 |---|---|---|
 | [USER-GUIDE.md](guide/USER-GUIDE.md) | Everything the application can do, by tab: the ideas, Overview, Files, Lines (the editor), the tools, Check, Glossary, Publishing, Settings, shortcuts, what can be undone | current |
+| [TEAMS.md](guide/TEAMS.md) | Teams in full: set-up step by step, roles, files, news, notes, statistics, the data, problems | current |
 | [PRO-FEATURES.md](guide/PRO-FEATURES.md) | What each Pro feature does, where it is, the demo limits, what it sends over the network, how to undo it | current |
 
 The first walk-through for a new user (install, open a game, the first translation, troubleshooting) is the documentation page of the website: [`../web/public/docs.html`](../web/public/docs.html).
@@ -16,7 +17,7 @@ The first walk-through for a new user (install, open a game, the first translati
 | [FEATURES.md](product/FEATURES.md) | Which features are Free and which are Pro, and the status of each | current |
 | [PRO-DESIGN.md](product/PRO-DESIGN.md) | How Pro is kept apart, delivered, licensed and limited; the licence server; what is done and open | current |
 | [PRIVACY.md](product/PRIVACY.md) | Everything that leaves the user's computer, and what the servers store | current (changes with the code, in the same pull request) |
-| [TEAMWORK.md](product/TEAMWORK.md) | How several translators would work together | plan (not built) |
+| [TEAMWORK.md](product/TEAMWORK.md) | Design of team work: why no server, what is built, what is planned | version 1 built |
 
 ## `technical/`: how it is built
 | Document | Question it answers | State |

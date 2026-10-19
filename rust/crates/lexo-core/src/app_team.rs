@@ -19,17 +19,17 @@ pub const FEATURE: &str = "team.manage";
 
 const MAX_NAME: usize = 40;
 
-fn read_json(path: &Path) -> Option<Value> {
+pub(crate) fn read_json(path: &Path) -> Option<Value> {
     let text = std::fs::read_to_string(path).ok()?;
     serde_json::from_str(text.trim_start_matches('\u{feff}')).ok()
 }
 
 impl App {
-    fn team_dir(&self) -> Res<PathBuf> {
+    pub(crate) fn team_dir(&self) -> Res<PathBuf> {
         Ok(self.o()?.project.root.join(DATA_DIR_NAME).join("team"))
     }
 
-    fn team_write(&self, path: &Path, v: &Value) -> Res<()> {
+    pub(crate) fn team_write(&self, path: &Path, v: &Value) -> Res<()> {
         if let Some(dir) = path.parent() {
             let _ = std::fs::create_dir_all(dir);
         }
@@ -38,7 +38,7 @@ impl App {
     }
 
     /// `{author: name}` of everybody who joined.
-    fn team_members(&self) -> Res<BTreeMap<String, String>> {
+    pub(crate) fn team_members(&self) -> Res<BTreeMap<String, String>> {
         let dir = self.team_dir()?.join("members");
         let mut out = BTreeMap::new();
         for e in std::fs::read_dir(dir).into_iter().flatten().flatten() {
@@ -52,7 +52,7 @@ impl App {
         Ok(out)
     }
 
-    fn team_lead_file(&self) -> Res<Option<Value>> {
+    pub(crate) fn team_lead_file(&self) -> Res<Option<Value>> {
         Ok(read_json(&self.team_dir()?.join("lead.json")).filter(Value::is_object))
     }
 
@@ -75,9 +75,11 @@ impl App {
                 json!({"author": a, "name": n, "role": role, "me": *a == me, "files": assign.values().filter(|v| v.as_array().is_some_and(|x| x.iter().any(|y| py_str(y) == *a))).count()})
             })
             .collect();
+        let news = if lead.is_some() { self.team_changes()?["total"].as_i64().unwrap_or(0) } else { 0 };
         Ok(json!({
             "ok": true,
             "exists": lead.is_some(),
+            "news": news,
             "me": {"author": me, "name": members.get(&me).cloned().unwrap_or_default(), "joined": members.contains_key(&me), "lead": !lead_author.is_empty() && lead_author == me},
             "members": list,
             "assign": Value::Object(assign.clone()),

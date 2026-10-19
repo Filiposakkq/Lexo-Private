@@ -14,6 +14,7 @@ import { carryDialog } from './39-carry.js';
 import { mtDialog } from './24-machine-translation.js';
 import { styleDialog } from './41-style-check.js';
 import { spellDialog } from './43-spell.js';
+import { TEAM_ON, teamState, notesPane } from './44-team.js';
 import { releaseDialog } from './42-release.js';
 import { replaceDialog } from './25-replace.js';
 import { ruleApproveDialog } from './26-approve-rules.js';
@@ -32,6 +33,7 @@ function entQuery(extra = {}) {
   return { file: e.file || '', status: e.status || 'todo', unit: e.unit || '', kind: e.kind || '', issues: e.issues || '', q: e.q || '', word: e.word ? '1' : '', sort: e.sort || 'line', limit: 200, ...extra };
 }
 export async function viewEntries() {
+  await teamState(); // whether the project has a team: its notes are a tab of the line
   if (S.goOpts) {
     const o = S.goOpts;
     if (o.file !== undefined) setPref('entries.file', o.file);
@@ -432,6 +434,7 @@ export async function viewEntries() {
       ['scene', T('Scene'), () => h('div', null, inPane(gamePreview(d, ed.ta)), inPane(sceneBox(d)))],
       ['memory', T('Memory'), () => inPane(memoryPanel(d, ed.ta, ed.insert))],
       ['history', T('History'), () => inPane(historyPanel(d, ed.ta))],
+      ...(TEAM_ON ? [['team', T('Team'), () => inPane(notesPane(d))]] : []),
       ['script', T('Script'), () => scriptPane(d)],
     ];
     const defs = (COMPANION && !S.compEditor ? defs0.filter(([k]) => !needsEditor.has(k)) : defs0).filter(([k]) => !(film && k === 'scene'));

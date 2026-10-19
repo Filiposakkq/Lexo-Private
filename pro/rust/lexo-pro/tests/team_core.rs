@@ -63,4 +63,35 @@ fn a_team_is_made_by_the_lead_and_seen_by_a_member_without_the_pack() {
     assert_eq!(s["members"].as_array().unwrap().len(), 2);
     // and the lead's own row says lead
     assert!(s["members"].as_array().unwrap().iter().any(|m| m["name"] == "Petr" && m["role"] == "lead"));
+
+    // news: Ann looks once (nothing is news yet), then the lead changes a line and approves nothing; Ann sees the edit
+    let first = ann.team_changes().unwrap();
+    assert_eq!(first["total"], 0, "{first}");
+    lead.entry_save("b.rpy", 4, "Ahoj!").unwrap();
+    let news = ann.team_changes().unwrap();
+    assert_eq!(news["items"], json!([{"author": "lead-0001", "name": "Petr", "what": "edited", "file": "b.rpy", "n": 1}]), "{news}");
+    assert_eq!(ann.team_state().unwrap()["news"], 1);
+    assert_eq!(ann.team_mark_seen().unwrap()["total"], 0);
+
+    // a note of Ann on that line is seen by the lead, who resolves it
+    let n = ann.team_note_add("b.rpy", 4, "  Is this too informal?  ").unwrap();
+    assert_eq!(
+        (n["notes"][0]["text"].clone(), n["notes"][0]["name"].clone(), n["notes"][0]["resolved"].clone()),
+        (json!("Is this too informal?"), json!("Ann"), json!(false)),
+        "{n}"
+    );
+    assert!(ann.team_note_add("b.rpy", 4, "   ").is_err());
+    let seen = lead.team_notes("b.rpy", 4).unwrap();
+    let id = seen["notes"][0]["id"].as_str().unwrap().to_string();
+    assert_eq!(lead.team_changes().unwrap()["notes"], 1);
+    assert_eq!(lead.team_note_resolve(&id, "b.rpy", 4).unwrap()["notes"][0]["resolved"], true);
+    assert!(ann.team_notes("a.rpy", 4).unwrap()["notes"].as_array().unwrap().is_empty(), "notes belong to their line");
+
+    // statistics are for the lead (Pro): what Petr edited counts, the progress of Ann's file is joined in; Ann has none
+    let st = lead.team_stats(None).unwrap();
+    let petr = st["members"].as_array().unwrap().iter().find(|m| m["author"] == "lead-0001").unwrap();
+    let anns = st["members"].as_array().unwrap().iter().find(|m| m["author"] == "ann-0001").unwrap();
+    assert_eq!((petr["edited"].clone(), anns["files"].clone(), anns["lines"].clone()), (json!(1), json!(1), json!(1)), "{st}");
+    assert!(ann.team_stats(None).is_err());
+    assert_eq!(lead.team_stats(Some(1)).unwrap()["days"], 1);
 }

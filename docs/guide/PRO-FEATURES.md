@@ -71,13 +71,12 @@ what is wrong: the **form of address**, the **gender forms**, the **tone**, the 
 machine translation (one undo step). The service charges by the text sent (the dialog shows how much will be sent). The quality of the remarks depends on the model; read them before ticking.
 
 ## Team (lead: Pro; members: free)
-A team is the people who share the translation folder (git, Dropbox, Syncthing); nothing is registered anywhere and no server is needed. Every person writes only their own file in the folder, so sharing never makes a conflict.
-- **Everybody (Free):** *Files › Team…*: say who you are (your name, written in `.aside/team/members/<you>.json`), see the members with their roles and number of files; in the table of files the column **Assigned to** shows who has each file, and the filter **Person** (*My files*, *Nobody*, or one person) shows only yours.
-- **The lead (Pro, `team.manage`):** *Team… › Make this a team* makes you the lead (`.aside/team/lead.json`, written by the lead only). The lead gives each member a role (translator or proofreader) and picks the person of every file in the table of files. The pack cleans what is written: only members get roles and files, a file has at most five people, unknown entries are dropped.
-- **A team of trust:** whoever has the folder can write in it; the roles and the assignments say who does what, they do not stop anybody. A licence is needed only to make and manage the team; the members work in Free.
-- **Not built yet:** notes to the team on lines, "what changed since you were last here", statistics per person, merging of `.rpy` files by block, buttons for git.
+Several people on one translation without a server: the team is the people who share the translation folder, and every person writes only their own files in it (no conflicts). **The full guide is [TEAMS.md](TEAMS.md).** In short:
+- **Everybody (Free):** *Files › Team…* – say who you are, see the members, roles and your files; the table of files has the column **Assigned to** and the filter **Person** (*My files*); the Team window shows the **news** since your last look; the tab **Team** of a line holds **notes to the team**.
+- **The lead (Pro, `team.manage`):** makes the team, gives roles (translator, proofreader) and files, and sees the **statistics** per person (progress of their files, changed, approved and marked lines, last activity).
+- **A team of trust:** whoever has the folder can write in it; roles and assignments say who does what, they do not stop anybody. Only the lead needs a licence.
 
-## Release builder
+## Spelling with a dictionary
 Checks the translated lines against a **Hunspell dictionary** (a `.dic` file with its `.aff` file) of the language of the project. The free check from the project's own vocabulary stays as it is; this one knows real words, so it also finds words that are wrong everywhere in the project.
 - **Add a dictionary:** *Lines › Tools › Check the spelling…*, then choose the folder or the `.dic` file (the `.aff` file lies next to it). Both files are copied to the settings of the application (one dictionary per language of a project; not shared with the project). A broken dictionary is reported when it is added. The application does not include or download any dictionary.
 - **Check:** the file in the filter or all files. The list shows every unknown word with how often and where it occurs and with suggestions (words one edit away, and the word with its diacritics put back). Words of the original, words of the glossary, short words in capitals, tags and variables are never reported.

@@ -43,7 +43,7 @@ and many paths still say **Lexo** (the first working name), which is intentional
 
 - A new chat or a new person: [`docs/project/HANDOFF.md`](docs/project/HANDOFF.md) (decisions, rules, the loop of a step, commands, current state), then [`docs/project/ROADMAP.md`](docs/project/ROADMAP.md).
 - The index of all documents and which ones are current: [`docs/README.md`](docs/README.md).
-- What each Pro feature does: [`docs/guide/PRO-FEATURES.md`](docs/guide/PRO-FEATURES.md).
+- What each Pro feature does: [`docs/guide/PRO-FEATURES.md`](docs/guide/PRO-FEATURES.md); working as a team: [`docs/guide/TEAMS.md`](docs/guide/TEAMS.md).
 
 ## Commands (Windows)
 

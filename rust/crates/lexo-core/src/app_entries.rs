@@ -195,7 +195,7 @@ impl App {
         )
     }
 
-    fn find_entry(&self, rel: &str, line: i64) -> Option<(usize, &Entry)> {
+    pub(crate) fn find_entry(&self, rel: &str, line: i64) -> Option<(usize, &Entry)> {
         let o = self.open.as_ref()?;
         if !o.project.files.contains_key(rel) {
             return None;
@@ -514,6 +514,7 @@ impl App {
             })
             .collect();
         o.texthist.record(&items, via, clock);
+        self.team_activity(details, via); // in a team: what this person changed (for the statistics of the lead)
     }
 
     /// All texts this line has had, newest first.
