@@ -8,6 +8,7 @@ const TITLES = {
   'mt.batch': () => T('Batch machine translation'), 'fixes.safe': () => T('Safe bulk fixes with preview'), 'replace.regex': () => T('Regex find & replace'),
   'bulk.categorize': () => T('Bulk categorisation suggestions'), 'publish.web': () => T('Publishing progress to a website'),
   'carry.over': () => T('Carry a translation over to a new version'),
+  'memory.fuzzy': () => T('Fill from similar translations'),
 };
 let cache = null;
 /* {tier, features: {id: {available, limit}}, problems}; without an answer everything counts as available so the real call can report the truth. */

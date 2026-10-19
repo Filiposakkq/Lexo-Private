@@ -102,6 +102,7 @@ export async function viewEntries() {
         { label: T('Approve by rule…'), hint: T('names, interjections'), run: () => ruleApproveDialog(async () => { S.files = null; await refreshHeader(); load(true); }, S.fl.picked.size ? [...S.fl.picked] : (pref('entries.file', '') ? [pref('entries.file', '')] : [])) },
         { label: T('Texts the generator missed…'), hint: T('show text, input prompts, titles'), run: () => missedTextsDialog(async () => { S.files = null; await refreshHeader(); load(true); }) },
         { label: T('Carry over from the previous version…'), hint: T('Pro: translation of the old game version'), run: () => carryDialog(async () => { S.files = null; await refreshHeader(); load(true); }) },
+        { label: T('Fill from similar translations…'), hint: T('Pro: similar originals of this project'), run: () => carryDialog(async () => { S.files = null; await refreshHeader(); load(true); }, true) },
         { label: T('Fix…'), hint: T('speaker, spaces, typos'), run: () => fixDialog({ file: pref('entries.file', '') }, async () => { S.files = null; await refreshHeader(); load(true); }) },
         { label: T('Translate with a machine…'), hint: T('selected lines, scene, file'), run: () => openMtDialog() },
       ], { title: T('Bulk edits of translations') }),
