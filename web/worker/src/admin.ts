@@ -2,7 +2,10 @@ import type { Env } from "./env.ts";
 import * as mail from "./mail.ts";
 import { program, roadmapList, settings } from "./public.ts";
 import { adminConfigured, admitted } from "./access.ts";
-import { body, fail, isEmail, isUrl, json, line, randomId, str, text } from "./util.ts";
+import { body, fail, isEmail, isUrl, json, line, randomId, site, str, text } from "./util.ts";
+import { health } from "./cron.ts";
+import { EVENTS, push, pushConfigured } from "./notify.ts";
+import { TOPICS } from "./program.ts";
 
 const DAY = 86400;
 const all = async <T = Record<string, unknown>>(env: Env, sql: string, ...args: unknown[]) => (await env.DB.prepare(sql).bind(...args).all<T>()).results;
@@ -27,6 +30,11 @@ const KINDS: Record<string, { table: string; key: "id" | "num" }> = {
   feedback: { table: "feedback", key: "num" },
   releases: { table: "releases", key: "id" },
   log: { table: "log", key: "num" },
+  subscribers: { table: "subscribers", key: "num" },
+  tasks: { table: "tasks", key: "id" },
+  builds: { table: "builds", key: "id" },
+  posts: { table: "posts", key: "id" },
+  faq: { table: "faq", key: "id" },
 };
 
 /** An application with everything that belongs to it. */
@@ -34,8 +42,31 @@ async function deleteApplication(env: Env, id: string): Promise<void> {
   await run(env, "DELETE FROM feedback WHERE application_id = ?", id);
   await run(env, "DELETE FROM bugs WHERE application_id = ?", id);
   await run(env, "DELETE FROM mails WHERE application_id = ?", id);
+  await run(env, "DELETE FROM task_results WHERE application_id = ?", id);
+  await run(env, "DELETE FROM build_downloads WHERE application_id = ?", id);
   await run(env, "DELETE FROM applications WHERE id = ?", id);
 }
+
+async function deleteBuild(env: Env, id: string): Promise<void> {
+  await run(env, "DELETE FROM build_parts WHERE build_id = ?", id);
+  await run(env, "DELETE FROM build_downloads WHERE build_id = ?", id);
+  await run(env, "DELETE FROM builds WHERE id = ?", id);
+}
+
+/** One e-mail to each person of a group, with {nick} and {link} filled in. */
+async function sendToGroup(env: Env, to: string, subject: string, bodyText: string, kind: string): Promise<{ sent: number; total: number }> {
+  const people = await recipients(env, to);
+  let sent = 0;
+  for (let i = 0; i < people.length; i++) {
+    const x = people[i]!;
+    if (i) await sleep(600); // Resend lets a free account send about two e-mails a second
+    if (await mail.send(env, x.email, mail.custom(subject, bodyText, x.nick, mail.pageLink(env, x.route, x.code)), { kind, app: x.id })) sent++;
+  }
+  return { sent, total: people.length };
+}
+
+const setSetting = (env: Env, k: string, v: string) => run(env, "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", k, v);
+const slug = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50);
 
 async function deleteFeedback(env: Env, id: number): Promise<void> {
   const f = await one<{ application_id: string; which: string }>(env, "SELECT application_id, which FROM feedback WHERE id = ?", id);
@@ -100,6 +131,8 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
             showcase: await n("SELECT COUNT(*) AS n FROM showcase WHERE state = 'pending'"),
             failed_mails: await n(`SELECT COUNT(*) AS n FROM mails WHERE sent = 0 AND created > ${now - 7 * DAY}`),
             votes: await n("SELECT COUNT(*) AS n FROM votes"),
+            subscribers: await n("SELECT COUNT(*) AS n FROM subscribers WHERE confirmed IS NOT NULL"),
+            task_problems: await n(`SELECT COUNT(*) AS n FROM task_results r JOIN tasks t ON t.id = r.task_id WHERE t.open = 1 AND r.state = 'problem'`),
             downloads: await n("SELECT COALESCE(SUM(downloads), 0) AS n FROM releases"),
           },
           recent: await all(env, `SELECT * FROM (
@@ -117,10 +150,10 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         const args = state === "unconfirmed" ? [] : [state, state];
         return json({
           ok: true,
-          items: await all(env, `SELECT id, route, created, nick, email, lang, state, verified, trial_start, fb2_sent, fb2_done, fb4_sent, fb4_done, ip_hash,
+          items: await all(env, `SELECT id, route, created, nick, email, lang, state, verified, trial_start, fb2_sent, fb2_done, fb4_sent, fb4_done, ip_hash, rating, tags,
               (SELECT COUNT(*) FROM applications x WHERE x.ip_hash = applications.ip_hash AND x.ip_hash != '' AND x.id != applications.id) AS same_ip
-            FROM applications WHERE (? = '' OR route = ?) AND ${where}
-            ORDER BY CASE state WHEN 'new' THEN 0 WHEN 'waitlist' THEN 1 WHEN 'accepted' THEN 2 ELSE 3 END, created DESC LIMIT 300`, q("route"), q("route"), ...args),
+            FROM applications WHERE (? = '' OR route = ?) AND ${where} AND (? = '' OR (',' || tags || ',') LIKE '%,' || ? || ',%')
+            ORDER BY ${q("sort") === "rating" ? "rating DESC," : ""} CASE state WHEN 'new' THEN 0 WHEN 'waitlist' THEN 1 WHEN 'accepted' THEN 2 ELSE 3 END, created DESC LIMIT 300`, q("route"), q("route"), ...args, q("tag"), q("tag")),
         });
       }
       case "people":
@@ -190,7 +223,7 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
       case "log":
         return json({ ok: true, items: await all(env, "SELECT * FROM log ORDER BY id DESC LIMIT 300") });
       case "storage": {
-        const tables = ["applications", "feedback", "bugs", "mails", "messages", "showcase", "roadmap", "votes", "releases", "log", "hits"];
+        const tables = ["applications", "feedback", "bugs", "mails", "messages", "showcase", "roadmap", "votes", "releases", "log", "hits", "subscribers", "tasks", "builds", "posts"];
         const rows: Record<string, number> = {};
         for (const t of tables) rows[t] = await count(env, `SELECT COUNT(*) AS n FROM ${t}`);
         const images = await one<{ n: number; bytes: number }>(env, "SELECT COUNT(*) AS n, COALESCE(SUM(length(image)), 0) AS bytes FROM bugs WHERE image IS NOT NULL");
@@ -206,6 +239,7 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
           declined: await count(env, "SELECT COUNT(*) AS n FROM applications WHERE state = 'declined'"),
           unconfirmed: await count(env, "SELECT COUNT(*) AS n FROM applications WHERE verified IS NULL"),
           archived: await count(env, "SELECT COUNT(*) AS n FROM messages WHERE state = 'archived'"),
+          builds_bytes: await count(env, "SELECT COALESCE(SUM(length(data)), 0) AS n FROM build_parts"),
         });
       }
       case "search": {
@@ -222,13 +256,43 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
           ) ORDER BY created DESC LIMIT 50`, like);
         return json({ ok: true, items });
       }
+      case "health":
+        return json({
+          ok: true,
+          checks: await health(env, now),
+          push: pushConfigured(env),
+          events: Object.entries(EVENTS).map(([key, label]) => ({ key, label })),
+          on: ((await settings(env)).push_events ?? "").split(",").filter(Boolean),
+        });
+      case "tasks": {
+        const tasks = await all<Record<string, unknown>>(env, "SELECT * FROM tasks ORDER BY open DESC, sort, created DESC");
+        const results = await all<{ task_id: string }>(env, "SELECT r.task_id, r.state, r.note, r.at, r.application_id, a.nick FROM task_results r JOIN applications a ON a.id = r.application_id ORDER BY r.at DESC");
+        const testers = await count(env, "SELECT COUNT(*) AS n FROM applications WHERE state = 'accepted' AND route = 'test'");
+        return json({ ok: true, testers, items: tasks.map((t) => ({ ...t, results: results.filter((r) => r.task_id === t.id) })) });
+      }
+      case "builds": {
+        const builds = await all<Record<string, unknown>>(env, "SELECT id, created, version, notes, audience, url, filename, size, sha256, parts, ready, visible FROM builds ORDER BY created DESC");
+        const dl = await all<{ build_id: string }>(env, "SELECT d.build_id, d.at, a.nick, a.id AS app FROM build_downloads d JOIN applications a ON a.id = d.application_id ORDER BY d.at DESC");
+        return json({ ok: true, items: builds.map((x) => ({ ...x, downloads: dl.filter((d) => d.build_id === x.id) })) });
+      }
+      case "subscribers": {
+        const items = await all(env, "SELECT id, created, email, topics, confirmed FROM subscribers WHERE (? = '' OR (',' || topics || ',') LIKE '%,' || ? || ',%') ORDER BY confirmed IS NULL, created DESC LIMIT 1000", q("topic"), q("topic"));
+        const counts: Record<string, number> = {};
+        for (const t of TOPICS) counts[t] = await count(env, "SELECT COUNT(*) AS n FROM subscribers WHERE confirmed IS NOT NULL AND (',' || topics || ',') LIKE ?", `%,${t},%`);
+        counts.all = await count(env, "SELECT COUNT(*) AS n FROM subscribers WHERE confirmed IS NOT NULL");
+        return json({ ok: true, items, counts, sent: await all(env, "SELECT * FROM newsletters ORDER BY id DESC LIMIT 50") });
+      }
+      case "faq":
+        return json({ ok: true, items: await all(env, "SELECT * FROM faq ORDER BY sort, id") });
+      case "posts":
+        return json({ ok: true, items: await all(env, "SELECT * FROM posts ORDER BY date DESC, created DESC") });
       case "export": {
         const what = b ?? "";
         const day = new Date(now * 1000).toISOString().slice(0, 10);
         if (what === "backup") {
           // everything except screenshots and the flood counters, as one JSON file
           const out: Record<string, unknown> = { exported: day };
-          for (const t of ["settings", "applications", "feedback", "roadmap", "showcase", "messages", "releases", "mails", "templates", "log"]) out[t] = await all(env, `SELECT * FROM ${t}`);
+          for (const t of ["settings", "applications", "feedback", "roadmap", "showcase", "messages", "releases", "mails", "templates", "log", "tasks", "task_results", "subscribers", "newsletters", "faq", "posts"]) out[t] = await all(env, `SELECT * FROM ${t}`);
           out.bugs = await all(env, "SELECT id, application_id, created, title, steps, expected, actual, version, severity, state, note, reply, replied, closed, image_type FROM bugs");
           await log("export", "backup");
           return new Response(JSON.stringify(out, null, 1), { headers: { "content-type": "application/json", "content-disposition": `attachment; filename="aside-web-${day}.json"`, "cache-control": "no-store" } });
@@ -239,10 +303,11 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
           bugs: "SELECT b.id, a.nick, b.created, b.severity, b.state, b.version, b.title, b.steps, b.expected, b.actual, b.reply, b.note FROM bugs b JOIN applications a ON a.id = b.application_id ORDER BY b.id",
           messages: "SELECT id, created, name, email, topic, state, body FROM messages ORDER BY id",
           mails: "SELECT id, created, to_email, kind, sent, subject FROM mails ORDER BY id",
+          subscribers: "SELECT id, created, email, topics, confirmed FROM subscribers ORDER BY id",
         };
         if (!sets[what]) break;
         const rows = (await all<Record<string, unknown>>(env, sets[what]!)).map((r) => {
-          for (const k of ["created", "verified", "decided", "last_seen", "trial_start", "fb2_done", "fb4_done"]) if (k in r) r[k] = iso(r[k]);
+          for (const k of ["created", "verified", "decided", "last_seen", "trial_start", "fb2_done", "fb4_done", "confirmed"]) if (k in r) r[k] = iso(r[k]);
           return r;
         });
         return new Response("﻿" + csv(rows), { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="aside-${what}-${day}.csv"`, "cache-control": "no-store" } });
@@ -252,7 +317,7 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
   }
 
   if (req.method !== "POST") return fail("not_found", 404);
-  const p = (await body(req, 200_000)) ?? {};
+  const p = (await body(req, a === "build" && c === "part" ? 1_600_000 : 200_000)) ?? {};
 
   switch (a) {
     case "application": {
@@ -299,6 +364,11 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         await log("new link", app.id, app.nick + (mailed ? ", e-mailed" : ""));
         return json({ ok: true, mailed, code, link: mail.pageLink(env, app.route, code) });
       }
+      if (c === "rate") {
+        const tags = [...new Set(str(p.tags).split(",").map((t) => line(t, 24).toLowerCase()).filter(Boolean))].slice(0, 8).join(",");
+        await run(env, "UPDATE applications SET rating = ?, tags = ? WHERE id = ?", Math.max(0, Math.min(5, Math.round(Number(p.rating) || 0))), tags, app.id);
+        return json({ ok: true });
+      }
       if (c === "note") {
         await run(env, "UPDATE applications SET note = ? WHERE id = ?", text(p.note, 2000), app.id);
         return json({ ok: true });
@@ -331,17 +401,11 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
       if (b !== "send") break;
       const subject = line(p.subject, 160), bodyText = text(p.body, 10000);
       if (!subject || bodyText.length < 2) return fail("missing", 422, { field: !subject ? "subject" : "body" });
-      const people = await recipients(env, str(p.to));
-      if (!people.length) return fail("no_recipients", 422);
+      if (!(await recipients(env, str(p.to))).length) return fail("no_recipients", 422);
       if (!env.RESEND_API_KEY) return fail("mail_not_configured", 503);
-      let sent = 0;
-      for (let i = 0; i < people.length; i++) {
-        const x = people[i]!;
-        if (i) await sleep(600); // Resend lets a free account send about two e-mails a second
-        if (await mail.send(env, x.email, mail.custom(subject, bodyText, x.nick, mail.pageLink(env, x.route, x.code)), { kind: "message", app: x.id })) sent++;
-      }
-      await log("mail", str(p.to).startsWith("app:") ? str(p.to).slice(4) : str(p.to), `${subject} · ${sent} of ${people.length} sent`);
-      return json({ ok: true, sent, total: people.length });
+      const r = await sendToGroup(env, str(p.to), subject, bodyText, "message");
+      await log("mail", str(p.to).startsWith("app:") ? str(p.to).slice(4) : str(p.to), `${subject} · ${r.sent} of ${r.total} sent`);
+      return json({ ok: true, ...r });
     }
     case "template": {
       if (b && c === "delete") {
@@ -368,7 +432,9 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         apply_day: String(places(p.apply_day, Number(s.apply_day ?? 30)) || 1),
         image_days: String(Math.max(0, Math.min(3650, Math.round(Number(p.image_days ?? s.image_days ?? 30)) || 0))),
       };
-      for (const [k, v] of Object.entries(next)) await run(env, "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", k, v);
+      const extra: Record<string, string> = {};
+      if (Array.isArray(p.push_events)) extra.push_events = p.push_events.map(str).filter((e) => e in EVENTS).join(",");
+      for (const [k, v] of Object.entries({ ...next, ...extra })) await setSetting(env, k, v);
       await log("settings", "", Object.entries(next).map(([k, v]) => `${k}=${v}`).join(", "));
       return json({ ok: true, program: await program(env) });
     }
@@ -493,6 +559,150 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
       else await run(env, "INSERT INTO releases (version, date, channel, title, notes, url, sha256, size, published, id, created) VALUES (?,?,?,?,?,?,?,?,?,?,?)", ...fields, version.replace(/[^0-9a-z.]+/gi, "-").toLowerCase() + "-" + randomId(3), now);
       return json({ ok: true });
     }
+    case "push": {
+      if (b !== "test") break;
+      const ok = await push(env, "health", "Aside website", "Test notification from the admin. It works!", { force: true });
+      return json({ ok: true, sent: ok, configured: pushConfigured(env) });
+    }
+    case "status": {
+      await setSetting(env, "status_on", p.on ? "1" : "0");
+      await setSetting(env, "status_build", line(p.build, 60));
+      await setSetting(env, "status_next", line(p.next, 80));
+      await setSetting(env, "status_note", text(p.note, 400));
+      await log("status", "", `${p.on ? "on" : "off"} · ${line(p.build, 60)}`);
+      return json({ ok: true });
+    }
+    case "task": {
+      if (b && c === "delete") {
+        await run(env, "DELETE FROM task_results WHERE task_id = ?", b);
+        await run(env, "DELETE FROM tasks WHERE id = ?", b);
+        await log("delete task", b);
+        return json({ ok: true });
+      }
+      const title = line(p.title, 140);
+      if (!title) return fail("missing", 422, { field: "title" });
+      const fields = [title, text(p.body, 3000), line(p.build, 40), p.open === false ? 0 : 1, Math.round(Number(p.sort) || 0)];
+      const id = b ?? randomId(8);
+      if (b) await run(env, "UPDATE tasks SET title = ?, body = ?, build = ?, open = ?, sort = ? WHERE id = ?", ...fields, b);
+      else await run(env, "INSERT INTO tasks (title, body, build, open, sort, id, created) VALUES (?,?,?,?,?,?,?)", ...fields, id, now);
+      let mailed: { sent: number; total: number } | null = null;
+      if (p.notify === true)
+        mailed = await sendToGroup(env, "test", `New testing task: ${title}`, `Hi {nick},\n\nthere is a new testing task for you:\n\n${title}${p.body ? "\n\n" + text(p.body, 3000) : ""}\n\nTick it off on your page when you have tried it:\n\n{link}`, "message");
+      await log(b ? "edit task" : "new task", id, title + (mailed ? ` · e-mailed ${mailed.sent} of ${mailed.total}` : ""));
+      return json({ ok: true, id, mailed });
+    }
+    case "build": {
+      if (b && c === "delete") {
+        await deleteBuild(env, b);
+        await log("delete build", b);
+        return json({ ok: true });
+      }
+      if (b && c === "part") {
+        // one piece of the file: n from 0, base64 of at most 1 MB
+        const bld = await one<{ id: string; size: number }>(env, "SELECT id, size FROM builds WHERE id = ? AND ready = 0", b);
+        const data = str(p.data), n = Math.round(Number(p.n));
+        if (!bld || !(n >= 0) || n > 200 || data.length > 1_400_000 || !/^[A-Za-z0-9+/]*={0,2}$/.test(data)) return fail("bad_request", 400);
+        await run(env, "INSERT INTO build_parts (build_id, n, data) VALUES (?,?,?) ON CONFLICT(build_id, n) DO UPDATE SET data = excluded.data", b, n, data);
+        await run(env, "UPDATE builds SET parts = (SELECT COUNT(*) FROM build_parts WHERE build_id = ?) WHERE id = ?", b, b);
+        return json({ ok: true });
+      }
+      if (b && c === "finish") {
+        // complete when the pieces are 0..parts-1 and add up to the size of the file
+        const bld = await one<{ id: string; size: number; version: string }>(env, "SELECT id, size, version FROM builds WHERE id = ?", b);
+        if (!bld) return fail("not_found", 404);
+        const r = await one<{ n: number; mx: number; bytes: number }>(env, "SELECT COUNT(*) AS n, MAX(n) AS mx, SUM(length(data) * 3 / 4 - (CASE WHEN data LIKE '%==' THEN 2 WHEN data LIKE '%=' THEN 1 ELSE 0 END)) AS bytes FROM build_parts WHERE build_id = ?", b);
+        if (!r || r.n === 0 || r.mx !== r.n - 1 || r.bytes !== bld.size) return fail("incomplete", 409, { parts: r?.n ?? 0, bytes: r?.bytes ?? 0 });
+        await run(env, "UPDATE builds SET ready = 1, parts = ? WHERE id = ?", r.n, b);
+        await log("new build", b, `${bld.version} · ${(bld.size / 1048576).toFixed(1)} MB`);
+        return json({ ok: true });
+      }
+      if (b && c === "notify") {
+        const bld = await one<{ version: string; notes: string; audience: string }>(env, "SELECT version, notes, audience FROM builds WHERE id = ? AND ready = 1", b);
+        if (!bld) return fail("not_found", 404);
+        if (!env.RESEND_API_KEY) return fail("mail_not_configured", 503);
+        const to = bld.audience === "all" ? "accepted" : bld.audience;
+        const r = await sendToGroup(env, to, line(p.subject, 160) || `Aside ${bld.version} is ready to test`, text(p.body, 8000) || `Hi {nick},\n\nAside ${bld.version} is ready.${bld.notes ? "\n\n" + bld.notes : ""}\n\nDownload it from your page:\n\n{link}`, "message");
+        await log("build e-mail", b, `${bld.version} · ${r.sent} of ${r.total}`);
+        return json({ ok: true, ...r });
+      }
+      const version = line(p.version, 40);
+      if (!version) return fail("missing", 422, { field: "version" });
+      const audience = pick(p.audience, ["test", "licence", "all"], "test");
+      if (b) {
+        await run(env, "UPDATE builds SET version = ?, notes = ?, audience = ?, visible = ? WHERE id = ?", version, text(p.notes, 4000), audience, p.visible === false ? 0 : 1, b);
+        return json({ ok: true, id: b });
+      }
+      const url = line(p.url, 500);
+      if (url && !/^https:\/\/\S+$/.test(url)) return fail("missing", 422, { field: "url" });
+      const size = Math.round(Number(p.size) || 0);
+      if (!url && (size <= 0 || size > 60 * 1024 * 1024)) return fail("too_big", 413);
+      const sha = line(p.sha256, 64).toLowerCase();
+      const id = slug(version) + "-" + randomId(4);
+      await run(env, "INSERT INTO builds (id, created, version, notes, audience, url, filename, size, sha256, ready, visible) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        id, now, version, text(p.notes, 4000), audience, url, line(p.filename, 120), url ? 0 : size, /^[0-9a-f]{64}$/.test(sha) ? sha : "", url ? 1 : 0, p.visible === false ? 0 : 1);
+      if (url) await log("new build", id, `${version} · link`);
+      return json({ ok: true, id });
+    }
+    case "subscriber": {
+      if (b && c === "delete") {
+        await run(env, "DELETE FROM subscribers WHERE id = ?", Number(b));
+        return json({ ok: true });
+      }
+      break;
+    }
+    case "newsletter": {
+      if (b !== "send") break;
+      const subject = line(p.subject, 160), bodyText = text(p.body, 20000);
+      if (!subject || bodyText.length < 2) return fail("missing", 422);
+      if (!env.RESEND_API_KEY) return fail("mail_not_configured", 503);
+      const topic = TOPICS.includes(str(p.topic)) ? str(p.topic) : "";
+      // a test goes only to you, with a dummy unsubscribe link
+      if (p.test === true) {
+        const ok = await mail.send(env, env.OWNER_EMAIL ?? "aside@filiposakkq.dev", mail.newsletter("[Test] " + subject, bodyText, site(env) + "/news.html#manage=test"));
+        return json({ ok: true, sent: ok ? 1 : 0, total: 1 });
+      }
+      const subs = await all<{ email: string; unsub: string }>(env, "SELECT email, unsub FROM subscribers WHERE confirmed IS NOT NULL AND (? = '' OR (',' || topics || ',') LIKE '%,' || ? || ',%')", topic, topic);
+      if (!subs.length) return fail("no_recipients", 422);
+      const sent = await mail.sendMany(env, subs.map((x) => {
+        const manage = `${site(env)}/news.html#manage=${x.unsub}`;
+        return { to: x.email, mail: mail.newsletter(subject, bodyText, manage), headers: { "List-Unsubscribe": `<${site(env)}/api/unsubscribe/${x.unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } };
+      }));
+      await run(env, "INSERT INTO newsletters (created, topic, subject, body, total, sent) VALUES (?,?,?,?,?,?)", now, topic || "all", subject, bodyText, subs.length, sent);
+      await log("newsletter", "", `${subject} · ${sent} of ${subs.length}`);
+      return json({ ok: true, sent, total: subs.length });
+    }
+    case "faq": {
+      if (b && c === "delete") {
+        await run(env, "DELETE FROM faq WHERE id = ?", b);
+        return json({ ok: true });
+      }
+      const q2 = line(p.q, 200), a2 = text(p.a, 3000);
+      if (!q2 || !a2) return fail("missing", 422);
+      const fields = [q2, a2, Math.round(Number(p.sort) || 0), p.published === false ? 0 : 1];
+      if (b) await run(env, "UPDATE faq SET q = ?, a = ?, sort = ?, published = ? WHERE id = ?", ...fields, b);
+      else await run(env, "INSERT INTO faq (q, a, sort, published, id) VALUES (?,?,?,?,?)", ...fields, (slug(q2) || "q") + "-" + randomId(3));
+      return json({ ok: true });
+    }
+    case "post": {
+      if (b && c === "delete") {
+        await run(env, "DELETE FROM posts WHERE id = ?", b);
+        await log("delete post", b);
+        return json({ ok: true });
+      }
+      const title = line(p.title, 140), bodyText = text(p.body, 60000);
+      if (!title || bodyText.length < 2) return fail("missing", 422, { field: !title ? "title" : "body" });
+      const date = /^\d{4}-\d{2}-\d{2}$/.test(str(p.date)) ? str(p.date) : new Date(now * 1000).toISOString().slice(0, 10);
+      const fields = [date, title, line(p.dek, 240), line(p.tag, 40), bodyText, p.published ? 1 : 0];
+      if (b) {
+        await run(env, "UPDATE posts SET date = ?, title = ?, dek = ?, tag = ?, body = ?, published = ? WHERE id = ?", ...fields, b);
+        return json({ ok: true, id: b });
+      }
+      let id = slug(title) || "post";
+      if (await one(env, "SELECT 1 FROM posts WHERE id = ?", id)) id += "-" + randomId(3);
+      await run(env, "INSERT INTO posts (date, title, dek, tag, body, published, id, created) VALUES (?,?,?,?,?,?,?,?)", ...fields, id, now);
+      await log("new post", id, title);
+      return json({ ok: true, id });
+    }
     case "bulk": {
       // delete many rows of one kind at once
       const kind = KINDS[str(p.kind)];
@@ -501,6 +711,11 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
       for (const id of ids) {
         if (str(p.kind) === "applications") await deleteApplication(env, String(id));
         else if (str(p.kind) === "feedback") await deleteFeedback(env, Number(id));
+        else if (str(p.kind) === "builds") await deleteBuild(env, String(id));
+        else if (str(p.kind) === "tasks") {
+          await run(env, "DELETE FROM task_results WHERE task_id = ?", String(id));
+          await run(env, "DELETE FROM tasks WHERE id = ?", String(id));
+        }
         else await run(env, `DELETE FROM ${kind.table} WHERE id = ?`, kind.key === "num" ? Number(id) : String(id));
       }
       await log("bulk delete", "", `${ids.length} × ${str(p.kind)}`);

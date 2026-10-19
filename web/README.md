@@ -11,7 +11,7 @@ web/
 │   ├── docs.html        documentation        │ written by hand
 │   ├── releases.html    releases, changelog  │
 │   ├── 404.html         "page not found"     ┘
-│   ├── beta.html, roadmap.html, … made from templates/ (do not edit, see below)
+│   ├── beta.html, news.html, roadmap.html, … made from templates/ (do not edit, see below)
 │   └── assets/          site.css, site.js, data.js, img/, badge/, icons, og.png
 ├── templates/           sources of the generated pages (+ _head.html, _foot.html shared by all of them)
 ├── worker/              the server: src/, migrations/ (the database), test/, wrangler.toml
@@ -45,6 +45,13 @@ Without the server every form still works by e-mail (it opens the visitor's mail
 - **Contact form**: messages in the admin; reply from the admin (sent from aside@filiposakkq.dev) or from your mail app.
 - **Releases**: entered in the admin; the Releases page shows them, downloads go through `/api/download/<id>` and are counted.
 - **Log**: what was done in the admin, by whom, and what the daily job did.
+- **Ratings**: 1 to 5 stars and labels on each application, only for you; "Best rated" sorts by them, labels filter.
+- **Tasks**: things for testers to try; they mark each one done, problem or skipped (with a note) on their page, and you see the answers per tester. A new task can e-mail all testers.
+- **Builds**: test builds on the personal pages (testers, licences or both), uploaded in the admin (up to 60 MB; kept in the database in pieces of 1 MB) or as a link. Only people with a valid personal link can download; every download is counted. "E-mail them" sends each person their page link.
+- **Newsletter** (`news.html`): people sign up for releases, beta rounds or dev diary posts and confirm by e-mail; every newsletter has a link to change topics or unsubscribe (and the one-click unsubscribe of mail programs). You write it in the admin, send a test to yourself first, then to everyone or one topic.
+- **Status, Blog, FAQ**: the "Now" strip on the home and releases pages (current build, next build, a note, live numbers), dev diary posts (they join the posts in `templates/blog.html`, newest first; the ones in the code stay and can still be written there), and the questions on the home page. Text allows paragraphs, `### ` headings, `- ` lists, `**bold**`, `` `code` ``, `[links](https://…)` and code blocks.
+- **Health**: every hour the server checks the database, e-mail (the last three failed?), the sending domain at Resend, and whether the daily job ran; a problem sends a phone notification (at most once a day) and another when it works again. The Overview shows the same list.
+- **Safety**: deleting several items, cleaning up or deleting a person needs the word DELETE typed in, and every deletion and removal waits 10 seconds with an Undo button.
 
 Every e-mail goes from `Filip from Aside <aside@filiposakkq.dev>` with replies to the same address, so answers of people reach you through the existing forwarding. Until the domain has a sending reputation, these e-mails often land in spam; the pages tell people to look there.
 
@@ -68,6 +75,8 @@ The website deploys itself through GitHub Actions (`.github/workflows/web-deploy
    - `TURNSTILE_SECRET`: the secret key from step 5
    - `ADMIN_TOKEN` (optional): an emergency password for the admin, at least 16 characters; leave it out and only Cloudflare Access opens the admin
 
+   - `NTFY_TOPIC` (optional): phone notifications, see below
+
    A deploy never removes these.
 7. Settings, Domains and Routes, Add, Custom domain: `aside.filiposakkq.dev` (disconnect it first if something else uses that address).
 
@@ -81,13 +90,21 @@ The website deploys itself through GitHub Actions (`.github/workflows/web-deploy
 
 The overview of the admin warns when e-mail or Turnstile is not set up.
 
+**5. Phone notifications (optional, recommended)**
+11. Install the free **ntfy** app (Android or iPhone), tap +, and subscribe to a topic with a long random name, for example `aside-` followed by 20 random letters. Anyone who knows the name could read it, so keep it unguessable.
+12. Add the same name as the secret `NTFY_TOPIC` of the Worker (step 6). In the admin, Settings, Phone notifications: choose the events and press "Send a test".
+    Telegram instead: create a bot with @BotFather, and add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` (your chat id, e.g. from @userinfobot).
+
+**6. Outside watch (optional)**
+13. The server cannot tell you when it is down itself. A free monitor such as UptimeRobot can call `https://aside.filiposakkq.dev/api/health` every 5 minutes; it answers only when the Worker and the database work.
+
 ## After a change
 
 A merge to `main` that changes `web/` deploys by itself (the folder `public/` and the server). A pull request runs the checks only. To deploy again by hand: Actions, Deploy website, Run workflow (works in the GitHub app).
 
 The checks also fail when a template changed but `python tools/build_pages.py` was not run; run it and commit the pages it wrote. New tables (a new file in `worker/migrations/`) are created by the deploy.
 
-The daily job (feedback forms and reminders, removing unconfirmed applications and old screenshots, clean-up) runs by itself at 08:17 UTC.
+The daily job (feedback forms and reminders, removing unconfirmed applications, newsletter sign-ups and old screenshots, clean-up) runs by itself at 08:17 UTC; the health check every hour at :07.
 
 ### Deploying from a computer instead
 
@@ -112,6 +129,6 @@ Without `RESEND_API_KEY` nothing is mailed and without `TURNSTILE_SECRET` the fo
 
 ## Privacy
 
-The server stores what people type into the forms, a salted hash of their address for the flood limits (removed after two days) and to mark applications from the same address, a salted hash of a random browser id for the votes (the salt is `HASH_SALT`, known only to the server), a copy of every e-mail it sent, and a log of admin actions. No cookies, no analytics. An application can be deleted in the admin (with its feedback, bug reports and e-mail history) when its author asks; the Data section cleans up the rest.
+The server stores what people type into the forms, a salted hash of their address for the flood limits (removed after two days) and to mark applications from the same address, a salted hash of a random browser id for the votes (the salt is `HASH_SALT`, known only to the server), a copy of every e-mail it sent, a log of admin actions, newsletter subscribers (e-mail and topics, deleted when they unsubscribe), and test builds with who downloaded them. No cookies, no analytics. An application can be deleted in the admin (with its feedback, bug reports and e-mail history) when its author asks; the Data section cleans up the rest.
 
 The texts and numbers of the pages come from docs/RUST-PORT.md, docs/GAME-TESTS.md, docs/FEATURES.md and docs/PRIVACY.md; update them when those change.

@@ -1,4 +1,5 @@
 import type { Env } from "./env.ts";
+import { push } from "./notify.ts";
 import { site } from "./util.ts";
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
@@ -7,11 +8,13 @@ export interface Mail {
   subject: string;
   /** Paragraphs; a paragraph that starts with "• " becomes a list item, one that is a URL a button. */
   lines: string[];
+  /** A small last line (the newsletter's unsubscribe link); a URL in it becomes a link. */
+  foot?: string;
 }
 
 /** Plain text and HTML of a mail from the same paragraphs (the HTML is table-based with inline styles, as mail programs need). */
 export function render(m: Mail): { text: string; html: string } {
-  const text = m.lines.join("\n\n") + "\n\n— Filip from Aside · aside@filiposakkq.dev";
+  const text = m.lines.join("\n\n") + "\n\n— Filip from Aside · aside@filiposakkq.dev" + (m.foot ? "\n\n" + m.foot : "");
   const parts = m.lines.map((p) => {
     if (/^https?:\/\/\S+$/.test(p))
       return `<p style="margin:22px 0"><a href="${esc(p)}" style="display:inline-block;background:#ff315c;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px">Open</a><br><span style="font-size:12px;color:#8a8a90;word-break:break-all">${esc(p)}</span></p>`;
@@ -27,7 +30,7 @@ export function render(m: Mail): { text: string; html: string } {
 <h1 style="margin:0 0 16px;font-size:20px;line-height:1.3;color:#1c1c1e">${esc(m.subject)}</h1>
 ${parts.join("\n")}
 </td></tr>
-<tr><td style="padding:14px 26px;background:#faf7f8;border-top:1px solid #eadfe2;color:#8a8a90;font-size:12px;line-height:1.5">Aside, a translation manager for Ren'Py · Reply to this e-mail to write to the author.</td></tr>
+<tr><td style="padding:14px 26px;background:#faf7f8;border-top:1px solid #eadfe2;color:#8a8a90;font-size:12px;line-height:1.5">Aside, a translation manager for Ren'Py · Reply to this e-mail to write to the author.${m.foot ? "<br>" + esc(m.foot).replace(/https?:\/\/\S+/g, (u) => `<a href="${u}" style="color:#8a8a90">${u}</a>`) : ""}</td></tr>
 </table></td></tr></table></body></html>`;
   return { text, html };
 }
@@ -59,9 +62,33 @@ export async function send(env: Env, to: string, m: Mail, meta?: Meta): Promise<
   return ok;
 }
 
-/** A short notice to the owner (new application, message, bug, showcase entry). */
-export const notifyOwner = (env: Env, subject: string, lines: string[]) =>
-  send(env, env.OWNER_EMAIL ?? "aside@filiposakkq.dev", { subject, lines: [...lines, site(env) + "/admin"] });
+/** A short notice to the owner (new application, message, bug, showcase entry): an e-mail, and a phone notification if that event is switched on. */
+export async function notifyOwner(env: Env, event: string, subject: string, lines: string[], urgent = false): Promise<void> {
+  await send(env, env.OWNER_EMAIL ?? "aside@filiposakkq.dev", { subject, lines: [...lines, site(env) + "/admin"] });
+  await push(env, event, subject, lines.join("\n").slice(0, 600), { urgent });
+}
+
+/** Many e-mails at once through Resend's batch call (up to 100 a call). Each item may add headers (List-Unsubscribe). Returns how many were accepted. */
+export async function sendMany(env: Env, items: { to: string; mail: Mail; headers?: Record<string, string> }[]): Promise<number> {
+  if (!env.RESEND_API_KEY) return 0;
+  let ok = 0;
+  for (let i = 0; i < items.length; i += 100) {
+    const batch = items.slice(i, i + 100).map((x) => {
+      const { text, html } = render(x.mail);
+      return { from: env.MAIL_FROM ?? "Filip from Aside <aside@filiposakkq.dev>", to: x.to, subject: x.mail.subject, text, html, reply_to: env.OWNER_EMAIL ?? "aside@filiposakkq.dev", headers: x.headers };
+    });
+    try {
+      const r = await fetch("https://api.resend.com/emails/batch", {
+        method: "POST",
+        headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
+        body: JSON.stringify(batch),
+      });
+      if (r.ok) ok += batch.length;
+    } catch {}
+    if (i + 100 < items.length) await new Promise((res) => setTimeout(res, 600));
+  }
+  return ok;
+}
 
 /** The personal page of an accepted person: bug reports for testers, feedback for licences. */
 export const pageLink = (env: Env, route: string, code: string | null) => (code ? `${site(env)}/${route === "test" ? "report" : "feedback"}.html#${code}` : "");
@@ -167,6 +194,27 @@ export function bugReply(nick: string, id: number, title: string, state: string,
 export function custom(subject: string, body: string, nick: string, link: string): Mail {
   const fill = (t: string) => t.replace(/\{nick\}/g, nick).replace(/\{link\}/g, link);
   return { subject: fill(subject), lines: fill(body).split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean) };
+}
+
+export function subscribeConfirm(token: string, env: Env): Mail {
+  return {
+    subject: "Confirm your Aside news",
+    lines: [
+      "Hi,",
+      "someone (hopefully you) asked for Aside news at this e-mail address. Please confirm it was you:",
+      `${site(env)}/news.html#confirm=${token}`,
+      "The link works for 48 hours. If it was not you, ignore this e-mail and nothing is sent.",
+    ],
+  };
+}
+
+/** A newsletter: the text as written (paragraphs separated by an empty line), with the link to unsubscribe at the bottom. */
+export function newsletter(subject: string, body: string, unsubLink: string): Mail {
+  return {
+    subject,
+    lines: body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean),
+    foot: `You get this because you asked for Aside news. Change topics or unsubscribe: ${unsubLink}`,
+  };
 }
 
 export function reply(nick: string, body: string, original: string): Mail {

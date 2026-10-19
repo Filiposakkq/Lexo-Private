@@ -141,13 +141,14 @@ section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
   <div class="wrap">
     <span class="kicker">Releases</span>
     <h1>Every build, <span class="grad-text">every change.</span></h1>
+    <div class="now-strip" id="now" hidden aria-live="polite"></div>
     <div class="next spot">
       <div class="next-main">
         <div class="next-top"><span class="pill live">In final testing</span><span class="pill os">Windows 10 / 11 · 64-bit</span></div>
         <h2>The first public build is on its way.</h2>
         <p>One installer, one window, a fast Rust core. The installer is built and tested automatically on every change; code signing, updates and the licence server are being finished before it goes out.</p>
         <div class="btns">
-          <a class="btn btn-hot" href="beta.html"><svg><use href="#i-bell"/></svg>Get in early</a><a class="btn" href="mailto:aside@filiposakkq.dev?subject=Tell%20me%20when%20Aside%20is%20out">Tell me when it's out</a>
+          <a class="btn btn-hot" href="beta.html"><svg><use href="#i-bell"/></svg>Get in early</a><a class="btn" href="news.html">Tell me when it's out</a>
           <span class="btn" aria-disabled="true"><svg><use href="#i-down"/></svg>Download for Windows · soon</span>
         </div>
       </div>
@@ -331,6 +332,7 @@ section { padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem); }
       return "<li>" + (tag ? '<span class="tag ' + tag[1] + '">' + tag[0] + "</span>" : '<span class="tag imp">Change</span>') + "<span>" + esc(m ? m[2] : l) + "</span></li>";
     }).join("");
   }
+  AsideAPI.now(document.getElementById("now"));
   AsideAPI.live().then(function (live) {
     if (!live) return;
     AsideAPI.call("releases").then(function (j) {

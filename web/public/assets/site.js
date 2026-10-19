@@ -47,7 +47,40 @@ window.AsideAPI = (function () {
       e === "image_too_big" ? "The screenshot is too big. Try a smaller one." :
       "Sending failed. Please try again, or write to aside@filiposakkq.dev.";
   }
-  return { call: call, config: config, live: function () { return config().then(function (c) { return !!c; }); }, human: human, why: why };
+  /* Text written in the admin (blog, FAQ, status) to safe HTML: everything is escaped first, then a few marks are turned into tags:
+     an empty line between paragraphs, "### " headings, "- " lists, ``` code blocks, `code`, **bold**, [text](https://…).
+     `inline` gives one paragraph without <p> (FAQ answers). */
+  function md(src, inline) {
+    var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    var span = function (t) {
+      return esc(t).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|[a-z0-9-]+\.html(?:#[\w-]+)?)\)/gi, function (m, t, u) { return '<a href="' + u + '"' + (/^https?:/.test(u) ? ' target="_blank" rel="noopener"' : "") + ">" + t + "</a>"; });
+    };
+    if (inline) return span(src).replace(/\n/g, "<br>");
+    var out = [];
+    String(src || "").replace(/\r/g, "").split(/```/).forEach(function (part, i) {
+      if (i % 2) { out.push("<pre>" + esc(part.replace(/^\w*\n/, "").replace(/\n$/, "")) + "</pre>"); return; }
+      part.split(/\n\s*\n/).forEach(function (b) {
+        b = b.trim(); if (!b) return;
+        if (/^### /.test(b)) out.push("<h3>" + span(b.slice(4)) + "</h3>");
+        else if (/^- /.test(b)) out.push("<ul>" + b.split(/\n/).map(function (l) { return "<li>" + span(l.replace(/^- /, "")) + "</li>"; }).join("") + "</ul>");
+        else out.push("<p>" + span(b).replace(/\n/g, "<br>") + "</p>");
+      });
+    });
+    return out.join("");
+  }
+  /* The "Now" strip (written in the admin, Status): the current build, the next one, a note and live numbers. Stays hidden when off. */
+  function now(el) {
+    if (!el) return;
+    config().then(function (c) { return c ? call("status") : null; }).then(function (j) {
+      if (!j || !j.on) return;
+      var n = j.numbers, e = function (t) { return md(t, true); };
+      el.innerHTML = '<span class="now-dot" aria-hidden="true"></span><div class="now-main"><b>Now</b>' + (j.build ? " · testing <code>" + e(j.build) + "</code>" : "") + (j.next ? " · next build " + e(j.next) : "") + (j.note ? '<span class="now-note">' + e(j.note) + "</span>" : "") +
+        '</div><div class="now-nums"><span><b>' + n.testers + "</b> testers</span><span><b>" + n.fixed + "</b> bugs fixed</span><span><b>" + n.open + "</b> open</span></div>";
+      el.hidden = false;
+    });
+  }
+  return { call: call, config: config, live: function () { return config().then(function (c) { return !!c; }); }, human: human, why: why, md: md, now: now };
 })();
 
 (function () {
@@ -59,7 +92,7 @@ window.AsideAPI = (function () {
   var arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var MENU = [
     ["Product", [["./#tour", "Features"], ["./#try", "Try it"], ["./#pricing", "Pricing"], ["compare.html", "Compare"]]],
-    ["Project", [["roadmap.html", "Roadmap"], ["releases.html", "Releases"], ["showcase.html", "Showcase"], ["blog.html", "Blog"]]],
+    ["Project", [["roadmap.html", "Roadmap"], ["releases.html", "Releases"], ["showcase.html", "Showcase"], ["blog.html", "Blog"], ["news.html", "News by e-mail"]]],
     ["Get involved", [["beta.html", "Beta programs"], ["developers.html", "For game developers"]]],
     ["Help", [["docs.html", "Documentation"], ["./#faq", "FAQ"], ["contact.html", "Contact"]]]
   ];

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aside News by E-mail</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Get an e-mail when Aside has a new release, a beta round opens or a new dev diary post is out. Unsubscribe with one click.">
+<meta name="theme-color" content="#12070A">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+/* Layout concept: a postcard. The sign-up on one side, what you get (and what you never get) on the other. */
+.news { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(1.5rem, 1rem + 3vw, 3rem); align-items: start; }
+@media (max-width: 900px) { .news { grid-template-columns: minmax(0, 1fr); } }
+.gets { display: grid; gap: .8rem; }
+.get { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: .9rem; align-items: center; padding: 1rem 1.1rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.get i { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--red-tint); color: var(--red-text); font: 800 1.1rem/1 var(--f-display); font-style: normal; }
+.get b { display: block; color: var(--ink); font: 700 1rem/1.3 var(--f-display); }
+.get span { font-size: .88rem; color: var(--muted); }
+.promise { padding: 1rem 1.1rem; border-radius: 14px; border: 1.5px dashed var(--line-2); font-size: .9rem; color: var(--muted); }
+.promise b { color: var(--ink); }
+.state-box { display: grid; gap: .8rem; justify-items: start; }
+.state-box h2 { font-size: clamp(1.3rem, 1.1rem + 1vw, 1.7rem); }
+.spam-note { display: flex; gap: .6rem; align-items: flex-start; padding: .8rem 1rem; border-radius: 14px; background: var(--warn-soft); color: var(--ink); font-size: .92rem; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brandg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF315C"/><stop offset="1" stop-color="#FF7043"/></linearGradient>
+    <symbol id="logo" viewBox="80 80 900 870">
+      <path d="M238.4 292.5 Q272.1 192.2 376.6 175 L797.6 105.9 Q960 79.3 949.7 243.6 L915.1 798 Q905.9 944.7 760.8 921.6 L185.9 830.1 Q64 810.7 103.4 693.6 Z" fill="url(#brandg)"/>
+      <path d="M187.5 756.6 L452.6 318.8 Q470.8 288.6 506.1 288.6 L567.3 288.6 Q602.5 288.6 618.2 320.2 L834.2 756.6 L675.4 756.6 L524.9 453.2 L363.8 756.6 Z" fill="#fff"/>
+      <path d="M466.1 633.1 L614.3 633.1 L675.4 756.6 L552 756.6 Z" fill="#fff" fill-opacity=".62"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Aside, home"><svg aria-hidden="true"><use href="#logo"/></svg>aside<span class="sub">News</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="./#tour">Features</a>
+      <a href="compare.html">Compare</a>
+      <a href="./#pricing">Pricing</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="releases.html">Releases</a>
+      <a href="blog.html">Blog</a>
+      <a href="docs.html">Docs</a>
+    </nav>
+    <div class="top-cta"><a class="btn btn-sm btn-hot" href="beta.html">Join the beta</a></div>
+  </div>
+</header>
+
+<main id="main">
+<section class="page-hero">
+  <div class="blob" style="width:460px;height:460px;right:-140px;top:-180px;background:#FF315C"></div>
+  <div class="wrap">
+    <span class="kicker">News by e-mail</span>
+    <h1>Know <span class="grad-text">the day it's out.</span></h1>
+    <p class="lead">A short e-mail when there is something worth telling: a new release, a beta round with free places, a new post in the dev diary. Nothing else, and one click to stop.</p>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap news">
+    <div class="fcard" id="nbox">
+      <form id="nform" novalidate>
+        <div class="ffields">
+          <div class="ff full"><label for="n-email">Your e-mail <b>*</b></label><input type="email" id="n-email" maxlength="200" autocomplete="email"></div>
+          <div class="ff full"><span class="lab" id="n-top-l">What do you want to hear about? <b>*</b></span>
+            <div class="fchips" role="group" aria-labelledby="n-top-l">
+              <label class="fchip"><input type="checkbox" name="topic" value="releases" checked><span>New releases</span></label>
+              <label class="fchip"><input type="checkbox" name="topic" value="rounds" checked><span>Beta rounds</span></label>
+              <label class="fchip"><input type="checkbox" name="topic" value="diary"><span>Dev diary posts</span></label>
+            </div>
+          </div>
+          <div class="hp"><label for="n-website">Leave this empty</label><input type="text" id="n-website" tabindex="-1" autocomplete="off"></div>
+        </div>
+        <div id="n-ts"></div>
+        <p class="ferr" id="n-err" role="alert"></p>
+        <div class="frow"><button class="btn btn-hot" type="submit" id="n-send">Send me the news</button><span class="fnote">You confirm by e-mail first.</span></div>
+      </form>
+    </div>
+    <div class="gets">
+      <div class="get"><i>↓</i><div><b>New releases</b><span>A new version with what changed, and the download</span></div></div>
+      <div class="get"><i>β</i><div><b>Beta rounds</b><span>When a round opens and there are free places for testers or sponsored licences</span></div></div>
+      <div class="get"><i>✎</i><div><b>Dev diary</b><span>A new post about how Aside is built, or about Ren'Py translation</span></div></div>
+      <p class="promise"><b>The promise:</b> no tracking pixels, no sharing your address, no more than a few e-mails a month. Every e-mail has a link to change topics or unsubscribe at once.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="./"><svg aria-hidden="true"><use href="#logo"/></svg>aside</a>
+      <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
+      <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
+    </div>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="news.html">News</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
+  </div>
+</footer>
+<script src="assets/data.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  var box = document.getElementById("nbox"), form = document.getElementById("nform"), err = document.getElementById("n-err"), token = function () { return ""; };
+  var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var NAMES = { releases: "New releases", rounds: "Beta rounds", diary: "Dev diary posts" };
+  var hash = location.hash.replace("#", ""), m;
+  function show(html) { box.innerHTML = '<div class="state-box">' + html + "</div>"; }
+  AsideAPI.live().then(function (live) {
+    if (!live) {
+      show('<h2>Write to get the news</h2><p>The sign-up works on the Aside website. Until then, send an e-mail with "News" in the subject.</p><a class="btn btn-hot" href="mailto:aside@filiposakkq.dev?subject=News">aside@filiposakkq.dev</a>');
+      return;
+    }
+    /* the link of the confirmation e-mail: a button confirms, so mail scanners that open links cannot */
+    if ((m = /^confirm=([a-z2-9]{16,40})$/.exec(hash))) {
+      show('<span class="kicker">Almost done</span><h2>Confirm your e-mail</h2><p>Press the button to start getting Aside news.</p><button type="button" class="btn btn-hot" id="n-confirm">Confirm</button><p class="ferr" id="n-cerr" role="alert"></p>');
+      document.getElementById("n-confirm").onclick = function () {
+        var b = this; b.disabled = true;
+        AsideAPI.call("subscribe/confirm", { token: m[1] }).then(function (j) {
+          history.replaceState(null, "", location.pathname);
+          if (!j.ok) { b.disabled = false; document.getElementById("n-cerr").textContent = j.error === "not_found" ? "This link was already used or is older than 48 hours. If you are already in, nothing to do; otherwise sign up again." : AsideAPI.why(j); return; }
+          show('<span class="kicker">Done</span><h2>You are in.</h2><p>The next Aside news comes to your inbox. Every e-mail has a link at the bottom to change topics or unsubscribe.</p><p class="spam-note"><span aria-hidden="true">⚠</span><span>For now, e-mails from Aside may land in <b>spam or junk</b>. Mark the first one as “not spam” and the next ones arrive normally.</span></p>');
+        }, function () { b.disabled = false; document.getElementById("n-cerr").textContent = AsideAPI.why(null); });
+      };
+      return;
+    }
+    /* the link at the bottom of every newsletter: change topics or unsubscribe */
+    if ((m = /^manage=([a-z2-9]{16,40}|test)$/.exec(hash))) {
+      if (m[1] === "test") { show("<h2>This is the test link</h2><p>In the real newsletter, each person gets their own link here to change topics or unsubscribe.</p>"); return; }
+      AsideAPI.call("subscription/" + m[1]).then(function (j) {
+        if (!j.ok) { show("<h2>Not subscribed</h2><p>This address gets no Aside news (any more). You can sign up again on this page.</p>"); history.replaceState(null, "", location.pathname); return; }
+        show('<span class="kicker">Your news</span><h2>' + esc(j.email) + '</h2><div class="fchips" role="group" aria-label="Topics">' + Object.keys(NAMES).map(function (k) { return '<label class="fchip"><input type="checkbox" name="mt" value="' + k + '"' + (j.topics.indexOf(k) >= 0 ? " checked" : "") + "><span>" + NAMES[k] + "</span></label>"; }).join("") +
+          '</div><div class="frow"><button type="button" class="btn btn-hot" id="n-save">Save topics</button><button type="button" class="btn" id="n-unsub">Unsubscribe from everything</button></div><p class="fnote" id="n-msg" role="status"></p>');
+        var send = function (body, done) { AsideAPI.call("subscription/" + m[1], body).then(function (r) { if (!r.ok) { document.getElementById("n-msg").textContent = AsideAPI.why(r); return; } done(r); }); };
+        document.getElementById("n-save").onclick = function () { var t = Array.prototype.map.call(box.querySelectorAll("input[name=mt]:checked"), function (x) { return x.value; }); send({ topics: t }, function (r) { if (r.gone) { show("<h2>Unsubscribed.</h2><p>With no topic chosen, you get no more Aside news.</p>"); return; } document.getElementById("n-msg").textContent = "Saved."; }); };
+        document.getElementById("n-unsub").onclick = function () { send({ unsubscribe: true }, function () { history.replaceState(null, "", location.pathname); show("<h2>Unsubscribed.</h2><p>You get no more Aside news. Changed your mind? Sign up again on this page any time.</p>"); }); };
+      });
+      return;
+    }
+    AsideAPI.human(document.getElementById("n-ts")).then(function (t) { token = t; });
+  });
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = document.getElementById("n-email").value.trim(), topics = Array.prototype.map.call(form.querySelectorAll("input[name=topic]:checked"), function (x) { return x.value; });
+    form.querySelectorAll(".ff").forEach(function (f) { f.classList.remove("bad"); });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { document.getElementById("n-email").closest(".ff").classList.add("bad"); err.textContent = "Please give your e-mail address."; return; }
+    if (!topics.length) { err.textContent = "Choose at least one topic."; return; }
+    var btn = document.getElementById("n-send"); btn.disabled = true; btn.textContent = "Sending…"; err.textContent = "";
+    AsideAPI.call("subscribe", { email: email, topics: topics, website: document.getElementById("n-website").value, turnstile: token() }).then(function (j) {
+      if (!j.ok) { btn.disabled = false; btn.textContent = "Send me the news"; err.textContent = AsideAPI.why(j); return; }
+      show(j.confirm
+        ? '<span class="kicker">One more step</span><h2>Look in your inbox.</h2><p>An e-mail with a confirmation link is on its way to <b>' + esc(email) + '</b>. Press the link within 48 hours.</p><p class="spam-note"><span aria-hidden="true">⚠</span><span>For now, e-mails from Aside often land in <b>spam or junk</b>. Look there if nothing arrives in a few minutes.</span></p>'
+        : "<h2>You are in.</h2><p>The next Aside news comes to your inbox.</p>");
+    }, function () { btn.disabled = false; btn.textContent = "Send me the news"; err.textContent = AsideAPI.why(null); });
+  });
+})();
+</script>
+</body>
+</html>

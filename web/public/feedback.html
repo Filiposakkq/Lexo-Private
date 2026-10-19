@@ -67,7 +67,7 @@
   </div>
 </section>
 <section class="sec" style="padding-top:0">
-  <div class="wrap fb-wrap"><form class="fcard" id="fbform" novalidate hidden></form></div>
+  <div class="wrap fb-wrap"><div id="fb-builds" hidden style="display:grid;gap:.6rem;margin-bottom:1.4rem"></div><form class="fcard" id="fbform" novalidate hidden></form></div>
 </section>
 </main>
 
@@ -78,7 +78,7 @@
       <p>Translation manager for Ren'Py. Aside is an independent tool, not affiliated with Ren'Py.</p>
       <p class="maker">Made by <a href="https://filiposakkq.dev" target="_blank" rel="noopener">filiposakkq</a> · <a href="https://filiposakkq.dev" target="_blank" rel="noopener">more projects and about me →</a></p>
     </div>
-    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
+    <nav aria-label="Footer"><a href="./">Home</a><a href="compare.html">Compare</a><a href="roadmap.html">Roadmap</a><a href="releases.html">Releases</a><a href="showcase.html">Showcase</a><a href="beta.html">Beta</a><a href="blog.html">Blog</a><a href="news.html">News</a><a href="developers.html">For developers</a><a href="docs.html">Docs</a><a href="contact.html">Contact</a><a href="mailto:aside@filiposakkq.dev">aside@filiposakkq.dev</a><a href="https://ko-fi.com/filiposakkq" target="_blank" rel="noopener">Ko-fi</a></nav>
   </div>
 </footer>
 <script src="assets/data.js"></script>
@@ -111,6 +111,11 @@
     AsideAPI.call("feedback/" + code).then(function (j) {
       if (!j.ok) return fail(j.error === "paused" ? "The feedback page is paused for a while. Please try again later." : j.error === "too_many" ? "Too many tries from this address. Please wait an hour." : "This link is not valid any more. If you got a new link by e-mail, use that one; otherwise write to aside@filiposakkq.dev.");
       document.getElementById("fb-state").hidden = false;
+      /* builds handed out to licences (Builds in the admin) */
+      if (j.builds && j.builds.length) {
+        var fbb = document.getElementById("fb-builds"); fbb.hidden = false;
+        fbb.innerHTML = "<h2 style=\"font-size:1.1rem\">Builds for you</h2>" + j.builds.map(function (b) { return '<div class="fcard" style="display:grid;gap:.4rem"><b style="color:var(--ink)">' + esc(b.version) + "</b>" + (b.notes ? '<span class="fnote" style="white-space:pre-wrap">' + esc(b.notes) + "</span>" : "") + '<a class="btn btn-hot" style="justify-self:start" href="/api/build/' + encodeURIComponent(b.id) + "/" + code + '">Download</a></div>'; }).join("");
+      }
       document.getElementById("st-2").className = j.done["2w"] ? "done" : j.next === "2w" ? "now" : "";
       document.getElementById("st-4").className = j.done["4w"] ? "done" : j.next === "4w" ? "now" : "";
       document.getElementById("st-l").className = j.done["4w"] ? "done" : "";

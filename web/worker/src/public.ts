@@ -1,5 +1,7 @@
 import type { Env } from "./env.ts";
 import * as mail from "./mail.ts";
+import { enabled, push } from "./notify.ts";
+import { buildsFor, tasksFor } from "./program.ts";
 import { body, fail, hit, human, ipHash, isEmail, isUrl, json, line, over, randomId, salt, sha256Hex, str, text, within } from "./util.ts";
 
 const DAY = 86400;
@@ -128,7 +130,7 @@ async function announce(env: Env, id: string): Promise<void> {
     pairs = JSON.parse(a.answers) as [string, unknown][];
   } catch {}
   const find = (re: RegExp) => String(pairs.find((x) => re.test(x[0]))?.[1] ?? "");
-  await mail.notifyOwner(env, `New application: ${a.route === "test" ? "testing" : "licence"} · ${a.nick}`, [
+  await mail.notifyOwner(env, "applications", `New application: ${a.route === "test" ? "testing" : "licence"} · ${a.nick}`, [
     `${a.nick} <${a.email}> applied for ${a.route === "test" ? "testing" : "a sponsored licence"} in ${p.round} and confirmed the e-mail.`,
     a.route === "licence" ? `Game: ${find(/^game/i)}` : `Experience: ${find(/experience/i)}`,
   ]);
@@ -190,7 +192,7 @@ export async function vote(req: Request, env: Env, now: number): Promise<Respons
 
 // ---------------------------------------------------------------- the personal pages: feedback (licences) and bug reports (testers)
 
-interface AppRow {
+export interface AppRow {
   id: string; route: string; nick: string; email: string; state: string; code: string; answers: string; trial_start: number | null;
   fb2_sent: number | null; fb2_done: number | null; fb4_sent: number | null; fb4_done: number | null;
 }
@@ -198,7 +200,7 @@ const CODE_RE = /^[a-z2-9]{16,40}$/;
 
 /** The accepted person of a personal link. Wrong links are counted per address: after 20 in an hour the address gets nothing for a while,
  *  so links cannot be guessed (they are 24 random characters anyway). Pages can be switched off for everyone in the admin. */
-async function byCode(req: Request, env: Env, code: string, now: number): Promise<AppRow | Response> {
+export async function byCode(req: Request, env: Env, code: string, now: number): Promise<AppRow | Response> {
   const ip = await ipHash(req, env);
   if (await over(env, ip, "badcode", 20, 3600, now)) return fail("too_many", 429);
   const a = CODE_RE.test(code) ? await env.DB.prepare("SELECT * FROM applications WHERE code = ? AND state = 'accepted'").bind(code).first<AppRow>() : null;
@@ -226,7 +228,7 @@ export async function feedbackInfo(req: Request, env: Env, code: string, now: nu
   if (a.route !== "licence") return fail("not_found", 404);
   const next = !a.fb2_done ? "2w" : !a.fb4_done ? "4w" : null;
   const day = a.trial_start ? Math.floor((now - a.trial_start) / DAY) : null;
-  return json({ ok: true, nick: a.nick, game: gameOf(a), next, done: { "2w": !!a.fb2_done, "4w": !!a.fb4_done }, day });
+  return json({ ok: true, nick: a.nick, game: gameOf(a), next, done: { "2w": !!a.fb2_done, "4w": !!a.fb4_done }, day, builds: await buildsFor(env, a) });
 }
 
 export async function feedbackSend(req: Request, env: Env, code: string, now: number): Promise<Response> {
@@ -243,7 +245,7 @@ export async function feedbackSend(req: Request, env: Env, code: string, now: nu
   if (!(await within(env, await ipHash(req, env), "feedback", 10, DAY, now))) return fail("too_many", 429);
   await env.DB.prepare("INSERT INTO feedback (application_id, which, created, answers) VALUES (?,?,?,?)").bind(a.id, which, now, JSON.stringify(answers)).run();
   await env.DB.prepare(`UPDATE applications SET ${which === "2w" ? "fb2_done" : "fb4_done"} = ? WHERE id = ?`).bind(now, a.id).run();
-  await mail.notifyOwner(env, `Feedback (${which === "2w" ? "2 weeks" : "4 weeks"}) · ${a.nick}`, [
+  await mail.notifyOwner(env, "feedback", `Feedback (${which === "2w" ? "2 weeks" : "4 weeks"}) · ${a.nick}`, [
     `${a.nick} sent the ${which === "2w" ? "2-week" : "4-week"} feedback.` + (which === "4w" ? " Both are in: the full licence can be issued." : ""),
   ]);
   return json({ ok: true });
@@ -253,7 +255,7 @@ export async function testerInfo(req: Request, env: Env, code: string, now: numb
   const a = await byCode(req, env, code, now);
   if (a instanceof Response) return a;
   const bugs = (await env.DB.prepare("SELECT id, created, title, severity, state, reply, replied FROM bugs WHERE application_id = ? ORDER BY id DESC LIMIT 50").bind(a.id).all()).results;
-  return json({ ok: true, nick: a.nick, bugs });
+  return json({ ok: true, nick: a.nick, bugs, tasks: await tasksFor(env, a.id), builds: await buildsFor(env, a) });
 }
 
 const IMAGE_RE = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/;
@@ -280,7 +282,9 @@ export async function bugSend(req: Request, env: Env, now: number): Promise<Resp
   const r = await env.DB.prepare("INSERT INTO bugs (application_id, created, title, steps, expected, actual, version, severity, image, image_type) VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id")
     .bind(a.id, now, title, steps, text(b.expected, 2000), text(b.actual, 2000), line(b.version, 40), severity, image, type)
     .first<{ id: number }>();
-  await mail.notifyOwner(env, `Bug #${r?.id} (${severity}) · ${title}`, [`${a.nick} reported: ${title}`, steps.slice(0, 600)]);
+  await mail.notifyOwner(env, severity === "crash" ? "crash" : "bugs", `Bug #${r?.id} (${severity}) · ${title}`, [`${a.nick} reported: ${title}`, steps.slice(0, 600)], severity === "crash");
+  // a crash also counts for "every bug report" (once, if crashes on their own are off)
+  if (severity === "crash" && !(await enabled(env, "crash"))) await push(env, "bugs", `Bug #${r?.id} (crash) · ${title}`, `${a.nick} reported: ${title}`, { urgent: true });
   return json({ ok: true, id: r?.id });
 }
 
@@ -306,7 +310,7 @@ export async function showcaseSend(req: Request, env: Env, now: number): Promise
   await env.DB.prepare("INSERT INTO showcase (id, created, game, lang, link, translator, email, blurb, lines, ip_hash, sort) VALUES (?,?,?,?,?,?,?,?,?,?,100)")
     .bind(id, now, game, lang, link, translator, email, text(b.blurb, 400), line(b.lines, 20), ip)
     .run();
-  await mail.notifyOwner(env, `Showcase entry · ${game} (${lang})`, [`${translator} <${email}> sent ${game} in ${lang}: ${link}`]);
+  await mail.notifyOwner(env, "showcase", `Showcase entry · ${game} (${lang})`, [`${translator} <${email}> sent ${game} in ${lang}: ${link}`]);
   return json({ ok: true });
 }
 
@@ -322,7 +326,7 @@ export async function contact(req: Request, env: Env, now: number): Promise<Resp
   const ip = await ipHash(req, env);
   if (!(await within(env, ip, "contact", 5, 3600, now))) return fail("too_many", 429);
   const r = await env.DB.prepare("INSERT INTO messages (created, name, email, topic, body, ip_hash) VALUES (?,?,?,?,?,?) RETURNING id").bind(now, name, email, topic, msg, ip).first<{ id: number }>();
-  await mail.notifyOwner(env, `Message${topic ? " · " + topic : ""} · ${name}`, [`${name} <${email}> wrote:`, msg.slice(0, 2000)]);
+  await mail.notifyOwner(env, "messages", `Message${topic ? " · " + topic : ""} · ${name}`, [`${name} <${email}> wrote:`, msg.slice(0, 2000)]);
   return json({ ok: true, id: r?.id });
 }
 

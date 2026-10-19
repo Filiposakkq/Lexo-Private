@@ -355,6 +355,150 @@ describe("data tools", () => {
   });
 });
 
+/** Pretends Resend and ntfy answer; records what was sent. */
+function fakeOutside() {
+  const sent: { url: string; body: any; headers: Record<string, string> }[] = [];
+  const real = globalThis.fetch;
+  const spy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+    const u = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    if (u.startsWith("https://api.resend.com/") || u.startsWith("https://ntfy.sh/")) {
+      const raw = String(init?.body ?? "");
+      let parsed: unknown = raw;
+      try { parsed = JSON.parse(raw); } catch {}
+      sent.push({ url: u, body: parsed, headers: Object.fromEntries(new Headers(init?.headers).entries()) });
+      if (u === "https://api.resend.com/domains") return new Response('{"data":[{"name":"filiposakkq.dev","status":"verified"}]}');
+      return new Response('{"id":"x"}', { status: 200 });
+    }
+    return real(input, init);
+  });
+  const e = E as unknown as Record<string, string | undefined>;
+  e.RESEND_API_KEY = "re_test";
+  e.NTFY_TOPIC = "aside-test-topic";
+  return { sent, done: () => { delete e.RESEND_API_KEY; delete e.NTFY_TOPIC; spy.mockRestore(); } };
+}
+
+describe("ratings, tasks and builds", () => {
+  it("rates and labels applications, sorts the best first and filters by label", async () => {
+    const a = (await call("/api/apply", { body: tester({ nick: "Rated" }) })).json.id;
+    await admin(`application/${a}/rate`, { rating: 5, tags: "Strong, active,strong" });
+    const list = (await admin("applications?state=&sort=rating")).json.items as Json[];
+    expect(list[0]).toMatchObject({ id: a, rating: 5, tags: "strong,active" });
+    expect(((await admin("applications?state=&tag=active")).json.items as Json[]).map((x) => x.id)).toEqual([a]);
+  });
+
+  it("testers see open tasks and tick them off", async () => {
+    const id = (await call("/api/apply", { body: tester() })).json.id;
+    const code = (await admin(`application/${id}/decide`, { state: "accepted" })).json.code;
+    const t = (await admin("task", { title: "Import a glossary", body: "From a big game" })).json.id;
+    expect(((await call(`/api/tester/${code}`)).json.tasks as Json[]).find((x) => x.id === t)).toMatchObject({ title: "Import a glossary", state: null });
+    expect((await call("/api/task", { body: { code, task: t, state: "problem", note: "It froze" } })).status).toBe(200);
+    expect(((await call(`/api/tester/${code}`)).json.tasks as Json[]).find((x) => x.id === t)!.state).toBe("problem");
+    expect(((await admin("tasks")).json.items as Json[]).find((x) => x.id === t)!.results[0]).toMatchObject({ state: "problem", note: "It froze" });
+    await admin(`task/${t}`, { title: "Import a glossary", open: false });
+    expect(((await call(`/api/tester/${code}`)).json.tasks as Json[]).some((x) => x.id === t)).toBe(false);
+    expect((await call("/api/task", { body: { code, task: t, state: "done" } })).status).toBe(404);
+  });
+
+  it("a build uploaded in pieces downloads whole, only with a valid personal link, and is counted", async () => {
+    const id = (await call("/api/apply", { body: tester() })).json.id;
+    const code = (await admin(`application/${id}/decide`, { state: "accepted" })).json.code;
+    const bytes = new Uint8Array(2500).map((_, i) => i % 251);
+    const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
+    const b = (await admin("build", { version: "2.0.0-beta.4", filename: "Aside setup.exe", size: bytes.length, audience: "test" })).json.id;
+    await admin(`build/${b}/part`, { n: 0, data: b64(bytes.slice(0, 1200)) });
+    expect((await admin(`build/${b}/finish`, {})).json.error).toBe("incomplete");
+    await admin(`build/${b}/part`, { n: 1, data: b64(bytes.slice(1200)) });
+    expect((await admin(`build/${b}/finish`, {})).json.ok).toBe(true);
+    expect(((await call(`/api/tester/${code}`)).json.builds as Json[])[0]).toMatchObject({ id: b, version: "2.0.0-beta.4" });
+    const dl = await call(`/api/build/${b}/${code}`);
+    expect(dl.res.headers.get("content-disposition")).toContain("Aside setup.exe");
+    expect(new Uint8Array(await dl.res.arrayBuffer())).toEqual(bytes);
+    expect((await call(`/api/build/${b}/abcdefghjkmnpqrstuvwxyz2`)).status).toBe(404);
+    expect(((await admin("builds")).json.items as Json[]).find((x) => x.id === b)!.downloads).toHaveLength(1);
+    // a licence does not see a testers' build
+    const lic = (await call("/api/apply", { body: licensee() })).json.id;
+    const lcode = (await admin(`application/${lic}/decide`, { state: "accepted" })).json.code;
+    expect((await call(`/api/build/${b}/${lcode}`)).status).toBe(404);
+    // a link build redirects
+    const l = (await admin("build", { version: "2.0.0-beta.5", url: "https://example.com/b5.exe", audience: "all" })).json.id;
+    expect((await call(`/api/build/${l}/${lcode}`)).res.headers.get("location")).toBe("https://example.com/b5.exe");
+    await admin(`build/${b}/delete`, {});
+    expect((await call(`/api/build/${b}/${code}`)).status).toBe(404);
+  });
+});
+
+describe("pages edited in the admin", () => {
+  it("status, FAQ and blog posts", async () => {
+    expect((await call("/api/status")).json.on).toBe(false);
+    await admin("status", { on: true, build: "2.0.0-beta.4", next: "early November", note: "Testing the glossary." });
+    expect((await call("/api/status")).json).toMatchObject({ on: true, build: "2.0.0-beta.4", next: "early November" });
+    expect(((await call("/api/faq")).json.items as Json[]).length).toBe(6);
+    await admin("faq", { q: "Is there a Mac version?", a: "Not yet.", sort: 70 });
+    expect(((await call("/api/faq")).json.items as Json[]).at(-1)!.q).toBe("Is there a Mac version?");
+    const post = (await admin("post", { title: "Glossary import, rebuilt", body: "First paragraph.\n\n### A heading\n\n- one\n- two", date: "2026-10-20" })).json.id;
+    expect(post).toBe("glossary-import-rebuilt");
+    expect((await call("/api/posts")).json.items).toHaveLength(0);
+    await admin(`post/${post}`, { title: "Glossary import, rebuilt", body: "First paragraph.", date: "2026-10-20", published: true });
+    expect(((await call("/api/posts")).json.items as Json[])[0].id).toBe(post);
+  });
+});
+
+describe("the newsletter", () => {
+  it("confirm, manage topics, unsubscribe; the newsletter goes only to confirmed people with an unsubscribe link", async () => {
+    const out = fakeOutside();
+    try {
+      const email = `news${uid()}@example.com`;
+      expect((await call("/api/subscribe", { body: { email, topics: ["releases"] } })).json).toMatchObject({ ok: true, confirm: true });
+      const token = /#confirm=([a-z2-9]+)/.exec(out.sent.at(-1)!.body.text)![1]!;
+      // asking again does not send another e-mail and does not tell whether the address is known
+      const before = out.sent.length;
+      expect((await call("/api/subscribe", { body: { email, topics: ["releases"] } })).json.ok).toBe(true);
+      expect(out.sent.length).toBe(before);
+      expect((await admin("subscribers")).json.counts.all).toBe(0);
+      const manage = (await call("/api/subscribe/confirm", { body: { token } })).json.manage;
+      expect((await admin("subscribers")).json.counts.releases).toBe(1);
+      expect((await call(`/api/subscription/${manage}`)).json.topics).toEqual(["releases"]);
+      await call(`/api/subscription/${manage}`, { body: { topics: ["releases", "diary"] } });
+      expect((await admin("subscribers")).json.counts.diary).toBe(1);
+      const r = await admin("newsletter/send", { topic: "diary", subject: "Hello", body: "News." });
+      expect(r.json).toMatchObject({ sent: 1, total: 1 });
+      const batch = out.sent.find((x) => x.url === "https://api.resend.com/emails/batch")!.body as Json[];
+      expect(batch[0].headers["List-Unsubscribe"]).toContain(manage);
+      expect(batch[0].text).toContain(`news.html#manage=${manage}`);
+      await call(`/api/unsubscribe/${manage}`, { method: "POST" });
+      expect((await admin("subscribers")).json.counts.all).toBe(0);
+    } finally {
+      out.done();
+    }
+  });
+});
+
+describe("health and phone notifications", () => {
+  it("lists the checks, alerts once when e-mails keep failing, and says when they work again", async () => {
+    const out = fakeOutside();
+    try {
+      const h = (await admin("health")).json;
+      expect((h.checks as Json[]).map((c) => c.key)).toEqual(expect.arrayContaining(["database", "mail", "domain", "daily"]));
+      expect((h.checks as Json[]).find((c) => c.key === "domain")!.ok).toBe(true);
+      const now = Math.floor(Date.now() / 1000);
+      for (let i = 0; i < 3; i++) await E.DB.prepare("INSERT INTO mails (created, to_email, kind, subject, body, sent) VALUES (?, 'x@example.com', 'test', 's', 'b', 0)").bind(now - 60).run();
+      const { hourly } = await import("../src/cron.ts");
+      const sentBefore = out.sent.filter((x) => x.url.startsWith("https://ntfy.sh/")).length;
+      expect((await hourly(E, now)).alerts).toBe(1);
+      expect((await hourly(E, now + 3600)).alerts).toBe(0); // not again within a day
+      const pushes = out.sent.filter((x) => x.url.startsWith("https://ntfy.sh/"));
+      expect(pushes.length).toBe(sentBefore + 1);
+      expect(pushes.at(-1)!.headers.title).toContain("E-mail");
+      await E.DB.prepare("DELETE FROM mails WHERE kind = 'test'").run();
+      await hourly(E, now + 7200);
+      expect(out.sent.filter((x) => x.url.startsWith("https://ntfy.sh/")).at(-1)!.headers.title).toContain("works again");
+      expect((await admin("push/test", {})).json.sent).toBe(true);
+    } finally {
+      out.done();
+    }
+  });
+});
+
 describe("Cloudflare Access", () => {
   const b64 = (v: string | Uint8Array) => btoa(typeof v === "string" ? v : String.fromCharCode(...v)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   async function jwt(claims: Json, kid = "test-key"): Promise<string> {
