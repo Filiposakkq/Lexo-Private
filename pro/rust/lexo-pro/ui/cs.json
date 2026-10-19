@@ -93,6 +93,7 @@
   "Two files would be in the same place of the archive: {path}": "Dva soubory by byly na stejném místě v archivu: {path}",
   "The folder of the release could not be made: {reason}": "Složku vydání se nepodařilo vytvořit: {reason}",
   "The archive could not be written: {reason}": "Archiv se nepodařilo zapsat: {reason}",
-  "The archive could not be saved: {reason}": "Archiv se nepodařilo uložit: {reason}"
+  "The archive could not be saved: {reason}": "Archiv se nepodařilo uložit: {reason}",
+  "{n} files are translated only partly; the players will see English in the rest.": "{n} souborů je přeložených jen částečně; hráči v zbytku uvidí angličtinu."
  }
 }

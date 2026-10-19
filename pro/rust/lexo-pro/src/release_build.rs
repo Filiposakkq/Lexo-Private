@@ -289,6 +289,14 @@ pub fn plan(p: &Value) -> Value {
             .wire(),
         ));
     }
+    let partial = files.iter().filter(|f| f["state"] == "partial").count();
+    if partial > 0 {
+        checks.push(check(
+            "warn",
+            "partial-files",
+            msg("{n} files are translated only partly; the players will see English in the rest.", &[("n", json!(partial))]).wire(),
+        ));
+    }
     if count(&s["fix"]) > 0 {
         checks.push(check("warn", "to-fix", msg("{n} lines are flagged \"to fix\".", &[("n", json!(count(&s["fix"])))]).wire()));
     }
@@ -359,7 +367,7 @@ mod tests {
     fn base() -> Value {
         json!({
             "language": "czech", "game": {"name": "Midnight Paradise", "version": "1.1"}, "version": "1.2", "notes": "Fixed the names in episode 3.", "today": "2026-10-19",
-            "files": [{"path": "game/tl/czech/script.rpy", "sha1": "b"}, {"path": "game/tl/czech/ep2.rpy", "sha1": "new"}],
+            "files": [{"path": "game/tl/czech/script.rpy", "sha1": "b", "state": "complete"}, {"path": "game/tl/czech/ep2.rpy", "sha1": "new", "state": "partial"}],
             "lines": {"a": "1", "b": "2", "c": "3"},
             "stats": {"total": 200, "translated": 150, "proofread": 100, "approved": 5, "fix": 0, "stale": 0, "errors": 0, "warnings": 2},
             "previous": {"version": "1.1", "date": "2026-09-01", "game_version": "1.0", "files": {"game/tl/czech/script.rpy": "a", "game/tl/czech/gone.rpy": "z"}, "lines": {"a": "1", "b": "OLD", "d": "9"}},
@@ -386,7 +394,13 @@ mod tests {
         // the untranslated lines and the warnings are only warnings: the release can be made
         assert_eq!((r["ok"].clone(), r["can_force"].clone()), (json!(true), json!(false)), "{r}");
         let codes: Vec<String> = r["checks"].as_array().unwrap().iter().map(|c| py_str(&c["code"])).collect();
-        assert!(codes.contains(&"untranslated".into()) && codes.contains(&"warnings".into()) && codes.contains(&"game-version".into()), "{codes:?}");
+        assert!(
+            codes.contains(&"untranslated".into())
+                && codes.contains(&"warnings".into())
+                && codes.contains(&"game-version".into())
+                && codes.contains(&"partial-files".into()),
+            "{codes:?}"
+        );
         assert_eq!(r["suggested_version"], "1.2");
     }
 

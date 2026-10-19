@@ -1760,6 +1760,12 @@
   "Build a release…": "Sestavit vydání…",
   "Pro: a zip for the players": "Pro: zip pro hráče",
   "Release builder": "Sestavení vydání",
-  "Files of the translation: {files}, attached files: {extras}; {pct} % translated.": "Soubory překladu: {files}, přiložené soubory: {extras}; přeloženo {pct} %."
+  "Files translated at least partly": "Soubory přeložené aspoň částečně",
+  "Only files translated completely": "Jen soubory přeložené úplně",
+  "partly": "částečně",
+  "not translated": "nepřeloženo",
+  "no lines": "bez řádků",
+  "Take": "Vzít",
+  "Files in the release: {files}, attached files: {extras}; {pct} % translated.": "Soubory ve vydání: {files}, přiložené soubory: {extras}; přeloženo {pct} %."
  }
 }

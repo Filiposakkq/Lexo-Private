@@ -22,6 +22,11 @@ export async function releaseDialog() {
   const extra = h('textarea', { rows: '2', style: { width: '100%' }, placeholder: T('Anything else for the README (a link, a note)') }, s.readme_extra || '');
   const outDir = h('input', { type: 'text', value: s.out_dir || '', style: { width: '100%' }, placeholder: T('Folder for the files (empty: the local data of the project)') });
   const extras = (s.extras || []).map((e) => ({ ...e }));
+  // which files go in: a preset and the files you added or took out by hand on top of it
+  const pick = { mode: (s.files && s.files.mode) || 'partial', include: new Set((s.files && s.files.include) || []), exclude: new Set((s.files && s.files.exclude) || []) };
+  const modeSel = h('select', { onchange: (e) => { pick.mode = e.target.value; pick.include.clear(); pick.exclude.clear(); doCheck(); } },
+    [['partial', T('Files translated at least partly')], ['complete', T('Only files translated completely')], ['all', T('All files')]].map(([v, l]) => h('option', { value: v, selected: pick.mode === v }, l)));
+  const filesBox = h('div');
   const extrasBox = h('div'), checksBox = h('div'), resultBox = h('div'), info = h('div', { class: 'muted' });
   const build = h('button', { class: 'btn primary', disabled: true }, T('Build the release'));
   const check = h('button', { class: 'btn' }, T('Check'));
@@ -37,7 +42,7 @@ export async function releaseDialog() {
         h('button', { class: 'btn small ghost', onclick: () => { extras.splice(i, 1); paintExtras(); } }, T('Remove')))),
       h('button', { class: 'btn small', onclick: () => { extras.push({ from: '', to: 'game/tl/' + (st.language || 'language') + '/' }); paintExtras(); } }, T('+ Attach a file')));
   }
-  const settings = () => ({ extras: extras.filter((e) => e.from.trim() || e.to.trim()), credits: credits.value, readme_extra: extra.value, out_dir: outDir.value, readme: oReadme.c.checked, notes_md: oNotes.c.checked, language_script: oScript.c.checked });
+  const settings = () => ({ extras: extras.filter((e) => e.from.trim() || e.to.trim()), files: { mode: pick.mode, include: [...pick.include], exclude: [...pick.exclude] }, credits: credits.value, readme_extra: extra.value, out_dir: outDir.value, readme: oReadme.c.checked, notes_md: oNotes.c.checked, language_script: oScript.c.checked });
   async function doCheck(keepResult) {
     if (keepResult !== true) resultBox.replaceChildren();
     try {
@@ -45,13 +50,26 @@ export async function releaseDialog() {
       plan = await post('release/preview', { version: version.value.trim(), notes: notes.value });
     } catch (e) { return fail(e); }
     if (!version.value.trim()) version.value = plan.suggested_version;
+    const STATE = { complete: T('translated'), partial: T('partly'), none: T('not translated'), other: T('no lines') };
+    filesBox.replaceChildren(h('b', null, T('Files')),
+      h('div', { class: 'row', style: { alignItems: 'center', gap: '8px', margin: '4px 0' } }, h('label', null, T('Take')), modeSel),
+      h('div', { class: 'tablewrap', style: { maxHeight: '26vh' } }, h('table', { class: 'data' },
+        h('thead', null, h('tr', null, ['', T('File'), T('Translated'), T('State')].map((x) => h('th', null, x)))),
+        h('tbody', null, plan.file_list.map((f) => h('tr', null,
+          h('td', { class: 'center' }, h('input', { type: 'checkbox', checked: f.selected, onchange: (e) => {
+            const on = e.target.checked;
+            pick.include.delete(f.file); pick.exclude.delete(f.file);
+            if (on !== f.by_mode) (on ? pick.include : pick.exclude).add(f.file); // only what differs from the preset is remembered
+            doCheck();
+          } })),
+          h('td', { class: 'mono' }, f.file), h('td', { class: 'num' }, f.total ? `${f.done} / ${f.total}` : '–'), h('td', null, STATE[f.state])))))));
     const mark = { error: '✗', warn: '⚠', ok: '✓' };
     checksBox.replaceChildren(h('b', null, T('Checks')), ...plan.checks.map((c) => h('div', { class: c.level === 'error' ? 'notice bad' : c.level === 'warn' ? 'notice warn' : 'muted', style: { margin: '4px 0' } }, `${mark[c.level]} ${c.message}`)));
     const forceable = !plan.can_build && plan.can_force;
     forceRow.style.display = forceable ? '' : 'none';
     if (!forceable) forceBox.checked = false;
     build.disabled = !(plan.can_build || forceable);
-    info.textContent = T('Files of the translation: {files}, attached files: {extras}; {pct} % translated.', { files: plan.files, extras: plan.extras, pct: plan.stats.total ? Math.round(100 * plan.stats.translated / plan.stats.total) : 0 })
+    info.textContent = T('Files in the release: {files}, attached files: {extras}; {pct} % translated.', { files: plan.files, extras: plan.extras, pct: plan.stats.total ? Math.round(100 * plan.stats.translated / plan.stats.total) : 0 })
       + (plan.previous ? ' ' + T('The last release: {v} ({date}).', { v: plan.previous.version, date: plan.previous.date }) : ' ' + T('This is the first release.'));
   }
   check.onclick = () => doCheck();
@@ -80,7 +98,7 @@ export async function releaseDialog() {
       h('p', { class: 'muted' }, T('The translation as a zip the players unpack into their game folder. The result is a file: you put it where you like. Nothing is uploaded.')),
       h('div', { class: 'muted' }, T('Game: {name} {v}; language: {lang}.', { name: st.game.name || '–', v: st.game.version ? 'v' + st.game.version : '', lang: st.language }) + (st.last_version ? ' ' + tn(st.releases.length, '{n} release so far, the last {v}.', '{n} releases so far, the last {v}.', { v: st.last_version }) : '')),
       h('div', { class: 'row', style: { alignItems: 'center', gap: '8px', margin: '8px 0' } }, h('label', null, T('Number of the release')), version, check),
-      notes, h('div', { style: { margin: '8px 0' } }, oReadme.node, oNotes.node, oScript.node), credits, extra, h('div', { style: { margin: '6px 0' } }, outDir), extrasBox,
+      notes, filesBox, h('div', { style: { margin: '8px 0' } }, oReadme.node, oNotes.node, oScript.node), credits, extra, h('div', { style: { margin: '6px 0' } }, outDir), extrasBox,
       info, checksBox, forceRow, resultBox),
     buttons: [{ label: T('Close') }, { node: h('span', { style: { display: 'contents' } }, build) }],
   });

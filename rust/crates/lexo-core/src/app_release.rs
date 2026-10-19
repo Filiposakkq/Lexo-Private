@@ -71,7 +71,7 @@ fn sanitize(name: &str) -> String {
 }
 
 fn default_settings() -> Value {
-    json!({"extras": [], "language_script": true, "readme": true, "notes_md": true, "credits": "", "readme_extra": "", "out_dir": ""})
+    json!({"extras": [], "language_script": true, "readme": true, "notes_md": true, "credits": "", "readme_extra": "", "out_dir": "", "files": {"mode": "partial", "include": [], "exclude": []}})
 }
 
 impl App {
@@ -178,6 +178,13 @@ impl App {
             }
             m.insert(k.into(), json!(s.trim()));
         }
+        // which files: a preset (complete / partial / all) and the files you added or took out by hand
+        let mode = py_str(&settings["files"]["mode"]);
+        let mode = if ["complete", "partial", "all"].contains(&mode.as_str()) { mode } else { "partial".to_string() };
+        let paths = |k: &str| -> Vec<Value> {
+            settings["files"][k].as_array().into_iter().flatten().map(py_str).filter(|p| !p.is_empty() && p.len() < 400).take(5000).map(Value::from).collect()
+        };
+        m.insert("files".into(), json!({"mode": mode, "include": paths("include"), "exclude": paths("exclude")}));
         let extras = settings["extras"].as_array().cloned().unwrap_or_default();
         if extras.len() > MAX_EXTRAS {
             return Err(app_err(msg("At most {n} files can be attached.", &[("n", json!(MAX_EXTRAS))])));
@@ -199,7 +206,7 @@ impl App {
 
     /// Everything the pack needs to judge a release, and what goes into the zip: `(payload for the pack, files (path, full path), extras (to, full path))`.
     #[allow(clippy::type_complexity)]
-    fn release_input(&mut self, version: &str, notes: &str) -> Res<(Value, Vec<(String, PathBuf)>, Vec<(String, PathBuf)>)> {
+    fn release_input(&mut self, version: &str, notes: &str) -> Res<(Value, Vec<(String, PathBuf)>, Vec<(String, PathBuf)>, Vec<Value>)> {
         self.need_project()?;
         let overview = self.overview()?;
         let file = self.release_file()?;
@@ -208,14 +215,52 @@ impl App {
         let o = self.o()?;
         let language = o.project.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
         let prefix = format!("game/tl/{language}");
-        let files = rpy_files(&o.project.root, o.project.skip());
+        let all_files = rpy_files(&o.project.root, o.project.skip());
+        // how far every file is translated, and which files the preset and your hand picks select
+        let rows: std::collections::BTreeMap<String, crate::project::Row> = o.project.rows(&o.store).into_iter().map(|r| (r.name.clone(), r)).collect();
+        let sel = &settings["files"];
+        let mode = py_str(&sel["mode"]);
+        let set_of = |k: &str| -> std::collections::BTreeSet<String> { sel[k].as_array().into_iter().flatten().map(py_str).collect() };
+        let (include, exclude) = (set_of("include"), set_of("exclude"));
         let mut listed: Vec<Value> = Vec::new();
         let mut zip_files: Vec<(String, PathBuf)> = Vec::new();
-        for (rel, full) in &files {
-            let bytes = std::fs::read(full).map_err(|e| app_err(msg("The file could not be read: {reason}", &[("reason", json!(format!("{rel}: {e}")))])))?;
+        let mut file_list: Vec<Value> = Vec::new();
+        let mut files: Vec<(String, PathBuf)> = Vec::new();
+        let (mut sel_total, mut sel_done) = (0i64, 0i64);
+        for (rel, full) in &all_files {
+            let (total, done, todo) = rows.get(rel).map_or((0, 0, 0), |r| (r.total, r.done, r.todo));
+            let state = if total == 0 {
+                "other"
+            } else if todo == 0 {
+                "complete"
+            } else if done > 0 {
+                "partial"
+            } else {
+                "none"
+            };
+            let by_mode = match mode.as_str() {
+                "all" => true,
+                "complete" => state == "complete",
+                _ => state == "complete" || state == "partial",
+            };
+            let selected = if include.contains(rel) {
+                true
+            } else if exclude.contains(rel) {
+                false
+            } else {
+                by_mode
+            };
             let path = format!("{prefix}/{rel}");
-            listed.push(json!({"path": path, "sha1": sha1_hex(&bytes), "bytes": bytes.len()}));
+            file_list.push(json!({"file": rel, "path": path, "total": total, "done": done, "state": state, "by_mode": by_mode, "selected": selected}));
+            if !selected {
+                continue;
+            }
+            let bytes = std::fs::read(full).map_err(|e| app_err(msg("The file could not be read: {reason}", &[("reason", json!(format!("{rel}: {e}")))])))?;
+            listed.push(json!({"path": path, "sha1": sha1_hex(&bytes), "bytes": bytes.len(), "state": state}));
             zip_files.push((path, full.clone()));
+            files.push((rel.clone(), full.clone()));
+            sel_total += total;
+            sel_done += done;
         }
         // the digests of the lines (for the changelog of the next release)
         let mut lines = Map::new();
@@ -234,7 +279,8 @@ impl App {
         }
         let t = &overview["totals"];
         let v = &overview["validation"];
-        let stats = json!({"total": t["total"], "translated": t["done"], "approved": t["approved"], "proofread": t["proofread"], "fix": t["proof_fix"], "stale": t["proof_stale"],
+        // the numbers are those of the files that go into the release
+        let stats = json!({"total": sel_total, "translated": sel_done, "approved": t["approved"], "proofread": t["proofread"], "fix": t["proof_fix"], "stale": t["proof_stale"],
             "errors": v["error"], "warnings": v["warning"]});
         // the files that are attached
         let mut extras: Vec<Value> = Vec::new();
@@ -262,16 +308,17 @@ impl App {
         let today = self.clock.now_local().date().format("%Y-%m-%d").to_string();
         let payload = json!({"language": language, "game": game, "version": version, "notes": notes, "today": today, "files": listed, "lines": lines, "stats": stats, "previous": previous,
             "extras": extras, "options": settings});
-        Ok((payload, zip_files, zip_extras))
+        Ok((payload, zip_files, zip_extras, file_list))
     }
 
     /// The checks, the changelog and the texts of a release, and what would go into it. Nothing is written.
     pub fn release_preview(&mut self, version: &str, notes: &str) -> Res<Value> {
         self.release_gate()?;
-        let (payload, files, extras) = self.release_input(version.trim(), notes)?;
+        let (payload, files, extras, file_list) = self.release_input(version.trim(), notes)?;
         let mut plan = self.ext_call(FEATURE, "plan", &payload)?;
         plan["ok_to_build"] = plan["ok"].clone();
         plan["files"] = json!(files.len());
+        plan["file_list"] = json!(file_list);
         plan["extras"] = json!(extras.len());
         plan["stats"] = payload["stats"].clone();
         plan["game"] = payload["game"].clone();
@@ -287,7 +334,7 @@ impl App {
     pub fn release_build(&mut self, version: &str, notes: &str, force: bool) -> Res<Value> {
         self.release_gate()?;
         let version = version.trim();
-        let (payload, files, extras) = self.release_input(version, notes)?;
+        let (payload, files, extras, _list) = self.release_input(version, notes)?;
         let plan = self.ext_call(FEATURE, "plan", &payload)?;
         if plan["ok"] != true && !(force && plan["can_force"] == true) {
             return Err(app_err(msg("The release cannot be built yet: look at the checks.", &[])));

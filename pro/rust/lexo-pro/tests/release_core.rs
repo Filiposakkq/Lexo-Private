@@ -109,3 +109,57 @@ fn a_release_is_built_as_a_zip_recorded_and_the_next_one_shows_what_changed() {
     assert!(changelog.contains("files changed (1)"), "{changelog}");
     let _ = std::fs::remove_dir_all(&tmp);
 }
+
+#[test]
+fn the_files_of_a_release_are_chosen_by_a_preset_and_by_hand() {
+    std::env::set_var("LEXO_LICENCE_FILE", std::env::temp_dir().join("aside-release-no-licence.json")); // the licence file of the machine must not matter
+    let tmp = std::env::temp_dir().join(format!("release-files-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&tmp);
+    let tl = tmp.join("game/tl/czech");
+    std::fs::create_dir_all(&tl).unwrap();
+    std::fs::write(tl.join("a_done.rpy"), block("a_1", "Hello there.", "Ahoj.") + &block("a_2", "Bye now.", "Nashledanou.")).unwrap();
+    std::fs::write(tl.join("b_part.rpy"), block("b_1", "Good morning.", "Dobré ráno.") + &block("b_2", "Good night.", "Good night.")).unwrap();
+    std::fs::write(tl.join("c_none.rpy"), block("c_1", "Nothing here.", "Nothing here.")).unwrap();
+
+    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
+    config.load();
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: None });
+    app.ext.register(Box::new(LexoProProvider::new())).unwrap();
+    app.open_project(&tl.to_string_lossy(), false).expect("the project opens");
+    let out = tmp.join("out").to_string_lossy().into_owned();
+    let picked = |p: &serde_json::Value| -> Vec<String> {
+        p["file_list"].as_array().unwrap().iter().filter(|f| f["selected"] == true).map(|f| f["file"].as_str().unwrap().to_string()).collect()
+    };
+    let set = |app: &mut App, files: serde_json::Value| app.release_set(&json!({"out_dir": out, "files": files})).unwrap();
+
+    // the default: the files that are translated at least partly (the one that is not touched stays out)
+    let p = app.release_preview("1.0", "").unwrap();
+    assert_eq!(picked(&p), vec!["a_done.rpy", "b_part.rpy"], "{p}");
+    let states: Vec<&str> = p["file_list"].as_array().unwrap().iter().map(|f| f["state"].as_str().unwrap()).collect();
+    assert_eq!(states, vec!["complete", "partial", "none"]);
+    assert!(p["checks"].as_array().unwrap().iter().any(|c| c["code"] == "partial-files"), "{p}");
+    assert_eq!(p["stats"]["total"], 4, "the numbers are those of the files that go in: {p}"); // a_done 2 + b_part 2
+                                                                                              // only the files that are translated completely
+    set(&mut app, json!({"mode": "complete"}));
+    assert_eq!(picked(&app.release_preview("1.0", "").unwrap()), vec!["a_done.rpy"]);
+    // everything
+    set(&mut app, json!({"mode": "all"}));
+    assert_eq!(picked(&app.release_preview("1.0", "").unwrap()), vec!["a_done.rpy", "b_part.rpy", "c_none.rpy"]);
+    // a preset and a hand pick on top of it: complete + c in + a out
+    set(&mut app, json!({"mode": "complete", "include": ["c_none.rpy"], "exclude": ["a_done.rpy"]}));
+    let p = app.release_preview("1.0", "").unwrap();
+    assert_eq!(picked(&p), vec!["c_none.rpy"]);
+    assert_eq!(p["file_list"][0]["by_mode"], true, "the preset alone would have taken a_done");
+    let b = app.release_build("1.0", "", false).unwrap();
+    assert_eq!(
+        names(Path::new(b["zip"].as_str().unwrap())),
+        vec!["CHANGELOG.txt", "README.txt", "game/tl/czech/c_none.rpy", "game/zz_czech_default_language.rpy"]
+    );
+    // nothing selected: no release
+    set(&mut app, json!({"mode": "complete", "exclude": ["a_done.rpy"]}));
+    let p = app.release_preview("1.1", "").unwrap();
+    assert_eq!(p["can_build"], false);
+    assert!(p["checks"].as_array().unwrap().iter().any(|c| c["code"] == "no-files"), "{p}");
+    let _ = std::fs::remove_dir_all(&tmp);
+}

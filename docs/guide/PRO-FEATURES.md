@@ -70,6 +70,7 @@ machine translation (one undo step). The service charges by the text sent (the d
 
 ## Release builder
 Makes the translation into **a zip the players unpack into their game folder**; the result is a file and you put it where you like (nothing is uploaded).
+- **Which files:** a preset, **files translated at least partly** (the default), **only files translated completely**, or **all files**; on top of it you can tick or untick any single file in the list (the dialog shows how far each file is translated). Skipped files (Settings) never go in.
 - **Inside the zip:** the `.rpy` files of the translation as `game/tl/<language>/…` (the `.aside` folder and the backups never go in), **the files you attach** (a font with the diacritics of your language, a changed gui file...: each with the place you give inside the game folder), `README.txt` (how to install, credits and a note of yours; in Czech for a Czech translation), `CHANGELOG.txt`, and, if you leave it on, `game/zz_<language>_default_language.rpy` (`define config.default_language`) so the game starts in your language.
 - **Next to the zip:** `<name>.zip.sha256` and `<name>-release-notes.md` (Markdown for a page: GitHub, F95, Patreon).
 - **Your own numbering:** `1.0`, `1.2.3`, `1.2-beta1`; the next number is suggested; a number is released once.
