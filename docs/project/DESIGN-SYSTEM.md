@@ -45,7 +45,7 @@ The system font (`system-ui`, Segoe UI on Windows): nothing is shipped or loaded
 | `--fs-small` | 12 | metadata, chips |
 | `--fs-caption` | 11 | headers of columns, badges |
 
-Sentence case everywhere (Czech: only the first word and proper names are capitalised). No terminal punctuation on labels and headings. Wording follows the rules of the content below.
+Sentence case everywhere (Czech: only the first word and proper names are capitalised). **Every label begins with a capital letter, including states, tags and chips** (*K překladu*, *Přeloženo*, *Zkontrolováno*, *Nové rozhraní*), so a row of them reads evenly; `.pill` and `.tag-pro` also enforce it in CSS. No terminal punctuation on labels and headings. Wording follows the rules of the content below.
 
 ## Space and shape
 
