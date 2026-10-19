@@ -14,6 +14,7 @@ export async function carryDialog(done) {
   const path = h('input', { type: 'text', placeholder: T('Folder of the previous (translated) version'), style: { flex: 1 } });
   const info = h('span', { class: 'grow' }), results = h('div'), go = h('button', { class: 'btn primary', disabled: true });
   const sel = new Set();
+  const markBox = h('input', { type: 'checkbox', checked: true, id: 'carry_mark' });
   let data = null, closeDlg = null;
   const key = (it) => `${it.file}|${it.line}`;
   const recommended = (it) => it.kind === 'exact' || (it.ratio >= 0.9 && !it.tags_differ);
@@ -44,6 +45,7 @@ export async function carryDialog(done) {
         h('button', { class: 'btn small', onclick: () => { data.items.forEach((it) => sel.add(key(it))); paint(); } }, T('Select all')),
         h('button', { class: 'btn small', onclick: () => { sel.clear(); paint(); } }, T('None')),
         h('button', { class: 'btn small', onclick: () => { sel.clear(); data.items.filter(recommended).forEach((it) => sel.add(key(it))); paint(); } }, T('Only recommended'))),
+      h('label', { class: 'row', style: { alignItems: 'center', gap: '6px', margin: '6px 0' } }, markBox, T('Mark the lines whose original changed as “to fix”, so that they can be checked in the list')),
       data.items.length > 600 ? h('p', { class: 'muted' }, T('Showing the first 600 lines.')) : null,
       h('div', { class: 'tablewrap', style: { maxHeight: '44vh' } }, t));
     paintInfo();
@@ -60,8 +62,8 @@ export async function carryDialog(done) {
   go.onclick = async () => {
     const selections = data.items.filter((it) => sel.has(key(it))).map((it) => ({ file: it.file, line: it.line }));
     try {
-      const r = await post('carry/apply', { old: path.value.trim(), selections });
-      toast(tn(r.changed, 'Carried over {n} line', 'Carried over {n} lines') + '. ' + T('Undo: “Undo the last file change”.'), 'ok', 8000);
+      const r = await post('carry/apply', { old: path.value.trim(), selections, mark: markBox.checked });
+      toast(tn(r.changed, 'Carried over {n} line', 'Carried over {n} lines') + (r.marked ? ', ' + T('{n} marked “to fix”', { n: r.marked }) : '') + '. ' + T('Undo: “Undo the last file change”.'), 'ok', 9000);
       closeDlg?.();
       S.files = null; await refreshHeader(); done?.();
     } catch (e) { fail(e); return false; }

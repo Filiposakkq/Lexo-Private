@@ -285,7 +285,7 @@ impl Dispatcher {
                 self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
                     let (path, ratio) = (d["old"].as_str().unwrap_or("").to_string(), d["min_ratio"].as_f64().unwrap_or(0.8));
                     let out = if apply {
-                        app.carry_apply(&path, ratio, d["selections"].as_array().map_or(&[][..], |v| v.as_slice()))?
+                        app.carry_apply(&path, ratio, d["selections"].as_array().map_or(&[][..], |v| v.as_slice()), d["mark"].as_bool().unwrap_or(true))?
                     } else {
                         app.carry_preview(&path, ratio)?
                     };

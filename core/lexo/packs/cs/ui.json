@@ -1659,6 +1659,8 @@
    "Přenést {n} řádek",
    "Přenést {n} řádky",
    "Přenést {n} řádků"
-  ]
+  ],
+  "Mark the lines whose original changed as “to fix”, so that they can be checked in the list": "Řádky, jejichž originál se změnil, označit „K opravě“, aby šly zkontrolovat v seznamu",
+  "{n} marked “to fix”": "{n} označeno „K opravě“"
  }
 }

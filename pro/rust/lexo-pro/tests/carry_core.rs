@@ -48,8 +48,17 @@ fn a_translation_is_carried_over_to_the_new_version_and_undone() {
     assert!(items.iter().all(|i| i["file"] == "script.rpy" && i["line"].as_i64().unwrap() > 0 && !i["old_source"].as_str().unwrap().is_empty()));
 
     let chosen: Vec<_> = items.iter().map(|i| json!({"file": i["file"], "line": i["line"]})).collect();
-    let done = app.carry_apply(&old_path, 0.8, &chosen).unwrap();
+    let done = app.carry_apply(&old_path, 0.8, &chosen, true).unwrap();
     assert_eq!(done["changed"], 2, "{done}");
+    // only the line whose original had changed ("near") is marked "to fix"; the identical one is not
+    assert_eq!(done["marked"], 1, "{done}");
+    let o = app.o().unwrap();
+    let marks = &o.store.proof["script.rpy"];
+    assert_eq!(marks.len(), 1);
+    let (key, mark) = marks.iter().next().unwrap();
+    assert!(key.1.contains("old library after the school"), "{key:?}");
+    assert_eq!(mark["s"], "fix");
+    assert!(mark["n"].as_str().unwrap().contains("had changed"));
     let text = std::fs::read_to_string(new.join("game/tl/czech/script.rpy")).unwrap();
     assert!(text.contains("Dobré ráno všem, jak se dnes máte?") && text.contains("Měli bychom po škole jít do staré knihovny."));
     assert!(!text.contains("Nic takového"));
