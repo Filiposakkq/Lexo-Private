@@ -1904,6 +1904,36 @@
   "You are the lead now.": "Teď jsi vedoucí.",
   "You offered the lead to {name}; you stay the lead until they accept.": "Nabídl jsi vedení osobě {name}; vedoucím zůstáváš, dokud nepřijme.",
   "Take the offer back": "Vzít nabídku zpět",
-  "Take the offer back?": "Vzít nabídku zpět?"
+  "Take the offer back?": "Vzít nabídku zpět?",
+  "Looking at git…": "Zjišťuji stav gitu…",
+  "Sharing with git": "Sdílení přes git",
+  "git is not installed on this computer. Install git to get and send changes with a button; any other way of sharing the folder (Dropbox, Syncthing) works without it.": "Na tomto počítači není nainstalovaný git. Nainstaluj ho, abys mohl stahovat a odesílat změny tlačítkem; jiný způsob sdílení složky (Dropbox, Syncthing) funguje i bez něj.",
+  "This folder is not a git repository, so the buttons are off. Clone the shared repository and open the translation folder inside it.": "Tato složka není repozitář gitu, takže jsou tlačítka vypnutá. Naklonuj sdílený repozitář a otevři v něm složku překladu.",
+  "Working…": "Pracuji…",
+  "Branch {branch}": "Větev {branch}",
+  "nothing waiting to be sent": "nic nečeká na odeslání",
+  "no server (remote) is set": "není nastavený server (remote)",
+  "{n} changed file here, not sent yet|{n} changed files here, not sent yet": [
+   "{n} změněný soubor tady, zatím neodeslaný",
+   "{n} změněné soubory tady, zatím neodeslané",
+   "{n} změněných souborů tady, zatím neodeslaných"
+  ],
+  "{n} newer change from the others (get it)|{n} newer changes from the others (get them)": [
+   "{n} novější změna od ostatních (stáhni ji)",
+   "{n} novější změny od ostatních (stáhni je)",
+   "{n} novějších změn od ostatních (stáhni je)"
+  ],
+  "{n} saved change not sent yet|{n} saved changes not sent yet": [
+   "{n} uložená změna zatím neodeslaná",
+   "{n} uložené změny zatím neodeslané",
+   "{n} uložených změn zatím neodeslaných"
+  ],
+  "Gets what the others sent (git pull) and reads the files again. A conflict is not solved for you: nothing changes and you see what git said.": "Stáhne, co ostatní poslali (git pull), a znovu načte soubory. Konflikt se za tebe nevyřeší: nic se nezmění a uvidíš, co git řekl.",
+  "Changes received.": "Změny staženy.",
+  "Get changes": "Stáhnout změny",
+  "Send changes": "Odeslat změny",
+  "Saves your changes of the translation folder as one commit and sends them (git push).": "Uloží tvé změny ve složce překladu jako jeden commit a odešle je (git push).",
+  "Changes sent.": "Změny odeslány.",
+  "Nothing new to send; the saved changes were sent.": "Nic nového k odeslání; uložené změny byly odeslány."
  }
 }

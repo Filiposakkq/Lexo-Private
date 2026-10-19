@@ -96,6 +96,7 @@ export async function teamDialog(done) {
         : T('Roles and files are given by the lead. Your files are marked in the table of files.')));
       if (st.my_files.length) kids.push(h('p', null, h('b', null, T('Your files:')), ' ', st.my_files.map((f) => f.split(/[\\/]/).pop()).join(', ')));
       kids.push(newsBox());
+      kids.push(gitBox());
       if (st.can_manage) {
         kids.push(statsBox());
         kids.push(h('details', null, h('summary', { class: 'muted' }, T('End the team')),
@@ -103,6 +104,7 @@ export async function teamDialog(done) {
           sure(T('End the team'), T('End this team?'), act('team/disband', {}, T('The team was ended.')), 'btn small danger')));
       }
     }
+    if (!st.exists) kids.push(gitBox());
     body.replaceChildren(...kids);
   }
   /* What the others did since your last look (everybody). */
@@ -119,6 +121,34 @@ export async function teamDialog(done) {
         r.notes ? h('div', null, tn(r.notes, '{n} new note to the team.', '{n} new notes to the team.')) : null,
         h('div', { class: 'toolbar' }, h('button', { class: 'btn small', onclick: async () => { try { await post('team/seen', {}); box.replaceChildren(T('Nothing new since your last look.')); changed = true; } catch (e) { fail(e); } } }, T('Mark as seen'))));
     }).catch(() => box.replaceChildren());
+    return box;
+  }
+  /* Sharing the folder with git: two buttons for people who do not use a command line (everybody, Free). */
+  function gitBox() {
+    const box = h('div', { class: 'notice' }, T('Looking at git…'));
+    const info = h('div', { class: 'muted' });
+    let busy = false;
+    async function paintGit(s) {
+      try { s = s || await post('git/state', {}); } catch (e) { return box.replaceChildren(h('div', { class: 'notice bad' }, e.message)); }
+      if (!s.available) return box.replaceChildren(h('b', null, T('Sharing with git')), h('div', { class: 'muted' }, T('git is not installed on this computer. Install git to get and send changes with a button; any other way of sharing the folder (Dropbox, Syncthing) works without it.')));
+      if (!s.repo) return box.replaceChildren(h('b', null, T('Sharing with git')), h('div', { class: 'muted' }, T('This folder is not a git repository, so the buttons are off. Clone the shared repository and open the translation folder inside it.')));
+      const run = (route, done) => async () => {
+        if (busy) return;
+        busy = true; info.textContent = T('Working…');
+        try { const r = await post(route, {}); changed = true; await paintGit(r); toast(done(r), 'ok'); } catch (e) { fail(e); await paintGit(); } finally { busy = false; }
+      };
+      const parts = [];
+      parts.push(T('Branch {branch}', { branch: s.branch || '–' }));
+      parts.push(s.changes ? tn(s.changes, '{n} changed file here, not sent yet', '{n} changed files here, not sent yet') : T('nothing waiting to be sent'));
+      if (s.upstream && s.behind) parts.push(tn(s.behind, '{n} newer change from the others (get it)', '{n} newer changes from the others (get them)'));
+      if (s.upstream && s.ahead) parts.push(tn(s.ahead, '{n} saved change not sent yet', '{n} saved changes not sent yet'));
+      if (!s.remote) parts.push(T('no server (remote) is set'));
+      box.replaceChildren(h('b', null, T('Sharing with git')), h('div', { class: 'muted' }, parts.join(' · ')),
+        h('div', { class: 'toolbar' },
+          h('button', { class: 'btn', title: T('Gets what the others sent (git pull) and reads the files again. A conflict is not solved for you: nothing changes and you see what git said.'), onclick: run('git/pull', () => T('Changes received.')) }, T('Get changes')),
+          h('button', { class: 'btn primary', title: T('Saves your changes of the translation folder as one commit and sends them (git push).'), onclick: run('git/push', (r) => (r.committed ? T('Changes sent.') : T('Nothing new to send; the saved changes were sent.'))) }, T('Send changes')), info));
+    }
+    paintGit();
     return box;
   }
   /* Statistics per person (the lead, Pro). */

@@ -44,6 +44,21 @@ Two rules make any of them safe:
 1. **Give every file to one person at a time** (section 7). Most conflicts then never happen.
 2. **Sync before you start and after you stop.** Aside reads the folder when you press *Refresh files* or open the project.
 
+### The git buttons (Free, for everybody)
+
+If you share the folder with **git**, the **Team…** window has a box **Sharing with git** with two buttons, so nobody has to use a command line:
+
+| Button | What it runs | When something goes wrong |
+|---|---|---|
+| **Get changes** | `git pull --rebase --autostash`, then the files are read again | A real **conflict** (somebody changed the same line), no connection, or a login that is needed: the half-done rebase is **cancelled**, your folder stays as it was, and what git said is shown. Aside never solves a conflict for you. |
+| **Send changes** | `git add -A` (the translation folder only), a commit named **"Translation update by <your name>"** when something changed, then `git push` | If the server has newer changes, they are got first (as above) and the push is tried once more. A conflict or a refusal is shown, nothing is forced. |
+
+The box shows the branch, how many changed files are waiting, and (when the server is known) how many newer changes are there to get or how many saved changes are not sent yet. It needs the `git` program on the computer and a folder that is inside a git repository; otherwise the box says why the buttons are off.
+
+Notes: Aside runs only the `git` that is installed and **never changes your git settings**. Your commits use your own git name and e-mail; only if git does not know who you are, the commit is made in the name you gave the team (so there is no "please tell me who you are" error). git is told never to ask in a terminal (a missing password is an error, not a hang): a login saved by the system (a credential manager, an SSH key) works. If a new member opened the folder *before* getting the shared data, Aside had made its own `.aside` files; when the shared ones arrive, those files (and only files inside `.aside/`) are moved to the project's local data (`git-backup/`) and the pull is tried again. **Force-pushing, branches, merges and resolving conflicts are not done by the buttons**: for these use git itself.
+
+The lead should send the first changes (including the new `.aside/team/` folder) **before** the others open the folder, so that everybody starts from the same shared data.
+
 A reminder for the game build: hidden folders may reach a built game. The shared part (`.aside/`) holds no secrets, only names you typed and notes you wrote. If you do not want it in a release, see the rule shown in [DATA-LAYOUT.md](../technical/DATA-LAYOUT.md); the release builder (Pro) never packs `.aside/`.
 
 ## 4. Setting up the team, step by step
@@ -203,13 +218,16 @@ Limits (the application keeps them even if a file is edited by hand):
 
 **Not built (yet):**
 - merging the `.rpy` files of two people **by block** (today a file is given to one person; see section 3 for the sharing tools' conflicts);
-- buttons that run git for you ("get changes", "send changes");
 - notifications (e-mail, pop-ups) and live co-editing;
 - statistics of who **translated** a line in an external editor.
 
 ## 14. Questions and problems
 
 **A member does not see the team.** The folder has not reached them yet (sync), or they opened a different folder. The team exists when `.aside/team/lead.json` is in the folder they opened.
+
+**"Getting the changes did not work" with a conflict.** Two people changed the same line. Nothing was changed on your computer. Use git (or an editor of conflicts) to choose a text, or ask the other person; then press the button again.
+
+**The git buttons are grey / say there is no repository.** The translation folder is not inside a git repository, or git is not installed. Other ways of sharing do not need the buttons.
 
 **A member joined but is not in the lead's list.** Their file `.aside/team/members/<id>.json` has not reached the lead (sync). Nothing is wrong with the application.
 

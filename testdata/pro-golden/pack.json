@@ -145,7 +145,14 @@
   "The lead removed you from this team; ask the lead to take you back.": "Vedoucí tě z tohoto týmu odebral; požádej ho, ať tě vrátí.",
   "You are the lead: hand the team over to someone or disband it first.": "Jsi vedoucí: nejdřív předej tým někomu jinému, nebo ho ukonči.",
   "Choose another member of the team.": "Vyber jiného člena týmu.",
-  "Nobody offered you the lead of this team.": "Nikdo ti nenabídl vedení tohoto týmu."
+  "Nobody offered you the lead of this team.": "Nikdo ti nenabídl vedení tohoto týmu.",
+  "git is not installed on this computer.": "Na tomto počítači není nainstalovaný git.",
+  "This folder is not a git repository.": "Tato složka není repozitář gitu.",
+  "{what} did not work: {reason}": "{what} se nepovedlo: {reason}",
+  "Getting the changes": "Stažení změn",
+  "Adding the changes": "Přidání změn",
+  "Saving the changes": "Uložení změn",
+  "Sending the changes": "Odeslání změn"
  },
  "ui_xx": {},
  "cases": [

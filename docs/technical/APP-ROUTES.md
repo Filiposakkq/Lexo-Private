@@ -43,6 +43,9 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST release/state` | | the settings, the releases so far, the game (name and version from `config.*`), the language | `release.build` |
 | `POST release/settings` | `{settings}` | save the attached files, the options, credits, the output folder (`.aside/release.json`) | `release.build` |
 | `POST release/preview` | `{version, notes}` | the checks, the changes since the last release, the texts; nothing is written | `release.build` |
+| `POST git/state` | | `{available, repo, branch, remote, upstream, behind, ahead, changes}`: git in the translation folder (no change is made) | |
+| `POST git/pull` | | `git pull --rebase --autostash` and read the files again; on a failure the rebase is cancelled | |
+| `POST git/push` | | add the translation folder, commit ("Translation update by …") when it changed, push; when the server is ahead, pull and push once more | |
 | `POST team/state` | | `{exists, me: {author, name, joined, lead}, members: [{author, name, role, me, files}], assign: {file: [author]}, my_files, can_manage}` | |
 | `POST team/join` | `{name}` | write your own file `.aside/team/members/<author>.json` | |
 | `POST team/create` | | make the project a team with you as the lead (`.aside/team/lead.json`) | `team.manage` |

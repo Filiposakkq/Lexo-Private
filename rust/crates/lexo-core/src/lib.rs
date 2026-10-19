@@ -13,6 +13,7 @@ pub mod app_core;
 pub mod app_entries;
 pub mod app_fixes;
 pub mod app_game;
+pub mod app_git;
 pub mod app_glossary;
 pub mod app_lint;
 pub mod app_memory;

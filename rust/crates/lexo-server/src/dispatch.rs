@@ -331,6 +331,17 @@ impl Dispatcher {
                     Ok(Answer::Json(out))
                 }))
             }
+            "git/state" | "git/pull" | "git/push" => {
+                let route = r.to_string();
+                self.result(self.backend.run(move |app| -> Result<Answer, ApiError> {
+                    let out = match route.as_str() {
+                        "git/state" => app.git_state()?,
+                        "git/pull" => app.git_pull()?,
+                        _ => app.git_push()?,
+                    };
+                    Ok(Answer::Json(out))
+                }))
+            }
             "team/state" | "team/join" | "team/create" | "team/set" | "team/stats" | "team/notes" | "team/note_add" | "team/note_resolve" | "team/changes"
             | "team/seen" | "team/leave" | "team/remove" | "team/restore" | "team/offer" | "team/offer_cancel" | "team/accept" | "team/disband" => {
                 let (route, d) = (r.to_string(), Value::Object(d));
