@@ -5,7 +5,7 @@ name: Installer
 on:
   push:
     branches: [main]
-    paths: ["rust/**", "rust/resources/ui/**", "rust/resources/packs/**", ".github/workflows/installer.yml"]
+    paths: ["rust/**", "rust/resources/ui-classic/**", "rust/resources/packs/**", ".github/workflows/installer.yml"]
   workflow_dispatch:
 
 permissions:
@@ -46,7 +46,7 @@ jobs:
           $exe = Get-ChildItem $dir -Filter *.exe | Where-Object { $_.Name -notmatch "uninstall" } | Select-Object -First 1
           foreach ($need in "ui\index.html", "packs\cs\pack.json") { if (-not (Test-Path (Join-Path $dir $need))) { throw "the installer did not install $need" } }
           # hide the folders of the repository, so that the installed copy cannot fall back to them
-          Rename-Item rust/resources/ui ui_hidden
+          Rename-Item rust/resources/ui-classic ui_hidden
           Rename-Item rust/resources/packs packs_hidden
           $env:LEXO_SELFTEST = "1"
           $p = Start-Process -FilePath $exe.FullName -RedirectStandardOutput selftest.out -PassThru

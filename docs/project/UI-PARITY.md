@@ -2,7 +2,7 @@
 
 The new interface (see the sketches discussed in the project: a sidebar with Overview, Files, Lines, Check, Dictionary, Tools, Team, Release, Settings) changes **where** things are and how they look, **never what the application can do**. This list is generated from the current interface: every button and menu action by its current label (Czech text in brackets). Each one must have a place in the new interface before the old one is removed. Fill the column *New place* while designing; the UI self-test and the contract tests must stay green; nothing is deleted without a line here saying where it went.
 
-Generated from the sources of the current UI (`rust/resources/ui/js`); 324 actions in 24 areas. It is a checklist to start from, not an exact inventory: a few actions are built without a plain button label and must be added by hand.
+Generated from the sources of the current UI (`rust/resources/ui-classic/js`); 324 actions in 24 areas. It is a checklist to start from, not an exact inventory: a few actions are built without a plain button label and must be added by hand.
 
 ## Přehled (`20-overview.js`)
 

@@ -4,7 +4,7 @@ name: Free app
 
 on:
   pull_request:
-    paths: ["reference/python/**", "rust/resources/ui/**", "rust/resources/packs/**", "testdata/**", "pro/rust/ui/**", ".github/workflows/free.yml"]
+    paths: ["reference/python/**", "rust/resources/ui-classic/**", "rust/resources/packs/**", "testdata/**", "pro/rust/ui/**", ".github/workflows/free.yml"]
   workflow_dispatch:
 
 permissions:

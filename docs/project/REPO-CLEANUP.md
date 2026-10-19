@@ -15,7 +15,7 @@
 
 | Was | Is |
 |---|---|
-| `free/lexo_free/ui` | `rust/resources/ui` |
+| `free/lexo_free/ui` | `rust/resources/ui-classic` |
 | `core/lexo/packs` | `rust/resources/packs` |
 | `free/assets` | `rust/resources/assets` |
 | `core/golden`, `core/contract`, `pro/golden` | `testdata/golden`, `testdata/contract`, `testdata/pro-golden` |

@@ -12,7 +12,7 @@ from helpers import TempCase
 from lexo import api
 from lexo_free import server
 
-UI_JS = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui" / "js"
+UI_JS = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui-classic" / "js"
 # what only the application around Core serves (windows, the focus between windows, a folder dialog, the keep-alive pings, the licence of the Pro pack)
 SESSION = {("GET", "focus"), ("GET", "ping"), ("POST", "focus"), ("POST", "window/open"), ("POST", "window/fullscreen"), ("POST", "project/pick"), ("POST", "bye"),
            ("GET", "licence"), ("POST", "licence/activate"), ("POST", "licence/refresh"), ("POST", "licence/deactivate"),

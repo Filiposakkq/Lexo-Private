@@ -3,7 +3,7 @@ import re
 import unittest
 from pathlib import Path
 
-UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui"
+UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui-classic"
 
 IMPORT_RE = re.compile(r"^import \{([^}]*)\} from '\./([^']+)';", re.M)
 SIDE_RE = re.compile(r"^import '\./([^']+)';", re.M)

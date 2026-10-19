@@ -6,7 +6,7 @@ from pathlib import Path
 
 from helpers import ROOT  # noqa: F401  (puts the package on sys.path)
 
-UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui"
+UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui-classic"
 CALL = re.compile(r"(?<![\w$.])(?:t|T|tr|tn|tx)\(\s*['\"]")
 START = re.compile(r"^(?:export\s+)?(?:const|let|var)\s")
 

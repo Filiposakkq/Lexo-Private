@@ -11,7 +11,7 @@ import jsscan
 
 from lexo import lang
 
-UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui"
+UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui-classic"
 CORE_LEXO = Path(__file__).resolve().parents[2] / "core" / "lexo"
 FREE_PY = Path(__file__).resolve().parents[1] / "lexo_free"
 PACK = Path(__file__).resolve().parents[4] / "rust" / "resources" / "packs" / "cs"

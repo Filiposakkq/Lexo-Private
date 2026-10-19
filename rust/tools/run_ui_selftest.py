@@ -1,4 +1,4 @@
-"""Runs the UI self-test of Free (rust/resources/ui/selftest.js, 139 checks) against the RUST server, in a real browser, headless.
+"""Runs the UI self-test of Free (rust/resources/ui-classic/selftest.js, 139 checks) against the RUST server, in a real browser, headless.
 
     py rust/tools/run_ui_selftest.py [--exe path\to\lexo-server.exe]
 

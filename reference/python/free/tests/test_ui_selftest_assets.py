@@ -10,7 +10,7 @@ from lexo_free import server
 from lexo.app import App
 from lexo.config import Config
 
-UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui"
+UI = Path(__file__).resolve().parents[4] / "rust" / "resources" / "ui-classic"
 SERVE = Path(__file__).resolve().parent / "ui" / "serve_selftest.py"
 
 

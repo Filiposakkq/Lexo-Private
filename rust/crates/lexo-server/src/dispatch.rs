@@ -45,6 +45,8 @@ pub struct Focus {
 pub struct Session {
     pub token: String,
     pub ui_dir: PathBuf,
+    /// The new interface (`/next/`), when there is one.
+    pub ui_next_dir: Option<PathBuf>,
     /// The address of the page, to build the address of one more window.
     pub base_url: Mutex<String>,
     focus: Mutex<Focus>,
@@ -58,10 +60,17 @@ pub struct Session {
 }
 
 impl Session {
+    /// The folder of the new interface to serve at `/next/` (`None` = none).
+    pub fn with_next(mut self, dir: Option<PathBuf>) -> Session {
+        self.ui_next_dir = dir;
+        self
+    }
+
     pub fn new(ui_dir: PathBuf, base_url: String, shell: Box<dyn Shell>) -> Session {
         Session {
             token: lexo_core::fsutil::token_hex(16),
             ui_dir,
+            ui_next_dir: None,
             base_url: Mutex::new(base_url),
             focus: Mutex::new(Focus { seq: 0, file: String::new(), line: 0, text: None }),
             focus_changed: Condvar::new(),
@@ -151,7 +160,22 @@ impl Dispatcher {
     }
 
     fn static_file(&self, name: &str) -> Reply {
-        let dir = &self.session.ui_dir;
+        self.file_in(&self.session.ui_dir, name)
+    }
+
+    /// A file of the new interface: `/next/` is its `index.html`, `/next/assets/x.js` is `assets/x.js`; only plain relative paths are served.
+    fn next_file(&self, path: &str) -> Reply {
+        let Some(dir) = &self.session.ui_next_dir else { return Reply::not_found() };
+        let rel = path.strip_prefix("/next").unwrap_or("").trim_start_matches('/');
+        let rel = if rel.is_empty() { "index.html" } else { rel };
+        let plain = rel.split('/').all(|p| !p.is_empty() && p != "." && p != ".." && p.chars().all(|c| c.is_ascii_alphanumeric() || "._-".contains(c)));
+        if !plain {
+            return Reply::not_found();
+        }
+        self.file_in(dir, rel)
+    }
+
+    fn file_in(&self, dir: &std::path::Path, name: &str) -> Reply {
         let path = dir.join(name);
         let inside = std::fs::canonicalize(&path).ok().zip(std::fs::canonicalize(dir).ok()).is_some_and(|(p, d)| p.starts_with(d) && p.is_file());
         if !inside {
@@ -172,6 +196,9 @@ impl Dispatcher {
         let get = |k: &str| q.iter().find(|(n, _)| n == k).map(|(_, v)| v.as_str()).unwrap_or("");
         if path == "/" || path == "/index.html" {
             return self.static_file("index.html");
+        }
+        if path == "/next" || path.starts_with("/next/") {
+            return self.next_file(path);
         }
         let flat = ["/styles.css", "/crest.svg", "/favicon.svg", "/aside.png", "/selftest.js"];
         let script =
