@@ -1,11 +1,11 @@
 # The interface of Core (generated)
 
-Generated from `core/lexo/api.py` by `py core/tests/contract_tool.py`; do not edit by hand (a test fails when it is out of date).
+Generated from `reference/python/core/lexo/api.py` by `py reference/python/core/tests/contract_tool.py`; do not edit by hand (a test fails when it is out of date).
 
 Every operation is a JSON call: parameters in, a dict with `"ok": true` out. Over HTTP (Free) a GET takes its parameters in the query string, a POST in the JSON body;
 a script or the Rust port calls the operation by name. Errors come back as `{"ok": false, "error": ...}`. Messages in answers are `{"$m": template, "p": values}`
 (see `docs/UI-TEXTS.md`). Effects: **read** changes nothing, **write** changes the project or its data folder, **external** also reaches outside
-(a program, a window, the network). `*` marks a required parameter. The recorded shapes of the answers are in `core/contract/shapes.json`.
+(a program, a window, the network). `*` marks a required parameter. The recorded shapes of the answers are in `testdata/contract/shapes.json`.
 
 80 operations.
 

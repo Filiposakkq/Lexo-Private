@@ -18,7 +18,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path[:0] = [str(ROOT / "core"), str(ROOT / "core" / "tests")]
+sys.path[:0] = [str(ROOT / "reference" / "python" / "core"), str(ROOT / "reference" / "python" / "core" / "tests")]
 
 import golden_tool as gt   # noqa: E402
 

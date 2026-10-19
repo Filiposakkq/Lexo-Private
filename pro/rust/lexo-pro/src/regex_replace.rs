@@ -1,4 +1,4 @@
-//! Port of `pro/lexo_pro/regex_replace.py`: regular expression find and replace over a list of texts (the Pro feature `replace.regex`).
+//! Port of `reference/python/pro/lexo_pro/regex_replace.py`: regular expression find and replace over a list of texts (the Pro feature `replace.regex`).
 //!
 //! Works on plain data: the request carries the pattern, the replacement and the texts; the answer is the new text and the number of replacements for every text. Core decides which lines
 //! are candidates and writes the confirmed result; tags, variables and escapes are protected exactly as in the plain modes (`textedit::sub_pattern`).

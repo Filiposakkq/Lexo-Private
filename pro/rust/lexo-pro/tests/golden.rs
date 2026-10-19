@@ -1,4 +1,4 @@
-//! The Rust pack gives the answers the Python pack gave (`pro/golden/pack.json`, made by `pro/tests/golden_pro.py`).
+//! The Rust pack gives the answers the Python pack gave (`testdata/pro-golden/pack.json`, made by `reference/python/pro/tests/golden_pro.py`).
 use lexo_core::extensions::Provider;
 use lexo_core::messages::render;
 use lexo_core::mt::MtError;
@@ -57,7 +57,7 @@ fn fake_http(url: &str, headers: &[(String, String)], data: &[u8]) -> Result<(u1
 fn golden() -> Value {
     // the licence file of the machine must not matter: without one the development default offers everything
     std::env::set_var("LEXO_LICENCE_FILE", std::env::temp_dir().join("aside-golden-no-licence.json"));
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../golden/pack.json");
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../testdata/pro-golden/pack.json");
     serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
 

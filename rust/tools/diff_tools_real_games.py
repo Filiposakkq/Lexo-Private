@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path[:0] = [str(ROOT / "core"), str(ROOT / "core" / "tests")]
+sys.path[:0] = [str(ROOT / "reference" / "python" / "core"), str(ROOT / "reference" / "python" / "core" / "tests")]
 
 from lexo import gametools, rpa   # noqa: E402
 from lexo.messages import text_of  # noqa: E402

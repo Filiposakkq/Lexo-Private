@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_lint.py`: the game check (Ren'Py lint) run in the background.
+//! Port of `reference/python/core/lexo/app_lint.py`: the game check (Ren'Py lint) run in the background.
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::App;
 use crate::app_base::{app_err, ApiError, Res};

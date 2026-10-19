@@ -1,4 +1,4 @@
-//! Port of `core/lexo/menus.py`: menus of a Ren'Py script: which lines are choices, what question they answer and what follows each of them.
+//! Port of `reference/python/core/lexo/menus.py`: menus of a Ren'Py script: which lines are choices, what question they answer and what follows each of them.
 //!
 //! The translation of a choice sits in `translate <lang> strings:` (far from the dialogue), so the translator needs the menu around it.
 //! This module only reads the script text; it finds nothing it cannot see (no jumps, no `call screen`, no menus built in Python).

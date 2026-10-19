@@ -1,4 +1,4 @@
-//! The routes of the server of Free (`free/lexo_free/server.py`), independent of how a request arrives: a loopback socket (`lib.rs`) or the custom protocol of the Tauri window.
+//! The routes of the server of Free (`reference/python/free/lexo_free/server.py`), independent of how a request arrives: a loopback socket (`lib.rs`) or the custom protocol of the Tauri window.
 //! A request is a method, a target (`/api/entries?limit=5`), the token header and the body; the answer is a `Reply`.
 use crate::backend::Backend;
 use crate::http::{content_type, parse_query};

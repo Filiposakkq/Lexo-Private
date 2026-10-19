@@ -1,4 +1,4 @@
-//! Port of `core/lexo/project.py`: a translation project folder: discovery, incremental refresh, per-file counts.
+//! Port of `reference/python/core/lexo/project.py`: a translation project folder: discovery, incremental refresh, per-file counts.
 //!
 //! The store is not held by the project (the Python object keeps a reference to it): the functions that need it take it as a parameter.
 //! File names (`rel`) are written with the separator of the system, like Python does.

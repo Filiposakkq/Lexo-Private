@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_snapshots.py`: snapshots (zip backups) of the translation folder.
+//! Port of `reference/python/core/lexo/app_snapshots.py`: snapshots (zip backups) of the translation folder.
 //!
 //! Known difference from Python: `maybe_auto_snapshot` makes the snapshot at once; Python does it in a background thread. The server that runs the application decides
 //! whether to call it from another thread.

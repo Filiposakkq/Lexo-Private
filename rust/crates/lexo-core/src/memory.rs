@@ -1,4 +1,4 @@
-//! Port of `core/lexo/memory.py`: the translation memory of the project itself: what was already translated, looked up by the English original.
+//! Port of `reference/python/core/lexo/memory.py`: the translation memory of the project itself: what was already translated, looked up by the English original.
 //!
 //! Matching is done on the ORIGINAL text, so declension of the target language does not get in the way of finding a match. Everything here is only offered as a
 //! suggestion that the translator inserts and adapts.

@@ -24,7 +24,7 @@ fn open(tag: &str) -> (App, std::path::PathBuf) {
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
     config.load();
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: None });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: None });
     app.ext.register(Box::new(LexoProProvider::new())).unwrap();
     app.open_project(&tl.to_string_lossy(), false).expect("the project opens");
     (app, tmp)

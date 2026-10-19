@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_game.py`: read-only facts about the game folder: gui, fonts, images, characters, scene preview data.
+//! Port of `reference/python/core/lexo/app_game.py`: read-only facts about the game folder: gui, fonts, images, characters, scene preview data.
 use crate::api::{ok, Answer, Args};
 use crate::app::{line_gone, unknown_file, App};
 use crate::app_base::{app_err, Res};

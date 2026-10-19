@@ -1,4 +1,4 @@
-//! Port of `core/lexo/features.py`: the catalog of gated (Pro) features and the decision for each one.
+//! Port of `reference/python/core/lexo/features.py`: the catalog of gated (Pro) features and the decision for each one.
 //!
 //! The application never decides "is this Pro?" on its own: at the few places where a Pro feature is used it asks the extension host (`extensions.rs`) and gets an answer
 //! (available or not, and the limit per action). Everything not in the catalog is free.

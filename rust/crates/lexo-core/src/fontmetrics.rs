@@ -1,4 +1,4 @@
-//! Port of `core/lexo/fontmetrics.py`: advance widths of a font (TrueType / OpenType file), read from `cmap` and `hmtx` only.
+//! Port of `reference/python/core/lexo/fontmetrics.py`: advance widths of a font (TrueType / OpenType file), read from `cmap` and `hmtx` only.
 //!
 //! Ren'Py draws text with FreeType, which takes the advance of a glyph from `hmtx`. A browser may take it from the CFF charstring instead, so the scene preview
 //! places every character by the `hmtx` advance. This reads the two tables without any dependency and never trusts the file: anything out of range gives `None`.

@@ -1,4 +1,4 @@
-//! Port of `pro/lexo_pro/fix_safe.py`: safe bulk fixes with a preview (the Pro feature `fixes.safe`): planning the fixes and chaining them on one line.
+//! Port of `reference/python/pro/lexo_pro/fix_safe.py`: safe bulk fixes with a preview (the Pro feature `fixes.safe`): planning the fixes and chaining them on one line.
 //!
 //! Three kinds, all of them touch only what they must: `speaker` (the speaker, attributes and trailing code of the line are copied from the original comment, the quoted text is never
 //! touched), `spaces` (collapse a double space between words unless the original has one) and `typo` (apply the spelling hints: missing diacritics, swapped or doubled letters). Tags,

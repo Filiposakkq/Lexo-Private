@@ -1,4 +1,4 @@
-//! Port of `core/lexo/validator.py`: Ren'Py aware validation of translated strings.
+//! Port of `reference/python/core/lexo/validator.py`: Ren'Py aware validation of translated strings.
 //!
 //! Reports *problems for a human to judge*; nothing is ever rewritten. Severities: error (Ren'Py would raise, or the script structure is broken),
 //! warning (suspicious, probably a mistake), info (frequently intentional). Comparison is always *relative to the source*.

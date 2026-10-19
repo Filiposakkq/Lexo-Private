@@ -1,4 +1,4 @@
-//! The synthetic project of the UI self-test (`free/tests/ui/serve_selftest.py`), shared by `lexo-server --selftest` and `lexo-app` (LEXO_SELFTEST=1).
+//! The synthetic project of the UI self-test (`reference/python/free/tests/ui/serve_selftest.py`), shared by `lexo-server --selftest` and `lexo-app` (LEXO_SELFTEST=1).
 use std::path::PathBuf;
 
 const SCRIPT: &str = "# game/script.rpy:10
@@ -61,7 +61,7 @@ const STRINGS: &str = "translate czech strings:
     new \"Quit\"
 ";
 
-/// The synthetic project of the UI self-test (`free/tests/ui/serve_selftest.py`): the folder to open (`.../.lexo-selftest/game/tl/czech`).
+/// The synthetic project of the UI self-test (`reference/python/free/tests/ui/serve_selftest.py`): the folder to open (`.../.lexo-selftest/game/tl/czech`).
 pub fn make_project() -> std::io::Result<PathBuf> {
     let base = std::env::temp_dir().join(format!("lexo-{}-{}", std::process::id(), lexo_core::fsutil::token_hex(3))).join(".lexo-selftest");
     let proj = base.join("game/tl/czech");

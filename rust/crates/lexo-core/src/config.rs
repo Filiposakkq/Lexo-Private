@@ -1,4 +1,4 @@
-//! Port of `core/lexo/config.py`: application settings, stored in one JSON file that does not depend on the working directory.
+//! Port of `reference/python/core/lexo/config.py`: application settings, stored in one JSON file that does not depend on the working directory.
 //!
 //! Windows: `%APPDATA%\Aside\config.json` (the old name was `Lexo`, see `take_over_folder`); other: `~/.config/aside/config.json`; the folder can be overridden with the `LEXO_CONFIG_DIR` environment variable
 //! (used by the tests). The file never contains secrets: git authenticates through the user's own git credentials.

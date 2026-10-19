@@ -1,4 +1,4 @@
-//! Port of `core/lexo/rpy.py`: the parser of Ren'Py translation files (`game/tl/<language>/*.rpy`).
+//! Port of `reference/python/core/lexo/rpy.py`: the parser of Ren'Py translation files (`game/tl/<language>/*.rpy`).
 //!
 //! A *translation unit* is either a dialogue block (`translate czech <id>:` + a `# who "source"` comment + a `who "target"` line) or a strings pair
 //! (`old "source"` / `new "target"` inside `translate czech strings:`). A unit is *pending* when its code line equals the source comment

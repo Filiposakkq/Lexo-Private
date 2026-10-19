@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_menu.py`: the menu a choice belongs to: question, the other choices, and what follows each of them (read from the game script).
+//! Port of `reference/python/core/lexo/app_menu.py`: the menu a choice belongs to: question, the other choices, and what follows each of them (read from the game script).
 use crate::api::{ok, Answer, Args};
 use crate::app::{line_gone, unknown_file, App};
 use crate::app_base::Res;

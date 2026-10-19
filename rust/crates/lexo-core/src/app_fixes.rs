@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_fixes.py`: safe fixes, replace in files, undo of the last file change.
+//! Port of `reference/python/core/lexo/app_fixes.py`: safe fixes, replace in files, undo of the last file change.
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::App;
 use crate::app_base::{app_err, ApiError, Res};

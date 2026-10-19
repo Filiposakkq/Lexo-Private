@@ -17,8 +17,8 @@
 There is no migration from the Czech-named files of the older BaDIK tool any more: it had one user, and that user keeps working with that tool.
 **Built (step 2b):** the shared folder is `<translation folder>/.aside/` (constant `DATA_DIR_NAME` in `project.py`, the only place to change if the product gets another name) with the CSV files above, `aside.json` (was `project.json`) and `project-id`.
 Local data lives in `<config folder>/projects/<project id>/` (on Windows `%APPDATA%/Lexo/projects/<id>`): `backups/`, `snapshots/`, `lock.json`, `text_history.jsonl`, `last_fix.json`, and the derived `progress.csv` / `progress.json`.
-`core/lexo/datadir.py` creates the id and finds the local folder.
-**Built (step 2c):** the event log (`core/lexo/events.py`, `Store.sync_events`):
+`reference/python/core/lexo/datadir.py` creates the id and finds the local folder.
+**Built (step 2c):** the event log (`reference/python/core/lexo/events.py`, `Store.sync_events`):
 - `.aside/events/<author>.jsonl`, one file per author, one JSON object per line: `{"v":1,"t":<UTC time>,"a":<author>,"kind":<kind>,"key":[...],"value":<json or null>}`. Kinds: `corr`, `assign`, `approved`, `episodes`, `proof`, `ignored` (the glossary stays a small file). `value: null` means removed; undo is a new event.
 - The author id (`<user name>-<4 hex>`) is made on first use and kept in the settings (`author`).
 - The state is the replay of all files; for one key the newest event wins (time, then author). The CSV files stay as the cache that is read at start and may still be edited in Excel: at start-up and at every refresh, differences between the memory and the log become events of this author, and events written by others since the last read are merged in and written to the CSV files.

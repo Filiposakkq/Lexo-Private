@@ -1,4 +1,4 @@
-//! Port of `core/lexo/fixes.py`: the only place where the manager changes a translation `.rpy` file.
+//! Port of `reference/python/core/lexo/fixes.py`: the only place where the manager changes a translation `.rpy` file.
 //!
 //! Operations: editing the translated text of one line in the app (`edit_translation`), writing many edits as one undoable step (`apply_edits`), and writing planned fixes of
 //! the speaker / attributes of dialogue lines (`apply`). What to fix is planned elsewhere (the safe fixes are a Pro feature); this module only writes.

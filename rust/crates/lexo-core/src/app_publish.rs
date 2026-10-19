@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_publish.py`: public progress data: preview, plan, publishing.
+//! Port of `reference/python/core/lexo/app_publish.py`: public progress data: preview, plan, publishing.
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::App;
 use crate::app_base::{app_err, Res};

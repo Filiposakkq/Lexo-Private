@@ -1,11 +1,11 @@
-//! Port of `core/lexo/api.py`: the interface of Core, every operation the application offers, as a JSON call.
+//! Port of `reference/python/core/lexo/api.py`: the interface of Core, every operation the application offers, as a JSON call.
 //!
 //! This table is THE interface between a client and Core. The browser UI reaches it through a local server (one GET or POST per operation, the parameters in the query string or in the
 //! JSON body, the answer as JSON), a script calls `call` directly. Nothing in this file knows about HTTP.
 //!
 //! An operation has a name (`"entries"`, `"entry/save"` ...: the address after `/api/`), a method (`GET` or `POST`, only a convention of the transport), an effect (`read`, `write`,
 //! `external`), the parameters it takes (name, type, default, required), a one-line doc, and an example for the contract tests. `describe()` gives the whole table as plain data;
-//! `core/contract/api.json` is generated from the Python table and a test compares it with this one.
+//! `testdata/contract/api.json` is generated from the Python table and a test compares it with this one.
 //!
 //! The answer is a JSON object with `"ok": true`; an error is an `ApiError`. Binary answers (`kind == "binary"`: a font, a picture) are `Answer::Binary(bytes, mime)`.
 use crate::app::App;

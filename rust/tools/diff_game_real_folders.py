@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path[:0] = [str(ROOT / "core"), str(ROOT / "core" / "tests")]
+sys.path[:0] = [str(ROOT / "reference" / "python" / "core"), str(ROOT / "reference" / "python" / "core" / "tests")]
 
 from lexo import gameimages, missed, lang   # noqa: E402
 import golden_tool as gt                     # noqa: E402

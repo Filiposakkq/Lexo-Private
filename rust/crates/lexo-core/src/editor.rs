@@ -1,4 +1,4 @@
-//! Port of `core/lexo/editor.py`: open a translation file at an exact line in VS Code or Notepad++.
+//! Port of `reference/python/core/lexo/editor.py`: open a translation file at an exact line in VS Code or Notepad++.
 //!
 //! Commands are always built as an argument list (never a shell string) and the file must be a `.rpy` file inside the project, so a hostile file name cannot inject anything.
 //!   VS Code:    `Code.exe -g "<file>:<line>"`        Notepad++:  `notepad++.exe -n<line> "<file>"`

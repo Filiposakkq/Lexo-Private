@@ -1,4 +1,4 @@
-//! Port of `core/lexo/history.py`: `history.csv`, the progress log, and the completion estimates and weekly goals computed from it.
+//! Port of `reference/python/core/lexo/history.py`: `history.csv`, the progress log, and the completion estimates and weekly goals computed from it.
 //!
 //! history.csv columns: date;translated;total;percent;proofread;proofread_percent. Existing rows are never edited except the newest one of the running session (a session
 //! keeps refreshing "its" row while the translator works). The functions that need "today" take it as a parameter.

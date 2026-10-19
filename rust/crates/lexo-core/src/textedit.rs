@@ -1,4 +1,4 @@
-//! Port of `core/lexo/textedit.py`: text-level helpers for batch edits of translations: find / replace in the plain modes (plain, whole word, by stem).
+//! Port of `reference/python/core/lexo/textedit.py`: text-level helpers for batch edits of translations: find / replace in the plain modes (plain, whole word, by stem).
 //! The regex mode and the safe fixes are Pro features: this module refuses the regex mode with the same message as Python.
 //!
 //! Everything here is pure (no file access): it turns a translated text into a proposed new text. Tags `{i}`, variables `[name]` and escapes (`\n`, `\"`)

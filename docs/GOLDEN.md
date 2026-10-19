@@ -4,7 +4,7 @@ Roadmap step 6. The port of Core to Rust (and any other implementation) has to b
 compared against: small fixed inputs, and the recorded answers to them. Nothing here depends on Python.
 
 ```
-core/golden/
+testdata/golden/
   rpy/cases/*.rpy, rpy/cases.json     translation files for the parser (and the language pack to parse with: cs or neutral)
   rpa/archives/*.rpa                  small .rpa archives (version 2, version 3, with a prefix, a hostile index, garbage, truncated)
   layout/cases.json                   file name lists for the group proposals, paths for the folder and series numbers
@@ -12,7 +12,7 @@ core/golden/
   validator/cases.json                source / target pairs for the checks
   spelling/cases.json                 a vocabulary (translated texts), words asked for a hint, checks with that vocabulary
   textedit/cases.json                 find / replace cases in the plain, whole-word and stem modes (protected parts, errors), `case_like`, `mask`
-  fonts/*.ttf, fonts/not_a_font.bin   tiny fonts made by `core/tests/make_golden_fonts.py` (cmap formats 4 and 12, bad files) for the advance widths
+  fonts/*.ttf, fonts/not_a_font.bin   tiny fonts made by `reference/python/core/tests/make_golden_fonts.py` (cmap formats 4 and 12, bad files) for the advance widths
   data/<name>.json                    data scenarios: files, a fixed clock and steps that call the functions of the data modules (see below)
   projects/<name>/game/...            whole projects (a game with scripts and game/tl/czech): basic, episodes, folders, messy
   scenarios/<name>.json               a project and a list of operation calls ({op, params}) run in order on a copy of it
@@ -21,7 +21,7 @@ core/golden/
 
 ## Scope: Free Core only, not the Pro pack
 The golden data covers what Core does **without the Pro pack**: the 73 operations that need no Pro feature (of the 80 operations, seven belong to the five gated features: `publish/plan`, `publish/confirm`, `mt/targets`, `mt/batch`, `fix/preview`, `fix/apply`, `assign/suggest`, and the regex mode of `replace/*`; without the pack they answer "locked" and the scenarios do not call them).
-The Pro pack has its own tests (`pro/tests`, Python) and is **not part of the Rust port of Core**. How the pack is ported or kept is decided together with the sidecar transport (docs/PRO-DESIGN.md): because it is called through plain JSON
+The Pro pack has its own tests (`reference/python/pro/tests`, Python) and is **not part of the Rust port of Core**. How the pack is ported or kept is decided together with the sidecar transport (docs/PRO-DESIGN.md): because it is called through plain JSON
 (feature, method, payload), it can stay a separate program written in any language, and golden data for it (the requests and answers of each Pro method) can be added the same way when that decision is made.
 
 ## What a scenario is
@@ -34,7 +34,7 @@ their undo are all compared, and a port that writes a line differently by one by
 The runner writes the files, runs the steps in order with the clock replaced, records the answer (or the error text) of every step and, at the end, every file under the folder
 (SHA-1 and text): so the CSV files of the store, the event logs, `history.csv`, `config.json`, the backups and the zips are compared as files. The ops: `csv.read`, `csv.text`,
 `write_csv`, `atomic_write`, `make_backup`, `config.*`, `datadir.*`, `lock.*`, `layout.use`, `store.*`, `events.*`, `history.*`, `texthistory.*`, `memory.*`, `snapshots.*`, `project.*`, `fixes.*`, `export.*`, `bulk.*`, `gameimages.*`, `missed.*`, `lint.*` (the Python and SDK programs are fakes),
-`editor.*` (finders and starters of programs are fakes; `<TMP>` stands for the temporary folder), `gametools.*` (unrpyc and the Ren'Py generator are fake programs that answer from a list and write the files they are told to; the archives come from `core/golden/gametools`, made by `make_archives.py`), `mt.*` (the network is a fake that answers from a list and records the requests), plus `advance` / `set_epoch` / `set_local` (the clock), `write_file`, `remove_file`, `list_dir`. Both runners implement the same ops (`DataRunner` in `golden_tool.py`, `data.rs` in `lexo-golden`).
+`editor.*` (finders and starters of programs are fakes; `<TMP>` stands for the temporary folder), `gametools.*` (unrpyc and the Ren'Py generator are fake programs that answer from a list and write the files they are told to; the archives come from `testdata/golden/gametools`, made by `make_archives.py`), `mt.*` (the network is a fake that answers from a list and records the requests), plus `advance` / `set_epoch` / `set_local` (the clock), `write_file`, `remove_file`, `list_dir`. Both runners implement the same ops (`DataRunner` in `golden_tool.py`, `data.rs` in `lexo-golden`).
 
 Things the data scenarios settle on purpose:
 - **The clock.** `datetime.now()` is the fixed local time, `datetime.now(utc)` the fixed UTC time (so the names of backups, the stamps of events and the manifests of snapshots are known); `time.time()` is the real
@@ -56,7 +56,7 @@ Implement the small runner in the port's own tests: read the inputs, call the po
 Where Python's own wording leaks into an answer (pickle or zlib messages) the golden data keeps only the part Core writes itself.
 
 ## Python side
-- `py core/tests/golden_tool.py` regenerates `expected/` from the inputs. Look at the diff before committing it: a changed answer is a changed behaviour.
-- `core/tests/test_golden.py` checks that Core still gives the recorded answers, that every input has an answer and no answer is stale, and that nothing belonging to one machine is recorded.
-- `.gitattributes` marks `core/golden/**` as not text, so a checkout never changes a line end (the digests are those of the bytes).
+- `py reference/python/core/tests/golden_tool.py` regenerates `expected/` from the inputs. Look at the diff before committing it: a changed answer is a changed behaviour.
+- `reference/python/core/tests/test_golden.py` checks that Core still gives the recorded answers, that every input has an answer and no answer is stale, and that nothing belonging to one machine is recorded.
+- `.gitattributes` marks `testdata/golden/**` as not text, so a checkout never changes a line end (the digests are those of the bytes).
 - New cases: add the input file, run the tool, commit both. The Pro features are not part of the golden data (see "Scope" above).

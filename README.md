@@ -13,7 +13,7 @@ and many paths still say **Lexo** (the first working name), which is intentional
   ┌─────▼──────────────────────────┐      ┌────────────────────────────┐
   │ Aside application (Tauri)      │─────▶│ licence server (server/)   │  activate, refresh, lost key
   │  Rust core  +  web UI          │      │  Cloudflare Worker + D1    │
-  │  rust/            free/…/ui    │      └────────────────────────────┘
+  │  rust/      rust/resources/ui  │      └────────────────────────────┘
   └─────▲──────────────────────────┘
         │ JSON lines (stdin/stdout)
   ┌─────┴──────────────────────────┐      ┌────────────────────────────┐
@@ -26,26 +26,24 @@ and many paths still say **Lexo** (the first working name), which is intentional
 
 | Folder | What it is | Kind |
 |---|---|---|
-| [`rust/`](rust/) | **The product.** Cargo workspace: `lexo-core` (the library: parser, writer, checks, project, operations), `lexo-server` (local server for the UI, used for development and the UI self-test), `lexo-app` (the Tauri application), `lexo-golden` (checks the Rust core against the golden data), `tools/` (comparison scripts against real games) | product |
-| [`free/lexo_free/ui/`](free/lexo_free/ui/) | **The user interface** (ES modules `js/NN-name.js`, `index.html`, CSS). Shared by the Rust server and the Tauri app. | product |
-| [`core/lexo/packs/`](core/lexo/packs/) | **Language packs** (`cs`, rules and UI texts). Used by the Rust core. | product |
-| [`free/assets/`](free/assets/) | icons and the brand sheet | product |
-| [`pro/rust/`](pro/rust/) | **The Pro pack** (private Cargo workspace): batch machine translation, safe fixes, regex replace, group suggestions, publishing, carry-over, the licence client | product (private) |
+| [`rust/`](rust/) | **The product.** Cargo workspace: `crates/lexo-core` (the library: parser, writer, checks, project, operations), `lexo-server` (local server for the UI: development and the UI self-test), `lexo-app` (the Tauri application), `lexo-golden` (checks the Rust core against the golden data); `tools/` (comparison scripts against real games) | product |
+| [`rust/resources/ui/`](rust/resources/ui/) | **The user interface** (ES modules `js/NN-name.js`, `index.html`, CSS), shared by the Rust server and the Tauri app | product |
+| [`rust/resources/packs/`](rust/resources/packs/) | **Language packs** (`cs`: rules, UI texts) | product |
+| [`rust/resources/assets/`](rust/resources/assets/) | icons and the brand sheet | product |
+| [`pro/rust/`](pro/rust/) | **The Pro pack** (private Cargo workspace): batch machine translation, safe fixes, regex replace, group suggestions, publishing, carry-over, fill from similar translations, profiles of characters, style check, the licence client; `pro/rust/lexo-pro/ui/` has its Czech texts | product (private) |
 | [`pro/installer/`](pro/installer/) | the configuration of the Pro installer | product (private) |
 | [`server/`](server/) | **Licence server** (TypeScript Worker + D1): activation, refresh, lost key, limits, admin page | service |
 | [`web/`](web/) | **Website** and its small server (pages, applications, newsletter, admin) | service |
-| [`core/`](core/) and [`free/`](free/) (without the parts above), [`pro/lexo_pro/`](pro/lexo_pro/), [`pro/tests/`](pro/tests/) | **The Python implementation**: the reference the Rust port was checked against, the generator of the golden data and the tests that guard the UI texts. Not shipped. | reference |
-| [`core/golden/`](core/golden/), [`core/contract/`](core/contract/), [`pro/golden/`](pro/golden/) | **Recorded answers** (golden data, the interface contract) that the Rust code is tested against | test data |
+| [`testdata/`](testdata/) | **Recorded answers** the Rust code is tested against: `golden/` (the golden data), `contract/` (the interface of Core), `pro-golden/` (the Pro pack) | test data |
+| [`reference/python/`](reference/python/) | **The Python implementation** (`core/`, `free/`, `pro/`): the reference the Rust port was checked against, the generator of the golden data, and the tests that guard the UI texts. Not shipped. | reference |
 | [`docs/`](docs/) | the documents; start with [`docs/README.md`](docs/README.md) | docs |
 | [`.github/workflows/`](.github/workflows/) | CI: Rust (`rust.yml`), Python and UI (`free.yml`), installers, server, website | CI |
-
-Why `core/` and `free/` hold both reference code and product files: the product was a Python application first, and the Rust port moved the code but kept using the same
-UI, language packs, golden data and brand files from their old places. Moving them is a planned clean-up (see [`docs/REPO-CLEANUP.md`](docs/REPO-CLEANUP.md)).
 
 ## Where to start
 
 - A new chat or a new person: [`docs/HANDOFF.md`](docs/HANDOFF.md) (decisions, rules, the loop of a step, commands, current state), then [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - The index of all documents and which ones are current: [`docs/README.md`](docs/README.md).
+- What each Pro feature does: [`docs/PRO-FEATURES.md`](docs/PRO-FEATURES.md).
 
 ## Commands (Windows)
 
@@ -58,11 +56,12 @@ cd pro\rust  & cargo +stable-x86_64-pc-windows-msvc test                       #
 cd server    & npx.cmd vitest run & npx.cmd tsc --noEmit                       # the licence server
 cd web\worker & npx.cmd vitest run                                              # the website server
 
-# running the UI against the Rust server (use LEXO_UI_DIR, a stale copy of the UI may sit next to the program)
-set LEXO_UI_DIR=free\lexo_free\ui & set LEXO_PACKS_DIR=core\lexo\packs
-rust\target\debug\lexo-server.exe --project "D:\games\MyGame\game\tl\czech"
+# Python (the reference; also the guards of the UI texts: every text has a Czech translation, no stale texts, the UI calls only existing operations)
+py reference/python/run_tests.py core | free | pro | (no argument = all)
 
-# Python (reference and the guards of the UI texts; CI runs them: py run_tests.py)
+# running the UI against the Rust server (use LEXO_UI_DIR: a stale copy of the UI may sit next to the program in target/)
+set LEXO_UI_DIR=rust\resources\ui & set LEXO_PACKS_DIR=rust\resources\packs
+rust\target\debug\lexo-server.exe --project "D:\games\MyGame\game\tl\czech"
 ```
 
 The old BaDIK tool stays where it is (`Being-A-DIK-CZ/tools/translation-manager`) and keeps working for the Czech translation of Being a DIK.

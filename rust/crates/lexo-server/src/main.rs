@@ -1,7 +1,7 @@
 //! `lexo-server`: the local server with the UI, on the Rust Core.
 //!
 //!     lexo-server [--project <translation folder>] [--port N] [--ui <folder>] [--packs <folder>]
-//!     lexo-server --selftest         a synthetic project in a temporary folder, for the UI self-test (free/lexo_free/ui/selftest.js)
+//!     lexo-server --selftest         a synthetic project in a temporary folder, for the UI self-test (rust/resources/ui/selftest.js)
 //!
 //! It prints the address and serves until it is stopped (Ctrl+C); the settings are in the usual folder of the settings (`LEXO_CONFIG_DIR`).
 use lexo_core::app::App;

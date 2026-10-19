@@ -1,10 +1,10 @@
-//! The interface table of Rust Core is the table of the Python Core (docs/API.md): `core/contract/api.json` is generated from the Python one and must equal `api::describe()`.
+//! The interface table of Rust Core is the table of the Python Core (docs/API.md): `testdata/contract/api.json` is generated from the Python one and must equal `api::describe()`.
 use lexo_core::api;
 use serde_json::Value;
 
 #[test]
 fn the_table_equals_the_contract_of_the_python_core() {
-    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../core/contract/api.json");
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../testdata/contract/api.json");
     let want: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
     let got = api::describe();
     let (want, got) = (want.as_array().unwrap(), got.as_array().unwrap());
@@ -15,7 +15,7 @@ fn the_table_equals_the_contract_of_the_python_core() {
     }
 }
 
-// ---------------------------------------------------------------- the shapes of the answers (core/contract/shapes.json)
+// ---------------------------------------------------------------- the shapes of the answers (testdata/contract/shapes.json)
 use lexo_core::app::App;
 use lexo_core::config::Config;
 use lexo_core::lang::Packs;
@@ -101,10 +101,10 @@ fn every_operation_answers_in_the_recorded_shape() {
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
     config.load();
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: Some(tmp.join("cfg/packs")) });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: Some(tmp.join("cfg/packs")) });
     app.open_project(&fixture(&tmp).to_string_lossy(), false).unwrap();
     api::call(&mut app, "glossary/set", &json!({"items": [{"code": "friend", "name": "pritel", "type": "term"}]})).unwrap(); // the example of glossary/occurrences
-    let recorded: Value = serde_json::from_str(&std::fs::read_to_string(repo.join("core/contract/shapes.json")).unwrap()).unwrap();
+    let recorded: Value = serde_json::from_str(&std::fs::read_to_string(repo.join("testdata/contract/shapes.json")).unwrap()).unwrap();
     let mut ops: Vec<Value> = api::describe().as_array().unwrap().clone();
     ops.sort_by_key(|o| (o["effect"] != "read", o["name"].as_str().unwrap().to_string()));
     let mut problems: Vec<String> = Vec::new();

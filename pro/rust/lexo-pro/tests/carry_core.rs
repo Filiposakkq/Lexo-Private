@@ -36,7 +36,7 @@ fn a_translation_is_carried_over_to_the_new_version_and_undone() {
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
     config.load();
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: None });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: None });
     app.ext.register(Box::new(LexoProProvider::new())).unwrap();
     app.open_project(&new.join("game/tl/czech").to_string_lossy(), false).expect("the new version opens");
 
@@ -85,7 +85,7 @@ fn untranslated_lines_are_filled_from_similar_translations_of_the_project_itself
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
     config.load();
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: None });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: None });
     app.ext.register(Box::new(LexoProProvider::new())).unwrap();
     app.open_project(&dir.join("game/tl/czech").to_string_lossy(), false).expect("the project opens");
     let preview = app.fill_preview(0.85).unwrap();

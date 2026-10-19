@@ -1,4 +1,4 @@
-//! Port of `core/lexo/snapshots.py`: snapshots of the translation folder: a zip of every `.rpy` file, kept in the local data folder (datadir.rs).
+//! Port of `reference/python/core/lexo/snapshots.py`: snapshots of the translation folder: a zip of every `.rpy` file, kept in the local data folder (datadir.rs).
 //!
 //! Made automatically (at start when the last one is older than the configured interval), before bulk changes (replace, fixes, unify) and on request; restoring first
 //! makes a snapshot of the current state, so a restore itself can be undone. Only `.rpy` files are saved (the manager's own data have their own backups). Snapshots older

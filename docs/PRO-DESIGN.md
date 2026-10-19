@@ -6,7 +6,7 @@ Decided with the owner. Plain words first, details after. Written in English lik
 Free is public. If a Pro feature were in the public code behind a flag (`pro = True`, a limit of 20), anybody could change the flag. So:
 
 1. **Pro code is not in the public repository and not in the Free download.** It lives only in `pro/` of this private repository and is delivered separately.
-2. **Free contains only a socket**, never the feature: the catalog of gated features (`core/lexo/features.py`), the extension host (`core/lexo/extensions.py`), the places where the UI offers a feature.
+2. **Free contains only a socket**, never the feature: the catalog of gated features (`reference/python/core/lexo/features.py`), the extension host (`reference/python/core/lexo/extensions.py`), the places where the UI offers a feature.
 3. **The limits, the demo mode and the licence check are inside the Pro pack.** Free has no flag that means "Pro" and no number that means "20 items".
 
 Nothing is unbreakable: someone who has a leaked Pro pack can use it. The aim is that a casual change of Free's code gives nothing, and that a licensed user gets a simple, fair experience.
@@ -15,7 +15,7 @@ Nothing is unbreakable: someone who has a leaked Pro pack can use it. The aim is
 A user installs Lexo (Free). With a licence, the application downloads the **Pro pack**, a second package that sits next to it. The user sees one application whose menus show more features. Without the pack the same menus show the features as locked, with a short description.
 
 ## How Free and the pack talk (the "interface")
-A call is: a **feature id** (`publish.web`), a **method** (`plan`) and a **dict that can be written as JSON**. The answer is such a dict. An error is a message for the user. Nothing else crosses the border: no live Python objects, no shared state. (Today `core/lexo/extensions.py` enforces it: every payload goes through JSON and back.)
+A call is: a **feature id** (`publish.web`), a **method** (`plan`) and a **dict that can be written as JSON**. The answer is such a dict. An error is a message for the user. Nothing else crosses the border: no live Python objects, no shared state. (Today `reference/python/core/lexo/extensions.py` enforces it: every payload goes through JSON and back.)
 
 A Pro feature **computes and returns data** (a plan, proposals, translations). The single writer of `.rpy` files stays in Core. (Publishing, which pushes to a git repository, is the one feature that acts on its own, and it asks for a typed confirmation.)
 
@@ -29,9 +29,9 @@ Because the border is plain JSON it does not matter how the pack runs:
 Switching from the first to the second changes only the transport inside `ExtensionHost`; no feature code changes. **"Sidecar" is just that: a second program next to the app, started and stopped by the app.** The user does not run it by hand.
 
 ## The Rust pack and its sidecar (built)
-The pack exists twice: `pro/lexo_pro` (Python, used by the Python application) and `pro/rust/lexo-pro` (Rust, for the Tauri application). Both give the same answers; `pro/golden/pack.json` holds 110 payloads with the answers of the Python pack and the Rust tests compare against it (`py pro/tests/golden_pro.py` rewrites it; a Python test fails when it is out of date).
+The pack exists twice: `reference/python/pro/lexo_pro` (Python, used by the Python application) and `pro/rust/lexo-pro` (Rust, for the Tauri application). Both give the same answers; `testdata/pro-golden/pack.json` holds 110 payloads with the answers of the Python pack and the Rust tests compare against it (`py reference/python/pro/tests/golden_pro.py` rewrites it; a Python test fails when it is out of date).
 
-The Rust pack is a **program**, `lexo-pro-sidecar` (`pro/rust/lexo-pro`). The application finds it through the variable `LEXO_PRO_SIDECAR` or in a `pack/` folder next to the application, starts it and speaks one JSON line per request on its standard input and output (`SidecarProvider` in `core/lexo`'s Rust port, `rust/crates/lexo-core/src/extensions.rs`):
+The Rust pack is a **program**, `lexo-pro-sidecar` (`pro/rust/lexo-pro`). The application finds it through the variable `LEXO_PRO_SIDECAR` or in a `pack/` folder next to the application, starts it and speaks one JSON line per request on its standard input and output (`SidecarProvider` in `reference/python/core/lexo`'s Rust port, `rust/crates/lexo-core/src/extensions.rs`):
 
 | request | answer |
 |---|---|
@@ -121,17 +121,17 @@ A small service on Cloudflare. Nothing of it is in the public repository (it liv
 
 ## What is done and what is not
 Done:
-- `core/lexo/extensions.py`: the host, the interface (version 1), loading by name, the `trust` hook, plain-JSON calls, interface texts of the pack.
-- `pro/lexo_pro/`: the pack. **All five gated features are in it and only in it**: `publish.web` (`publish.py`), `bulk.categorize` (`categorize.py`), `replace.regex` (`regex_replace.py`), `mt.batch` (`mt_batch.py`), `fixes.safe` (`fix_safe.py`).
+- `reference/python/core/lexo/extensions.py`: the host, the interface (version 1), loading by name, the `trust` hook, plain-JSON calls, interface texts of the pack.
+- `reference/python/pro/lexo_pro/`: the pack. **All five gated features are in it and only in it**: `publish.web` (`publish.py`), `bulk.categorize` (`categorize.py`), `replace.regex` (`regex_replace.py`), `mt.batch` (`mt_batch.py`), `fixes.safe` (`fix_safe.py`).
   Each works on plain data: Core finds the candidate lines and gathers what is needed, the pack decides (a plan, a list of proposals, translations, a substitution) and returns it, Core shows it and writes what the translator confirms. The single writer of `.rpy` files stays in Core.
 - The limits of the demo mode live in the pack (`lexo_pro/licence.py`: 20 items per action for batch translation and safe fixes, 5 files for bulk categorisation (it works on files, which are few in a small game), no demo for regex replace and publishing) and are enforced there; Core has no limit, no flag and no `Entitlements` any more.
 - Without the pack every gated feature is locked in every place it is used (a test lists them). The free halves keep working: plain find & replace, one line of machine translation, applying a chosen group assignment, the validation and the spelling hints.
-- Tests: Core and Free never import the pack, and the code of the Pro features (the planners, the regex substitution, the publisher) is not in the public packages (`free/tests/test_pro_boundary.py`); the pack has its own tests (`py run_tests.py pro`, 67). The UI self-test runs with the pack (monorepo) and without it (the Pro steps then check the lock).
+- Tests: Core and Free never import the pack, and the code of the Pro features (the planners, the regex substitution, the publisher) is not in the public packages (`reference/python/free/tests/test_pro_boundary.py`); the pack has its own tests (`py reference/python/run_tests.py pro`, 67). The UI self-test runs with the pack (monorepo) and without it (the Pro steps then check the lock).
 
 Not done (each is its own piece of work, listed so nothing is forgotten):
 - The **sidecar transport**, the **signature check** and the **manifest updater**.
 - The **licence**: the file, the check inside the pack (`licence.licensed()` is a development stub: licensed unless `LEXO_PRO_DEMO=1`), the server that hands out the pack, the split of the pack into the demo pack in the installer and the premium pack downloaded after a licence.
-- The shapes of the answers of the Pro operations are not recorded in `core/contract/shapes.json` (Core's contract test runs without the pack); the pack tests check `ok` and plain JSON only.
+- The shapes of the answers of the Pro operations are not recorded in `testdata/contract/shapes.json` (Core's contract test runs without the pack); the pack tests check `ok` and plain JSON only.
 - A demo limit is "items per action"; nothing ties the actions together, so a client that repeats the call gets more (accepted for the cheap taste features).
 - Update (Rust): the pack is `pro/rust/lexo-pro` (private workspace, sidecar program `lexo-pro-sidecar`). Done in it: the six features (the five above and `carry.over`), the signed licence file (Ed25519, states licensed / grace / expired / refused / demo, check interval inside the file, default 14 days), the activation client (activate, refresh, deactivate, list and release computers, rename), a quiet refresh at start and hourly when the file is older than six hours, markers for a cancelled or removed licence, and the licence panel in the UI. The sidecar and the licence are built; `dev-unlock` (a default feature: without a file the pack behaves as licensed) must be turned off in the release build (`--no-default-features`).
 - Release build of the pack: `pro/rust/Cargo.toml` `[profile.release]` strips the names of functions, links the whole program as one piece (`lto = "fat"`, `codegen-units = 1`) and aborts on a failure (`panic = "abort"`); the application (`rust/Cargo.toml`) is stripped and uses thin LTO, and keeps unwinding because a failed thread must not end it. This only makes patching the program harder; it protects nothing by itself. Planned with the split of the pack into a demo and a full pack: the key in pieces, the licence checked at several places, a check of the integrity of the program, a signature of the pack.
@@ -146,6 +146,6 @@ For now the screens of the five features are part of the Free UI, but each one i
 How the pack connects to the Rust Core, the options for running it without Python (a closed Rust crate that depends on Core is recommended) and what has to be recorded in golden data first: docs/RUST-PORT.md, section 9.
 
 ## For a developer
-- Running from the repository: `py free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
-- A new Pro feature: add it to `features.CATALOG`; write the implementation in `pro/lexo_pro/` on plain data; offer it in `Provider.offers()` (limits in `licence.py`); call it from the app with `self._ext_call(feature, method, payload)` (it gates, calls and turns a refusal into a message); put its tests in `pro/tests/` (base class `ProCase`); put the Czech texts of its messages in `pro/lexo_pro/ui/cs.json`.
+- Running from the repository: `py reference/python/free/run_lexo.py` puts `pro/` on the import path when the folder exists, so the pack is there. `LEXO_NO_PRO=1` starts the application as a Free installation would be.
+- A new Pro feature: add it to `features.CATALOG`; write the implementation in `reference/python/pro/lexo_pro/` on plain data; offer it in `Provider.offers()` (limits in `licence.py`); call it from the app with `self._ext_call(feature, method, payload)` (it gates, calls and turns a refusal into a message); put its tests in `reference/python/pro/tests/` (base class `ProCase`); put the Czech texts of its messages in `pro/rust/lexo-pro/ui/cs.json`.
 - Messages written in the pack are returned with `messages.wire(...)` so that they stay translatable JSON.

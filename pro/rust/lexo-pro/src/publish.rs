@@ -1,4 +1,4 @@
-//! Port of `pro/lexo_pro/publish.py`: publishing progress.json to the website repository: preview first, publish only on confirmation.
+//! Port of `reference/python/pro/lexo_pro/publish.py`: publishing progress.json to the website repository: preview first, publish only on confirmation.
 //!
 //! Generating the data (export) and publishing it are separate steps:
 //!

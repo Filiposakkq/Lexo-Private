@@ -1,4 +1,4 @@
-//! Port of `core/lexo/datadir.py`: where the data of a project lives (docs/DATA-LAYOUT.md).
+//! Port of `reference/python/core/lexo/datadir.py`: where the data of a project lives (docs/DATA-LAYOUT.md).
 //!
 //! `<translation folder>/.aside/` is shared, small, text files a team can put in git; `<config folder>/projects/<project id>/` is local data (backups, snapshots, the lock, text history).
 //! The shared folder holds a one-line file `project-id`; the local folder is named after it, so the local data follows the project when the folder is moved.

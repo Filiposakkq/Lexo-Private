@@ -1,4 +1,4 @@
-//! Port of `core/lexo/lint.py`: run `renpy lint` of the game from the Ren'Py SDK and show what it reports.
+//! Port of `reference/python/core/lexo/lint.py`: run `renpy lint` of the game from the Ren'Py SDK and show what it reports.
 //!
 //! Ren'Py's own lint knows things this manager's checks do not (missing images, unknown labels, broken translations). It needs the SDK folder (the one with `renpy.py` / `renpy.sh`);
 //! that path is a setting. The command is built as an argument list (no shell). The program that runs it is passed in (`Runner`), so the tests do not need Ren'Py.

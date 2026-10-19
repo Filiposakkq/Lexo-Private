@@ -1,4 +1,4 @@
-//! The CSV dialect of Python's `csv` module as `core/lexo/util.py` uses it: the reader (`read_rows`, with the same state machine as `_csv.c`, so odd files give the
+//! The CSV dialect of Python's `csv` module as `reference/python/core/lexo/util.py` uses it: the reader (`read_rows`, with the same state machine as `_csv.c`, so odd files give the
 //! same rows) and the writer (`csv_text`: quotes only what needs it, `\r\n` line ends).
 use crate::util::py_splitlines;
 

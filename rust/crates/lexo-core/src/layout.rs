@@ -1,4 +1,4 @@
-//! Port of `core/lexo/layout.py`: how a project's files are grouped (sections > groups), and the guessing of groups from file names.
+//! Port of `reference/python/core/lexo/layout.py`: how a project's files are grouped (sections > groups), and the guessing of groups from file names.
 //!
 //! Ported here: the layout itself (`parse`, `to_json`), `propose`, `folder_number`, `series_number` and the helpers behind them.
 //! Not yet: `load` and `save_groups` (they read and write `aside.json`, which come with the data files, M3), and the process-wide "current layout"
