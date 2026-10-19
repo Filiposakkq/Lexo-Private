@@ -87,7 +87,10 @@
   "This licence is already used on {max} computers. Free a place in Aside on one of them (Settings, Licence), or write to the seller.": "Tato licence už je použitá na {max} počítačích. Uvolni místo v Aside na jednom z nich (Nastavení, Licence), nebo napiš prodejci.",
   "This licence was cancelled. Write to the seller if you think that is a mistake.": "Tato licence byla zrušena. Pokud si myslíš, že je to omyl, napiš prodejci.",
   "That computer is not on this licence any more.": "Tento počítač už na této licenci není.",
-  "You have already freed computers {limit} times in the last {days} days. Write to the seller to free another place.": "Už jsi uvolnil počítače {limit}× za posledních {days} dní. Napiš prodejci, ať uvolní další místo."
+  "You have already freed computers {limit} times in the last {days} days. Write to the seller to free another place.": "Už jsi uvolnil počítače {limit}× za posledních {days} dní. Napiš prodejci, ať uvolní další místo.",
+  "Choose the folder of the OLD version, not the open project.": "Vyber složku STARÉ verze, ne otevřený projekt.",
+  "The old version has no translated lines.": "Stará verze nemá žádné přeložené řádky.",
+  "Translation carried over from the previous version": "Překlad přenesený z předchozí verze"
  },
  "ui_xx": {},
  "cases": [

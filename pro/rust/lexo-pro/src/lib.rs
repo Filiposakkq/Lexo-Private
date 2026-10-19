@@ -3,6 +3,7 @@
 //! `LexoProProvider` is the pack as the extension host of Core sees it (`lexo_core::extensions::Provider`); `serve` is the sidecar loop, the same provider behind one JSON line per request
 //! on standard input and one per answer on standard output (`SidecarProvider` of Core is the other end). Everything here depends on Core, never the other way round.
 //! The pack decides on its own what it offers and with which limits (`licence`): the place for the licence check and for the demo mode of an unlicensed pack.
+pub mod carry_over;
 pub mod categorize;
 pub mod fix_safe;
 pub mod licence;
@@ -22,7 +23,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// The Czech texts of the messages of this pack (`pro/lexo_pro/ui/cs.json`, the same file the Python pack reads).
 const UI_CS: &str = include_str!("../../../lexo_pro/ui/cs.json");
 
-const FEATURES: [&str; 5] = ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe"];
+const FEATURES: [&str; 6] = ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over"];
 
 fn plain(text: String) -> ExtensionError {
     ExtensionError(Text::Plain(text))
@@ -96,6 +97,18 @@ impl Provider for LexoProProvider {
             ("fixes.safe", "chain") => Ok(fix_safe::chain(payload)),
             ("mt.batch", "targets") => Ok(mt_batch::targets(payload)),
             ("mt.batch", "translate") => mt_batch::translate(payload, self.http()),
+            ("carry.over", "match") => {
+                let mut out = carry_over::run(payload);
+                let items = out["items"].as_array().cloned().unwrap_or_default();
+                let (items, cut) = licence::cap("carry.over", items); // without a licence only the first lines are carried over; the counts still show the value
+                out["items"] = Value::Array(items);
+                if let Some(Value::Object(info)) = cut {
+                    if let Some(o) = out.as_object_mut() {
+                        o.extend(info);
+                    }
+                }
+                Ok(out)
+            }
             ("replace.regex", "substitute") => regex_replace::substitute(payload),
             ("publish.web", "plan") => publish::plan(&payload["web"], &payload["data"]).map(Value::Object).map_err(publish::Failure::into_error),
             ("publish.web", "publish") => publish::publish(

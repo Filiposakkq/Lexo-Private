@@ -55,6 +55,8 @@ fn fake_http(url: &str, headers: &[(String, String)], data: &[u8]) -> Result<(u1
 }
 
 fn golden() -> Value {
+    // the licence file of the machine must not matter: without one the development default offers everything
+    std::env::set_var("LEXO_LICENCE_FILE", std::env::temp_dir().join("aside-golden-no-licence.json"));
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../golden/pack.json");
     serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
@@ -129,7 +131,10 @@ fn offers_and_texts_are_the_same() {
     let g = golden();
     let provider = LexoProProvider::new();
     std::env::remove_var("LEXO_PRO_DEMO");
-    assert_eq!(Value::Object(provider.offers()), g["offers"]["licensed"]);
+    // the features that exist only in the Rust pack (the Python pack, which the recorded answers come from, does not have them)
+    let mut offers = provider.offers();
+    offers.remove("carry.over");
+    assert_eq!(Value::Object(offers), g["offers"]["licensed"]);
     assert_eq!(Value::Object(provider.ui_strings("cs")), g["ui_cs"]);
     assert_eq!(Value::Object(provider.ui_strings("xx")), g["ui_xx"]);
     let _ = render(&Value::Null);

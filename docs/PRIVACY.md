@@ -46,4 +46,5 @@ The settings (`%APPDATA%\Aside\config.json`, no password of any account), the da
 
 - The only code that opens an Internet connection is `rust/crates/lexo-core/src/net.rs` (one function `post`), used by the machine translation (`mt.rs`) and by the licence client of the Pro pack (`pro/rust/lexo-pro/src/licence_client.rs`). The git commands are in `pro/rust/lexo-pro/src/publish.rs`.
 - The user interface is local: it loads no script, font or picture from the Internet.
+- Carrying a translation over from the previous version (Pro) reads two local folders and writes into the open project; it sends nothing anywhere (the matching is done in the pack on the computer).
 - A copy without the Pro pack (the Free installer) contains no licence client and never contacts the licence server.
