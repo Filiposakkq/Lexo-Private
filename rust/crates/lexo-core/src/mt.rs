@@ -232,7 +232,8 @@ pub fn check_url(url: &str) -> Result<String, MtError> {
     Ok(url.trim_end_matches('/').to_string())
 }
 
-fn call(url: &str, headers: &[(String, String)], data: &[u8], http: Http) -> Result<Value, MtError> {
+/// One request to a service: the JSON answer, or an error that says what the service answered (also used by the style check of the Pro pack).
+pub fn call(url: &str, headers: &[(String, String)], data: &[u8], http: Http) -> Result<Value, MtError> {
     let (status, body) = http(url, headers, data)?;
     if status >= 400 {
         return Err(MtError(msg("The service answered with the error {status}: {hint}.", &[("status", json!(status)), ("hint", hint(status).wire())])));

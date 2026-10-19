@@ -1688,6 +1688,44 @@
   "There are no other speakers in the project yet.": "V projektu zatím nejsou jiní mluvčí.",
   "Profile…": "Profil…",
   "Pro: gender, way of speaking and form of address of this character, used by the batch machine translation": "Pro: pohlaví, způsob mluvy a oslovování této postavy, využívá dávkový strojový překlad",
-  "Profiles of characters": "Profily postav"
+  "Profiles of characters": "Profily postav",
+  "form of address": "oslovení",
+  "gender": "rod",
+  "tone": "tón",
+  "meaning": "význam",
+  "other": "jiné",
+  "The style check needs a language model": "Kontrola stylu potřebuje jazykový model",
+  "Choose the OpenAI-compatible service, enter the key and give the consent to send text in {where}. DeepL and LibreTranslate are not language models and cannot check the style.": "Vyber službu kompatibilní s OpenAI, zadej klíč a souhlas s odesíláním textu v {where}. DeepL a LibreTranslate nejsou jazykové modely a styl zkontrolovat neumí.",
+  "The demo checks only the first {limit} lines ({total} found). A licence removes the limit.": "Demo zkontroluje jen prvních {limit} řádků (nalezeno {total}). Licence limit odstraní.",
+  "At most {n} lines at once – the first {n} will be checked, run again for the rest.": "Najednou nejvýš {n} řádků – zkontroluje se prvních {n}, zbytek spusť znovu.",
+  "Nothing to check": "Není co kontrolovat",
+  "Unticks the lines where the validator found something in the correction": "Odškrtne řádky, kde validátor v opravě něco našel",
+  "Only safe ones": "Jen bezpečné",
+  "Original and translation": "Originál a překlad",
+  "Remark": "Připomínka",
+  "Correction (editable)": "Oprava (jde upravit)",
+  "{checked} lines checked, {n} with a remark.": "Zkontrolováno {checked} řádků, {n} s připomínkou.",
+  "Checking… {done} / {total}": "Kontroluji… {done} / {total}",
+  "Done – review the remarks and write the corrections you agree with.": "Hotovo – projdi připomínky a zapiš opravy, se kterými souhlasíš.",
+  "The original and the translation are sent to the configured language model, with the profile of the speaker if there is one; nothing is written until you tick and confirm. Approved lines are never overwritten.": "Originál a překlad se pošlou nastavenému jazykovému modelu, s profilem mluvčího, pokud nějaký je; nic se nezapíše, dokud neodškrtneš a nepotvrdíš. Schválené řádky se nikdy nepřepíšou.",
+  "Check the style": "Zkontrolovat styl",
+  "Check the style…": "Zkontrolovat styl…",
+  "Pro: address, gender, tone (language model)": "Pro: oslovení, rod, tón (jazykový model)",
+  "Style check": "Kontrola stylu",
+  "Check {n} line|Check {n} lines": [
+   "Zkontrolovat {n} řádek",
+   "Zkontrolovat {n} řádky",
+   "Zkontrolovat {n} řádků"
+  ],
+  "{n} translated line|{n} translated lines": [
+   "{n} přeložený řádek",
+   "{n} přeložené řádky",
+   "{n} přeložených řádků"
+  ],
+  "Write {n} correction|Write {n} corrections": [
+   "Zapsat {n} opravu",
+   "Zapsat {n} opravy",
+   "Zapsat {n} oprav"
+  ]
  }
 }

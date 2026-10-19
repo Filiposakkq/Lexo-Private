@@ -12,6 +12,7 @@ pub mod mt_batch;
 pub mod profiles;
 pub mod publish;
 pub mod regex_replace;
+pub mod style_check;
 
 use lexo_core::extensions::{ExtensionError, Provider, API};
 use lexo_core::layout;
@@ -24,7 +25,8 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// The Czech texts of the messages of this pack (`pro/lexo_pro/ui/cs.json`, the same file the Python pack reads).
 const UI_CS: &str = include_str!("../../../lexo_pro/ui/cs.json");
 
-const FEATURES: [&str; 8] = ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over", "memory.fuzzy", "mt.profiles"];
+const FEATURES: [&str; 9] =
+    ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over", "memory.fuzzy", "mt.profiles", "style.check"];
 
 fn plain(text: String) -> ExtensionError {
     ExtensionError(Text::Plain(text))
@@ -111,6 +113,8 @@ impl Provider for LexoProProvider {
                 }
                 Ok(out)
             }
+            ("style.check", "targets") => Ok(style_check::targets(payload)),
+            ("style.check", "check") => style_check::check(payload, self.http()),
             ("replace.regex", "substitute") => regex_replace::substitute(payload),
             ("publish.web", "plan") => publish::plan(&payload["web"], &payload["data"]).map(Value::Object).map_err(publish::Failure::into_error),
             ("publish.web", "publish") => publish::publish(

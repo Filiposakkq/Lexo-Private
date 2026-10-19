@@ -23,6 +23,7 @@ pub mod app_profile;
 pub mod app_proof;
 pub mod app_publish;
 pub mod app_snapshots;
+pub mod app_style;
 pub mod app_validation;
 pub mod bulk;
 pub mod clock;

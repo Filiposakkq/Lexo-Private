@@ -12,6 +12,7 @@ import { announceDraft, announceFocus, copy, openEditor } from './21-files.js';
 import { diffSpans, fixDialog } from './23-fixes.js';
 import { carryDialog } from './39-carry.js';
 import { mtDialog } from './24-machine-translation.js';
+import { styleDialog } from './41-style-check.js';
 import { replaceDialog } from './25-replace.js';
 import { ruleApproveDialog } from './26-approve-rules.js';
 import { missedTextsDialog } from './36-missed-texts.js';
@@ -105,6 +106,7 @@ export async function viewEntries() {
         { label: T('Fill from similar translations…'), hint: T('Pro: similar originals of this project'), run: () => carryDialog(async () => { S.files = null; await refreshHeader(); load(true); }, true) },
         { label: T('Fix…'), hint: T('speaker, spaces, typos'), run: () => fixDialog({ file: pref('entries.file', '') }, async () => { S.files = null; await refreshHeader(); load(true); }) },
         { label: T('Translate with a machine…'), hint: T('selected lines, scene, file'), run: () => openMtDialog() },
+        { label: T('Check the style…'), hint: T('Pro: address, gender, tone (language model)'), run: () => openStyleDialog() },
       ], { title: T('Bulk edits of translations') }),
       pickInfo, h('span', { class: 'spacer' }), counter,
       layoutMenu()),
@@ -149,6 +151,12 @@ export async function viewEntries() {
   function openMtDialog() {
     const cur = S.ent.items[S.ent.sel];
     mtDialog({ picked: [...picked()].map((k) => { const [file, line] = k.split('\t'); return { file, line: +line }; }),
+      anchor: cur ? { file: cur.file, line: cur.line } : null, file: pref('entries.file', '') }, async () => { picked().clear(); S.files = null; await refreshHeader(); load(true); });
+  }
+  /* The style check of the picked lines, the lines around the open one, the file in the filter, or everything. */
+  function openStyleDialog() {
+    const cur = S.ent.items[S.ent.sel];
+    styleDialog({ picked: [...picked()].map((k) => { const [file, line] = k.split('\t'); return { file, line: +line }; }),
       anchor: cur ? { file: cur.file, line: cur.line } : null, file: pref('entries.file', '') }, async () => { picked().clear(); S.files = null; await refreshHeader(); load(true); });
   }
   function rowFor(it, i) {
