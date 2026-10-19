@@ -1,4 +1,4 @@
-//! The local server of Lexo (milestones M7 and M8): the UI files and the same routes as `free/lexo_free/server.py`, on top of `lexo-core`.
+//! The local server of Lexo (milestones M7 and M8): the UI files and the same routes as `reference/python/free/lexo_free/server.py`, on top of `lexo-core`.
 //!
 //! The routes (`dispatch.rs`) do not care how a request arrives. Here a loopback socket brings them (the development server and the UI self-test); the Tauri application
 //! (`lexo-app`) brings them through the custom protocol of its window, without any socket. Only the loopback interface is bound, the `Host` header is checked (DNS-rebinding
@@ -130,7 +130,7 @@ pub fn default_ui_dir() -> PathBuf {
     if let Some(d) = std::env::var_os("LEXO_UI_DIR") {
         return PathBuf::from(d);
     }
-    installed_dir("ui", "index.html").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../free/lexo_free/ui"))
+    installed_dir("ui", "index.html").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/ui"))
 }
 
 /// The folder with the language packs shipped with the application (`LEXO_PACKS_DIR`, the `packs` folder next to the program, or the repository).
@@ -138,5 +138,5 @@ pub fn default_packs_dir() -> PathBuf {
     if let Some(d) = std::env::var_os("LEXO_PACKS_DIR") {
         return PathBuf::from(d);
     }
-    installed_dir("packs", "cs").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../core/lexo/packs"))
+    installed_dir("packs", "cs").unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/packs"))
 }

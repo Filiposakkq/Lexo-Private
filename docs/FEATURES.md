@@ -5,7 +5,7 @@ Principle: the **whole translating workflow is free** (so people can really use 
 app still works fully without it, and nothing that users see as a basic right is locked (find & replace, spelling, history).
 
 Revision 2 follows a review of revision 1 (find & replace, spelling and line diff move to Free; four pain points are added to Pro).
-Module = where the code lives today in `core/lexo/`. "Coupling" = which other code imports the module (**not** whether the feature is Free or Pro): "only `app.py`" means nothing else uses it, so it can be lifted out later. How Pro features are kept apart and delivered: PRO-DESIGN.md.
+Module = where the code lives today in `reference/python/core/lexo/`. "Coupling" = which other code imports the module (**not** whether the feature is Free or Pro): "only `app.py`" means nothing else uses it, so it can be lifted out later. How Pro features are kept apart and delivered: PRO-DESIGN.md.
 
 ## Free
 
@@ -36,7 +36,7 @@ Status as of the Core / Free split and the interface contract (roadmap steps 1 t
 ## Pro
 Aimed at people with bigger projects, a website or Patreon, or a team. Priced low: a one-off licence or a small yearly one.
 
-**In the Pro pack?** *yes* = the code is in `pro/lexo_pro` (private), the feature is locked in Free whatever flags are changed, and its limits belong to the pack. The cheap *taste* features (batch machine translation, safe fixes, regex replace, categorisation) will ship inside the installer as a demo pack with limits, so the demo needs no extra download; the *premium* ones are downloaded only after a licence (PRO-DESIGN.md). *not built* = does not exist yet; when it is built it is written in the pack from the start.
+**In the Pro pack?** *yes* = the code is in `reference/python/pro/lexo_pro` (private), the feature is locked in Free whatever flags are changed, and its limits belong to the pack. The cheap *taste* features (batch machine translation, safe fixes, regex replace, categorisation) will ship inside the installer as a demo pack with limits, so the demo needs no extra download; the *premium* ones are downloaded only after a licence (PRO-DESIGN.md). *not built* = does not exist yet; when it is built it is written in the pack from the start.
 
 
 | Feature | Why people pay for it | Module | Coupling | In the Pro pack? |
@@ -45,11 +45,11 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 | **Fuzzy matches in translation memory** (not only identical originals) | Repeated and similar lines across a long game | `memory`, `app_carry` (Core), `carry_over` (pack, the same matcher) | only `app.py` | **yes** – `memory.fuzzy`: "Fill from similar translations" (Tools menu) gives every untranslated line the translation of a similar original of the same speaker from the project itself, with a preview, tick boxes, the filled lines marked "to fix"; the demo fills 20 lines. The one-line suggestion of similar originals stays free |
 | **Style and consistency check with an LLM** (formal/informal address, gender, character voice) | Machine translation often mixes formal and informal address; where the language has such rules (for example Czech tykání/vykání) the check knows them through the language pack | `app_style` (Core), `style_check` (pack) | new | **yes** – `pro/rust/lexo-pro/src/style_check.rs` (`style.check`; the demo checks 20 lines). Built: "Check the style…" in the Tools menu sends the original, the translation, the profile of the speaker (`mt.profiles`) and the two lines before to the language model set up for the machine translation (OpenAI-compatible only), and shows the remarks (form of address, gender, tone, meaning) with a correction you can edit and tick; the ticked corrections are written like a machine translation (`mt/apply`, one undoable step, approved lines are never overwritten, the validator checks the correction) |
 | **Character profiles** (who addresses whom how, gender, speech style) passed to batch machine translation | Makes the batch output usable | `profile`, `app_profile` (Core), `profiles` (pack) | new | **yes** – `pro/rust/lexo-pro/src/profiles.rs` (`mt.profiles`; premium, no demo). Built: the glossary page has "Profile…" per speaker (gender, how the character speaks, who they address formally or informally); the profile is kept as a hidden last line `@profile …` of the note of the glossary entry, so it needs no new kind of data and travels with the glossary; the batch machine translation sends it with every line of that speaker to a language model (OpenAI-compatible; DeepL and LibreTranslate cannot use it) |
-| Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` | **yes** – `pro/lexo_pro/mt_batch.py` (`mt.batch`; one line of machine translation stays free in Core) |
+| Batch machine translation with glossary, context and the profiles | Speed | `mt`, `bulk` | only `app.py` | **yes** – `reference/python/pro/lexo_pro/mt_batch.py` (`mt.batch`; one line of machine translation stays free in Core) |
 | **Release builder**: translation -> installable patch (zip or rpa), version, changelog | "From translation to release" in one tool, together with publishing | new | new | not built |
-| Publishing progress (website / JSON) | Translators with a site or Patreon | `export` (Core: the local progress file), `publish` (pack) | only `app.py` | **yes** – `pro/lexo_pro/publish.py` (`publish.web`) |
-| **Safe bulk fixes** (tag- and variable-aware, with a preview of every change) and **regex batches** | Big clean-ups without breaking tags | `fixes` | only `app.py` | **yes** – `pro/lexo_pro/fix_safe.py` (`fixes.safe`) and `regex_replace.py` (`replace.regex`); plain find & replace stays free |
-| Bulk categorisation suggestions (assign files to groups) | Large multi-episode projects | `bulk` | only `app.py` | **yes** – `pro/lexo_pro/categorize.py` (`bulk.categorize`; applying a chosen assignment stays free) |
+| Publishing progress (website / JSON) | Translators with a site or Patreon | `export` (Core: the local progress file), `publish` (pack) | only `app.py` | **yes** – `reference/python/pro/lexo_pro/publish.py` (`publish.web`) |
+| **Safe bulk fixes** (tag- and variable-aware, with a preview of every change) and **regex batches** | Big clean-ups without breaking tags | `fixes` | only `app.py` | **yes** – `reference/python/pro/lexo_pro/fix_safe.py` (`fixes.safe`) and `regex_replace.py` (`replace.regex`); plain find & replace stays free |
+| Bulk categorisation suggestions (assign files to groups) | Large multi-episode projects | `bulk` | only `app.py` | **yes** – `reference/python/pro/lexo_pro/categorize.py` (`bulk.categorize`; applying a chosen assignment stays free) |
 | Smarter spelling: extra language packs and better suggestions | Quality for more languages | `spelling`, `lang` | `app.py` | not built |
 | Team work: several translators, assignments, who did what, merging changes (planned) | Teams | new | new | not built |
 | Reports (CSV/PDF), saved filter views (ideas) | Nice to have | new | new | not built |
@@ -57,11 +57,11 @@ Aimed at people with bigger projects, a website or Patreon, or a team. Priced lo
 ## Language packs
 A pack also lists the `letters` of the language (used to tell a translated line from an untranslated one), the repeated words that are normal in speech, the stemming rule and the plural rule; see `lang.py`.
 The app and its UI are **English first**. Everything that depends on the language of the translation lives in a **language pack**
-(`core/lexo/lang.py` today: repeated words, number words, stems; later also address rules for the style check, spelling data, UI texts).
+(`reference/python/core/lexo/lang.py` today: repeated words, number words, stems; later also address rules for the style check, spelling data, UI texts).
 - **Czech is the first pack**, built the same way as any other, not special-cased in the app. It is the reference for how a pack is made.
 - Packs are **separate downloadable modules** (installed on demand, updated independently of the app). The app works with the neutral rules when no pack is installed.
 - Basic packs (rules for the free checks) are free; packs with the style check data (address, gender, voice) belong to the Pro style check.
-- Done: the pack format and loader (data files `pack.json` + `rules.json`, bundled and in `<config>/packs`; Czech is `core/lexo/packs/cs`). The UI string table is done (English source text, Czech as `ui.json` of the pack; see UI-TEXTS.md). To do: a pack list and download in the app, `address.json` / `spelling.txt` parts, and message keys for the Python-side messages.
+- Done: the pack format and loader (data files `pack.json` + `rules.json`, bundled and in `<config>/packs`; Czech is `rust/resources/packs/cs`). The UI string table is done (English source text, Czech as `ui.json` of the pack; see UI-TEXTS.md). To do: a pack list and download in the app, `address.json` / `spelling.txt` parts, and message keys for the Python-side messages.
 
 ## Taste before paying
 - **Limits, not a locked button.** A Pro feature in Free works on a small amount (for example batch translation or safe fixes for 20 lines per run) so that the user sees it works; Pro lifts the limit.

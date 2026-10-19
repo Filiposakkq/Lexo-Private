@@ -5,7 +5,7 @@
   "version": "1.7.0",
   "identifier": "dev.filiposakkq.aside",
   "build": {
-    "frontendDist": "../../../free/lexo_free/ui"
+    "frontendDist": "../../resources/ui"
   },
   "app": {
     "withGlobalTauri": false,
@@ -21,8 +21,8 @@
     "shortDescription": "Translation Manager for Ren'Py",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.png", "icons/icon.ico"],
     "resources": {
-      "../../../free/lexo_free/ui": "ui",
-      "../../../core/lexo/packs": "packs"
+      "../../resources/ui": "ui",
+      "../../resources/packs": "packs"
     },
     "windows": {
       "nsis": {

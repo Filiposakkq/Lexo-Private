@@ -1,4 +1,4 @@
-//! Port of `pro/lexo_pro/mt_batch.py`: batch machine translation (the Pro feature `mt.batch`): which lines a batch takes, and the translating of many lines.
+//! Port of `reference/python/pro/lexo_pro/mt_batch.py`: batch machine translation (the Pro feature `mt.batch`): which lines a batch takes, and the translating of many lines.
 //!
 //! Core chooses the candidate lines, gathers each line's context and glossary terms and later checks and writes the suggestions; this module cuts the list to the limit of the licence and
 //! does the translating (it uses Core's single-line `mt::translate`, which stays free). Plain data in, plain data out.

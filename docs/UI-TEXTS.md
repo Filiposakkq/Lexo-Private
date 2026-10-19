@@ -1,9 +1,9 @@
 # Interface texts (translation of the app itself)
 
 The app is **English first**. English needs no table: **the English text is the key** (`t('Overview')`). Another language is a language pack with a `ui.json`
-(`core/lexo/packs/cs/ui.json` is the first one); the server hands it out (`/api/ui-lang?code=cs`, list: `/api/ui-langs`).
+(`rust/resources/packs/cs/ui.json` is the first one); the server hands it out (`/api/ui-lang?code=cs`, list: `/api/ui-langs`).
 
-## In the code (`free/lexo_free/ui/js/05-i18n.js`)
+## In the code (`rust/resources/ui/js/05-i18n.js`)
 | Call | Use |
 |---|---|
 | `t('Text {name}', { name })` | a text with placeholders |
@@ -27,7 +27,7 @@ Rules: the key is a plain string literal, never a template literal or a concaten
 every `t()` text has a Czech translation, the pack has no stale texts, placeholders match, and the modules listed in `CONVERTED` contain no Czech string literal.
 **Converting a module** = move its Czech literals to `t()` and add them to `ui.json`, then add the module to `CONVERTED`.
 
-## Messages from Python (`core/lexo/messages.py`)
+## Messages from Python (`reference/python/core/lexo/messages.py`)
 Every sentence the Python side shows to the user is written once, in English, as a template: `msg("Cannot save {name}: {reason}", name=n, reason=r)`;
 counted messages `msgn(n, "{n} line", "{n} lines")`; several messages one after another `join([...], ", ", ".")`. `str(message)` is the English text
 (logs, the command line, tests). On its way to the browser the server turns messages into `{"$m": template, "p": values}` (`wire`), and `api.js` translates

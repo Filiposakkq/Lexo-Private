@@ -1,4 +1,4 @@
-//! Port of `core/lexo/rpa.py`: read-only access to Ren'Py archives (`.rpa`, versions 2 and 3).
+//! Port of `reference/python/core/lexo/rpa.py`: read-only access to Ren'Py archives (`.rpa`, versions 2 and 3).
 //!
 //! An archive is a header line (`RPA-3.0 <index offset hex> <key hex>`), the file data, and at the offset a zlib compressed pickle of
 //! `{name: [(offset, length[, prefix])]}`. The pickle comes from a file on disk, so it is read with the restricted reader of `pickle.rs`.

@@ -1,4 +1,4 @@
-//! Port of `core/lexo/gametools.py`: the tools that prepare a game for translating: unpack `.rpa` archives, decompile `.rpyc` scripts, generate the translation files.
+//! Port of `reference/python/core/lexo/gametools.py`: the tools that prepare a game for translating: unpack `.rpa` archives, decompile `.rpyc` scripts, generate the translation files.
 //!
 //! Rules that hold for all of them: the game folder is only READ (anything written goes to a workspace folder the caller chooses; the one exception is `generate_translation`,
 //! whose product lives inside the project and which refuses to run unless the caller says so); archive entries cannot write outside the target folder; external programs are

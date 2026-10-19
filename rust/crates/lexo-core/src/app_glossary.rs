@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_glossary.py`: glossary of names: speakers and terms, import from the game's character definitions.
+//! Port of `reference/python/core/lexo/app_glossary.py`: glossary of names: speakers and terms, import from the game's character definitions.
 use crate::api::{ok, Answer, Args};
 use crate::app::App;
 use crate::app_base::{app_err, character_re, Res, CHARACTERS_MAX_BYTES, SCREEN_KEYWORDS};

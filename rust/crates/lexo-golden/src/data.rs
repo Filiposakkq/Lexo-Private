@@ -1,5 +1,5 @@
-//! The data scenarios of `core/golden/data` (docs/GOLDEN.md): a few files, a fixed clock and a list of steps, each calling one function of Core; the recorded answer
-//! of every step and the bytes of every file at the end are compared. This is the same runner as `run_data_scenario` in `core/tests/golden_tool.py`.
+//! The data scenarios of `testdata/golden/data` (docs/GOLDEN.md): a few files, a fixed clock and a list of steps, each calling one function of Core; the recorded answer
+//! of every step and the bytes of every file at the end are compared. This is the same runner as `run_data_scenario` in `reference/python/core/tests/golden_tool.py`.
 use crate::normalize::normalize;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use lexo_core::bulk::{self, Assignment, Selection};
@@ -1404,7 +1404,7 @@ pub(crate) fn temp_dir(prefix: &str) -> PathBuf {
     d
 }
 
-/// Run one data scenario (`core/golden/data/<name>.json`) and give its normalised answers: `{"steps": [...], "files_after": {...}}`.
+/// Run one data scenario (`testdata/golden/data/<name>.json`) and give its normalised answers: `{"steps": [...], "files_after": {...}}`.
 pub fn run_data_scenario(path: &Path) -> Result<Value, String> {
     let spec: Value = serde_json::from_str(&std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?).map_err(|e| e.to_string())?;
     let tmp = temp_dir("lexo-golden-");

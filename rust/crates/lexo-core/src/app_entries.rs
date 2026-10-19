@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_entries.py`: files and lines: listing, detail, saving, context, scenes, text history of a line.
+//! Port of `reference/python/core/lexo/app_entries.py`: files and lines: listing, detail, saving, context, scenes, text history of a line.
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::{line_gone, unknown_file, App};
 use crate::app_base::{app_err, ApiError, Res, PAGE_LIMIT};

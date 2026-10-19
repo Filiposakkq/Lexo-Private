@@ -1,4 +1,4 @@
-//! Port of `core/lexo/bulk.py`: bulk operations: applying reviewed group assignments and global approval of identical lines.
+//! Port of `reference/python/core/lexo/bulk.py`: bulk operations: applying reviewed group assignments and global approval of identical lines.
 //!
 //! The suggestions of groups for files are a Pro feature (the Pro pack, `bulk.categorize`); applying them, and the approval of identical lines, are here. Both only
 //! *propose* what they show; nothing changes until the caller applies the reviewed result.

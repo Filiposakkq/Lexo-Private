@@ -1,4 +1,4 @@
-//! Port of `core/lexo/export.py`: public progress data (`progress.json`, schema 2), the single source of truth for the website.
+//! Port of `reference/python/core/lexo/export.py`: public progress data (`progress.json`, schema 2), the single source of truth for the website.
 //!
 //! Definitions (identical for the overall figure, seasons and episodes): a "line" is one translation unit; overall = every scanned file of the project, including shared
 //! ('general') and unassigned files; an episode / season = only the files assigned to its episodes; overall = sum(episodes) + general + unassigned, which `validate_progress`

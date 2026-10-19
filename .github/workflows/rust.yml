@@ -3,11 +3,11 @@ name: Rust port
 
 on:
   pull_request:
-    paths: ["rust/**", "pro/**", "core/golden/**", "free/lexo_free/ui/**", ".github/workflows/rust.yml"]
+    paths: ["rust/**", "pro/**", "testdata/golden/**", "rust/resources/ui/**", ".github/workflows/rust.yml"]
   push:
     # a run on main saves the build cache that the pull requests restore (a branch sees only its own caches and those of main)
     branches: [main]
-    paths: ["rust/**", "pro/**", "core/golden/**", "free/lexo_free/ui/**", ".github/workflows/rust.yml"]
+    paths: ["rust/**", "pro/**", "testdata/golden/**", "rust/resources/ui/**", ".github/workflows/rust.yml"]
   workflow_dispatch:
 
 permissions:
@@ -89,7 +89,7 @@ jobs:
           if ((Get-Content selftest.out -Raw) -notmatch "139/139") { throw "the self-test did not pass" }
 
   pro:
-    # The Pro pack in Rust (private): the same answers as the Python pack (pro/golden/pack.json), the sidecar protocol and publishing against local git repositories.
+    # The Pro pack in Rust (private): the same answers as the Python pack (testdata/pro-golden/pack.json), the sidecar protocol and publishing against local git repositories.
     strategy:
       fail-fast: false
       matrix:

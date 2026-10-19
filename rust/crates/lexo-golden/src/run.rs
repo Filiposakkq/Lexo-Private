@@ -10,10 +10,10 @@ use lexo_core::{fontmetrics, layout, menus, textedit, validator};
 use serde_json::{json, Map, Value};
 use std::path::Path;
 
-/// The pack named in `core/golden/rpy/cases.json`: `cs` is the Czech pack of the app, `neutral` any non-ASCII letter.
+/// The pack named in `testdata/golden/rpy/cases.json`: `cs` is the Czech pack of the app, `neutral` any non-ASCII letter.
 pub fn pack_named(name: &str, repo_root: &Path) -> Result<Pack, String> {
     match name {
-        "cs" => lang::load_dir(&repo_root.join("core/lexo/packs/cs")).map_err(|e| e.to_string()),
+        "cs" => lang::load_dir(&repo_root.join("rust/resources/packs/cs")).map_err(|e| e.to_string()),
         "neutral" => Ok(Pack::neutral()),
         other => Err(format!("unknown language {other:?} in cases.json")),
     }

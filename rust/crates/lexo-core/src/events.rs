@@ -1,4 +1,4 @@
-//! Port of `core/lexo/events.py`: the event log, every change of the shared project state, one append-only file per author (docs/DATA-LAYOUT.md, docs/TEAMWORK.md).
+//! Port of `reference/python/core/lexo/events.py`: the event log, every change of the shared project state, one append-only file per author (docs/DATA-LAYOUT.md, docs/TEAMWORK.md).
 //!
 //! `<translation folder>/.aside/events/<author>.jsonl` holds one JSON object per line, written only by that author; `<local folder>/events-seen.json` says how many bytes
 //! of each file this computer has already read. An event says "this key of this kind now has this value" (`value` null = removed); the state is the replay of all

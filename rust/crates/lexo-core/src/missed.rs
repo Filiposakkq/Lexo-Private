@@ -1,4 +1,4 @@
-//! Port of `core/lexo/missed.py`: texts that Ren'Py's `translate` command does not extract, found by reading the game's scripts.
+//! Port of `reference/python/core/lexo/missed.py`: texts that Ren'Py's `translate` command does not extract, found by reading the game's scripts.
 //!
 //! The generator only takes what goes through the translation system with a block of its own. A text shown some other way (`show text "..."`, `renpy.input("prompt")`, `renpy.notify(...)`,
 //! a title assigned to a variable and shown later, or dialogue in a place the generator does not reach) has no block, yet it can be translated with a `translate <lang> strings:` block.

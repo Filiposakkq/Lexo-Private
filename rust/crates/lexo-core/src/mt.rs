@@ -1,4 +1,4 @@
-//! Port of `core/lexo/mt.py`: optional machine translation, a SUGGESTION for one line that is never written anywhere by itself.
+//! Port of `reference/python/core/lexo/mt.py`: optional machine translation, a SUGGESTION for one line that is never written anywhere by itself.
 //!
 //! Tags `{i}`, variables `[name]` and escapes (`\n`) never go to the service as text: they are replaced by `<x id="N"/>` placeholders and put back afterwards.
 //! The three providers (DeepL, OpenAI compatible, LibreTranslate) are plain REST calls; the request is built here and sent by the function that is passed in (`Http`),

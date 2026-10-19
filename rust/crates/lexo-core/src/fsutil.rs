@@ -1,4 +1,4 @@
-//! The file helpers of `core/lexo/util.py`: atomic writes, rotating backups, CSV files, the search matcher.
+//! The file helpers of `reference/python/core/lexo/util.py`: atomic writes, rotating backups, CSV files, the search matcher.
 //! Every write goes through a temporary file in the same folder and a rename, so an interruption can never leave a half-written file.
 use crate::clock::Clock;
 use crate::csvio;

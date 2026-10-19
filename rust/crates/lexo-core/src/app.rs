@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app.py` and the state of `CorePart`: the application state and operations (no HTTP, no UI) that the interface in `api.rs` exposes.
+//! Port of `reference/python/core/lexo/app.py` and the state of `CorePart`: the application state and operations (no HTTP, no UI) that the interface in `api.rs` exposes.
 //!
 //! The Python `App` is assembled from mixins by area; here `App` is one struct and each area is a file (`app_core.rs`, `app_validation.rs`, `app_entries.rs` ...) with its own
 //! `impl App` block and the wrappers (`op_*`) that `api.rs` calls. What a project has once it is open is in `Open`, so a method can borrow the project and the store together.

@@ -1,4 +1,4 @@
-//! Port of `core/lexo/texthistory.py`: the history of the translated text of every line.
+//! Port of `reference/python/core/lexo/texthistory.py`: the history of the translated text of every line.
 //!
 //! Each change of a translation is appended to `text_history.jsonl` in the data folder: when, which line (file + the key that proofreading uses: block + normalised
 //! original, so it follows the line when the file is reorganised), the old and the new text, and how it happened. The translator can look at all versions of a line and

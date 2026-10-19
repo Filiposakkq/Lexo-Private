@@ -1,4 +1,4 @@
-//! Port of `core/lexo/lock.py`: keeps two copies of the app from editing one project (and its data) at the same time.
+//! Port of `reference/python/core/lexo/lock.py`: keeps two copies of the app from editing one project (and its data) at the same time.
 //!
 //! `lock.json` in the data folder names the owner (pid, computer, random token) and is touched every few seconds while the app runs. Another copy that finds a *fresh*
 //! lock of a different process refuses to open the project unless the user takes it over. A lock that was not refreshed for `STALE_AFTER` seconds (crash, power loss)

@@ -1,4 +1,4 @@
-//! Port of `core/lexo/store.py`: translator-maintained metadata, stored in small CSV files in the data folder (Excel-friendly).
+//! Port of `reference/python/core/lexo/store.py`: translator-maintained metadata, stored in small CSV files in the data folder (Excel-friendly).
 //!
 //! proofread.csv, assignments.csv, approved.csv, episode_states.csv, line_marks.csv, ignored.csv, glossary.csv (history.csv: see `history`).
 //! Every write is atomic and backed up (`<local data dir>/backups`). Mutations go through `change()`, which keeps an undo stack of the most recent changes.

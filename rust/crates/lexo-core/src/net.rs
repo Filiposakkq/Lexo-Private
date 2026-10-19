@@ -1,4 +1,4 @@
-//! The one place that talks to the network: a POST request for the machine translation (port of `_post` of `core/lexo/mt.py`).
+//! The one place that talks to the network: a POST request for the machine translation (port of `_post` of `reference/python/core/lexo/mt.py`).
 //!
 //! `mt` builds the request and reads the answer; this is the function it is given (`mt::Http`). A status of 400 or more is an answer, not a failure (the caller turns it into a message);
 //! only a request that did not get an answer at all (no connection, a timeout, a bad certificate) is an `MtError`.

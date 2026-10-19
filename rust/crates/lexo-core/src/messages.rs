@@ -1,4 +1,4 @@
-//! Port of `core/lexo/messages.py` (the subset the modules use: `msg`, `msgn`, `wire`, `render`).
+//! Port of `reference/python/core/lexo/messages.py` (the subset the modules use: `msg`, `msgn`, `wire`, `render`).
 //!
 //! A message is written once, in English, with `{placeholders}`. On the way to the browser it travels as `{"$m": template, "p": values}`
 //! (and `"$n"`: the plural template for counted messages) and the browser translates it. `text()` is the formatted English text.

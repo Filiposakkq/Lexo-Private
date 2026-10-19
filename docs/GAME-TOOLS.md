@@ -1,6 +1,6 @@
 # Game tools (preparing a game for translating)
 
-Code: `core/lexo/gametools.py`. Goal: from a game folder without a translation to a `game/tl/<language>` skeleton that the app opens.
+Code: `reference/python/core/lexo/gametools.py`. Goal: from a game folder without a translation to a `game/tl/<language>` skeleton that the app opens.
 
 | Step | What | How |
 |---|---|---|

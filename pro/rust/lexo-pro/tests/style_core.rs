@@ -41,7 +41,7 @@ fn a_translated_line_is_checked_against_the_profile_and_the_fix_is_written() {
     ] {
         config.set(&format!("mt.{k}"), v);
     }
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: None });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: None });
     app.ext.register(Box::new(LexoProProvider::with_http(fake))).unwrap();
     app.open_project(&tl.to_string_lossy(), false).expect("the project opens");
     app.profile_set("li", "f", "", &json!({"alex": "informal"})).unwrap();

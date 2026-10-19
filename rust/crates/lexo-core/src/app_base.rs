@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_base.py`: the errors and constants shared by the parts of the application (`app.rs` and the `app_*.rs` files).
+//! Port of `reference/python/core/lexo/app_base.py`: the errors and constants shared by the parts of the application (`app.rs` and the `app_*.rs` files).
 use crate::features;
 use crate::fsutil::WriteFailed;
 use crate::messages::{msg, Message, Text};

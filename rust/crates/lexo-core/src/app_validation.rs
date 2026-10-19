@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_validation.py`: findings of the checks (validator, spelling, ignored findings), the overview and the estimates.
+//! Port of `reference/python/core/lexo/app_validation.py`: findings of the checks (validator, spelling, ignored findings), the overview and the estimates.
 use crate::api::{ok, Answer, Args};
 use crate::app::{App, CachedIssues, Found};
 use crate::app_base::{app_err, Res};

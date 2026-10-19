@@ -1,2 +1,2 @@
 # golden data is compared byte for byte (digests): never touch line ends
-core/golden/** -text
+testdata/golden/** -text

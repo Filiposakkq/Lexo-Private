@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_mt.py`: machine translation of lines.
+//! Port of `reference/python/core/lexo/app_mt.py`: machine translation of lines.
 //!
 //! The network is a function of the application (`App::mt_http`): the programs (`lexo-server`, `lexo-app`) set `net::post`, the tests and the golden runs leave it out (or put a fake) and
 //! then the operations that send text give the error "no connection".

@@ -41,12 +41,12 @@ fn the_sidecar_speaks_the_protocol_and_the_application_uses_it() {
     let tmp: PathBuf = std::env::temp_dir().join(format!("lexo-pro-sidecar-test-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&tmp);
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
-    copy_tree(&repo.join("core/golden/projects/basic"), &tmp.join("p"));
+    copy_tree(&repo.join("testdata/golden/projects/basic"), &tmp.join("p"));
     let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
     config.load();
     std::env::remove_var("LEXO_NO_PRO");
     std::env::set_var("LEXO_PRO_SIDECAR", SIDECAR);
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: None });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: None });
     std::env::remove_var("LEXO_PRO_SIDECAR");
     app.open_project(&tmp.join("p/game/tl/czech").to_string_lossy(), false).unwrap();
     let features = api::call(&mut app, "features", &json!({})).unwrap();

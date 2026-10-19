@@ -32,7 +32,7 @@ pub fn dump_ops(tl: &Path, scratch: &Path) -> Value {
     let mut config = Config::new(Some(&cfg.join("config.json")));
     config.load();
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: Some(cfg.join("packs")) });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: Some(cfg.join("packs")) });
     let mut out = Map::new();
     match app.open_project(&tl.to_string_lossy(), false) {
         Err(e) => {
@@ -60,7 +60,7 @@ pub fn run_ops(tl: &Path, scratch: &Path, ops: &Value) -> Value {
     let mut config = Config::new(Some(&cfg.join("config.json")));
     config.load();
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: Some(cfg.join("packs")) });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: Some(cfg.join("packs")) });
     let mut out: Vec<Value> = Vec::new();
     match app.open_project(&tl.to_string_lossy(), false) {
         Err(e) => out.push(json!({"open_error": e.text().text()})),

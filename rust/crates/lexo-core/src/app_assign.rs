@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_assign.py`: assigning files to groups (episodes), episode states, approving pending lines.
+//! Port of `reference/python/core/lexo/app_assign.py`: assigning files to groups (episodes), episode states, approving pending lines.
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::App;
 use crate::app_base::{app_err, ApiError, Res};

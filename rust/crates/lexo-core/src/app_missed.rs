@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_missed.py`: texts the generator missed (show text, input prompts, titles in variables ...): find them in the game's scripts and add them to the
+//! Port of `reference/python/core/lexo/app_missed.py`: texts the generator missed (show text, input prompts, titles in variables ...): find them in the game's scripts and add them to the
 //! translation.
 use crate::api::{ok, Answer, Args};
 use crate::app::App;

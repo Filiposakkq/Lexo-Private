@@ -15,7 +15,7 @@ from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path[:0] = [str(ROOT / "core"), str(ROOT / "core" / "tests")]
+sys.path[:0] = [str(ROOT / "reference" / "python" / "core"), str(ROOT / "reference" / "python" / "core" / "tests")]
 
 from lexo import history, layout, store    # noqa: E402
 from lexo.events import EventLog           # noqa: E402

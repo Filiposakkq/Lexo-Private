@@ -1,4 +1,4 @@
-//! The normalisation of `core/tests/golden_tool.py` (`_str`, `normalize`): plain JSON without what differs between runs or systems.
+//! The normalisation of `reference/python/core/tests/golden_tool.py` (`_str`, `normalize`): plain JSON without what differs between runs or systems.
 use regex::Regex;
 use serde_json::{Map, Value};
 use std::sync::OnceLock;

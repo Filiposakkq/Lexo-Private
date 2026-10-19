@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_core.py`: the open project, refresh, persistence of derived files, settings, features, links.
+//! Port of `reference/python/core/lexo/app_core.py`: the open project, refresh, persistence of derived files, settings, features, links.
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::{App, CachedIssues, Open};
 use crate::app_base::{app_err, ApiError, Res, LINKS, UI_PREF_MAX};

@@ -1,5 +1,5 @@
-//! The golden runner (docs/GOLDEN.md): reads the inputs and the recorded answers of `core/golden`, asks `lexo-core` for its own answers,
-//! normalises them like `core/tests/golden_tool.py` does and compares. M0 was the skeleton (the inventory and the report); each milestone from M1 on
+//! The golden runner (docs/GOLDEN.md): reads the inputs and the recorded answers of `testdata/golden`, asks `lexo-core` for its own answers,
+//! normalises them like `reference/python/core/tests/golden_tool.py` does and compares. M0 was the skeleton (the inventory and the report); each milestone from M1 on
 //! replaces `NotImplemented` for the cases of the modules it ports.
 pub mod data;
 pub mod diff;
@@ -11,11 +11,11 @@ pub mod scenario;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
-/// The folder `core/golden`: `LEXO_GOLDEN` if set, otherwise the one of this repository.
+/// The folder `testdata/golden`: `LEXO_GOLDEN` if set, otherwise the one of this repository.
 pub fn golden_dir() -> PathBuf {
     match std::env::var_os("LEXO_GOLDEN") {
         Some(p) => PathBuf::from(p),
-        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../core/golden"),
+        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../testdata/golden"),
     }
 }
 
@@ -197,7 +197,7 @@ mod tests {
 
     #[test]
     fn the_inventory_finds_every_group_and_unique_ids() {
-        let cases = inventory(&golden_dir()).expect("core/golden/expected is readable");
+        let cases = inventory(&golden_dir()).expect("testdata/golden/expected is readable");
         for g in ["rpy", "rpa", "layout", "menus", "validator", "spelling", "textedit", "fontmetrics", "data", "scenarios"] {
             assert!(cases.iter().any(|c| c.group == g), "no case in {g}");
         }

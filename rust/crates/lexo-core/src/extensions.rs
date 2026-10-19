@@ -1,4 +1,4 @@
-//! Port of `core/lexo/extensions.py`: the extension host, how a separately delivered Pro pack plugs into Core and how a Pro feature is called.
+//! Port of `reference/python/core/lexo/extensions.py`: the extension host, how a separately delivered Pro pack plugs into Core and how a Pro feature is called.
 //!
 //! Core and Free hold only the catalog of gated features (`features.rs`), this host ("is there a provider for this feature, and what does it offer?") and the calls themselves.
 //! The implementation, the licence check and the limits of the demo live in the Pro pack. Without a provider the host answers "not available" and nothing else can change that.

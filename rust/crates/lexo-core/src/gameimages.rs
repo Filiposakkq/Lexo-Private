@@ -1,4 +1,4 @@
-//! Port of `core/lexo/gameimages.py`: the pictures of the game, found by their Ren'Py image name, and the picture a line is shown on.
+//! Port of `reference/python/core/lexo/gameimages.py`: the pictures of the game, found by their Ren'Py image name, and the picture a line is shown on.
 //!
 //! Ren'Py games keep their images in `.rpa` archives or loose in `game/images`. A script line names an image (`scene ep1_cafe_maya1`), which is either a file called like that,
 //! or an `image ep1_cafe_maya1:` statement whose first string is another image name or a path (animations list their frames). This module indexes the archives (read-only),

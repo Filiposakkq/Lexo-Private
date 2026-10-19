@@ -22,8 +22,8 @@ use serde_json::{json, Map, Value};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// The Czech texts of the messages of this pack (`pro/lexo_pro/ui/cs.json`, the same file the Python pack reads).
-const UI_CS: &str = include_str!("../../../lexo_pro/ui/cs.json");
+/// The Czech texts of the messages of this pack (`pro/rust/lexo-pro/ui/cs.json`, the same file the Python pack reads).
+const UI_CS: &str = include_str!("../ui/cs.json");
 
 const FEATURES: [&str; 9] =
     ["publish.web", "bulk.categorize", "replace.regex", "mt.batch", "fixes.safe", "carry.over", "memory.fuzzy", "mt.profiles", "style.check"];

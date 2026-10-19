@@ -12,7 +12,7 @@ A map of the documents. **Current** = describes how things are now. **Plan** = a
 | [REPO-CLEANUP.md](REPO-CLEANUP.md) | What is untidy in the repository and the plan to tidy it | plan |
 | [RUST-PORT.md](RUST-PORT.md) | The port of Core to Rust: milestones, the progress table, how the Pro pack connects | plan, nearly all done |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Layers, the interface of Core, how Free and Pro attach | current for the ideas, Python-era for the file names |
-| [API.md](API.md) | The 80 operations of Core (generated from `core/contract`) | current (generated) |
+| [API.md](API.md) | The 80 operations of Core (generated from `testdata/contract`) | current (generated) |
 | [GOLDEN.md](GOLDEN.md) | The golden data: inputs, recorded answers, how the Rust port is checked | current |
 | [DATA-LAYOUT.md](DATA-LAYOUT.md) | Where the data of a project lives (`.aside/`, the local data, the event log) | current |
 | [PROJECT-FILE.md](PROJECT-FILE.md) | `.aside/aside.json`: groups, language | current |

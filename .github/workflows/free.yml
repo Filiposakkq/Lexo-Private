@@ -1,9 +1,10 @@
-# Tests the Free app. Read-only: no release, no deploy, nothing is pushed.
+# Tests the Python reference implementation (Core and Free; the guards of the UI texts, the contract and the golden data among them) and runs the UI self-test against it.
+# Read-only: no release, no deploy, nothing is pushed.
 name: Free app
 
 on:
   pull_request:
-    paths: ["free/**", "core/**", ".github/workflows/free.yml"]
+    paths: ["reference/python/**", "rust/resources/ui/**", "rust/resources/packs/**", "testdata/**", "pro/rust/ui/**", ".github/workflows/free.yml"]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +20,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: free
+        working-directory: reference/python/free
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -32,7 +33,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: free
+        working-directory: reference/python/free
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6

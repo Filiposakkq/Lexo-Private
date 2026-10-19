@@ -1,4 +1,4 @@
-//! Port of `core/lexo/util.py` (the parts the ported modules need so far) and the few Python string rules the other modules rely on.
+//! Port of `reference/python/core/lexo/util.py` (the parts the ported modules need so far) and the few Python string rules the other modules rely on.
 use serde_json::Value;
 use sha1::{Digest, Sha1};
 use std::collections::HashMap;
@@ -194,7 +194,7 @@ impl Counter {
 mod tests {
     use super::*;
 
-    /// The expected values are what the Python function answers (checked with `core/lexo/util.py`).
+    /// The expected values are what the Python function answers (checked with `reference/python/core/lexo/util.py`).
     #[test]
     fn norm_ws_matches_python() {
         let cases = [

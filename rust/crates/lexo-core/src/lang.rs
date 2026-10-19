@@ -1,4 +1,4 @@
-//! Port of `core/lexo/lang.py`: the language packs (data files, no code). So far: the pack itself, reading one pack folder, the plural rules.
+//! Port of `reference/python/core/lexo/lang.py`: the language packs (data files, no code). So far: the pack itself, reading one pack folder, the plural rules.
 //! Discovery in the user's folder and the interface texts (`ui.json`) come with the data files (M3) and the operations (M6).
 //! The pack is passed to the functions that need it (the Python module keeps a global "current pack").
 use crate::util::fold;

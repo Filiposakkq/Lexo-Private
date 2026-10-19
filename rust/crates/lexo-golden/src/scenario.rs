@@ -1,5 +1,5 @@
-//! The scenarios on whole projects (`core/golden/scenarios`, docs/GOLDEN.md): a copy of a fixture project is opened by the application and a list of operations is called through the
-//! table of `api.rs`; the answer of every call and the `.rpy` files at the end are compared with the recorded ones. The same runner as `run_scenario` of `core/tests/golden_tool.py`.
+//! The scenarios on whole projects (`testdata/golden/scenarios`, docs/GOLDEN.md): a copy of a fixture project is opened by the application and a list of operations is called through the
+//! table of `api.rs`; the answer of every call and the `.rpy` files at the end are compared with the recorded ones. The same runner as `run_scenario` of `reference/python/core/tests/golden_tool.py`.
 use crate::data::{base64_encode, roots, temp_dir};
 use crate::normalize::normalize;
 use lexo_core::api;
@@ -69,7 +69,7 @@ pub fn run_scenario(golden: &Path, name: &str) -> Result<Value, String> {
         let cfg_dir = tmp.join("cfg");
         let mut config = Config::new(Some(&cfg_dir.join("config.json")));
         config.load();
-        let packs = Packs { bundled: golden.join("../../core/lexo/packs"), user: Some(cfg_dir.join("packs")) };
+        let packs = Packs { bundled: golden.join("../../rust/resources/packs"), user: Some(cfg_dir.join("packs")) };
         let mut app = App::new(config, packs);
         let mut steps = Vec::new();
         let opened = app.open_project(&tl.to_string_lossy(), false);

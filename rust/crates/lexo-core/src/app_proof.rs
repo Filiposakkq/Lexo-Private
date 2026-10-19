@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_proof.py`: proofreading marks on lines.
+//! Port of `reference/python/core/lexo/app_proof.py`: proofreading marks on lines.
 use crate::api::{plain, Answer, Args};
 use crate::app::{unknown_file, App};
 use crate::app_base::{app_err, Res};

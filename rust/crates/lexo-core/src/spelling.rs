@@ -1,4 +1,4 @@
-//! Port of `core/lexo/spelling.py`: typo hints without a dictionary: the project's own translated text is the vocabulary.
+//! Port of `reference/python/core/lexo/spelling.py`: typo hints without a dictionary: the project's own translated text is the vocabulary.
 //!
 //! A word that occurs once or twice but looks like a mistyped form of a word used many times is reported (missing diacritics, swapped letters, a doubled
 //! letter). These are hints only (info / warning, never errors). Words from the source and glossary entries are never reported.

@@ -51,7 +51,7 @@ fn read_project(path: &Path) -> Vec<(String, String, String)> {
     let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
     config.load();
     std::env::set_var("LEXO_NO_PRO", "1");
-    let mut app = App::new(config, Packs { bundled: repo.join("core/lexo/packs"), user: None });
+    let mut app = App::new(config, Packs { bundled: repo.join("rust/resources/packs"), user: None });
     app.open_project(&lang.to_string_lossy(), false).expect("the project opens");
     let files = api::call(&mut app, "files", &json!({})).unwrap();
     let files: Value = files.json().unwrap().clone();

@@ -1,4 +1,4 @@
-//! Port of `core/lexo/app_memory.py`: translation memory and consistency of repeated originals.
+//! Port of `reference/python/core/lexo/app_memory.py`: translation memory and consistency of repeated originals.
 use crate::api::{ok, plain, Answer, Args};
 use crate::app::{line_gone, App};
 use crate::app_base::{app_err, ApiError, Res};

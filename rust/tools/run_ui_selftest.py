@@ -1,8 +1,8 @@
-"""Runs the UI self-test of Free (free/lexo_free/ui/selftest.js, 139 checks) against the RUST server, in a real browser, headless.
+"""Runs the UI self-test of Free (rust/resources/ui/selftest.js, 139 checks) against the RUST server, in a real browser, headless.
 
     py rust/tools/run_ui_selftest.py [--exe path\to\lexo-server.exe]
 
-It starts `lexo-server --selftest` (a synthetic project in a temporary folder, no Pro pack) and then does what `free/tests/ui/run_selftest_ci.py` does against the Python server, so the two
+It starts `lexo-server --selftest` (a synthetic project in a temporary folder, no Pro pack) and then does what `reference/python/free/tests/ui/run_selftest_ci.py` does against the Python server, so the two
 are checked by the same code. Needs Playwright (`py -m pip install playwright`) and Microsoft Edge (set BADIK_BROWSER=chrome for Chrome, or "" for Playwright's Chromium).
 Exit code 0 = every check passed.
 """
@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-RUNNER = ROOT / "free" / "tests" / "ui" / "run_selftest_ci.py"
+RUNNER = ROOT / "reference" / "python" / "free" / "tests" / "ui" / "run_selftest_ci.py"
 
 
 def main():

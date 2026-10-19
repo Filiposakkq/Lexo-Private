@@ -1,4 +1,4 @@
-//! Port of `pro/lexo_pro/categorize.py`: suggesting which group (episode, chapter ...) a file belongs to, from its name, its folder and the assignments of its neighbours.
+//! Port of `reference/python/pro/lexo_pro/categorize.py`: suggesting which group (episode, chapter ...) a file belongs to, from its name, its folder and the assignments of its neighbours.
 //!
 //! Works on plain data: the request carries the names, the current and known assignments and the layout of the project (`Layout::to_json()`), so it needs nothing of the open project. It only
 //! proposes; the assignments are written by Core when the translator accepts them.

@@ -1,4 +1,4 @@
-//! Publishing progress.json to a website repository, against throw-away local git repositories (the tests of `pro/tests/test_publish.py`, at the level of the pack).
+//! Publishing progress.json to a website repository, against throw-away local git repositories (the tests of `reference/python/pro/tests/test_publish.py`, at the level of the pack).
 use lexo_pro::publish::{plan, publish};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
