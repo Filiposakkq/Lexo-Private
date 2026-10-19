@@ -75,7 +75,8 @@ impl App {
         let members: BTreeMap<String, String> = all_members.iter().filter(|(a, _)| !removed.contains(*a)).map(|(a, n)| (a.clone(), n.clone())).collect();
         let lead = self.team_lead_file()?;
         let lead_author = lead.as_ref().map(|l| py_str(&l["lead"])).unwrap_or_default();
-        let offer_author: Option<String> = lead.as_ref().map(|l| py_str(&l["offer"])).filter(|a| !a.is_empty() && !removed.contains(a) && members.contains_key(a));
+        let offer_author: Option<String> =
+            lead.as_ref().map(|l| py_str(&l["offer"])).filter(|a| !a.is_empty() && !removed.contains(a) && members.contains_key(a));
         let roles = lead.as_ref().and_then(|l| l["roles"].as_object().cloned()).unwrap_or_default();
         let assign = lead.as_ref().and_then(|l| l["assign"].as_object().cloned()).unwrap_or_default();
         let mut my_files: Vec<&String> =
