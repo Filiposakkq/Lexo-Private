@@ -1,0 +1,91 @@
+/* Design tokens of the new interface (ui-next). Every colour, size and duration the interface uses is named here; components.css only reads these names.
+   Dark red is the one theme. Names are semantic (what it is for), not literal, so another theme later only changes this file.
+   The reasons and the rules of use are in docs/project/DESIGN-SYSTEM.md. */
+:root {
+  color-scheme: dark;
+
+  /* surfaces, from the back to the front */
+  --bg-app: #14090b;            /* the canvas of the whole window */
+  --bg-rail: #180b0e;           /* the side navigation */
+  --bg-bar: #1b0d10;            /* the top bar and the status bar */
+  --bg-card: #1d0f12;           /* cards, panels, fields */
+  --bg-hover: #26151a;          /* a hovered or selected row, a menu */
+  --bg-input: #14090b;          /* the inside of a text field (sunk into a card) */
+  --bg-code: #0f0608;           /* logs and code */
+
+  /* lines */
+  --line: #3a1f25;              /* the border of a card, a field, a bar */
+  --line-soft: #2a1519;         /* a divider between rows */
+  --line-accent: #7a2a31;       /* the border of something to notice */
+
+  /* text. Four steps; --text-faint is for hints and headers of columns, never for the only copy of a message */
+  --text: #f3e9ea;
+  --text-2: #cdb9bb;
+  --text-muted: #a58b8e;
+  --text-faint: #8f787b;
+  --text-disabled: #775f63;     /* disabled things and decoration: 3 : 1, enough for a control, not for reading */
+
+  /* accent (the red). One filled accent button per view. */
+  --accent: #c1272d;            /* the fill of the main button */
+  --accent-hover: #d23039;
+  --accent-hi: #e0434f;         /* progress, active marks, links on dark */
+  --accent-soft: #3a1318;       /* the background of a chip, the active item of the navigation */
+  --accent-text: #f08c93;       /* text and icons in the accent colour on dark */
+  --on-accent: #ffffff;         /* text on --accent */
+
+  /* state colours: the meaning is the same everywhere */
+  --todo: #e6b34a;              /* to do, a warning */
+  --todo-bg: #3a2a10;
+  --ok: var(--accent-hi);       /* translated: the accent is "done" in this application, there is no green */
+  --ok-bg: var(--accent-soft);
+  --checked: #cdb9bb;           /* checked, finished */
+  --checked-bg: #2f1a1f;
+  --danger: #ff6b73;            /* an error that blocks */
+  --danger-bg: #3d1419;
+  --track: #2f1a1f;             /* the empty part of a progress bar */
+
+  /* spacing: steps of 4 px */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px;
+
+  /* corners */
+  --r-sm: 6px;                  /* tags in a table */
+  --r-md: 8px;                  /* buttons, fields, rows */
+  --r-lg: 12px;                 /* cards */
+  --r-xl: 14px;                 /* the hero card, a dialog */
+  --r-pill: 999px;
+
+  /* type. The system font: nothing is shipped or loaded. Two weights only (400, 500). */
+  --font: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  --fs-caption: 11px;           /* badges, column headers */
+  --fs-small: 12px;             /* metadata, chips */
+  --fs-body: 13px;              /* dense UI: tables, lists, buttons */
+  --fs-text: 14px;              /* reading text, names */
+  --fs-heading: 16px;           /* the heading of a card */
+  --fs-title: 19px;             /* the title of a screen */
+  --fs-hero: 22px;              /* the name of the product, the big number */
+  --lh-tight: 1.35; --lh-normal: 1.6;
+
+  /* size of controls */
+  --h-control: 32px;            /* a button, a field */
+  --h-control-sm: 28px;
+  --h-row: 36px;                /* a row of a table */
+  --w-rail: 62px;               /* the icon rail (the one on Home); the project navigation is --w-nav */
+  --w-nav: 148px;
+
+  /* elevation: flat; only floating things (menu, dialog) have a border and a shadow */
+  --shadow-float: 0 8px 24px rgba(0, 0, 0, .45), 0 2px 6px rgba(0, 0, 0, .35);
+  --veil: rgba(8, 3, 4, .66);   /* behind a dialog */
+
+  /* motion. Short, and none at all for people who ask for less. */
+  --t-fast: 120ms; --t-base: 200ms; --t-slow: 500ms;
+  --ease: cubic-bezier(.2, .7, .3, 1);
+  --ease-pop: cubic-bezier(.2, 1.3, .4, 1);
+
+  /* focus: a ring that is visible on every surface */
+  --focus: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--accent-hi);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 0ms; --t-base: 0ms; --t-slow: 0ms; }
+}

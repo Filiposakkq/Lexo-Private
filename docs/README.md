@@ -38,6 +38,7 @@ The first walk-through for a new user (install, open a game, the first translati
 | [HANDOFF.md](project/HANDOFF.md) | What is this project, what was decided, what are the rules, how is a step done, what is the state now (start here) | current |
 | [ROADMAP.md](project/ROADMAP.md) | The plan in order, what is done (the table "Where we are" and the log) | current (the early steps are history) |
 | [REPO-CLEANUP.md](project/REPO-CLEANUP.md) | What was untidy in the repository, what was moved, what is open | current |
+| [DESIGN-SYSTEM.md](project/DESIGN-SYSTEM.md) | Colours, type, spacing and components of the new interface, with a living styleguide (`/next/styleguide.html`) | current |
 | [UI-NEXT.md](project/UI-NEXT.md) | The classic and the new interface side by side: folders, URLs, rules, the switch | current |
 | [UI-PARITY.md](project/UI-PARITY.md) | Checklist of every action of the current interface: each must have a place in the new interface (nothing is lost) | working list |
 
