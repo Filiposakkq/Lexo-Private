@@ -35,4 +35,4 @@ class FeatureLocked(AppError):
 
     def __init__(self, feature):
         self.feature = feature
-        super().__init__(msg("“{title}” is a Pro feature.", title=features.CATALOG[feature].title))
+        super().__init__(msg("“{title}” is a Pro feature.", title=msg(features.CATALOG[feature].title)))

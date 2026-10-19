@@ -86,7 +86,7 @@ impl ApiError {
 
 pub fn locked_message(feature: &str) -> Message {
     let title = features::feature(feature).map_or(feature, |f| f.title);
-    msg("“{title}” is a Pro feature.", &[("title", json!(title))])
+    msg("“{title}” is a Pro feature.", &[("title", msg(title, &[]).wire())]) // the title is a message of its own, so that it is translated too
 }
 
 impl std::fmt::Display for ApiError {
