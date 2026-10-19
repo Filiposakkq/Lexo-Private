@@ -23,6 +23,10 @@ CATALOG = {f.id: f for f in (
     Feature("replace.regex", "Regex find & replace"),
     Feature("bulk.categorize", "Bulk categorisation suggestions"),
     Feature("publish.web", "Publishing progress to a website"),
+    Feature("carry.over", "Carry a translation over to a new version"),
+    Feature("memory.fuzzy", "Fill from similar translations"),
+    Feature("mt.profiles", "Profiles of characters"),
+    Feature("style.check", "Style check"),
 )}
 
 

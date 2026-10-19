@@ -2,9 +2,11 @@ import { t as T } from './05-i18n.js';
 import { h } from './00-core.js';
 import { post } from './10-api.js';
 import { dialog, fail, toast } from './13-feedback.js';
+import { requireFeature } from './38-pro.js';
 /* The profile of a character (a Pro feature): the gender, the way the character speaks and the form in which they address the other characters. The batch machine translation
    sends it to the language model with every line of that speaker. It is kept in the note of the glossary entry (the glossary page does not show it). */
 export async function profileDialog(code, name) {
+  if (!await requireFeature('mt.profiles')) return;
   let list;
   try { list = await post('profile/list', {}); } catch (e) { return fail(e); }
   const me = list.items.find((i) => i.code === code) || { profile: { gender: '', style: '', to: {} } };

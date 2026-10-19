@@ -954,6 +954,23 @@
       },
       "type": "object"
      },
+     "carry.over": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
      "fixes.safe": {
       "keys": {
        "available": {
@@ -971,7 +988,41 @@
       },
       "type": "object"
      },
+     "memory.fuzzy": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
      "mt.batch": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "mt.profiles": {
       "keys": {
        "available": {
         "type": "boolean"
@@ -1006,6 +1057,23 @@
       "type": "object"
      },
      "replace.regex": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "style.check": {
       "keys": {
        "available": {
         "type": "boolean"
