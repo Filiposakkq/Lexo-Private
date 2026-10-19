@@ -41,8 +41,15 @@ export function keyEmail(key: string, id: string): { subject: string; text: stri
 }
 
 /** Sends one mail (Resend). Returns whether it was sent; without `RESEND_API_KEY` nothing is sent. */
-async function send(env: Env, to: string, subject: string, text: string, html: string): Promise<boolean> {
-  if (!env.RESEND_API_KEY || !to) return false;
+export interface SendResult {
+  sent: boolean;
+  /** Why not: `not_configured` (no RESEND_API_KEY), `no_address`, the status and the answer of Resend, or `network`. */
+  reason?: string;
+}
+
+async function sendDetailed(env: Env, to: string, subject: string, text: string, html: string): Promise<SendResult> {
+  if (!env.RESEND_API_KEY) return { sent: false, reason: "not_configured" };
+  if (!to) return { sent: false, reason: "no_address" };
   const body: Record<string, unknown> = { from: env.MAIL_FROM ?? "Aside <licence@aside.filiposakkq.dev>", to, subject, text, html };
   if (env.REPLY_TO) body.reply_to = env.REPLY_TO;
   try {
@@ -51,10 +58,22 @@ async function send(env: Env, to: string, subject: string, text: string, html: s
       headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
       body: JSON.stringify(body),
     });
-    return r.ok;
+    if (r.ok) return { sent: true };
+    return { sent: false, reason: `${r.status} ${(await r.text().catch(() => "")).slice(0, 200)}`.trim() };
   } catch {
-    return false;
+    return { sent: false, reason: "network" };
   }
+}
+
+async function send(env: Env, to: string, subject: string, text: string, html: string): Promise<boolean> {
+  return (await sendDetailed(env, to, subject, text, html)).sent;
+}
+
+/** A test mail from the admin page: tells whether Resend took it and, if not, why. */
+export function sendTest(env: Env, to: string): Promise<SendResult> {
+  const text = "This is a test e-mail from the licence server of Aside.\n\nIf you can read it, the keys and the codes for a lost key will arrive too.";
+  const html = `<!doctype html><html><body style="font-family:system-ui,sans-serif"><p><b>Aside</b>: this is a test e-mail from the licence server.</p><p>If you can read it, the keys and the codes for a lost key will arrive too.</p></body></html>`;
+  return sendDetailed(env, to, "Aside: test e-mail", text, html);
 }
 
 /** Mails the licence key to the buyer (Resend). Returns whether it was sent; without `RESEND_API_KEY` nothing is sent (the owner re-issues the key from the admin page). */

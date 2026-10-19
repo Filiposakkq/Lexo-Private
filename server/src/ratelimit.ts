@@ -6,6 +6,7 @@
 import { sha256Hex } from "./crypto.ts";
 import type { Env } from "./env.ts";
 import { fail } from "./handlers.ts";
+import { logEvent } from "./store.ts";
 
 /** Calls per hour for one address. A school or an office behind one address is the reason for the generous numbers of the regular calls. */
 export const LIMITS: Record<string, number> = {
@@ -30,6 +31,7 @@ export async function limited(req: Request, env: Env, path: string, now: number)
   const row = await env.DB.prepare("INSERT INTO rate_limits (bucket, n, at) VALUES (?, 1, ?) ON CONFLICT(bucket) DO UPDATE SET n = n + 1 RETURNING n").bind(bucket, now).first<{ n: number }>();
   if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM rate_limits WHERE at < ?").bind(now - 3 * HOUR).run(); // now and then, the old counters go
   if ((row?.n ?? 1) <= max) return null;
+  if (row?.n === max + 1) await logEvent(env.DB, now, null, "rate-limited", path); // once per address and hour: the admin page shows how often limits hit
   const minutes = Math.max(1, Math.ceil(((hour + 1) * HOUR - now) / 60));
   return fail("rate_limited", 429, { minutes });
 }

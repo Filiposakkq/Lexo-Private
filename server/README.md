@@ -10,7 +10,7 @@ A Cloudflare Worker with a D1 database (private, never part of the public reposi
 | `POST /v1/refresh {licence, device}` | the application | the regular check (every `check_days`, default 14); a renewed file, or a refusal for a revoked licence |
 | `POST /v1/deactivate {licence, device}` | the application | frees the place of the device |
 | `POST /v1/webhook/lemonsqueezy` | the payment provider | a paid order makes a licence (once per order) and mails the key; a refund revokes it |
-| `GET /admin`, `/admin/api/...` | the owner | the admin page: licences, devices, events, issue / revoke / restore / new key / free a device / check interval |
+| `GET /admin`, `/admin/api/...` | the owner | the admin page (see "The admin page" below) |
 | `GET /v1/health` | anyone | `{"ok": true}` |
 
 The licence file is the one the Pro pack checks (`pro/rust/lexo-pro/src/licence.rs`): `{payload, sig}`, Ed25519 over the bytes of the payload. Only a **hash** of the key is stored; the key is shown once (to the buyer by e-mail, to the owner in the admin page).
@@ -92,3 +92,26 @@ The calls of the application are limited per address and hour in the code (`src/
 - The device id includes the identifier of the machine, so copying `licence.json` and `device.id` to another computer gives another device that has to take a place. (After this change, computers activated before it need to enter the key once more.)
 - A place is taken in one statement that checks the limit, so parallel activations cannot exceed `max_devices`.
 - Not stopped: patching the program, a replaced Core (it is open source), a licence file kept offline until it ends. Rate limits by IP belong to Cloudflare (a rule on `/v1/activate`, `/v1/refresh`, `/v1/recover/request`).
+
+## The admin page
+
+`GET /admin` (the page; in front of it Cloudflare Access and the token `ADMIN_TOKEN`) and `/admin/api/...` (every call needs `Authorization: Bearer <ADMIN_TOKEN>`). Dark red, no libraries, no dialogs of the browser.
+
+**What it shows:** the numbers (active licences, computers in use, overdue checks, revoked, lost keys replaced, refused calls in 24 h); the list of licences with badges (key replaced, no releases left, shared computer id) and the reason of a revoking; the panels *Needs a look* (computers over the limit three times or more, the key of a revoked licence used, the limit of releases reached, a computer id on two licences, a lost key replaced), *Not activated yet* (bought more than 7 days ago), *Recent activity*, *Versions in use* (of the computers that hold a place) and *System* (mail service set up or not, when a key was last mailed, the signing key id and the trusted ones, payment hook, size of the database, how often the limits per address hit, a button to reset them). It never shows a secret, only whether it is set.
+
+**Search** (the box above the list) looks at the licence id, the e-mail, the note and the notes of the history, and the name and the id of the computers.
+
+**What the owner can do on a licence:** copy the id; computers allowed; check interval; edit the contact; **send the key again** (the key is only a hash, so a new key is made and mailed); **new key** (optionally mailed, optionally *also free all computers* after a leak); **revoke** with a kind (refund, abuse, test, other) and a reason, restore; erase personal data (also removes the notes); free a single computer; **notes** (a history, newest first; never shown to the buyer); the id of a computer is copied by a click and shows where else it is.
+
+| Call | What |
+|---|---|
+| `GET overview?q=&events=` | the list (with `user_releases`, `recovered`, `revoke_reason`, `shared_devices`), the log, the numbers |
+| `GET insights` | the panels beside the list (attention, not activated, versions, limits, health); loaded with the page, not at every letter of the search |
+| `GET licence/<id>` | the detail: computers (with `also_on`), events, `notes`, `user_releases`, `release_limit`, `recovered` |
+| `POST licence/<id>/note {text}`, `note-delete {id}` | notes (up to 500 characters) |
+| `POST licence/<id>/revoke {category, reason}` | the log keeps `<category>: <reason>` |
+| `POST licence/<id>/rekey {send, free_all}` | a new key; `free_all` frees every computer |
+| `POST test-mail {to}` | a test e-mail; answers `sent` and `reason` (`not_configured`, or what Resend said) |
+| `POST limits/reset` | deletes the counters of the limits per address |
+
+The version of the server shown on the page is `SERVER_VERSION` in `src/admin.ts` (change it with a release). No database change comes with these functions: notes, revoke reasons and limit hits are rows of `events` (`note`, `revoked`, `rate-limited`).

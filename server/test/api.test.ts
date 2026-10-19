@@ -176,7 +176,10 @@ describe("the admin", () => {
   it("serves the admin page", async () => {
     const r = await exports.default.fetch(new Request("https://licence.test/admin"));
     expect(r.status).toBe(200);
-    expect(await r.text()).toContain("Aside – licences");
+    const page = await r.text();
+    expect(page).toContain("<title>Aside licences</title>");
+    expect(page).toContain("Lost keys replaced"); // the page knows the recovery of a lost key
+    expect(page.includes("prompt(") || page.includes("confirm(")).toBe(false); // the dialogs of the page are its own
     expect(r.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
   });
 });
@@ -436,5 +439,114 @@ describe("limits per network address", () => {
     const answers = await Promise.all(Array.from({ length: 33 }, () => from("198.51.100.4", "/v1/activate", { key, device: device(40) })));
     expect(answers.filter((r) => r.status === 200).length).toBe(30);
     expect(answers.filter((r) => r.json.error === "rate_limited").length).toBe(3);
+  });
+});
+
+describe("what the admin sees of the new features", () => {
+  it("shows how many times the user freed a computer and whether a lost key was replaced", async () => {
+    const { id, key } = await licence({ email: "seen@example.com" });
+    const act = await call("/v1/activate", { body: { key, device: device(60) } });
+    await call("/v1/deactivate", { body: { licence: act.json.licence, device: device(60) } });
+    await E.DB.prepare("INSERT INTO events (at, licence_id, kind, detail) VALUES (?,?,?,?)").bind(Math.floor(Date.now() / 1000), id, "key-recovered", "").run();
+    const one = await admin(`licence/${id}`);
+    expect(one.json).toMatchObject({ user_releases: 1, release_limit: 2, recovered: true });
+    const all = await admin("overview?q=" + id);
+    expect(all.json.licences[0]).toMatchObject({ id, user_releases: 1, recovered: 1 });
+    expect(all.json.stats.recovered).toBeGreaterThan(0);
+    expect(typeof all.json.stats.refused_day).toBe("number");
+  });
+});
+
+describe("a new key made by the owner", () => {
+  it("keeps the computers that are already activated, and frees them when the owner asks for it", async () => {
+    const { id, key } = await licence({ email: "leak@example.com" });
+    const a = await call("/v1/activate", { body: { key, device: device(70) } });
+    await call("/v1/activate", { body: { key, device: device(71) } });
+    // a new key alone: the old key is dead for a new computer, the two that hold a place keep working
+    const first = await admin(`licence/${id}/rekey`, {});
+    expect(first.json).toMatchObject({ ok: true, freed: 0 });
+    expect((await call("/v1/activate", { body: { key, device: device(72) } })).json.error).toBe("invalid_key");
+    expect((await call("/v1/refresh", { body: { licence: a.json.licence, device: device(70) } })).status).toBe(200);
+    // with "free all": every place is freed, and a refresh from those computers is refused as a removed computer
+    const second = await admin(`licence/${id}/rekey`, { free_all: true });
+    expect(second.json).toMatchObject({ ok: true, freed: 2 });
+    expect((await call("/v1/refresh", { body: { licence: a.json.licence, device: device(70) } })).json.error).toBe("not_activated");
+    // the new key takes a place again
+    expect((await call("/v1/activate", { body: { key: second.json.key, device: device(70) } })).status).toBe(200);
+  });
+});
+
+describe("the insights of the admin page", () => {
+  it("says what needs a look, what was never activated, which versions are in use, and how the server is", async () => {
+    const { id, key } = await licence({ email: "watch@example.com", max_devices: 1 });
+    await call("/v1/activate", { body: { key, device: device(80), version: "0.9.1", name: "Desk" } });
+    for (let i = 0; i < 3; i++) await call("/v1/activate", { body: { key, device: device(81 + i) } }); // more computers than allowed, three times
+    const idle = await licence({ email: "idle@example.com" });
+    await E.DB.prepare("UPDATE licences SET created = ? WHERE id = ?").bind(Math.floor(Date.now() / 1000) - 9 * 86400, idle.id).run();
+    const j = (await admin("insights")).json;
+    expect(j.attention.find((a: Json) => a.id === id).reasons.join(" ")).toContain("more computers than allowed 3 times");
+    expect(j.not_activated.map((l: Json) => l.id)).toContain(idle.id);
+    expect(j.versions.find((v: Json) => v.version === "0.9.1").n).toBeGreaterThan(0);
+    expect(j.health).toMatchObject({ signing: { configured: true, kid: "k1" }, mail: { configured: false }, webhook_configured: true });
+    expect(JSON.stringify(j.health)).not.toContain(E.LICENCE_SIGNING_KEY); // never a secret, only whether it is set
+    expect(JSON.stringify(j.health)).not.toContain(E.ADMIN_TOKEN);
+  });
+
+  it("flags a computer id that is on two licences", async () => {
+    const a = await licence({ email: "one@example.com" });
+    const b = await licence({ email: "two@example.com" });
+    await call("/v1/activate", { body: { key: a.key, device: device(90) } });
+    await call("/v1/activate", { body: { key: b.key, device: device(90) } });
+    const j = (await admin("insights")).json;
+    expect(j.attention.find((x: Json) => x.id === a.id).reasons.join(" ")).toContain("also on another licence");
+    const detail = (await admin(`licence/${a.id}`)).json;
+    expect(detail.activations[0].also_on).toEqual([b.id]);
+    expect((await admin(`overview?q=${a.id}`)).json.licences[0].shared_devices).toBe(1);
+  });
+
+  it("searches by the e-mail, a note, the name of a computer and the id of a computer", async () => {
+    const { id, key } = await licence({ email: "findme@example.com" });
+    await call("/v1/activate", { body: { key, device: device(95), name: "Kitchen Laptop" } });
+    await admin(`licence/${id}/note`, { text: "asked about the Steam version" });
+    const found = async (q: string) => (await admin("overview?q=" + encodeURIComponent(q))).json.licences.map((l: Json) => l.id);
+    for (const q of ["findme@", "Kitchen", "Steam version", device(95).slice(0, 10), id]) expect(await found(q)).toContain(id);
+    expect(await found("no-such-thing-anywhere")).toEqual([]);
+  });
+
+  it("keeps notes as a history, and the erasing of personal data takes them away", async () => {
+    const { id } = await licence({ email: "notes@example.com" });
+    expect((await admin(`licence/${id}/note`, { text: "   " })).status).toBe(400);
+    await admin(`licence/${id}/note`, { text: "first call" });
+    await admin(`licence/${id}/note`, { text: "<b>second</b> call" });
+    const notes = (await admin(`licence/${id}`)).json.notes;
+    expect(notes.map((n: Json) => n.detail)).toEqual(["<b>second</b> call", "first call"]);
+    await admin(`licence/${id}/note-delete`, { id: notes[1].id });
+    expect((await admin(`licence/${id}`)).json.notes.length).toBe(1);
+    await admin(`licence/${id}/erase`, {});
+    expect((await admin(`licence/${id}`)).json.notes).toEqual([]);
+  });
+
+  it("revokes with a kind and a reason, and the list says why", async () => {
+    const { id } = await licence({ email: "rev@example.com" });
+    await admin(`licence/${id}/revoke`, { category: "abuse", reason: "shared on a forum" });
+    const l = (await admin("overview?q=" + id)).json.licences[0];
+    expect(l).toMatchObject({ state: "revoked", revoke_reason: "abuse: shared on a forum" });
+    const other = await licence({ email: "rev2@example.com" });
+    await admin(`licence/${other.id}/revoke`, { category: "nonsense", reason: "x" }); // an unknown kind is not kept
+    expect((await admin("overview?q=" + other.id)).json.licences[0].revoke_reason).toBe("x");
+  });
+
+  it("sends a test mail and says why it could not (no mail service is set up here), and resets the limits", async () => {
+    expect((await admin("test-mail", { to: "not an address" })).status).toBe(400);
+    const r = await admin("test-mail", { to: "me@example.com" });
+    expect(r.json).toMatchObject({ ok: true, sent: false, reason: "not_configured" });
+    // a limit that hit is in the log and in the overview, and can be reset
+    const ip = { "cf-connecting-ip": "192.0.2.77" };
+    for (let i = 0; i < 6; i++) await call("/v1/recover/request", { body: { email: `lim${i}@example.com` }, headers: ip });
+    const j = (await admin("insights")).json;
+    expect(j.limits.blocked_day).toBeGreaterThan(0);
+    expect(j.limits.by_route.map((x: Json) => x.route)).toContain("/v1/recover/request");
+    expect((await admin("limits/reset", {})).json).toMatchObject({ ok: true });
+    expect((await admin("insights")).json.limits.counters).toBe(0);
   });
 });
