@@ -24,8 +24,8 @@ OWNER_EMAIL = "aside@filiposakkq.dev"
 TURNSTILE_SITE_KEY = "0x4AAAAAAFavKs5zwVFjbRwc"
 # Cloudflare Access in front of /admin: the team domain ("<team>.cloudflareaccess.com") and the Application Audience (AUD) tag
 # of the Access application. Not secret. Empty = only ADMIN_TOKEN can open the admin.
-ACCESS_TEAM_DOMAIN = ""
-ACCESS_AUD = ""
+ACCESS_TEAM_DOMAIN = "bold-poetry-c0ac.cloudflareaccess.com"
+ACCESS_AUD = "df91b38fe416fc238e4f6202f5008cf6dec5ed62336d0020c2bb46e50b43b062"
 
 [[d1_databases]]
 binding = "DB"
