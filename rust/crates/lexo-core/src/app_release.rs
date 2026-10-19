@@ -116,7 +116,7 @@ impl App {
     }
 
     /// The name and the version of the game, read from its scripts (`config.name`, `config.version`).
-    fn release_game(&self) -> Value {
+    pub(crate) fn release_game(&self) -> Value {
         let mut name = String::new();
         let mut version = String::new();
         if let Some(game) = self.game_dir() {

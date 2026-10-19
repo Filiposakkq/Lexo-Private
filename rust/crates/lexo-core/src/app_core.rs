@@ -155,6 +155,7 @@ impl App {
             problems.push(e.to_string());
         }
         self.last_save_error = problems.join("; ");
+        self.library_remember();
         Ok(problems)
     }
 

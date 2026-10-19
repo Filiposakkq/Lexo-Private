@@ -22,7 +22,7 @@ function Q($s) { '"' + $s + '"' }
 function Stop-Aside { Get-Process lexo-server, lexo-app, lexo-pro-sidecar -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue }
 
 $form = New-Object Windows.Forms.Form
-$form.Text = 'Aside - test launcher'; $form.Size = New-Object Drawing.Size(520, 540); $form.StartPosition = 'CenterScreen'
+$form.Text = 'Aside - test launcher'; $form.Size = New-Object Drawing.Size(520, 566); $form.StartPosition = 'CenterScreen'
 $form.Font = New-Object Drawing.Font('Segoe UI', 10); $form.FormBorderStyle = 'FixedDialog'; $form.MaximizeBox = $false
 
 $modes = [ordered]@{
@@ -57,14 +57,16 @@ $clean = New-Object Windows.Forms.CheckBox; $clean.Text = 'Cista nastaveni (doca
 $form.Controls.Add($clean)
 $ui = New-Object Windows.Forms.CheckBox; $ui.Text = 'Nove rozhrani (/next/) misto klasickeho'; $ui.Location = '14,370'; $ui.Size = '470,26'
 $form.Controls.Add($ui)
+$uib = New-Object Windows.Forms.CheckBox; $uib.Text = 'Nejdriv sestavit nove rozhrani (npm, ui-next-src)'; $uib.Location = '14,394'; $uib.Size = '470,26'
+$form.Controls.Add($uib)
 $build = New-Object Windows.Forms.CheckBox; $build.Text = 'Nejdriv sestavit (cargo build, chvili to trva)'; $build.Location = '14,322'; $build.Size = '470,26'
 $form.Controls.Add($build)
 
 $asapp = New-Object Windows.Forms.CheckBox; $asapp.Text = 'Jako appka (okno Tauri) misto prohlizece'; $asapp.Location = '14,346'; $asapp.Size = '470,26'
 $form.Controls.Add($asapp)
-$go = New-Object Windows.Forms.Button; $go.Text = 'Spustit'; $go.Location = '14,408'; $go.Size = '150,40'; $go.BackColor = [Drawing.Color]::FromArgb(150, 30, 30); $go.ForeColor = 'White'
-$stop = New-Object Windows.Forms.Button; $stop.Text = 'Zastavit'; $stop.Location = '172,408'; $stop.Size = '110,40'
-$status = New-Object Windows.Forms.Label; $status.Location = '14,456'; $status.Size = '480,26'; $status.Text = ''
+$go = New-Object Windows.Forms.Button; $go.Text = 'Spustit'; $go.Location = '14,432'; $go.Size = '150,40'; $go.BackColor = [Drawing.Color]::FromArgb(150, 30, 30); $go.ForeColor = 'White'
+$stop = New-Object Windows.Forms.Button; $stop.Text = 'Zastavit'; $stop.Location = '172,432'; $stop.Size = '110,40'
+$status = New-Object Windows.Forms.Label; $status.Location = '14,480'; $status.Size = '480,26'; $status.Text = ''
 $form.Controls.AddRange(@($go, $stop, $status))
 
 $stop.Add_Click({ Stop-Aside; $status.Text = 'Zastaveno.' })
@@ -73,6 +75,13 @@ $form.Add_FormClosed({ Stop-Aside })
 $go.Add_Click({
   try {
     Stop-Aside
+    if ($uib.Checked) {
+      $status.Text = 'Sestavuji nove rozhrani...'; $form.Refresh(); $env:Path = 'E:\node;' + $env:Path
+      Push-Location (Join-Path $Repo 'ui-next-src')
+      if (-not (Test-Path 'node_modules')) { & npm.cmd install --no-audit --no-fund }
+      & npm.cmd run build; $nb = $LASTEXITCODE; Pop-Location
+      if ($nb -ne 0) { $status.Text = 'Sestaveni noveho rozhrani selhalo (viz okno konzole).'; return }
+    }
     if ($build.Checked) {
       $status.Text = 'Sestavuji...'; $form.Refresh(); Set-RustEnv
       Push-Location (Join-Path $Repo 'rust'); & cargo +stable-x86_64-pc-windows-msvc build -p lexo-server; $a = $LASTEXITCODE; Pop-Location

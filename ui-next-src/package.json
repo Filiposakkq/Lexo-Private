@@ -1,0 +1,22 @@
+{
+  "name": "aside-ui-next",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "The new interface of Aside (Vue 3 + Vite). Built into ../rust/resources/ui-next, served at /next/.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "vue": "3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "5.2.1",
+    "@vue/test-utils": "2.4.6",
+    "jsdom": "25.0.1",
+    "vite": "6.0.7",
+    "vitest": "2.1.8"
+  }
+}

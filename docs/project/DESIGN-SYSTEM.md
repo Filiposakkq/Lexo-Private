@@ -2,9 +2,9 @@
 
 The foundation the new interface ([UI-NEXT.md](UI-NEXT.md)) is built on: the colours, the type, the spacing and the components, and the rules for using them. It is code and a document that say the same thing:
 
-- **`rust/resources/ui-next/tokens.css`** – every colour, size and duration as a named variable (the only place with values);
-- **`rust/resources/ui-next/components.css`** – the components, which read only those names;
-- **`rust/resources/ui-next/styleguide.html`** – the living page that shows all of it (open `/next/styleguide.html` on the running server). Its contrast table is calculated from the real values, so a colour that stops being readable shows as failed at once.
+- **`ui-next-src/public/tokens.css`** – every colour, size and duration as a named variable (the only place with values);
+- **`ui-next-src/public/components.css`** – the components, which read only those names;
+- **`ui-next-src/public/styleguide.html`** – the living page that shows all of it (open `/next/styleguide.html` on the running server). Its contrast table is calculated from the real values, so a colour that stops being readable shows as failed at once.
 
 It is plain CSS with variables: it does not depend on Vue or any framework, and the same files serve a hand-written interface or a Vue one.
 
