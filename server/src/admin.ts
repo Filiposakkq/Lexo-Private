@@ -1,6 +1,6 @@
 import { safeEqual } from "./crypto.ts";
 import type { Env } from "./env.ts";
-import { fail, json, issue, body, str } from "./handlers.ts";
+import { fail, json, issue, body, str, RELEASE_LIMIT } from "./handlers.ts";
 import { keyHash, newKey } from "./licence.ts";
 import { mailKey } from "./mail.ts";
 import * as store from "./store.ts";
@@ -39,7 +39,9 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
   if (req.method === "GET" && parts[0] === "licence" && parts[1]) {
     const l = await store.byId(env.DB, parts[1]);
     if (!l) return fail("not_found", 404);
-    return json({ ok: true, licence: view(l), activations: await store.activations(env.DB, l.id), events: await store.events(env.DB, l.id) });
+    const used = await store.userReleases(env.DB, l.id, 0);
+    const recovered = (await store.events(env.DB, l.id, 500)).some((e) => e.kind === "key-recovered");
+    return json({ ok: true, licence: view(l), activations: await store.activations(env.DB, l.id), events: await store.events(env.DB, l.id), user_releases: used.count, release_limit: RELEASE_LIMIT, recovered });
   }
   if (req.method !== "POST") return fail("not_found", 404);
   const b = (await body(req)) ?? {};

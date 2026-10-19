@@ -108,6 +108,10 @@ export const recentEvents = async (db: D1Database, limit = 50) =>
 export interface ListedLicence extends LicenceRow {
   devices: number;
   last_seen: number | null;
+  /** How many times the user freed a computer (counts against the limit for the whole life of the licence). */
+  user_releases: number;
+  /** Whether the user already replaced the key of a lost one. */
+  recovered: number;
 }
 
 /** The licences for the admin list: with the number of devices and the last time any of them checked. `q` matches the id or the e-mail. */
@@ -117,7 +121,9 @@ export async function list(db: D1Database, q: string, limit = 200): Promise<List
     await db
       .prepare(
         `SELECT l.*, (SELECT COUNT(*) FROM activations a WHERE a.licence_id = l.id AND a.released IS NULL) AS devices,
-                (SELECT MAX(a.last_seen) FROM activations a WHERE a.licence_id = l.id) AS last_seen
+                (SELECT MAX(a.last_seen) FROM activations a WHERE a.licence_id = l.id) AS last_seen,
+                (SELECT COUNT(*) FROM events e WHERE e.licence_id = l.id AND e.kind IN ('deactivate', 'release-user')) AS user_releases,
+                (SELECT COUNT(*) FROM events e WHERE e.licence_id = l.id AND e.kind = 'key-recovered') AS recovered
          FROM licences l WHERE l.id LIKE ? OR l.email LIKE ? ORDER BY l.created DESC LIMIT ?`,
       )
       .bind(like, like, limit)
@@ -130,6 +136,8 @@ export async function stats(db: D1Database, now: number) {
   return {
     active: await one("SELECT COUNT(*) AS n FROM licences WHERE state = 'active'"),
     revoked: await one("SELECT COUNT(*) AS n FROM licences WHERE state = 'revoked'"),
+    recovered: await one("SELECT COUNT(*) AS n FROM events WHERE kind = 'key-recovered'"),
+    refused_day: await one("SELECT COUNT(*) AS n FROM events WHERE kind = 'refused' AND at > ?", now - 86400),
     devices: await one("SELECT COUNT(*) AS n FROM activations WHERE released IS NULL"),
     overdue: await one(
       `SELECT COUNT(*) AS n FROM licences l WHERE l.state = 'active' AND (SELECT MAX(a.last_seen) FROM activations a WHERE a.licence_id = l.id AND a.released IS NULL) < ? - l.check_days * 86400`,

@@ -176,7 +176,10 @@ describe("the admin", () => {
   it("serves the admin page", async () => {
     const r = await exports.default.fetch(new Request("https://licence.test/admin"));
     expect(r.status).toBe(200);
-    expect(await r.text()).toContain("Aside – licences");
+    const page = await r.text();
+    expect(page).toContain("<title>Aside licences</title>");
+    expect(page).toContain("Lost keys replaced"); // the page knows the recovery of a lost key
+    expect(page.includes("prompt(") || page.includes("confirm(")).toBe(false); // the dialogs of the page are its own
     expect(r.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
   });
 });
@@ -436,5 +439,20 @@ describe("limits per network address", () => {
     const answers = await Promise.all(Array.from({ length: 33 }, () => from("198.51.100.4", "/v1/activate", { key, device: device(40) })));
     expect(answers.filter((r) => r.status === 200).length).toBe(30);
     expect(answers.filter((r) => r.json.error === "rate_limited").length).toBe(3);
+  });
+});
+
+describe("what the admin sees of the new features", () => {
+  it("shows how many times the user freed a computer and whether a lost key was replaced", async () => {
+    const { id, key } = await licence({ email: "seen@example.com" });
+    const act = await call("/v1/activate", { body: { key, device: device(60) } });
+    await call("/v1/deactivate", { body: { licence: act.json.licence, device: device(60) } });
+    await E.DB.prepare("INSERT INTO events (at, licence_id, kind, detail) VALUES (?,?,?,?)").bind(Math.floor(Date.now() / 1000), id, "key-recovered", "").run();
+    const one = await admin(`licence/${id}`);
+    expect(one.json).toMatchObject({ user_releases: 1, release_limit: 2, recovered: true });
+    const all = await admin("overview?q=" + id);
+    expect(all.json.licences[0]).toMatchObject({ id, user_releases: 1, recovered: 1 });
+    expect(all.json.stats.recovered).toBeGreaterThan(0);
+    expect(typeof all.json.stats.refused_day).toBe("number");
   });
 });
