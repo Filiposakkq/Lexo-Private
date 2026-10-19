@@ -105,6 +105,7 @@ Every tool shows a **preview**, writes only what you tick, and is **one undoable
 | **Carry over from the previous version…** | Pro: the translation of an old version of the game by the original text. |
 | **Fill from similar translations…** | Pro: untranslated lines from similar originals of the same speaker in the project. |
 | **Check the style…** | Pro: a language model checks the form of address, gender forms, tone and meaning. |
+| **Build a release…** | Pro: the translation as a zip for the players, with the files you attach, a README, a changelog and your own numbering. |
 
 ## 4. Check tab
 One item per finding, nothing is rewritten by itself.

@@ -20,6 +20,7 @@ of every feature see [FEATURES.md](../product/FEATURES.md). This document says w
 | Fill from similar translations (`memory.fuzzy`) | Lines › Tools › *Fill from similar translations…* | 20 lines | – | no |
 | Profiles of characters (`mt.profiles`) | Glossary › *Profile…* per speaker | locked | a language model for the batch translation | with the batch translation only |
 | Style check (`style.check`) | Lines › Tools › *Check the style…* | 20 lines | an OpenAI-compatible service, the consent | **yes**, to that service |
+| Release builder (`release.build`) | Lines › Tools › *Build a release…* | locked | – | no (nothing is uploaded) |
 
 ## Batch machine translation
 Translates the untranslated lines of the selection, the scene around the open line (±15), a file or the whole project, in small batches with progress and a Stop button. The suggestions
@@ -67,12 +68,22 @@ Sends each translated line, with its original, the two lines before it and the p
 what is wrong: the **form of address**, the **gender forms**, the **tone**, the **meaning**, with a corrected text. Lines without a remark are only counted. The corrections you tick are written like a
 machine translation (one undo step). The service charges by the text sent (the dialog shows how much will be sent). The quality of the remarks depends on the model; read them before ticking.
 
+## Release builder
+Makes the translation into **a zip the players unpack into their game folder**; the result is a file and you put it where you like (nothing is uploaded).
+- **Inside the zip:** the `.rpy` files of the translation as `game/tl/<language>/…` (the `.aside` folder and the backups never go in), **the files you attach** (a font with the diacritics of your language, a changed gui file...: each with the place you give inside the game folder), `README.txt` (how to install, credits and a note of yours; in Czech for a Czech translation), `CHANGELOG.txt`, and, if you leave it on, `game/zz_<language>_default_language.rpy` (`define config.default_language`) so the game starts in your language.
+- **Next to the zip:** `<name>.zip.sha256` and `<name>-release-notes.md` (Markdown for a page: GitHub, F95, Patreon).
+- **Your own numbering:** `1.0`, `1.2.3`, `1.2-beta1`; the next number is suggested; a number is released once.
+- **Checks before the build:** the number is valid and new; errors of the check of the translation (they can be built anyway after you tick it); untranslated lines (the players will see English there); lines flagged "to fix" or changed after proofreading; the game version changed since the last release (read from `config.version`); the attached files exist, sit inside the game folder and weigh together at most 300 MB.
+- **Changelog:** compared with the previous release: files added, changed and removed, and (when the previous release has its line digests, kept in the local data) how many lines are new, changed or removed; your own notes first; the progress.
+- **Recorded in** `.aside/release.json` (the settings and the list of the releases, shared with the project); the zip goes to the folder you choose (default: the local data of the project, `releases/`).
+- Not there yet: `.rpa`, compiled `.rpyc`, a zip with only the files changed since the last release, a check that the font has the characters of your language.
+
 ## Limits, in short
 | Feature | Demo limit |
 |---|---|
 | Batch machine translation, safe fixes, fill from similar translations, style check | 20 per run |
 | Carry over | 50 lines written per run (the counts show all) |
 | Group suggestions | 5 files |
-| Regex replace, publishing, profiles | locked |
+| Regex replace, publishing, profiles, release builder | locked |
 
 A licence removes the limits and unlocks the locked features (see [PRO-DESIGN.md](../product/PRO-DESIGN.md) for the licence, the computers and the checks).
