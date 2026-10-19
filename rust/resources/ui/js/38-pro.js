@@ -32,6 +32,14 @@ export function lockedDialog(id, problems = []) {
       h('p', { class: 'muted' }, T('It is not available in this installation. The rest of the application works without it.')),
       problems.length ? h('div', { class: 'notice warn' }, problems.map(String).join(' ')) : null) });
 }
+/* The one notice of every Pro dialog when the demo cut the work to its limit ({feature, limit, total} from the pack), or nothing. */
+export function demoNotice(limited) {
+  if (!limited) return null;
+  const a = { limit: limited.limit, total: limited.total };
+  return h('div', { class: 'notice warn' }, limited.feature === 'bulk.categorize'
+    ? T('The demo handles only the first {limit} files ({total} found). A licence removes the limit.', a)
+    : T('The demo handles only the first {limit} lines ({total} found). A licence removes the limit.', a));
+}
 /* True when the feature can be used; otherwise explains why and returns false. */
 export async function requireFeature(id) {
   const f = await featureOf(id);

@@ -6,7 +6,7 @@ import { dialog, fail, toast } from './13-feedback.js';
 import { chip, fname } from './14-renderers.js';
 import { refreshHeader } from './17-project.js';
 import { diffSpans } from './23-fixes.js';
-import { requireFeature } from './38-pro.js';
+import { requireFeature, demoNotice } from './38-pro.js';
 /* Carry the translation of the previous version of the game over to the open project (a Pro feature): choose the old folder, look at what was found, tick, write.
    Lines with the very same original are ticked; lines whose original changed a little ("near") are ticked only when they are almost the same and have the same variables. */
 export async function carryDialog(done, own = false) {
@@ -41,7 +41,7 @@ export async function carryDialog(done, own = false) {
     t.style.width = '914px';
     results.replaceChildren(
       h('p', null, T('Found {exact} identical and {near} changed lines of {total}; {none} have no match.', { exact: c.exact, near: c.near, total: c.total, none: c.none })),
-      data.limited ? h('div', { class: 'notice warn' }, T('The demo carries over only the first {limit} lines ({total} were found). A licence removes the limit.', { limit: data.limited.limit, total: data.limited.total })) : null,
+      demoNotice(data.limited),
       h('div', { class: 'toolbar' },
         h('button', { class: 'btn small', onclick: () => { data.items.forEach((it) => sel.add(key(it))); paint(); } }, T('Select all')),
         h('button', { class: 'btn small', onclick: () => { sel.clear(); paint(); } }, T('None')),

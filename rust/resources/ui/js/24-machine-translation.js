@@ -5,7 +5,7 @@ import { speakerLabel } from './11-state.js';
 import { dialog, fail, toast } from './13-feedback.js';
 import { chip, fmtText, fname } from './14-renderers.js';
 import { go } from './16-tabs.js';
-import { requireFeature } from './38-pro.js';
+import { requireFeature, demoNotice } from './38-pro.js';
 /* Machine translation of several lines. Suggestions come in small batches (progress, Stop), are shown in a table you can edit and
    tick, and only the ticked ones are written, as one undoable step. Approved lines are never overwritten. */
 export async function mtDialog({ picked = [], anchor = null, file = '', scope = '' }, done) {
@@ -41,6 +41,7 @@ export async function mtDialog({ picked = [], anchor = null, file = '', scope = 
     } catch (e) { info.textContent = e.message; return; }
     const n = target.total, over = n > LIMIT;
     info.replaceChildren(T('{lines}, about {chars} characters will be sent to {provider}.', { lines: tn(n, '{n} line', '{n} lines'), chars: target.chars.toLocaleString(locale()), provider: cfg.provider }),
+      demoNotice(target.limited),
       over ? h('div', { class: 'notice bad' }, T('At most {n} lines at once – the first {n} will be translated, run again for the rest.', { n: LIMIT })) : null,
       h('div', null, T('The service charges by the text sent – check the price with your provider.')));
     run.disabled = !n || running;

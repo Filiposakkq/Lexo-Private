@@ -1897,11 +1897,23 @@
       "pro": false,
       "title": "Bulk categorisation suggestions"
      },
+     "carry.over": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Carry a translation over to a new version"
+     },
      "fixes.safe": {
       "available": false,
       "limit": null,
       "pro": false,
       "title": "Safe bulk fixes with preview"
+     },
+     "memory.fuzzy": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Fill from similar translations"
      },
      "mt.batch": {
       "available": false,
@@ -1909,17 +1921,35 @@
       "pro": false,
       "title": "Batch machine translation"
      },
+     "mt.profiles": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Profiles of characters"
+     },
      "publish.web": {
       "available": false,
       "limit": null,
       "pro": false,
       "title": "Publishing progress to a website"
      },
+     "release.build": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Release builder"
+     },
      "replace.regex": {
       "available": false,
       "limit": null,
       "pro": false,
       "title": "Regex find & replace"
+     },
+     "style.check": {
+      "available": false,
+      "limit": null,
+      "pro": false,
+      "title": "Style check"
      }
     },
     "ok": true,

@@ -954,7 +954,41 @@
       },
       "type": "object"
      },
+     "carry.over": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
      "fixes.safe": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "memory.fuzzy": {
       "keys": {
        "available": {
         "type": "boolean"
@@ -988,6 +1022,23 @@
       },
       "type": "object"
      },
+     "mt.profiles": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
      "publish.web": {
       "keys": {
        "available": {
@@ -1005,7 +1056,41 @@
       },
       "type": "object"
      },
+     "release.build": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
      "replace.regex": {
+      "keys": {
+       "available": {
+        "type": "boolean"
+       },
+       "limit": {
+        "type": "null"
+       },
+       "pro": {
+        "type": "boolean"
+       },
+       "title": {
+        "type": "string"
+       }
+      },
+      "type": "object"
+     },
+     "style.check": {
       "keys": {
        "available": {
         "type": "boolean"
