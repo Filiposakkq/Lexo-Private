@@ -456,3 +456,22 @@ describe("what the admin sees of the new features", () => {
     expect(typeof all.json.stats.refused_day).toBe("number");
   });
 });
+
+describe("a new key made by the owner", () => {
+  it("keeps the computers that are already activated, and frees them when the owner asks for it", async () => {
+    const { id, key } = await licence({ email: "leak@example.com" });
+    const a = await call("/v1/activate", { body: { key, device: device(70) } });
+    await call("/v1/activate", { body: { key, device: device(71) } });
+    // a new key alone: the old key is dead for a new computer, the two that hold a place keep working
+    const first = await admin(`licence/${id}/rekey`, {});
+    expect(first.json).toMatchObject({ ok: true, freed: 0 });
+    expect((await call("/v1/activate", { body: { key, device: device(72) } })).json.error).toBe("invalid_key");
+    expect((await call("/v1/refresh", { body: { licence: a.json.licence, device: device(70) } })).status).toBe(200);
+    // with "free all": every place is freed, and a refresh from those computers is refused as a removed computer
+    const second = await admin(`licence/${id}/rekey`, { free_all: true });
+    expect(second.json).toMatchObject({ ok: true, freed: 2 });
+    expect((await call("/v1/refresh", { body: { licence: a.json.licence, device: device(70) } })).json.error).toBe("not_activated");
+    // the new key takes a place again
+    expect((await call("/v1/activate", { body: { key: second.json.key, device: device(70) } })).status).toBe(200);
+  });
+});

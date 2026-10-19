@@ -120,8 +120,11 @@ export async function adminApi(req: Request, env: Env, now: number, path: string
         const key = newKey();
         await store.setKeyHash(env.DB, l.id, await keyHash(key));
         await store.logEvent(env.DB, now, l.id, "rekeyed", "by the owner");
+        // after a leak: every computer has to enter the new key (the ones that took a place with the old key are gone)
+        const freed = b.free_all === true ? await store.releaseAll(env.DB, l.id, now) : 0;
+        if (b.free_all === true) await store.logEvent(env.DB, now, l.id, "released", `all computers (${freed}) with the new key`);
         const mailed = b.send === true ? await mailKey(env, l.email, key, l.id) : false;
-        return json({ ok: true, key, mailed });
+        return json({ ok: true, key, mailed, freed });
       }
     }
   }

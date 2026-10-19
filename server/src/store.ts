@@ -96,6 +96,12 @@ export async function userReleases(db: D1Database, id: string, since: number): P
 export const release = (db: D1Database, id: string, device: string, now: number) =>
   db.prepare("UPDATE activations SET released = ? WHERE licence_id = ? AND device = ? AND released IS NULL").bind(now, id, device).run();
 
+/** Frees every place of a licence (the owner, after a key leaked). Returns how many computers were freed. */
+export async function releaseAll(db: D1Database, id: string, now: number): Promise<number> {
+  const r = await db.prepare("UPDATE activations SET released = ? WHERE licence_id = ? AND released IS NULL").bind(now, id).run();
+  return r.meta.changes;
+}
+
 export const logEvent = (db: D1Database, now: number, licenceId: string | null, kind: string, detail = "") =>
   db.prepare("INSERT INTO events (at, licence_id, kind, detail) VALUES (?,?,?,?)").bind(now, licenceId, kind, detail).run();
 
