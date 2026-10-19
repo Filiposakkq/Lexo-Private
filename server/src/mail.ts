@@ -40,10 +40,9 @@ export function keyEmail(key: string, id: string): { subject: string; text: stri
   return { subject: "Your Aside Pro licence key", text, html };
 }
 
-/** Mails the licence key to the buyer (Resend). Returns whether it was sent; without `RESEND_API_KEY` nothing is sent (the owner re-issues the key from the admin page). */
-export async function mailKey(env: Env, to: string, key: string, id: string): Promise<boolean> {
+/** Sends one mail (Resend). Returns whether it was sent; without `RESEND_API_KEY` nothing is sent. */
+async function send(env: Env, to: string, subject: string, text: string, html: string): Promise<boolean> {
   if (!env.RESEND_API_KEY || !to) return false;
-  const { subject, text, html } = keyEmail(key, id);
   const body: Record<string, unknown> = { from: env.MAIL_FROM ?? "Aside <licence@aside.filiposakkq.dev>", to, subject, text, html };
   if (env.REPLY_TO) body.reply_to = env.REPLY_TO;
   try {
@@ -56,4 +55,43 @@ export async function mailKey(env: Env, to: string, key: string, id: string): Pr
   } catch {
     return false;
   }
+}
+
+/** Mails the licence key to the buyer (Resend). Returns whether it was sent; without `RESEND_API_KEY` nothing is sent (the owner re-issues the key from the admin page). */
+export async function mailKey(env: Env, to: string, key: string, id: string): Promise<boolean> {
+  const { subject, text, html } = keyEmail(key, id);
+  return send(env, to, subject, text, html);
+}
+
+/** The mail of a lost key: the code (a short text, valid for a few minutes), or the note that the automatic recovery was already used (`code` is `null`). */
+export function codeEmail(code: string | null): { subject: string; text: string; html: string } {
+  const lines = code
+    ? [
+        "Someone (hopefully you) asked in Aside for a new licence key.",
+        "",
+        "Your code:",
+        "",
+        `    ${code}`,
+        "",
+        "Enter it in Aside within 15 minutes. Your old key stops working only after you enter the code; the computers where Aside is already activated keep working.",
+        "",
+        "If it was not you, ignore this message: nothing has changed.",
+      ]
+    : [
+        "Someone (hopefully you) asked in Aside for a new licence key.",
+        "",
+        "The key of this licence was already replaced once automatically, so it cannot be done again that way.",
+        "Reply to this e-mail and we will help you.",
+        "",
+        "If it was not you, ignore this message: nothing has changed.",
+      ];
+  const html = `<!doctype html><html lang="en"><body style="margin:0;padding:24px 12px;background:#f2f2f5;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#1c1c1e"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table role="presentation" width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e3e3e8"><tr><td style="background:#ff315c;padding:20px 28px"><span style="color:#ffffff;font-size:20px;font-weight:600">Aside</span></td></tr><tr><td style="padding:28px;font-size:15px;line-height:1.6">${lines
+    .map((l) => (l.startsWith("    ") ? `<div style="background:#f6f6f8;border:1px solid #e3e3e8;border-radius:10px;padding:14px;text-align:center;font-family:Consolas,'Courier New',monospace;font-size:22px;font-weight:700;letter-spacing:.08em">${esc(l.trim())}</div>` : l ? `<p style="margin:0 0 12px">${esc(l)}</p>` : ""))
+    .join("")}</td></tr></table></td></tr></table></body></html>`;
+  return { subject: code ? "Your Aside code for a new licence key" : "Aside: your licence key", text: lines.join("\n"), html };
+}
+
+export async function mailCode(env: Env, to: string, code: string | null): Promise<boolean> {
+  const { subject, text, html } = codeEmail(code);
+  return send(env, to, subject, text, html);
 }

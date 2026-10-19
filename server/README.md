@@ -66,3 +66,19 @@ Every licence file names the key that signed it (`kid` in the payload; a file wi
 4. Later, remove `k1` from the pack and from `LICENCE_OLD_PUBLIC_KEYS`.
 
 **After a leak of the private key:** as above, and in the same pack release put the old id into `DISTRUSTED_KEYS` (files signed by it are refused, with the reason "no longer trusted"). The server keeps renewing them while `LICENCE_OLD_PUBLIC_KEYS` lists the old key, so honest users get a new file at their next check; drop the old key from that list once the licence ids in the database are checked, because with it the server accepts a forged file of a real licence id. Users whose pack is not yet updated see the licence refused until they update.
+
+## Limits of a licence
+
+- **Computers:** 2 per licence (`max_devices`, the owner can change it per licence).
+- **Freeing a computer by the user** (in the application: another computer, or "Remove from this computer"): **2 times for the whole life of the licence** (`RELEASE_LIMIT` in `src/handlers.ts`). The owner frees computers in the admin without a limit and those do not count.
+- **Check:** the licence file is renewed every 14 days (`check_days`), and there is the same time of grace without a connection.
+
+## A lost key (self-service)
+
+The key is stored only as a hash, so it cannot be sent again; the user gets a **new** key and the old one stops working. To make sure a stranger cannot do that to someone, it takes two steps (`src/recovery.ts`):
+1. `POST /v1/recover/request {email}` mails a 8-character code to the address of the purchase. It answers `ok` for every address (no way to find out who is a customer). Nothing changes yet.
+2. `POST /v1/recover/confirm {email, code}` with the right code replaces the key; the new key is returned and mailed. Computers that already have a licence file keep working.
+
+Limits: **1 code per hour and 3 per day** for an address (also counted for unknown addresses), the code is valid **15 minutes** and has **5 attempts**, and a licence can be recovered this way **once**; the next time goes through the owner (admin: "New key"). If an address has several licences, the newest active one is used.
+
+**Database change before the code is deployed** (D1 console; it is `migrations/0003_recovery.sql`): create the tables `recovery_requests` and `recovery_codes`.

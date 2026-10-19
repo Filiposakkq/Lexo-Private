@@ -267,9 +267,14 @@ impl Dispatcher {
             "window/fullscreen" => {
                 Reply::json(200, &if session.shell.toggle_fullscreen() { json!({"ok": true}) } else { json!({"ok": false, "fallback": true}) })
             }
-            "licence/activate" | "licence/refresh" | "licence/deactivate" | "licence/devices" | "licence/release" | "licence/rename" => {
-                self.licence(r.strip_prefix("licence/").unwrap_or(""), Value::Object(d))
-            }
+            "licence/activate"
+            | "licence/refresh"
+            | "licence/deactivate"
+            | "licence/devices"
+            | "licence/release"
+            | "licence/rename"
+            | "licence/recover"
+            | "licence/recover-confirm" => self.licence(r.strip_prefix("licence/").unwrap_or(""), Value::Object(d)),
             "focus" => {
                 if !self.backend.run(|app| app.ready()).unwrap_or(false) {
                     return Reply::error(400, msg("No project is open.", &[]));

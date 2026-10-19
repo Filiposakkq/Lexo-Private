@@ -12,6 +12,7 @@ Address: `https://api.aside.filiposakkq.dev` (Cloudflare Worker). Contacted when
 |---|---|
 | activate | the **licence key** (once), the **device id**, the optional **name** of the computer (typed by the user), the **version** of the Pro pack |
 | regular check (refresh) | the signed **licence file** (licence id, features, version, device id, time of issue, check interval), the device id, the name, the pack version |
+| lost key (Pro, "I lost my key") | the **e-mail address** the user types (to get a code), and then the address and the **code** (to get a new key). The server never confirms whether an address belongs to a customer |
 | list of computers, freeing a computer, removing the licence | the licence file, the device id, for freeing another computer also its device id |
 
 - The **device id** is a hash of a random number that Aside makes once and keeps next to the licence file (`device.id`). It is not made from the name of the computer, the user name, the hardware or the network. It cannot be traced back to a person.

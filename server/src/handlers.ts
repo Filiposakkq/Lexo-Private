@@ -23,13 +23,12 @@ export const str = (v: unknown) => (typeof v === "string" ? v : "");
 /** A text from the application that goes into the database and the admin page: no control characters, a limited length. */
 export const clean = (v: unknown, max: number) => str(v).replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max);
 
-/** Releasing a computer by the user (from the application) is limited: this many times in this many days. The owner can free a computer in the admin without the limit. */
+/** Releasing a computer by the user (from the application) is limited: this many times for the whole life of the licence. The owner can free a computer in the admin without the limit. */
 export const RELEASE_LIMIT = 2;
-export const RELEASE_DAYS = 30;
 
-async function releaseRoom(env: Env, id: string, now: number): Promise<{ left: number; next: number | null }> {
-  const used = await store.userReleases(env.DB, id, now - RELEASE_DAYS * 86400);
-  return { left: Math.max(0, RELEASE_LIMIT - used.count), next: used.count >= RELEASE_LIMIT && used.oldest ? used.oldest + RELEASE_DAYS * 86400 : null };
+async function releaseRoom(env: Env, id: string, _now: number): Promise<{ left: number }> {
+  const used = await store.userReleases(env.DB, id, 0);
+  return { left: Math.max(0, RELEASE_LIMIT - used.count) };
 }
 
 // ---------------------------------------------------------------- the calls of the application
@@ -100,7 +99,7 @@ export async function deactivate(req: Request, env: Env, now: number): Promise<R
   const room = await releaseRoom(env, r.l.id, now);
   if (room.left === 0) {
     await store.logEvent(env.DB, now, r.l.id, "refused", "release limit (deactivate)");
-    return fail("release_limit", 429, { next: room.next, limit: RELEASE_LIMIT, days: RELEASE_DAYS });
+    return fail("release_limit", 429, { limit: RELEASE_LIMIT });
   }
   await store.release(env.DB, r.l.id, r.device, now);
   await store.logEvent(env.DB, now, r.l.id, "deactivate", r.device.slice(0, 8));
@@ -119,8 +118,6 @@ export async function devices(req: Request, env: Env, now: number): Promise<Resp
     max: r.l.max_devices,
     releases_left: room.left,
     release_limit: RELEASE_LIMIT,
-    release_days: RELEASE_DAYS,
-    next_release_at: room.next,
   });
 }
 
@@ -135,7 +132,7 @@ export async function release(req: Request, env: Env, now: number): Promise<Resp
   const room = await releaseRoom(env, r.l.id, now);
   if (room.left === 0) {
     await store.logEvent(env.DB, now, r.l.id, "refused", "release limit");
-    return fail("release_limit", 429, { next: room.next, limit: RELEASE_LIMIT, days: RELEASE_DAYS });
+    return fail("release_limit", 429, { limit: RELEASE_LIMIT });
   }
   await store.release(env.DB, r.l.id, target, now);
   await store.logEvent(env.DB, now, r.l.id, "release-user", target.slice(0, 8));

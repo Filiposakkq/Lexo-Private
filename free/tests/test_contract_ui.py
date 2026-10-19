@@ -16,7 +16,8 @@ UI_JS = Path(__file__).resolve().parent.parent / "lexo_free" / "ui" / "js"
 # what only the application around Core serves (windows, the focus between windows, a folder dialog, the keep-alive pings, the licence of the Pro pack)
 SESSION = {("GET", "focus"), ("GET", "ping"), ("POST", "focus"), ("POST", "window/open"), ("POST", "window/fullscreen"), ("POST", "project/pick"), ("POST", "bye"),
            ("GET", "licence"), ("POST", "licence/activate"), ("POST", "licence/refresh"), ("POST", "licence/deactivate"),
-           ("POST", "licence/devices"), ("POST", "licence/release"), ("POST", "licence/rename")}
+           ("POST", "licence/devices"), ("POST", "licence/release"), ("POST", "licence/rename"),
+           ("POST", "licence/recover"), ("POST", "licence/recover-confirm")}
 CALL = re.compile(r"""(?<![.\w])(get|post)\(\s*['"]([\w/.-]+)['"]""")          # get('x') / post('x'), not params.get('x')
 URL = re.compile(r"""['"`]/api/([\w/.-]+)""")
 
