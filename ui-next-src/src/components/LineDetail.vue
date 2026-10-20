@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { get, post } from '../api.js';
-import { contextFor, peekContext, sceneRadius, setSceneRadius } from '../gamewindow.js';
+import { contextFor, menuOf, mtOn, peekContext, peekMenu, peekMt, peekScenes, sceneRadius, scenesOf, setSceneRadius } from '../gamewindow.js';
 import { t, tn } from '../i18n.js';
 import { baseName, fmtN, lineKind, lineState, pctOf, pillOf, project } from '../project.js';
 import ApproveIdentical from './ApproveIdentical.vue';
@@ -21,8 +21,8 @@ const note = ref(props.detail.proof_note || '');
 const ta = ref(null);
 const menuOpen = ref(false);
 const identical = ref(false);
-const mt = ref({ on: false, busy: false, result: null, error: '' });
-const scenes = ref(null);
+const mt = ref({ on: !!peekMt(), busy: false, result: null, error: '' });
+const scenes = ref(peekScenes(props.detail.file));
 const tab = ref(storedTab());
 const menuAvail = ref(false);      // a line of dialogue that belongs to a menu (its question, the start of a choice, the lines before it) gets the Menu tab too
 const sceneMode = ref(storedMode());
@@ -69,7 +69,7 @@ async function checkMenu() {
   const line = d.value;
   if (isChoice.value || !line.ref) return;
   try {
-    const r = await get('entry/menu', { file: line.file, line: line.line });
+    const r = peekMenu(line.file, line.line) || await menuOf(line.file, line.line);
     if (props.detail !== line || !r.available) return;
     data.value.menu = r; menuAvail.value = true;
   } catch { /* no menu tab */ }
@@ -98,13 +98,15 @@ async function loadTab() {
     else if (k === 'memory' && !c.memory) { c.memory = 'loading'; c.memory = await get('entry/memory', q); }
     else if (k === 'history' && !c.history) { c.history = 'loading'; c.history = await get('entry/history', q); }
     else if (k === 'script' && line.ref && !c.context) { c.context = 'loading'; c.context = await get('entry/context', q); }
-    else if (k === 'menu' && !c.menu) { c.menu = 'loading'; c.menu = await get('entry/menu', q); }
+    else if (k === 'menu' && !c.menu) { c.menu = peekMenu(line.file, line.line) || 'loading'; if (c.menu === 'loading') c.menu = await menuOf(line.file, line.line); }
     else if (k === 'team' && !c.notes) { c.notes = 'loading'; c.notes = await post('team/notes', q); }
   } catch (e) { c[k === 'script' ? 'context' : k] = { error: e.message }; }
 }
 watch(radius, (n) => { setSceneRadius(n); data.value.scene = null; loadTab(); });
 async function loadScenes() {
-  try { const r = await get('scenes', { file: d.value.file, line: 0 }); scenes.value = r.available ? r.items : []; } catch { scenes.value = []; }
+  const file = d.value.file, known = peekScenes(file);
+  scenes.value = known || scenes.value || [];          // what is known is shown at once, so the strip does not appear late; a file not seen yet is fetched
+  if (!known) { const r = await scenesOf(file); if (d.value.file === file) scenes.value = r; }
 }
 const sceneIndex = computed(() => { let k = -1; (scenes.value || []).forEach((s, i) => { if (s.line <= d.value.line) k = i; }); return k; });
 
@@ -147,7 +149,7 @@ async function suggest() {
   try { mt.value.result = await post('entry/mt', { file: d.value.file, line: d.value.line }); } catch (e) { mt.value.error = e.message; }
   mt.value.busy = false;
 }
-get('settings').then((st) => { mt.value.on = !!(st.mt?.provider && st.mt.consent && (st.mt.has_key || st.mt.base_url)); }).catch(() => {});
+if (peekMt() === null) mtOn().then((on) => { mt.value.on = on; });
 
 /* ---- approving, proofreading, the other actions */
 async function run(fn) { try { await fn(); } catch (e) { emit('error', e.message); } }

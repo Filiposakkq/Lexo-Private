@@ -128,3 +128,26 @@ export function sceneRadius() { try { return +localStorage.getItem('aside.sceneR
 export function setSceneRadius(n) { try { localStorage.setItem('aside.sceneRadius', String(n)); } catch { /* only for this page */ } }
 /* The size of the last picture: the next one starts with it, so the panel does not jump. */
 export const lastSize = { w: 0, h: 0 };
+
+/* ---- per-file and per-line data that every line's detail needs (the scenes of the file for the strip, the menu a line belongs to, whether the machine suggestion is set up):
+   fetched once and kept until something is written, so moving between lines costs one request, not five. */
+const filesScenes = new Map(), scenesDone = new Map(), menus = new Map(), menusDone = new Map();
+export const peekScenes = (file) => scenesDone.get(file) || null;
+export function scenesOf(file) {
+  if (!filesScenes.has(file)) filesScenes.set(file, get('scenes', { file, line: 0 }).then((r) => { const v = r.available ? r.items : []; scenesDone.set(file, v); return v; }).catch(() => { scenesDone.set(file, []); return []; }));
+  return filesScenes.get(file);
+}
+export const peekMenu = (file, line) => menusDone.get(file + '\t' + line) || null;
+export function menuOf(file, line) {
+  const key = file + '\t' + line;
+  if (!menus.has(key)) {
+    menus.set(key, get('entry/menu', { file, line }).catch((e) => ({ available: false, reason: e.message })).then((r) => { menusDone.set(key, r); return r; }));
+    if (menus.size > 200) menus.delete(menus.keys().next().value);
+  }
+  return menus.get(key);
+}
+let mtState = null;
+export const peekMt = () => mtState;
+export const mtOn = () => get('settings').then((st) => { mtState = !!(st.mt?.provider && st.mt.consent && (st.mt.has_key || st.mt.base_url)); return mtState; }).catch(() => false);
+/* After a write the counts of the scenes and the memory of the neighbours may have changed. */
+export function forgetFileData() { filesScenes.clear(); scenesDone.clear(); ctxCache.clear(); ctxDone.clear(); menus.clear(); menusDone.clear(); mtState = null; }

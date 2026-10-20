@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
-import { prefetchAll, sceneRadius } from '../gamewindow.js';
+import { forgetFileData, menuOf, mtOn, peekMt, prefetchAll, sceneRadius, scenesOf } from '../gamewindow.js';
 import { requireFeature } from '../pro.js';
 import LineDetail from '../components/LineDetail.vue';
 import MtDialog from '../components/MtDialog.vue';
@@ -84,24 +84,26 @@ async function select(i) {
     const scroller = scrollerOf(); const top = scroller ? scroller.scrollTop : 0;      // the panel keeps its place when the next line opens (the new line has its tabs still loading, so the content is short for a moment)
     // the Scene tab shows the picture and the lines around: they are fetched together with the line, so the new line appears complete and nothing loads after it
     const entry = get('entry', { file: it.file, line: it.line });
-    if (wantsScene()) await Promise.all([entry, prefetchAll(it.file, it.line, sceneRadius()).catch(() => {})]);
+    const ahead = [scenesOf(it.file), entry.then((d) => (d.unit !== 'string' && d.ref ? menuOf(it.file, it.line) : null))];     // the strip of scenes and the Menu tab are there with the line
+    if (peekMt() === null) ahead.push(mtOn());
+    if (wantsScene()) ahead.push(prefetchAll(it.file, it.line, sceneRadius()).catch(() => {}));
+    await Promise.all(ahead);
     detail.value = await entry;
     await nextTick();
     holdScroll(scroller, top);
     try { localStorage.setItem('aside.last', JSON.stringify({ file: it.file, line: it.line })); } catch { /* only for the Continue button */ }
     post('focus', { file: it.file, line: it.line }).catch(() => {});
     await nextTick();
-    document.querySelector('.ln.sel')?.scrollIntoView({ block: 'nearest' });
+    keepRowVisible();
+    const nx = items.value[i + 1];
+    if (nx && wantsScene()) setTimeout(() => { if (sel.value === i) prefetchAll(nx.file, nx.line, sceneRadius()).catch(() => {}); }, 400);      // the next line is ready when you get there
     if (i >= items.value.length - 15 && offset.value + items.value.length < total.value) load(false);
   } catch (e) { error.value = e.message; detail.value = null; }
 }
 /* After a new line replaced the old one: put the panel back where it was, and keep doing so while the content grows (the tabs fetch their data), until the user scrolls. */
 let holdOff = null;
 /* What scrolls: the panel itself when it has its own scroll bar (wide window), otherwise the page (narrow window, where the panel sits under the list). */
-function scrollerOf() {
-  const a = asideEl.value;
-  return a && a.scrollHeight > a.clientHeight + 1 ? a : document.scrollingElement;
-}
+function scrollerOf() { return asideEl.value; }
 function holdScroll(el, top) {
   if (holdOff) holdOff();
   if (!el || !top) return;
@@ -116,6 +118,14 @@ function holdScroll(el, top) {
   holdOff = stop;
 }
 onBeforeUnmount(() => { if (holdOff) holdOff(); });
+/* The selected row stays in view inside the list: only the list scrolls, never the page. */
+function keepRowVisible() {
+  const row = document.querySelector('.ln.sel'), box = row && row.closest('.tablewrap');
+  if (!row || !box) return;
+  const head = box.querySelector('thead')?.offsetHeight || 0;
+  if (row.offsetTop - head < box.scrollTop) box.scrollTop = row.offsetTop - head;
+  else if (row.offsetTop + row.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = row.offsetTop + row.offsetHeight - box.clientHeight;
+}
 function mirror() {
   const d = detail.value, it = items.value[sel.value];
   if (!d || !it) return;
@@ -132,10 +142,10 @@ async function updated(ev = {}) {
   error.value = '';
   try {
     const i = sel.value, d = detail.value;
-    if (ev.reload) { await load(true); loadOverview().catch(() => {}); loadFiles().catch(() => {}); return; }
+    if (ev.reload) { forgetFileData(); await load(true); lazyNumbers(); return; }
     detail.value = await get('entry', { file: d.file, line: d.line });
     mirror();
-    loadOverview().catch(() => {}); loadFiles().catch(() => {});
+    forgetFileData(); lazyNumbers();
     if (ev.advance) {
       let k;
       if (ev.kind === 'proof') k = nextWhere(i, (x) => x.status !== 'todo' && !['ok', 'fix'].includes(x.proof));
@@ -176,7 +186,10 @@ const shown = (s) => String(s ?? '').replace(/\n/g, ' ↵ ');
 /* The tools have their own screen; what stays here works on the lines you picked: translating them with a machine. */
 const mtOpen = ref(false);
 async function openMt() { if (await requireFeature('mt.batch')) mtOpen.value = true; }
-const after = async () => { await load(true); loadOverview().catch(() => {}); loadFiles().catch(() => {}); };
+/* The numbers of the overview and of the files are fetched after a pause, not after every save (they are not on this screen). */
+let lazyT = null;
+function lazyNumbers() { clearTimeout(lazyT); lazyT = setTimeout(() => { loadOverview().catch(() => {}); loadFiles().catch(() => {}); }, 2000); }
+const after = async () => { forgetFileData(); await load(true); lazyNumbers(); };
 
 onMounted(async () => {
   window.addEventListener('keydown', key);
@@ -254,7 +267,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
 </template>
 
 <style scoped>
-.screen { padding: var(--s-4) var(--s-5) var(--s-6); display: flex; flex-direction: column; gap: var(--s-3); width: 100%; min-width: 0; }
+.screen { padding: var(--s-4) var(--s-5) var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); width: 100%; min-width: 0; height: calc(100vh - 43px); box-sizing: border-box; overflow: hidden; }
 .toolbar { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
 .toolbar.more label { display: flex; gap: var(--s-2); align-items: center; font-size: var(--fs-small); color: var(--text-muted); }
 .check { display: flex; gap: var(--s-1); align-items: center; font-size: var(--fs-small); color: var(--text-muted); white-space: nowrap; }
@@ -263,8 +276,9 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
 .grow { flex: 1; }
 .sel { height: var(--h-control-sm); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--s-2); max-width: 200px; }
 .sel.wide { max-width: 260px; }
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); gap: var(--s-3); align-items: start; }
-.tablewrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-card); max-height: calc(100vh - 200px); }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); gap: var(--s-3); align-items: stretch; flex: 1; min-height: 0; }
+.split > div { min-height: 0; overflow: auto; }
+.tablewrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-card); }
 .grid { width: 100%; border-collapse: collapse; font-size: var(--fs-body); }
 .grid th { position: sticky; top: 0; background: var(--bg-bar); text-align: left; font-size: var(--fs-caption); font-weight: 500; color: var(--text-muted); padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line); z-index: 1; white-space: nowrap; }
 .grid td { padding: 6px var(--s-3); border-bottom: 1px solid var(--line-soft); vertical-align: top; }
@@ -279,6 +293,6 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
 .num { font-variant-numeric: tabular-nums; text-align: right; }
 .small { font-size: var(--fs-small); }
 .more-row, .empty { padding: var(--s-5); text-align: center; }
-.detail { padding: var(--s-4); position: sticky; top: var(--s-3); max-height: calc(100vh - 120px); overflow: auto; }
-@media (max-width: 1100px) { .split { grid-template-columns: 1fr; } .detail { position: static; max-height: none; } }
+.detail { padding: var(--s-4); min-height: 0; overflow: auto; }
+@media (max-width: 1100px) { .screen { height: auto; overflow: visible; } .split { grid-template-columns: 1fr; } .split > div { overflow: visible; } .tablewrap { max-height: 50vh; overflow: auto; } }
 </style>

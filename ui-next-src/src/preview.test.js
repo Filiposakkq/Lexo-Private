@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./api.js', () => ({ post: vi.fn(async () => ({ ok: true })), get: vi.fn(async () => ({ ok: true })) }));
 import { get } from './api.js';
 import LineDetail from './components/LineDetail.vue';
-import { gameText } from './gamewindow.js';
+import { forgetFileData, gameText } from './gamewindow.js';
 import { project } from './project.js';
 
 enableAutoUnmount(afterEach);
@@ -25,7 +25,7 @@ const menu = { ok: true, available: true, script: 'game/s.rpy', question: [], be
 
 describe('the line detail: scene and menu', () => {
   beforeEach(() => {
-    get.mockReset();
+    get.mockReset(); forgetFileData();
     project.files = []; project.names = { mc: 'Alex' }; project.team = null;
     get.mockImplementation(async (path) => {
       if (path === 'entry/menu') return menu;
