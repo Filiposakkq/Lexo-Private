@@ -32,3 +32,4 @@ export async function requireFeature(id) {
   pro.locked = { id, problems: (cache && cache.problems) || [] };
   return false;
 }
+export function forgetFeatures() { cache = null; }

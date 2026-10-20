@@ -29,7 +29,8 @@ const message = ref('');
 let timer = null, lintTimer = null;
 
 if (project.check.ignored) mode.value = 'ign';
-project.check = { file: project.check.file || '', ignored: false };
+if (project.check.mode) mode.value = project.check.mode;
+project.check = { file: project.check.file || '', ignored: false, mode: '' };
 
 const SEV = computed(() => [['', t('Errors + warnings')], ['error', t('Errors')], ['warning', t('Warnings')], ['info', t('Minor things')]]);
 const CAT = computed(() => [['', t('All kinds')], ['syntax', t('Tags and variables')], ['structure', t('Structure (speaker, blocks)')], ['length', t('Text length')], ['text', t('Text (numbers, English, typos)')]]);
@@ -124,6 +125,8 @@ function refresh() {
   else loadLint();
 }
 function setMode(m) { mode.value = m; message.value = ''; refresh(); }
+/* the keyboard (or the palette) asks for another view while Check is open */
+watch(() => project.check.mode, (m) => { if (m) { setMode(m); project.check = { ...project.check, mode: '' }; } });
 watch([consLoose, consBySpeaker], () => { if (mode.value === 'cons') loadCons(); });
 onMounted(async () => { loadSettings(); try { if (!project.files) await loadFiles(); } catch { /* the file filter stays empty */ } refresh(); });
 onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(lintTimer); });

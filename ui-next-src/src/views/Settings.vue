@@ -1,6 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { get, post } from '../api.js';
+import KeysPanel from '../components/KeysPanel.vue';
+import LicencePanel from '../components/LicencePanel.vue';
 import SnapshotRestore from '../components/SnapshotRestore.vue';
 import { availableLanguages, t, tn, uiLanguage } from '../i18n.js';
 import { app } from '../state.js';
@@ -178,11 +180,8 @@ function restored(n) {
             <label class="row"><span>{{ t('Name of the game on the website') }}</span><input v-model="s.web.title" class="text" type="text"></label></fieldset>
         </template>
 
-        <template v-else-if="section === 'keys' || section === 'licence'">
-          <fieldset><legend>{{ section === 'keys' ? t('Keyboard shortcuts') : t('Licence') }}</legend>
-            <p class="muted">{{ t('This screen is in the classic interface for now') }}</p>
-            <a class="btn" href="/">{{ section === 'keys' ? t('Keyboard shortcuts') : t('Licence') }}</a></fieldset>
-        </template>
+        <template v-else-if="section === 'keys'"><fieldset><legend>{{ t('Keyboard shortcuts') }}</legend><KeysPanel /></fieldset></template>
+        <template v-else-if="section === 'licence'"><fieldset><legend>{{ t('Licence') }}</legend><LicencePanel /></fieldset></template>
 
         <template v-else>
           <fieldset><legend>{{ t('About the app') }}</legend>
@@ -190,7 +189,7 @@ function restored(n) {
             <p class="notice"><b>{{ t('State of the app: ') }}</b>{{ t("it is under development and has been tried on a number of Ren'Py games of different kinds. ") }}{{ t('The interface is English with Czech as a language pack; more languages are planned.') }}</p></fieldset>
         </template>
 
-        <div class="savebar"><button class="btn primary" :disabled="saving" @click="save">{{ t('Save settings') }}</button><span class="muted">{{ t('Settings: ') }}<span class="mono">config.json</span>{{ t(' in %APPDATA%\\Aside') }}</span></div>
+        <div v-if="section !== 'keys' && section !== 'licence'" class="savebar"><button class="btn primary" :disabled="saving" @click="save">{{ t('Save settings') }}</button><span class="muted">{{ t('Settings: ') }}<span class="mono">config.json</span>{{ t(' in %APPDATA%\\Aside') }}</span></div>
       </div>
     </div>
     <SnapshotRestore v-if="restoring" :name="restoring" @close="restoring = ''" @done="restored" />

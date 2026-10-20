@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
+import { register } from '../keys.js';
 import { forgetFileData, menuOf, mtOn, peekMt, prefetchAll, prefetchStats, sceneRadius, scenesOf } from '../gamewindow.js';
 import { requireFeature } from '../pro.js';
 import LineDetail from '../components/LineDetail.vue';
@@ -168,20 +169,16 @@ function rowClick(ev, i, it) {
 const pickedList = computed(() => [...picked.value].map((k) => { const [file, line] = k.split('\t'); return { file, line: +line }; }));
 const isPicked = (it) => picked.value.has(it.file + '\t' + it.line);
 
-function key(ev) {
-  if (ev.target.closest('textarea, input, select, [role="dialog"]')) return;
-  const L = ld.value;
-  if (ev.key === 'ArrowDown') { ev.preventDefault(); select(sel.value + 1); }
-  else if (ev.key === 'ArrowUp') { ev.preventDefault(); select(sel.value - 1); }
-  else if (!L || ev.ctrlKey || ev.metaKey || ev.altKey) return;
-  else if (ev.key === 'A') L.openIdentical();
-  else if (ev.key === 'a') L.approve();
-  else if (ev.key === 'P') L.proofUpto('ok');
-  else if (ev.key === 'U') L.proofUpto('');
-  else if (ev.key === 'p') L.toggleProof();
-  else if (ev.key === 'f' || ev.key === 'F') L.toggleFix();
-  else if (ev.key === 'e' || ev.key === 'E') L.openEditor();
-}
+/* the keys of the Lines screen are the actions of keys.js (they can be changed in Settings); this screen says what each one does */
+const last = () => items.value.length - 1;
+const keyHandlers = {
+  next: () => select(sel.value + 1), prev: () => select(sel.value - 1),
+  pagedown: () => select(Math.min(last(), sel.value + 15)), pageup: () => select(Math.max(0, sel.value - 15)), first: () => select(0), last: () => select(last()),
+  approve: () => ld.value?.approve(), approve_all: () => ld.value?.openIdentical(), proof: () => ld.value?.toggleProof(), proof_upto: () => ld.value?.proofUpto('ok'),
+  unproof_upto: () => ld.value?.proofUpto(''), flag: () => ld.value?.toggleFix(), open_editor: () => ld.value?.openEditor(),
+};
+let offKeys = null;
+const reloadList = () => { forgetFileData(); load(true); };
 const who = (it) => (it.who || '').trim().split(/\s+/)[0];
 const full = (it) => project.names[who(it)] || '';
 const shown = (s) => String(s ?? '').replace(/\n/g, ' ↵ ');
@@ -194,12 +191,13 @@ function lazyNumbers() { clearTimeout(lazyT); lazyT = setTimeout(() => { loadOve
 const after = async () => { forgetFileData(); await load(true); lazyNumbers(); };
 
 onMounted(async () => {
-  window.addEventListener('keydown', key);
+  offKeys = register(keyHandlers);
+  window.addEventListener('aside:reload', reloadList);
   loadNames();
   try { if (!project.files) await loadFiles(); } catch (e) { error.value = e.message; }
   load(true);
 });
-onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout(timer); });
+onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('aside:reload', reloadList); clearTimeout(timer); });
 </script>
 
 <template>
