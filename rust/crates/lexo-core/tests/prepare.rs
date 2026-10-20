@@ -286,3 +286,25 @@ fn the_sdk_is_downloaded_checked_and_unpacked() {
     let done = wait(&app, &job);
     assert_eq!((done["success"].clone(), done["result"]["reused"].clone()), (true.into(), true.into()), "{done}");
 }
+
+/// The real download from renpy.org (about 160 MB): `cargo test -- --ignored real_sdk`.
+#[test]
+#[ignore]
+fn real_sdk_download() {
+    let tmp = std::env::temp_dir().join(format!("prepare-real-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&tmp);
+    let mut app = app_in(&tmp);
+    let job = app.prepare_sdk_download("py3").unwrap()["job"].as_str().unwrap().to_string();
+    let end = Instant::now() + Duration::from_secs(900);
+    let done = loop {
+        let s = app.prepare_status(&job).unwrap();
+        if s["done"] == true || Instant::now() > end {
+            break s;
+        }
+        std::thread::sleep(Duration::from_secs(2));
+    };
+    assert_eq!(done["success"], true, "{done}");
+    let dir = done["result"]["sdk"].as_str().unwrap().to_string();
+    println!("SDK: {dir}");
+    assert!(Path::new(&dir).join("renpy.py").is_file());
+}
