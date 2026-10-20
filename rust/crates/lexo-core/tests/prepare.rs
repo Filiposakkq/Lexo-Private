@@ -152,3 +152,137 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
     assert!(c.join("game/tl/czech/script.rpy").is_file(), "written in the game");
     assert!(!tmp.join("In Place Game-aside").exists(), "and nothing was copied");
 }
+
+fn plat() -> &'static str {
+    if cfg!(windows) {
+        "windows"
+    } else if cfg!(target_os = "macos") {
+        "mac"
+    } else {
+        "linux"
+    }
+}
+
+/// A game without an engine of its own: only `game/` and a script.
+fn bare_game(root: &Path) {
+    std::fs::create_dir_all(root.join("game")).unwrap();
+    std::fs::write(root.join("game/script.rpy"), "label start:\n    e \"Hi\"\n").unwrap();
+}
+
+/// A fake SDK: `renpy.py` and a Python of the given family.
+fn sdk(dir: &Path, family: &str) {
+    let py = dir.join("lib").join(format!("{family}-{}-x86_64", plat()));
+    std::fs::create_dir_all(&py).unwrap();
+    for f in ["python.exe", "python"] {
+        std::fs::write(py.join(f), "").unwrap();
+    }
+    std::fs::write(dir.join("renpy.py"), "").unwrap();
+}
+
+fn sdk_zip() -> Vec<u8> {
+    use std::io::Write;
+    let mut w = zip::ZipWriter::new(std::io::Cursor::new(Vec::new()));
+    let o = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
+    w.start_file("renpy-8.5.3-sdk/renpy.py", o).unwrap();
+    w.write_all(b"").unwrap();
+    w.start_file(format!("renpy-8.5.3-sdk/lib/py3-{}-x86_64/python.exe", plat()), o).unwrap();
+    w.write_all(b"").unwrap();
+    w.start_file(format!("renpy-8.5.3-sdk/lib/py3-{}-x86_64/python", plat()), o).unwrap();
+    w.write_all(b"").unwrap();
+    w.finish().unwrap().into_inner()
+}
+
+fn sha_hex(bytes: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(bytes).iter().map(|b| format!("{b:02x}")).collect()
+}
+
+fn fake_fetch(url: &str, dest: &Path, progress: &dyn Fn(u64, u64)) -> Result<(), String> {
+    let zip = sdk_zip();
+    if url.ends_with("checksums.txt") {
+        std::fs::write(dest, format!("# md5\nabc renpy-8.5.3-sdk.zip\n\n# sha256\n{} renpy-8.5.3-sdk.zip\n", sha_hex(&zip))).map_err(|e| e.to_string())
+    } else {
+        assert!(url.starts_with("https://www.renpy.org/dl/8.5.3/"), "{url}");
+        progress(zip.len() as u64, zip.len() as u64);
+        std::fs::write(dest, zip).map_err(|e| e.to_string())
+    }
+}
+
+fn tampered_fetch(url: &str, dest: &Path, progress: &dyn Fn(u64, u64)) -> Result<(), String> {
+    if url.ends_with("checksums.txt") {
+        return fake_fetch(url, dest, progress);
+    }
+    std::fs::write(dest, b"not the sdk").map_err(|e| e.to_string())
+}
+
+#[test]
+fn a_game_without_an_engine_uses_an_sdk_that_fits_or_offers_to_download_one() {
+    let tmp = std::env::temp_dir().join(format!("prepare-sdk-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&tmp);
+    let mut app = app_in(&tmp);
+    let runner: RunFn = fake;
+    let g = tmp.join("games/Bare Game");
+    bare_game(&g);
+
+    // nothing to run it with: the guide offers the downloads (both versions, the family of the game is unknown)
+    let i = app.prepare_inspect(&g.to_string_lossy()).unwrap();
+    assert_eq!((i["engine"].clone(), i["ready"].clone()), (false.into(), false.into()), "{i}");
+    assert_eq!(i["sdk_offers"].as_array().unwrap().len(), 2, "{i}");
+    assert!(app.prepare_start_with(&g.to_string_lossy(), "czech", "copy", "", runner).is_err());
+
+    // a path that is no SDK is refused; one of the wrong kind does not fit a Ren'Py 8 game, but a game of unknown kind takes any
+    assert!(app.prepare_set_sdk(&tmp.join("nothing").to_string_lossy()).is_err());
+    let old = tmp.join("sdks/renpy-7.4-sdk");
+    sdk(&old, "py2");
+    app.prepare_set_sdk(&old.to_string_lossy()).unwrap();
+    let i = app.prepare_inspect(&g.to_string_lossy()).unwrap();
+    assert_eq!((i["engine"].clone(), i["engine_source"].clone()), (true.into(), "chosen".into()), "{i}");
+
+    // a game that carries a Python 3 (but no launcher) is not given the Python 2 SDK
+    let g3 = tmp.join("games/Py3 Game");
+    bare_game(&g3);
+    std::fs::create_dir_all(g3.join("lib").join(format!("py3-{}-x86_64", plat()))).unwrap();
+    let i = app.prepare_inspect(&g3.to_string_lossy()).unwrap();
+    assert_eq!(i["engine"], false, "{i}");
+    assert_eq!(i["sdk_offers"].as_array().unwrap().len(), 1, "only the offer that fits: {i}");
+
+    // an SDK that lies beside the games is found by itself
+    sdk(&tmp.join("games/renpy-8.2.1-sdk"), "py3");
+    let i = app.prepare_inspect(&g3.to_string_lossy()).unwrap();
+    assert_eq!((i["engine"].clone(), i["engine_source"].clone()), (true.into(), "found".into()), "{i}");
+
+    // the whole way with the SDK as the engine: the translation is written by the SDK, in the working copy
+    let job = app.prepare_start_with(&g.to_string_lossy(), "czech", "copy", "", runner).unwrap()["job"].as_str().unwrap().to_string();
+    let done = wait(&app, &job);
+    assert_eq!(done["success"], true, "{done}");
+    assert!(Path::new(done["result"]["folder"].as_str().unwrap()).join("script.rpy").is_file());
+}
+
+#[test]
+fn the_sdk_is_downloaded_checked_and_unpacked() {
+    let tmp = std::env::temp_dir().join(format!("prepare-dl-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&tmp);
+    let mut app = app_in(&tmp);
+    assert!(app.prepare_sdk_download_with("py9", fake_fetch).is_err(), "an unknown kind");
+
+    // a damaged download is refused and nothing is left behind
+    let job = app.prepare_sdk_download_with("py3", tampered_fetch).unwrap()["job"].as_str().unwrap().to_string();
+    let done = wait(&app, &job);
+    assert_eq!((done["done"].clone(), done["success"].clone()), (true.into(), false.into()), "{done}");
+    assert!(!tmp.join("cfg/sdk/py3").exists() && !tmp.join("cfg/sdk/py3.part").exists());
+
+    let job = app.prepare_sdk_download_with("py3", fake_fetch).unwrap()["job"].as_str().unwrap().to_string();
+    let done = wait(&app, &job);
+    assert_eq!(done["success"], true, "{done}");
+    assert!(Path::new(done["result"]["sdk"].as_str().unwrap()).join("renpy.py").is_file());
+
+    // a game without an engine now has one: the downloaded SDK
+    let g = tmp.join("games/Bare Game");
+    bare_game(&g);
+    let i = app.prepare_inspect(&g.to_string_lossy()).unwrap();
+    assert_eq!((i["engine"].clone(), i["engine_source"].clone()), (true.into(), "downloaded".into()), "{i}");
+    // asking again does not download again
+    let job = app.prepare_sdk_download_with("py3", tampered_fetch).unwrap()["job"].as_str().unwrap().to_string();
+    let done = wait(&app, &job);
+    assert_eq!((done["success"].clone(), done["result"]["reused"].clone()), (true.into(), true.into()), "{done}");
+}

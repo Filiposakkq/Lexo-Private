@@ -19,21 +19,29 @@ use std::sync::{Mutex, OnceLock};
 pub type RunFn = fn(&[String], &Path) -> Result<(i32, String), ToolError>;
 
 #[derive(Clone, Default)]
-struct Job {
-    current: String,
-    done_steps: Vec<String>,
-    done: bool,
-    ok: bool,
-    error: Value,
-    result: Value,
+pub(crate) struct Job {
+    pub(crate) current: String,
+    pub(crate) done_steps: Vec<String>,
+    pub(crate) done: bool,
+    pub(crate) ok: bool,
+    pub(crate) error: Value,
+    pub(crate) result: Value,
 }
 
-fn jobs() -> &'static Mutex<BTreeMap<String, Job>> {
+/// The engine that writes the translation: the game's own (`sdk` is `None`, the workspace is the folder) or a Ren'Py SDK; `python` runs unrpyc as well.
+struct Engine {
+    sdk: Option<PathBuf>,
+    python: PathBuf,
+    /// `game`, or where the SDK comes from: `chosen`, `downloaded`, `found`
+    source: &'static str,
+}
+
+pub(crate) fn jobs() -> &'static Mutex<BTreeMap<String, Job>> {
     static J: OnceLock<Mutex<BTreeMap<String, Job>>> = OnceLock::new();
     J.get_or_init(|| Mutex::new(BTreeMap::new()))
 }
 
-fn with_job(id: &str, f: impl FnOnce(&mut Job)) {
+pub(crate) fn with_job(id: &str, f: impl FnOnce(&mut Job)) {
     if let Some(j) = jobs().lock().unwrap_or_else(|e| e.into_inner()).get_mut(id) {
         f(j);
     }
@@ -79,8 +87,35 @@ fn unrpyc_in(dir: &Path) -> Option<PathBuf> {
 }
 
 impl App {
-    fn prepare_settings_file(&self) -> PathBuf {
+    pub(crate) fn prepare_settings_file(&self) -> PathBuf {
         self.cfg_dir.join("prepare.json")
+    }
+
+    /// Set one value in the settings of the guide (`["unrpyc"]` or `["sdk", "py3"]`) and keep the rest.
+    pub(crate) fn prepare_settings_set(&self, key: &[&str], value: Value) -> Res<()> {
+        let io = |e: std::io::Error| app_err(msg("The setting could not be saved: {reason}", &[("reason", json!(e.to_string()))]));
+        let mut all: Value = serde_json::from_str(&std::fs::read_to_string(self.prepare_settings_file()).unwrap_or_default()).unwrap_or(Value::Null);
+        if !all.is_object() {
+            all = json!({});
+        }
+        let mut node = &mut all;
+        for k in &key[..key.len() - 1] {
+            if !node[*k].is_object() {
+                node[*k] = json!({});
+            }
+            node = &mut node[*k];
+        }
+        node[key[key.len() - 1]] = value;
+        std::fs::create_dir_all(&self.cfg_dir).map_err(io)?;
+        std::fs::write(self.prepare_settings_file(), serde_json::to_string_pretty(&all).unwrap_or_default()).map_err(io)
+    }
+
+    /// The engine for a game: its own, or a Ren'Py SDK that fits it. `None` when there is neither (the guide then asks the user).
+    fn prepare_engine(&self, root: &Path) -> Option<Engine> {
+        if let (Some(python), Some(_)) = (lint::find_python(root, Platform::current()), lint::find_launcher(root)) {
+            return Some(Engine { sdk: None, python, source: "game" });
+        }
+        self.sdk_find(root, crate::app_sdk::game_family(root)).map(|(dir, python, source)| Engine { sdk: Some(dir), python, source })
     }
 
     /// The unrpyc the user chose before, or one that lies where it is likely to be (beside the game, in Downloads, on the Desktop).
@@ -94,14 +129,14 @@ impl App {
 
     /// Which unrpyc, and where it comes from: `chosen` (the user pointed at one), `bundled` (the one of the application that fits the game's Python) or `found` (one that lies beside the game,
     /// in Downloads or on the Desktop).
-    fn prepare_unrpyc(&self, root: &Path) -> Option<(PathBuf, &'static str)> {
+    fn prepare_unrpyc(&self, root: &Path, python: Option<&Path>) -> Option<(PathBuf, &'static str)> {
         let text = std::fs::read_to_string(self.prepare_settings_file()).unwrap_or_default();
         let saved =
             serde_json::from_str::<Value>(&text).ok().map(|v| py_str(&v["unrpyc"])).filter(|p| !p.is_empty()).map(PathBuf::from).filter(|p| p.is_file());
         if let Some(p) = saved {
             return Some((p, "chosen"));
         }
-        if let Some(b) = lint::find_python(root, Platform::current()).and_then(|py| self.bundled_unrpyc(&py)) {
+        if let Some(b) = python.and_then(|py| self.bundled_unrpyc(py)) {
             return Some((b, "bundled"));
         }
         let home = ["USERPROFILE", "HOME"].into_iter().find_map(std::env::var_os).map(PathBuf::from);
@@ -120,10 +155,7 @@ impl App {
         let Some(file) = file.filter(|f| f.file_name().is_some_and(|n| n.to_string_lossy().eq_ignore_ascii_case("unrpyc.py"))) else {
             return Err(app_err(msg("unrpyc.py was not found there: {path}", &[("path", json!(path))])));
         };
-        let io = |e: std::io::Error| app_err(msg("The setting could not be saved: {reason}", &[("reason", json!(e.to_string()))]));
-        std::fs::create_dir_all(&self.cfg_dir).map_err(io)?;
-        std::fs::write(self.prepare_settings_file(), serde_json::to_string_pretty(&json!({"unrpyc": file.to_string_lossy()})).unwrap_or_default())
-            .map_err(io)?;
+        self.prepare_settings_set(&["unrpyc"], json!(file.to_string_lossy()))?;
         Ok(json!({"ok": true, "unrpyc": file.to_string_lossy()}))
     }
 
@@ -143,16 +175,13 @@ impl App {
             .filter(|e| e.path().is_dir())
             .map(|e| e.file_name().to_string_lossy().into_owned())
             .collect();
-        let python = lint::find_python(&root, Platform::current());
-        let launcher = lint::find_launcher(&root);
-        let unrpyc = self.prepare_unrpyc(&root);
+        let engine = self.prepare_engine(&root);
+        let family = crate::app_sdk::game_family(&root);
+        let unrpyc = self.prepare_unrpyc(&root, engine.as_ref().map(|e| e.python.as_path()));
         let needs_unrpyc = rpyc_only > 0 || archives > 0;
         let mut problems: Vec<Message> = Vec::new();
-        if python.is_none() || launcher.is_none() {
-            problems.push(msg(
-                "The game has no engine of its own (no program of the game with its .py file and a lib folder beside it), so it cannot be prepared here.",
-                &[],
-            ));
+        if engine.is_none() {
+            problems.push(crate::app_sdk::no_engine());
         }
         if needs_unrpyc && unrpyc.is_none() {
             problems.push(msg("unrpyc is needed to read the scripts of this game: choose the file unrpyc.py.", &[]));
@@ -160,7 +189,8 @@ impl App {
         let name = root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
         Ok(json!({
             "ok": true, "root": root.to_string_lossy(), "name": name, "archives": archives, "scripts": rpy, "bytecode_only": rpyc_only, "translations": translations,
-            "engine": python.is_some() && launcher.is_some(), "unrpyc": unrpyc.as_ref().map(|u| u.0.to_string_lossy().into_owned()), "unrpyc_source": unrpyc.as_ref().map(|u| u.1),
+            "engine": engine.is_some(), "engine_source": engine.as_ref().map(|e| e.source), "sdk": engine.as_ref().and_then(|e| e.sdk.as_ref()).map(|p| p.to_string_lossy().into_owned()),
+            "sdk_offers": if engine.is_some() { json!([]) } else { Self::sdk_offers(family) }, "unrpyc": unrpyc.as_ref().map(|u| u.0.to_string_lossy().into_owned()), "unrpyc_source": unrpyc.as_ref().map(|u| u.1),
             "unrpyc_version": unrpyc.as_ref().filter(|u| u.1 == "bundled").and_then(|u| u.0.parent()?.file_name().map(|n| n.to_string_lossy().into_owned())), "needs_unrpyc": needs_unrpyc,
             "problems": problems.iter().map(Message::wire).collect::<Vec<_>>(), "ready": problems.is_empty(),
             "default_workspace": self.prepare_default_workspace(&root).to_string_lossy(),
@@ -235,12 +265,8 @@ impl App {
         let info = self.prepare_inspect(path)?;
         if !info["ready"].as_bool().unwrap_or(false) {
             // the same checks as `prepare_inspect`, as a message to refuse with
-            let root = game_root_of(Path::new(&py_str(&info["root"]))).unwrap_or_default();
-            let refusal = if lint::find_python(&root, Platform::current()).is_none() || lint::find_launcher(&root).is_none() {
-                msg(
-                    "The game has no engine of its own (no program of the game with its .py file and a lib folder beside it), so it cannot be prepared here.",
-                    &[],
-                )
+            let refusal = if info["engine"] != true {
+                crate::app_sdk::no_engine()
             } else {
                 msg("unrpyc is needed to read the scripts of this game: choose the file unrpyc.py.", &[])
             };
@@ -258,7 +284,9 @@ impl App {
                 )));
             }
         }
-        let python = lint::find_python(&root, Platform::current()).unwrap_or_default();
+        let Some(engine) = self.prepare_engine(&root) else {
+            return Err(app_err(crate::app_sdk::no_engine()));
+        };
         let unrpyc = info["unrpyc"].as_str().map(PathBuf::from);
         let id = format!("{}-{}", crate::fsutil::token_hex(4), crate::util::sha1_hex(language.as_bytes()).get(..4).unwrap_or(""));
         {
@@ -270,7 +298,7 @@ impl App {
         }
         let language = language.to_string();
         let job = id.clone();
-        std::thread::spawn(move || run_job(&job, &root, &workspace, &language, &python, unrpyc.as_deref(), inplace, runner));
+        std::thread::spawn(move || run_job(&job, &root, &workspace, &language, &engine, unrpyc.as_deref(), inplace, runner));
         Ok(json!({"ok": true, "job": id}))
     }
 
@@ -290,7 +318,7 @@ fn tool_err(e: ToolError) -> Value {
 
 /// The whole way, on the thread of the job. The game is only read; everything is written in `workspace`.
 #[allow(clippy::too_many_arguments)]
-fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, python: &Path, unrpyc: Option<&Path>, inplace: bool, runner: RunFn) {
+fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, engine: &Engine, unrpyc: Option<&Path>, inplace: bool, runner: RunFn) {
     let step = |name: &str| {
         let name = name.to_string();
         with_job(id, move |j| {
@@ -337,7 +365,7 @@ fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, python: &Pat
         let Some(unrpyc) = unrpyc else {
             return fail(msg("unrpyc is needed to read the scripts of this game: choose the file unrpyc.py.", &[]).wire());
         };
-        match gametools::decompile(python, unrpyc, &game, false, true, false, &run) {
+        match gametools::decompile(&engine.python, unrpyc, &game, false, true, false, &run) {
             Ok(d) if d.ok => {
                 gametools::repair_decompiled(&game, &d.written);
             }
@@ -357,7 +385,7 @@ fn run_job(id: &str, root: &Path, workspace: &Path, language: &str, python: &Pat
     let mut result = None;
     let mut quarantined: Vec<String> = Vec::new();
     for _attempt in 0..3 {
-        let g = match gametools::generate_translation(workspace, workspace, language, true, &run, Platform::current()) {
+        let g = match gametools::generate_translation(engine.sdk.as_deref().unwrap_or(workspace), workspace, language, true, &run, Platform::current()) {
             Ok(g) => g,
             Err(e) => return fail(tool_err(e)),
         };
