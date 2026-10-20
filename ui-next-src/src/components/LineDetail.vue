@@ -38,7 +38,9 @@ const TABS = computed(() => [
   ['check', open.value.length ? t('Check ({n})', { n: open.value.length }) : t('Check')],
   ['proof', t('Proofreading')],
   ...(isChoice.value && d.value.ref ? [['menu', t('Menu')]] : []),
-  ['scene', t('Scene')], ['memory', t('Memory')], ['history', t('History')], ['script', t('Script')],
+  ['scene', t('Scene')], ['memory', t('Memory')], ['history', t('History')],
+  ...(project.team && project.team.exists ? [['team', t('Team')]] : []),
+  ['script', t('Script')],
 ]);
 const current = computed(() => (TABS.value.some(([k]) => k === tab.value) ? tab.value : open.value.length ? 'check' : isChoice.value && d.value.ref ? 'menu' : 'scene'));
 
@@ -69,6 +71,7 @@ async function loadTab() {
     else if (k === 'history' && !c.history) { c.history = 'loading'; c.history = await get('entry/history', q); }
     else if (k === 'script' && line.ref && !c.context) { c.context = 'loading'; c.context = await get('entry/context', q); }
     else if (k === 'menu' && !c.menu) { c.menu = 'loading'; c.menu = await get('entry/menu', q); }
+    else if (k === 'team' && !c.notes) { c.notes = 'loading'; c.notes = await post('team/notes', q); }
   } catch (e) { c[k === 'script' ? 'context' : k] = { error: e.message }; }
 }
 const radius = ref(6);
@@ -159,6 +162,9 @@ async function jump(kind) {
   } catch (e) { emit('error', e.message); }
 }
 const goScene = (i) => { const s = (scenes.value || [])[i]; if (s) emit('goto', { file: d.value.file, line: s.line }); };
+const newNote = ref('');
+const addNote = () => run(async () => { data.value.notes = await post('team/note_add', { file: d.value.file, line: d.value.line, text: newNote.value }); newNote.value = ''; });
+const resolveNote = (n) => run(async () => { data.value.notes = await post('team/note_resolve', { id: n.id, file: d.value.file, line: d.value.line }); });
 const shown = (s) => String(s ?? '');
 defineExpose({ dirty, approve, toggleProof, toggleFix, openEditor, proofUpto, openIdentical: () => { identical.value = true; }, focusEditor: () => nextTick(() => { ta.value?.focus(); ta.value?.setSelectionRange(text.value.length, text.value.length); }) });
 const diff = (before, after) => {
@@ -345,6 +351,20 @@ const diff = (before, after) => {
             <div class="box"><template v-if="v.current">{{ v.text }}</template><template v-else v-for="p in [diff(d.target, v.text)]" :key="v.text">{{ p.head }}<mark>{{ p.mid || '∅' }}</mark>{{ p.tail }}</template></div>
             <div v-if="!v.current" class="actions"><button class="btn small" :title="t('Puts this version into the field. It is written only after saving.')" @click="text = v.text; ta && ta.focus()">{{ t('Restore into the field') }}</button><button class="btn small ghost" @click="copy(v.text)">{{ t('⧉ Copy') }}</button></div>
           </div>
+        </template>
+      </template>
+
+      <template v-else-if="current === 'team'">
+        <div v-if="!data.notes || data.notes === 'loading'" class="muted">{{ t('Loading…') }}</div>
+        <template v-else>
+          <div v-if="!data.notes.notes.length" class="muted">{{ t('No note on this line yet.') }}</div>
+          <div v-for="n in data.notes.notes" :key="n.id" class="memitem">
+            <div><b>{{ n.name }}</b> <span class="muted small">{{ String(n.t).slice(0, 16).replace('T', ' ') }}</span> <span v-if="n.resolved" class="pill checked">{{ t('dealt with') }}</span></div>
+            <div :style="n.resolved ? { opacity: .6, textDecoration: 'line-through' } : {}">{{ n.text }}</div>
+            <div v-if="!n.resolved" class="actions"><button class="btn small" @click="resolveNote(n)">{{ t('Mark as dealt with') }}</button></div>
+          </div>
+          <textarea v-model="newNote" class="edit" rows="2" :placeholder="t('A note to the team about this line…')" :aria-label="t('A note to the team about this line…')"></textarea>
+          <div class="actions"><button class="btn primary" :disabled="!newNote.trim()" @click="addNote">{{ t('Add the note') }}</button></div>
         </template>
       </template>
 

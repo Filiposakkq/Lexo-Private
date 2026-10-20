@@ -5,7 +5,7 @@ import { locale, t } from './i18n.js';
 /* What the screens of an open game share: the overview, the list of files, the glossary names and the filter of the Lines screen
    (the other screens set it before they open Lines: "the untranslated lines of this file"). */
 export const project = reactive({
-  overview: null, files: null, names: {}, error: '',
+  overview: null, files: null, names: {}, team: null, error: '',
   lines: { file: '', status: 'todo', q: '', line: 0 },
 });
 
@@ -17,6 +17,12 @@ export async function loadFiles() {
   project.files = (await get('files')).files;
   return project.files;
 }
+/* The team of the project ({exists, me, members, assign, can_manage…}), or null when it cannot be read. */
+export async function loadTeam() {
+  try { project.team = await post('team/state', {}); } catch { project.team = null; }
+  return project.team;
+}
+export const roleLabel = (r) => ({ lead: t('lead'), translator: t('translator'), proofreader: t('proofreader') }[r] || r);
 export async function loadNames() {
   try { project.names = (await get('glossary')).names || {}; } catch { project.names = {}; }
 }

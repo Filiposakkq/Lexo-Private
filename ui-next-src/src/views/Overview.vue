@@ -1,12 +1,14 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { t, tn } from '../i18n.js';
-import { baseName, dateLong, fileState, fmtN, fmtPct, groupName, loadFiles, loadOverview, openLines, pillOf, post, project } from '../project.js';
+import GroupsDialog from '../components/GroupsDialog.vue';
+import { baseName, dateLong, fileState, fmtN, fmtPct, groupName, loadFiles, loadOverview, openLines, pillOf, post, project, reloadAll } from '../project.js';
 
 /* Overview: where you are in the translation and one click to carry on, then the numbers (translation, what is left, proofreading, the check),
    the groups (episodes, chapters…), the files by state and the recent activity. */
 const emit = defineEmits(['go']);
 const error = ref('');
+const groups = ref(false);
 const o = computed(() => project.overview);
 const files = computed(() => project.files || []);
 
@@ -105,7 +107,7 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
           <template v-if="!o.groups_defined">
             <b>{{ t('No groups yet') }}</b>
             <p class="muted">{{ t('Episodes, chapters or parts give you statistics for each of them. Aside can guess them from the file names.') }}</p>
-            <a class="btn" href="/">{{ t('Set up groups…') }}</a>
+            <button class="btn" @click="groups = true">{{ t('Set up groups…') }}</button>
           </template>
           <div v-for="e in o.episodes" :key="e.n" class="ep">
             <span class="nm">{{ groupName(e.n) }}</span>
@@ -134,8 +136,8 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
           <p v-else class="muted">{{ t('No activity yet') }}</p>
         </section>
         <section class="card">
-          <div class="card-title">
-            <h3 class="grow-t">{{ t('Recent changes (can be undone)') }}</h3>
+          <div class="head-row">
+            <h3 class="card-title grow-t">{{ t('Recent changes (can be undone)') }}</h3>
             <button v-if="o.undo && o.undo.length" class="btn small" :disabled="busy" :title="t('Undo: {what} (Ctrl+Z)', { what: o.undo[0] })" @click="undo">{{ t('↶ Undo the last file change') }}</button>
           </div>
           <ul class="list" v-if="o.undo && o.undo.length"><li v-for="(u, i) in o.undo" :key="i"><span>{{ u }}</span><span v-if="i === 0" class="muted">Ctrl+Z</span></li></ul>
@@ -143,6 +145,7 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
         </section>
       </div>
     </div>
+    <GroupsDialog v-if="groups" @close="groups = false" @done="groups = false; reloadAll()" />
   </main>
   <main class="screen" v-else><div v-if="error" class="notice danger" role="alert">{{ error }}</div><div v-else class="skeleton" style="height: 180px"></div></main>
 </template>
@@ -174,7 +177,8 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
 .ep { display: grid; grid-template-columns: 110px minmax(0, 1fr) 110px 120px; gap: var(--s-3); align-items: center; padding: var(--s-2) 0; border-top: 1px solid var(--line-soft); font-size: var(--fs-body); }
 .ep .bars { display: flex; flex-direction: column; gap: 3px; }
 .sel { height: var(--h-control-sm); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--s-2); }
-.grow-t { flex: 1; margin: 0; font-size: var(--fs-heading); font-weight: 500; }
+.head-row { display: flex; align-items: center; gap: var(--s-3); }
+.grow-t { flex: 1; }
 .num { font-variant-numeric: tabular-nums; text-align: right; }
 .small { font-size: var(--fs-small); }
 @media (max-width: 900px) { .two { grid-template-columns: 1fr; } .hero { flex-direction: column; align-items: flex-start; } }

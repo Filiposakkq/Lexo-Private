@@ -1,7 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import GroupsDialog from '../components/GroupsDialog.vue';
 import { t, tn } from '../i18n.js';
-import { assignLabel, baseName, fileState, fmtN, fmtPct, groupName, groupNumbers, loadFiles, loadOverview, openLines, pctOf, pillOf, post, project, reloadAll } from '../project.js';
+import { assignLabel, baseName, fileState, fmtN, fmtPct, groupName, groupNumbers, loadFiles, loadOverview, loadTeam, openLines, pctOf, pillOf, post, project, reloadAll } from '../project.js';
 
 /* Files: every file with its progress, assignment and state; the detail of the chosen file on the right. Double-click (or "Show lines") opens its lines. */
 const emit = defineEmits(['go']);
@@ -15,21 +16,28 @@ const selected = ref('');
 const picked = ref(new Set());
 const bulk = ref('');
 const busy = ref(false);
+const groups = ref(false);
+const who = ref('*');                // * | mine | none | the author of a member
 
 onMounted(async () => {
+  loadTeam();
   try { await Promise.all([loadFiles(), loadOverview()]); } catch (e) { error.value = e.message; }
 });
 
 const files = computed(() => project.files || []);
+const team = computed(() => (project.team && project.team.exists ? project.team : null));
+const whoOf = (r) => (team.value ? team.value.assign[r.name] || [] : []);
+const nameOf = (a) => { const m = team.value && team.value.members.find((x) => x.author === a); return m ? (m.name || a) : a; };
 const assignKey = (a) => (!a ? 1000 : a === 'gen' ? 900 : parseInt(a.slice(3), 10));
 const value = {
-  name: (r) => r.name.toLowerCase(), assign: (r) => assignKey(r.assign), tp: (r) => r.done / r.total, cp: (r) => r.corr / r.total,
+  who: (r) => whoOf(r).map(nameOf).join(',').toLowerCase(), name: (r) => r.name.toLowerCase(), assign: (r) => assignKey(r.assign), tp: (r) => r.done / r.total, cp: (r) => r.corr / r.total,
   todo: (r) => r.todo, rev: (r) => Math.max(0, r.total - r.corr), order: (r) => r.order, warn: (r) => r.errors * 1000 + r.warnings,
 };
 const rows = computed(() => {
   const text = q.value.toLowerCase();
   const list = files.value.filter((r) => (!text || r.name.toLowerCase().includes(text))
     && (assign.value === '*' || assign.value === r.assign)
+    && (who.value === '*' || !team.value || (who.value === 'mine' ? whoOf(r).includes(team.value.me.author) : who.value === 'none' ? !whoOf(r).length : whoOf(r).includes(who.value)))
     && (filter.value === 'all' || (filter.value === 'open' && r.todo > 0) || (filter.value === 'rev' && r.todo === 0 && r.corr < r.total) || (filter.value === 'done' && r.corr >= r.total)));
   const get = value[sortKey.value];
   return list.slice().sort((a, b) => { const x = get(a), y = get(b); const c = typeof x === 'string' ? x.localeCompare(y, undefined, { numeric: true }) : x < y ? -1 : x > y ? 1 : 0; return (c || a.name.localeCompare(b.name, undefined, { numeric: true })) * sortDir.value; });
@@ -38,10 +46,10 @@ const totals = computed(() => rows.value.reduce((s, r) => ({ done: s.done + r.do
 const current = computed(() => files.value.find((r) => r.name === selected.value));
 const allPicked = computed(() => rows.value.length > 0 && rows.value.every((r) => picked.value.has(r.name)));
 
-const COLS = [
-  ['name', () => t('File')], ['assign', () => t('Assignment')], ['tp', () => t('Translation')], ['cp', () => t('Proofreading')],
+const COLS = computed(() => [
+  ['name', () => t('File')], ['assign', () => t('Assignment')], ...(team.value ? [['who', () => t('Assigned to')]] : []), ['tp', () => t('Translation')], ['cp', () => t('Proofreading')],
   ['todo', () => t('Left to translate')], ['rev', () => t('Left to proofread')], ['order', () => t('State')], ['warn', () => t('Check')],
-];
+]);
 function sortBy(k) { if (sortKey.value === k) sortDir.value = -sortDir.value; else { sortKey.value = k; sortDir.value = 1; } }
 function togglePick(name, on) { const s = new Set(picked.value); if (on) s.add(name); else s.delete(name); picked.value = s; }
 function toggleAll(on) { picked.value = on ? new Set(rows.value.map((r) => r.name)) : new Set(); }
@@ -55,6 +63,12 @@ const assignPicked = () => guarded(async () => {
   for (const name of picked.value) await post('assign', { name, v: bulk.value });
   picked.value = new Set();
 });
+async function setPerson(r, author) {
+  const assign = { ...team.value.assign };
+  if (author) assign[r.name] = [author]; else delete assign[r.name];
+  busy.value = true; error.value = '';
+  try { project.team = await post('team/set', { roles: Object.fromEntries(team.value.members.filter((m) => m.role !== 'lead').map((m) => [m.author, m.role])), assign }); } catch (e) { error.value = e.message; } finally { busy.value = false; }
+}
 const proofreadAll = (r) => guarded(() => post('file/save', { name: r.name, c: 'ano', t: r.done !== r.auto ? String(r.done) : '' }));
 function lines(r, status) { openLines({ file: r.name, status }); emit('go', 'lines'); }
 async function copyPath(r) { try { await navigator.clipboard.writeText(r.name); } catch { error.value = t('Copying failed.'); } }
@@ -73,6 +87,9 @@ async function openEditor(r) { try { await post('open-editor', { file: r.name, l
         <option value="*">{{ t('Assignment: all') }}</option><option value="">{{ t('Unassigned') }}</option><option value="gen">{{ t('General') }}</option>
         <option v-for="n in groupNumbers()" :key="n" :value="'ep:' + n">{{ groupName(n) }}</option>
       </select>
+      <select v-if="team" class="sel" v-model="who" :title="t('Filter by person')" :aria-label="t('Person')"><option value="*">{{ t('Person: all') }}</option><option value="mine">{{ t('My files') }}</option><option value="none">{{ t('Nobody') }}</option><option v-for="m in team.members" :key="m.author" :value="m.author">{{ m.name || m.author }}</option></select>
+      <button class="btn" :title="t('What the groups (episodes, chapters…) are called and which numbers exist')" @click="groups = true">{{ t('Groups…') }}</button>
+      <button class="btn" :title="t('Who is in the team of this project and who has which files')" @click="emit('go', 'team')">{{ t('Team…') }}</button>
       <span class="grow"></span>
       <template v-if="picked.size">
         <select class="sel" v-model="bulk" :aria-label="t('Assignment')">
@@ -100,6 +117,8 @@ async function openEditor(r) { try { await post('open-editor', { file: r.name, l
                 <option value="">{{ t('Unassigned') }}</option><option value="gen">{{ t('General') }}</option>
                 <option v-for="n in groupNumbers()" :key="n" :value="'ep:' + n">{{ groupName(n) }}</option>
               </select></td>
+              <td v-if="team" @click.stop><select v-if="team.can_manage" class="sel" :value="whoOf(r)[0] || ''" :disabled="busy" :aria-label="t('Assigned to')" @change="setPerson(r, $event.target.value)"><option value="">–</option><option v-for="m in team.members" :key="m.author" :value="m.author">{{ m.name || m.author }}</option></select>
+                <span v-else :class="{ muted: !(team.me && whoOf(r).includes(team.me.author)) }" :title="team.me && whoOf(r).includes(team.me.author) ? t('This file is yours.') : ''">{{ whoOf(r).length ? whoOf(r).map(nameOf).join(', ') : '–' }}</span></td>
               <td><div class="cell"><div class="bar"><i :style="{ width: pctOf(r.done, r.total) + '%' }"></i></div><span class="num">{{ fmtN(r.done) }} · {{ fmtPct(pctOf(r.done, r.total)) }}</span></div></td>
               <td><div class="cell"><div class="bar two"><i :style="{ width: pctOf(r.corr, r.total) + '%' }"></i></div><span class="num">{{ fmtN(r.corr) }} · {{ fmtPct(pctOf(r.corr, r.total)) }}</span>
                 <button v-if="r.corr < r.total" class="icon-btn" :title="t('Mark the whole file as proofread')" :aria-label="t('Mark the whole file as proofread')" :disabled="busy" @click.stop="proofreadAll(r)">✓</button></div></td>
@@ -110,7 +129,7 @@ async function openEditor(r) { try { await post('open-editor', { file: r.name, l
             </tr>
           </tbody>
           <tfoot><tr>
-            <td></td><td>{{ t('Total ({n} shown)', { n: rows.length }) }}</td><td></td>
+            <td></td><td>{{ t('Total ({n} shown)', { n: rows.length }) }}</td><td></td><td v-if="team"></td>
             <td class="num">{{ fmtN(totals.done) }} / {{ fmtN(totals.total) }} ({{ fmtPct(pctOf(totals.done, totals.total)) }})</td>
             <td class="num">{{ fmtN(totals.corr) }} ({{ fmtPct(pctOf(totals.corr, totals.total)) }})</td>
             <td class="num">{{ fmtN(totals.todo) }}</td><td class="num">{{ fmtN(Math.max(0, totals.total - totals.corr)) }}</td><td></td><td></td>
@@ -151,6 +170,7 @@ async function openEditor(r) { try { await post('open-editor', { file: r.name, l
         <template v-else><h3 class="card-title">{{ t('File detail') }}</h3><p class="muted">{{ t('Select a file in the table. Double-click opens its lines.') }}</p></template>
       </aside>
     </div>
+    <GroupsDialog v-if="groups" @close="groups = false" @done="groups = false; reloadAll()" />
   </main>
 </template>
 
