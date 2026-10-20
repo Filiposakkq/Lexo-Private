@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
 import { register } from '../keys.js';
-import { forgetFileData, menuOf, mtOn, peekMt, prefetchAll, prefetchStats, sceneRadius, scenesOf } from '../gamewindow.js';
+import { bumpScene, forgetFileData, menuOf, mtOn, peekMt, prefetchAll, prefetchStats, sceneRadius, scenesOf } from '../gamewindow.js';
 import { requireFeature } from '../pro.js';
 import LineDetail from '../components/LineDetail.vue';
 import MtDialog from '../components/MtDialog.vue';
@@ -141,6 +141,42 @@ async function goto({ file, line }) {
   around = line; f.value = { ...f.value, file, status: 'all', q: '' };
 }
 const nextWhere = (from, pred) => { for (let k = from + 1; k < items.value.length; k++) if (pred(items.value[k])) return k; return -1; };
+/* Approve and proofread: the row and the counters change at once, the list goes on to the next line (it is already prefetched), and only then is the mark written, because the server
+   does one thing at a time and the next line should not wait for a write. A failed write puts everything back. */
+function bumpFile(file, line, dDone, dProof) {
+  const row = (project.files || []).find((x) => x.name === file);
+  if (row) { row.done = Math.max(0, row.done + dDone); row.todo = Math.max(0, row.todo - dDone); row.corr = Math.max(0, row.corr + dProof); }
+  bumpScene(file, line, dDone, dProof);
+}
+async function doApprove() {
+  const d = detail.value, i = sel.value, it = items.value[i];
+  if (!d || !it || d.status === 'translated' || d.kind === 'empty') return;
+  const on = d.status !== 'approved', before = it.status;
+  it.status = on ? 'approved' : 'todo'; bumpFile(d.file, d.line, on ? 1 : -1, 0);
+  let k = i;
+  if (on) { k = nextWhere(i, (x) => x.status === 'todo'); if (k < 0) k = Math.min(i + 1, items.value.length - 1); }
+  if (k !== i) await select(k);
+  try {
+    await post('approve/apply', { selections: [{ file: d.file, key: d.key }], on });
+    if (k === i) { detail.value = await get('entry', { file: d.file, line: d.line }); mirror(); }
+    lazyNumbers();
+  } catch (e) { it.status = before; bumpFile(d.file, d.line, on ? -1 : 1, 0); error.value = e.message; }
+}
+async function doProof({ state }) {
+  const d = detail.value, i = sel.value, it = items.value[i];
+  if (!d || !it || d.status === 'todo') return;
+  const before = it.proof, dProof = (state === 'ok' ? 1 : 0) - (before === 'ok' ? 1 : 0);
+  it.proof = state; bumpFile(d.file, d.line, 0, dProof);
+  let k = i;
+  if (state === 'ok') { k = nextWhere(i, (x) => x.status !== 'todo' && !['ok', 'fix'].includes(x.proof)); if (k < 0) k = Math.min(i + 1, items.value.length - 1); }
+  if (k !== i) await select(k);
+  try {
+    const r = await post('proof/set', { items: [{ file: d.file, key: d.key }], state, note: '' });
+    if (r.skipped && r.skipped.length) throw new Error(r.skipped[0][1]);
+    if (k === i) { detail.value = await get('entry', { file: d.file, line: d.line }); mirror(); }
+    lazyNumbers();
+  } catch (e) { it.proof = before; bumpFile(d.file, d.line, 0, -dProof); error.value = e.message; }
+}
 async function updated(ev = {}) {
   error.value = '';
   try {
@@ -185,9 +221,11 @@ const shown = (s) => String(s ?? '').replace(/\n/g, ' ↵ ');
 /* The tools have their own screen; what stays here works on the lines you picked: translating them with a machine. */
 const mtOpen = ref(false);
 async function openMt() { if (await requireFeature('mt.batch')) mtOpen.value = true; }
-/* The numbers of the overview and of the files are fetched after a pause, not after every save (they are not on this screen). */
-let lazyT = null;
-function lazyNumbers() { clearTimeout(lazyT); lazyT = setTimeout(() => { loadOverview().catch(() => {}); loadFiles().catch(() => {}); }, 2000); }
+/* The numbers of the overview and of the files are not on this screen, and fetching them takes the server for a moment (the next line would wait for it), so they are fetched when you stop for
+   half a minute and when you leave the screen. The counters this screen shows are moved by hand meanwhile (bumpFile). */
+let lazyT = null, stale = false;
+function refreshNumbers() { clearTimeout(lazyT); stale = false; loadOverview().catch(() => {}); loadFiles().catch(() => {}); }
+function lazyNumbers() { stale = true; clearTimeout(lazyT); lazyT = setTimeout(refreshNumbers, 30000); }
 const after = async () => { forgetFileData(); await load(true); lazyNumbers(); };
 
 onMounted(async () => {
@@ -197,7 +235,7 @@ onMounted(async () => {
   try { if (!project.files) await loadFiles(); } catch (e) { error.value = e.message; }
   load(true);
 });
-onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('aside:reload', reloadList); clearTimeout(timer); });
+onBeforeUnmount(() => { if (stale) refreshNumbers(); if (offKeys) offKeys(); window.removeEventListener('aside:reload', reloadList); clearTimeout(timer); });
 </script>
 
 <template>
@@ -258,7 +296,7 @@ onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('asid
       </div>
 
       <aside ref="asideEl" class="detail card">
-        <LineDetail v-if="detail" ref="ld" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @goto="goto" @step="step" @error="error = $event" />
+        <LineDetail v-if="detail" ref="ld" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @approve="doApprove" @proof="doProof" @goto="goto" @step="step" @error="error = $event" />
         <template v-else><h3 class="card-title">{{ t('Line detail') }}</h3><p class="muted">{{ t('Select a line. The arrow keys ↑ ↓ move through the lines, {a} approves, {e} opens the editor, {q} shows all shortcuts.', { a: 'A', e: 'E', q: '?' }) }}</p></template>
       </aside>
     </div>

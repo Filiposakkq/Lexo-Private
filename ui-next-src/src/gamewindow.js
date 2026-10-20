@@ -152,5 +152,13 @@ export function menuOf(file, line) {
 let mtState = null;
 export const peekMt = () => mtState;
 export const mtOn = () => get('settings').then((st) => { mtState = !!(st.mt?.provider && st.mt.consent && (st.mt.has_key || st.mt.base_url)); return mtState; }).catch(() => false);
+/* Approving or proofreading one line moves the counts of its scene by one: the cached list is changed at once (the real numbers are fetched after a pause), so the strip does not flicker. */
+export function bumpScene(file, line, dDone, dProof) {
+  const items = scenesDone.get(file);
+  if (!items || !items.length) return;
+  let k = 0; items.forEach((it, i) => { if (it.line <= line) k = i; });
+  const it = items[k];
+  it.done = Math.max(0, it.done + dDone); it.proofed = Math.max(0, it.proofed + dProof);
+}
 /* After a write the counts of the scenes and the memory of the neighbours may have changed. */
 export function forgetFileData() { filesScenes.clear(); scenesDone.clear(); ctxCache.clear(); ctxDone.clear(); menus.clear(); menusDone.clear(); mtState = null; }

@@ -93,4 +93,25 @@ describe('Lines', () => {
     await flushPromises();
     expect(post).toHaveBeenCalledWith('entry/save', { file: 'chat.rpy', line: 1, text: 'Ahoj 1' });
   });
+  it('approves optimistically: the next line opens before the mark is written, and a failed write puts the row back', async () => {
+    const w = await setup();
+    await w.find('tbody tr').trigger('click');
+    await flushPromises();
+    const order = [];
+    get.mockImplementation(async (path, q) => {
+      if (path === 'entry') { order.push('get entry ' + q.line); return { ok: true, ...item(q.line), path: 'game/tl/czech/chat.rpy' }; }
+      return { ok: true };
+    });
+    let fail = false;
+    post.mockImplementation(async (path) => { if (path === 'approve/apply') { order.push('write'); if (fail) throw new Error('disk is full'); } return { ok: true }; });
+    await w.findAll('button').find((b) => b.text().startsWith('Approve (A)')).trigger('click');
+    await flushPromises(); await new Promise((r) => setTimeout(r, 300)); await flushPromises();
+    expect(order.slice(0, 2)).toEqual(['get entry 2', 'write']);               // the next line first, the write after it
+    expect(w.findAll('tbody tr')[0].text()).toContain('Approved');              // the row shows it at once
+    fail = true; order.length = 0;
+    await w.findAll('button').find((b) => b.text().startsWith('Approve (A)')).trigger('click');
+    await flushPromises(); await new Promise((r) => setTimeout(r, 300)); await flushPromises();
+    expect(w.text()).toContain('disk is full');
+    expect(w.findAll('tbody tr')[1].text()).not.toContain('Approved');          // put back
+  });
 });
