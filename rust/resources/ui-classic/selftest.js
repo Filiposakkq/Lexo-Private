@@ -181,12 +181,12 @@
     }
     const fo = await post('focus', { file: S.ent.items[0]?.file || 'x', line: S.ent.items[0]?.line || 1 });
     ok('hlavní okno sdílí vybraný řádek s doprovodným oknem', (await get('focus')).seq === fo.seq && fo.seq > 0, JSON.stringify(fo));
-    const pickLayout = async (label) => { clickText('#view .frow button', 'Rozložení')?.click(); await sleep(80); const it = clickText('#view .menu .menuitem', label); it?.click(); await sleep(700); return !!it; };
+    const pickLayout = async (label) => { clickText('#view .frow button', 'Rozložení')?.click(); const it = await waitFor(() => clickText('#view .menu .menuitem', label), 4000); it?.click(); await sleep(700); return !!it; };      // the menu is waited for, not a fixed 80 ms (a slow runner failed here)
     ok('seznam řádků má nabídku rozložení', !!clickText('#view .frow button', 'Rozložení'), 'chybí');
     { const wt = document.querySelector('#view .wordtoggle'); const before = wt?.getAttribute('aria-pressed'); wt?.click(); const after = wt?.getAttribute('aria-pressed'); wt?.click();
       ok('vedle hledání je přepínač „Celé slovo“ a přepíná se', !!wt && before === 'false' && after === 'true' && wt.getAttribute('aria-pressed') === 'false', before + '/' + after); }
     ok('rozložení „Detail vpravo“ dá detail vedle seznamu', (await pickLayout('Detail vpravo')) && !!document.querySelector('#view .split.ecols'), 'beze změny');
-    ok('rozložení „Scéna a filmový pás“ ukáže pás řádků a skryje tabulku', (await pickLayout('Scéna a filmový pás')) && !!document.querySelector('#view .split.film') && !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard'), 4000)), 'chybí pás nebo rozložení');
+    ok('rozložení „Scéna a filmový pás“ ukáže pás řádků a skryje tabulku', (await pickLayout('Scéna a filmový pás')) && !!document.querySelector('#view .split.film') && !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard'), 8000)), 'chybí pás nebo rozložení');
     { const box = document.querySelector('#search'); if (box) { box.value = 'o'; box.dispatchEvent(new Event('input')); }                // a search in the film layout opens the first hit (the list is hidden, so nothing could be clicked)
       ok('po hledání ve filmovém rozložení se otevře první řádek', !!(await waitFor(() => document.querySelector('#entryDetail .filmstrip .fcard.cur'), 8000)), 'detail zůstal prázdný');
       ok('ve filmovém rozložení je při hledání lišta „Výsledek n z m“ a seznam nálezů', !!(await waitFor(() => document.querySelector('#entryDetail .resbar'), 8000)) && /Výsledek \d+ z \d+/.test(document.querySelector('#entryDetail .resbar')?.textContent || ''), document.querySelector('#entryDetail .resbar')?.textContent || 'chybí lišta');
