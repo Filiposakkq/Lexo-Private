@@ -4,6 +4,8 @@ import { get, post } from '../api.js';
 import { t, tn } from '../i18n.js';
 import { baseName, fmtN, lineKind, lineState, pctOf, pillOf, project } from '../project.js';
 import ApproveIdentical from './ApproveIdentical.vue';
+import GamePreview from './GamePreview.vue';
+import MtDialog from './MtDialog.vue';
 
 /* The detail of a line: the original, the editor (tags, missing variables, glossary terms, machine suggestion, live check), the progress of its file with the jumps
    (scenes, next untranslated / unchecked / too long) and the tabs Check, Proofreading, Menu, Scene, Memory, History and Script. */
@@ -20,10 +22,20 @@ const identical = ref(false);
 const mt = ref({ on: false, busy: false, result: null, error: '' });
 const scenes = ref(null);
 const tab = ref(storedTab());
+const menuAvail = ref(false);      // a line of dialogue that belongs to a menu (its question, the start of a choice, the lines before it) gets the Menu tab too
+const sceneMode = ref(storedMode());
+const mtScene = ref(false);
+const radius = ref(6);             // how many lines around the open one the Scene tab shows
 const data = ref({});              // what the tabs fetched: scene, memory, history, context, menu
 let checkTimer = null;
 
 function storedTab() { try { return localStorage.getItem('aside.detailTab') || ''; } catch { return ''; } }
+function storedMode() { try { return localStorage.getItem('aside.sceneMode') === 'bubbles' ? 'bubbles' : 'table'; } catch { return 'table'; } }
+function setMode(k) { sceneMode.value = k; try { localStorage.setItem('aside.sceneMode', k); } catch { /* only for this page */ } }
+/* The speaker as the lists show it: the full name from the glossary and the code, or the code alone. */
+const code = (who) => String(who || '').trim().split(/\s+/)[0];
+const speaker = (who) => { const n = project.names[code(who)]; return n ? `${n} · ${who}` : who || '—'; };
+const speakerColor = (who) => { let hue = 0; for (const ch of code(who)) hue = (hue * 31 + ch.charCodeAt(0)) % 360; return code(who) ? `hsl(${hue} 55% 52%)` : ''; };
 function setTab(k) { tab.value = k; try { localStorage.setItem('aside.detailTab', k); } catch { /* the choice is only remembered while the page lives */ } loadTab(); }
 
 const d = computed(() => props.detail);
@@ -37,7 +49,7 @@ const isChoice = computed(() => d.value.unit === 'string');
 const TABS = computed(() => [
   ['check', open.value.length ? t('Check ({n})', { n: open.value.length }) : t('Check')],
   ['proof', t('Proofreading')],
-  ...(isChoice.value && d.value.ref ? [['menu', t('Menu')]] : []),
+  ...((isChoice.value && d.value.ref) || menuAvail.value ? [['menu', t('Menu')]] : []),
   ['scene', t('Scene')], ['memory', t('Memory')], ['history', t('History')],
   ...(project.team && project.team.exists ? [['team', t('Team')]] : []),
   ['script', t('Script')],
@@ -46,9 +58,20 @@ const current = computed(() => (TABS.value.some(([k]) => k === tab.value) ? tab.
 
 watch(() => props.detail, () => {
   text.value = props.detail.target; live.value = null; note.value = props.detail.proof_note || ''; mt.value.result = null; mt.value.error = '';
-  data.value = {};
-  loadScenes(); loadTab();
+  data.value = {}; menuAvail.value = false;
+  loadScenes(); loadTab(); checkMenu();
 }, { immediate: true });
+
+/* Does this line of dialogue belong to a menu? The answer is kept as the data of the Menu tab, so opening the tab costs nothing more. */
+async function checkMenu() {
+  const line = d.value;
+  if (isChoice.value || !line.ref) return;
+  try {
+    const r = await get('entry/menu', { file: line.file, line: line.line });
+    if (props.detail !== line || !r.available) return;
+    data.value.menu = r; menuAvail.value = true;
+  } catch { /* no menu tab */ }
+}
 
 watch(text, () => {
   clearTimeout(checkTimer);
@@ -74,7 +97,6 @@ async function loadTab() {
     else if (k === 'team' && !c.notes) { c.notes = 'loading'; c.notes = await post('team/notes', q); }
   } catch (e) { c[k === 'script' ? 'context' : k] = { error: e.message }; }
 }
-const radius = ref(6);
 watch(radius, () => { data.value.scene = null; loadTab(); });
 async function loadScenes() {
   try { const r = await get('scenes', { file: d.value.file, line: 0 }); scenes.value = r.available ? r.items : []; } catch { scenes.value = []; }
@@ -292,7 +314,7 @@ const diff = (before, after) => {
           <div class="muted mono small">{{ t('Game script: ') }}{{ data.menu.script }}</div>
           <h4>{{ data.menu.question.length ? t('Question') : t('Said before the menu') }}</h4>
           <div v-for="(x, i) in (data.menu.question.length ? data.menu.question : data.menu.before)" :key="'q' + i" class="mline" :class="{ cur: x.here }" @click="x.entry && emit('goto', { file: x.entry.file, line: x.entry.line })">
-            <template v-if="x.entry"><b>{{ x.entry.who || '—' }}</b> <span v-if="x.here" class="pill none">{{ t('this line') }}</span><div>{{ x.entry.status === 'todo' ? t('untranslated') : x.entry.target }}</div><div class="muted">{{ x.entry.source }}</div></template>
+            <template v-if="x.entry"><b>{{ speaker(x.entry.who) }}</b> <span v-if="x.here" class="pill none">{{ t('this line') }}</span><div>{{ x.entry.status === 'todo' ? t('untranslated') : x.entry.target }}</div><div class="muted">{{ x.entry.source }}</div></template>
             <span v-else class="muted mono">{{ x.script }}</span>
           </div>
           <h4>{{ t('Choices') }}</h4>
@@ -304,18 +326,32 @@ const diff = (before, after) => {
             </div>
             <div v-if="!o.after.length && o.body && o.body.length" class="muted small"><div>{{ t('No dialogue follows; the script continues with:') }}</div><pre class="code">{{ o.body.join('\n') }}</pre></div>
             <div v-if="o.after.length" class="after"><div class="muted small">{{ t('then:') }}</div>
-              <div v-for="(x, j) in o.after" :key="j" class="mline" @click="x.entry && emit('goto', { file: x.entry.file, line: x.entry.line })"><template v-if="x.entry"><b>{{ x.entry.who || '—' }}</b><div>{{ x.entry.status === 'todo' ? t('untranslated') : x.entry.target }}</div><div class="muted">{{ x.entry.source }}</div></template><span v-else class="muted mono">{{ x.script }}</span></div></div>
+              <div v-for="(x, j) in o.after" :key="j" class="mline" @click="x.entry && emit('goto', { file: x.entry.file, line: x.entry.line })"><template v-if="x.entry"><b>{{ speaker(x.entry.who) }}</b><div>{{ x.entry.status === 'todo' ? t('untranslated') : x.entry.target }}</div><div class="muted">{{ x.entry.source }}</div></template><span v-else class="muted mono">{{ x.script }}</span></div></div>
           </div>
         </template>
       </template>
 
       <template v-else-if="current === 'scene'">
-        <div class="actions"><label class="muted small">{{ t('How many surrounding lines to show') }} <select class="sel" v-model.number="radius"><option v-for="n in [3, 6, 10, 15]" :key="n" :value="n">{{ t('±{n} lines', { n }) }}</option></select></label></div>
+        <GamePreview :detail="d" :text="text" />
+        <div class="actions">
+          <h4>{{ t('Scene around the line ') }}<span class="muted">{{ t('(original next to the translation)') }}</span></h4>
+          <select class="sel" v-model.number="radius" :title="t('How many surrounding lines to show')" :aria-label="t('How many surrounding lines to show')"><option v-for="n in [3, 6, 10, 15]" :key="n" :value="n">{{ t('±{n} lines', { n }) }}</option></select>
+          <div class="seg" role="group"><button v-for="[k, label] in [['table', t('Table')], ['bubbles', t('Bubbles')]]" :key="k" class="btn small" :class="{ primary: sceneMode === k }" :aria-pressed="sceneMode === k" @click="setMode(k)">{{ label }}</button></div>
+          <button class="btn small" :title="t('Translates the untranslated lines around this one (±15) by machine. You review the suggestions before writing.')" @click="mtScene = true">{{ t('Translate the scene with a machine…') }}</button>
+        </div>
         <div v-if="!data.scene || data.scene === 'loading'" class="muted">{{ t('Loading…') }}</div>
         <div v-else-if="data.scene.error" class="notice danger">{{ data.scene.error }}</div>
+        <div v-else-if="sceneMode === 'bubbles'" class="bubbles">
+          <div v-for="x in data.scene.items" :key="x.line" class="bubble" :class="{ cur: x.current }" :style="{ '--sc': speakerColor(x.who) }" @click="emit('goto', { file: d.file, line: x.line })">
+            <div class="bwho"><b>{{ speaker(x.who) }}</b><span class="muted"> {{ x.line }}</span></div>
+            <div class="btxt">{{ x.status === 'todo' ? t('untranslated') : shown(x.target) }}</div>
+            <div class="bsrc muted">{{ shown(x.source) }}</div>
+          </div>
+        </div>
         <table v-else class="scene"><thead><tr><th>{{ t('Line') }}</th><th>{{ t('Speaker') }}</th><th>{{ t('Original') }}</th><th>{{ t('Translation') }}</th></tr></thead>
           <tbody><tr v-for="x in data.scene.items" :key="x.line" :class="{ cur: x.current }" @click="emit('goto', { file: d.file, line: x.line })">
-            <td class="num muted">{{ x.line }}</td><td class="mono">{{ x.who }}</td><td>{{ shown(x.source) }}</td><td>{{ x.status === 'todo' ? t('untranslated') : shown(x.target) }}</td></tr></tbody></table>
+            <td class="num muted">{{ x.line }}</td><td class="mono">{{ speaker(x.who) }}</td><td>{{ shown(x.source) }}</td><td>{{ x.status === 'todo' ? t('untranslated') : shown(x.target) }}</td></tr></tbody></table>
+        <MtDialog v-if="mtScene" :anchor="{ file: d.file, line: d.line }" :file="d.file" scope="scene" @close="mtScene = false" @done="mtScene = false; emit('updated', { reload: true })" @settings="mtScene = false" />
       </template>
 
       <template v-else-if="current === 'memory'">
@@ -424,6 +460,14 @@ const diff = (before, after) => {
 .scene td { padding: var(--s-1) var(--s-2); border-top: 1px solid var(--line-soft); vertical-align: top; cursor: pointer; }
 .scene tr:hover { background: var(--bg-hover); }
 .scene tr.cur { background: var(--bg-hover); box-shadow: inset 3px 0 0 var(--accent-hi); }
+.seg { display: inline-flex; gap: var(--s-1); }
+.bubbles { display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-2); }
+.bubble { border-left: 4px solid var(--sc, var(--line)); background: var(--bg-input); border-radius: 4px var(--r-lg) var(--r-lg) 4px; padding: var(--s-2) var(--s-3); cursor: pointer; }
+.bubble:hover { background: var(--bg-hover); }
+.bubble.cur { background: var(--bg-hover); box-shadow: inset 0 0 0 1px var(--accent-hi); }
+.bubble .bwho { font-size: var(--fs-small); margin-bottom: 2px; }
+.bubble .btxt { font-size: var(--fs-text); }
+.bubble .bsrc { font-size: var(--fs-small); margin-top: 2px; }
 .code { margin: var(--s-2) 0 0; padding: var(--s-3); background: var(--bg-code); border-radius: var(--r-md); font-family: var(--mono); font-size: var(--fs-small); overflow: auto; }
 .code .hit { background: var(--accent-soft); }
 mark { background: var(--accent-soft); color: var(--accent-text); border-radius: 3px; }

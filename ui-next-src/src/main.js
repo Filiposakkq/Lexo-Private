@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import './preview.css';
 import { availableLanguages, chooseLanguage, loadLanguage, setLanguage } from './i18n.js';
 
 /* The language first (the texts are English keys; a pack of the chosen language is loaded from the application), then the application. */
