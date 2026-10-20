@@ -6,6 +6,9 @@ import { t } from './i18n.js';
 
 /* id (no dots), label, default keys, typing (works while typing in a field), scope: 'lines' (only on the Lines screen) or '' (everywhere) */
 export const ACTIONS = [
+  { id: 'focus', get label() { return t('Focus mode (hide the top bar and the tabs)'); }, keys: ['Ctrl+Shift+F'], typing: true },
+  { id: 'quick', get label() { return t('Quick translating (scene + editor, untranslated only)'); }, keys: [] },
+  { id: 'proofmode', get label() { return t('Quick proofreading (scene + editor, only lines to check)'); }, keys: [] },
   { id: 'palette', get label() { return t('Command palette (search actions and files)'); }, keys: ['Ctrl+K'], typing: true },
   { id: 'search', get label() { return t('Search in the current section'); }, keys: ['Ctrl+F'], typing: true },
   { id: 'search_slash', get label() { return t('Search in the current section (slash)'); }, keys: ['/'] },

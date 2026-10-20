@@ -9,7 +9,7 @@ Generated from the sources of the current UI (`rust/resources/ui-classic/js`); 3
 
 ## State (filled by comparing the texts of the classic interface with the new one, then by hand)
 
-**314 of 324 actions have their place in the new interface.** The 10 that are left are the film layouts (quick translating and quick proofreading from Overview, the results bar with *Result n of m*, the list of hits), the side-by-side layout of Lines and the second window (*Scene and detail*, *Scene over the whole window*, *Show them here too*). The rows marked (#126) are in the pull request of the keyboard and the licence and count once it is merged. A row is ticked when the same text is used by the new interface or when its place was checked by hand; this is a check of the actions, not of how each one behaves, which the tests and the browser checks of each pull request cover.
+**321 of 324 actions have their place in the new interface.** The 3 that are left are the second window (*Scene and detail*, *Scene over the whole window*, *Show them here too*). The rows marked (#126) are in the pull request of the keyboard and the licence and count once it is merged. A row is ticked when the same text is used by the new interface or when its place was checked by hand; this is a check of the actions, not of how each one behaves, which the tests and the browser checks of each pull request cover.
 
 ## Přehled (`20-overview.js`)
 
@@ -19,9 +19,9 @@ Generated from the sources of the current UI (`rust/resources/ui-classic/js`); 3
 | No groups yet (Zatím žádné skupiny) | GroupsDialog, Overview | ☑ |
 | Set up groups… (Nastavit skupiny…) | Overview | ☑ |
 | Start translating (Začít překládat) | Overview | ☑ |
-| Scene and editor over the whole screen, untranslated lines only (Scéna a editor přes celou obrazovku, jen nepřeložené řádky) | **not built:** film layout | ☐ |
-| Translate quickly (Rychle překládat) | **not built:** film layout | ☐ |
-| Proofread quickly (Rychle zkontrolovat) | **not built:** film layout | ☐ |
+| Scene and editor over the whole screen, untranslated lines only (Scéna a editor přes celou obrazovku, jen nepřeložené řádky) | Overview + FocusBar (`Translate quickly`, `Proofread quickly`, the quick modes) | ☑ |
+| Translate quickly (Rychle překládat) | Overview + FocusBar (`Translate quickly`, `Proofread quickly`, the quick modes) | ☑ |
+| Proofread quickly (Rychle zkontrolovat) | Overview + FocusBar (`Translate quickly`, `Proofread quickly`, the quick modes) | ☑ |
 
 ## Soubory (`21-files.js`)
 
@@ -115,10 +115,10 @@ Generated from the sources of the current UI (`rust/resources/ui-classic/js`); 3
 | Next line that does not fit the game window (Další řádek, který se nevejde do okna hry) | LineDetail | ☑ |
 | Next one that does not fit (Další, co se nevejde) | LineDetail | ☑ |
 | Load more (Načíst další) | Lines (`Load n more`) | ☑ |
-| Hide the list (Skrýt seznam) | **not built:** results bar of the film layout | ☐ |
-| Show the list (Zobrazit seznam) | **not built:** results bar of the film layout | ☐ |
-| Previous line (←) (Předchozí řádek (←)) | **not built:** results bar of the film layout | ☐ |
-| Next line (→) (Další řádek (→)) | **not built:** results bar of the film layout | ☐ |
+| Hide the list (Skrýt seznam) | ResultsBar (the film layout) | ☑ |
+| Show the list (Zobrazit seznam) | ResultsBar (the film layout) | ☑ |
+| Previous line (←) (Předchozí řádek (←)) | ResultsBar (the film layout) | ☑ |
+| Next line (→) (Další řádek (→)) | ResultsBar (the film layout) | ☑ |
 | Show them here too (Ukázat je i tady) | **not built:** second window | ☐ |
 | Scene and detail (Scéna a detail) | **not built:** second window | ☐ |
 | Scene over the whole window (Scéna přes celé okno) | **not built:** second window | ☐ |

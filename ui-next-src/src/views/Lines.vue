@@ -2,6 +2,9 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
 import { register } from '../keys.js';
+import { ui } from '../layout.js';
+import LayoutMenu from '../components/LayoutMenu.vue';
+import ResultsBar from '../components/ResultsBar.vue';
 import { bumpScene, forgetFileData, menuOf, mtOn, peekMt, prefetchAll, prefetchStats, sceneRadius, scenesOf } from '../gamewindow.js';
 import { requireFeature } from '../pro.js';
 import LineDetail from '../components/LineDetail.vue';
@@ -11,7 +14,7 @@ import { baseName, fmtN, lineKind, lineState, loadFiles, loadNames, loadOverview
 
 /* Lines: every line of the translation with all its columns (file, line, script, type, state, proofreading, code, name, original, translation, check);
    the line you click opens on the right, where it is translated, approved and marked as proofread. */
-const emit = defineEmits(['go']);
+const emit = defineEmits(['go', 'quick']);
 const error = ref('');
 const items = ref([]);
 const total = ref(0);
@@ -45,6 +48,8 @@ const OPTS = computed(() => ({
 }));
 const extra = computed(() => ['unit', 'kind', 'issues'].filter((k) => f.value[k]).length);
 const speakers = computed(() => Object.entries(project.names).sort((a, b) => a[1].localeCompare(b[1])));
+const narrowed = computed(() => !!(f.value.q || f.value.file || f.value.unit || f.value.kind || f.value.issues));
+const summary = computed(() => [f.value.q ? t('Search: “{q}”', { q: f.value.q }) : '', f.value.file ? t('File: {name}', { name: baseName(f.value.file) }) : ''].filter(Boolean).join(' · '));
 const chips = computed(() => {
   const out = [];
   const lab = (list, v) => (list.find(([k]) => k === v) || [v, v])[1];
@@ -68,9 +73,12 @@ async function load(resetList) {
     if (resetList) offset.value = r.offset;
     items.value.push(...r.items);
     total.value = r.total; counts.value = r.counts;
+    ui.left = { todo: r.counts?.todo, review: r.counts?.review };
+    if (resetList && !around && ui.layout === 'film' && items.value.length) select(0);          // a list that is not shown has nothing to click: the first line opens
     if (resetList && around) { const i = items.value.findIndex((x) => x.line === around); around = 0; if (i >= 0) await select(i); }
   } catch (e) { error.value = e.message; } finally { loading.value = false; }
 }
+watch(() => project.lines, (p) => { around = p.line || 0; f.value = { ...f.value, file: p.file || '', status: p.status || 'all', q: p.q || '' }; });
 function change() { clearTimeout(timer); timer = setTimeout(() => load(true), 220); }
 watch(f, change, { deep: true });
 
@@ -106,6 +114,7 @@ async function select(i) {
     detail.value = d;
     await nextTick();
     holdScroll(scroller, top);
+    if (ui.quick === 'tr') ld.value?.focusEditor();             // quick translating: the editor has the focus
     try { localStorage.setItem('aside.last', JSON.stringify({ file: it.file, line: it.line })); } catch { /* only for the Continue button */ }
     clearTimeout(focusT);
     focusT = setTimeout(() => { post('focus', { file: it.file, line: it.line }).catch(() => {}); }, 150);
@@ -250,8 +259,8 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
 </script>
 
 <template>
-  <main class="screen">
-    <div class="toolbar">
+  <main class="screen" :class="{ focus: ui.focus }">
+    <div v-show="!ui.focus" class="toolbar">
       <label class="field search"><input v-model="f.q" type="search" :placeholder="t('Search in the text… (Ctrl+F)')" @input="speaker = ''"></label>
       <label class="check" :title="t('Whole word')"><input type="checkbox" v-model="f.word"> {{ t('Whole word') }}</label>
       <select class="sel wide" v-model="f.file" :title="t('File')"><option value="">{{ t('All files') }}</option><option v-for="x in files" :key="x.name" :value="x.name">{{ x.name }}</option></select>
@@ -260,21 +269,22 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
       <template v-if="picked.size"><span class="muted small">{{ tn(picked.size, 'Selected {n} line', 'Selected {n} lines') }}</span><button class="btn small ghost" @click="picked = new Set()">{{ t('Clear the selection') }}</button><button class="btn small" @click="openMt">{{ t('Translate with a machine…') }}</button></template>
       <span class="grow"></span>
       <span class="muted small">{{ tn(total, '{n} line', '{n} lines', { n: fmtN(total) }) }}</span>
+      <LayoutMenu @quick="$emit('quick', 'tr')" />
     </div>
-    <div class="pills" role="group" :aria-label="t('State of the lines')">
+    <div v-show="!ui.focus" class="pills" role="group" :aria-label="t('State of the lines')">
       <button v-for="[k, l] in STATUS_OPTS" :key="k" class="chip" :class="{ on: f.status === k }" @click="f.status = k">{{ l }}<span v-if="counts && counts[k] !== undefined" class="faint"> {{ fmtN(counts[k]) }}</span></button>
     </div>
-    <div v-if="moreOpen" class="toolbar more">
+    <div v-if="moreOpen && !ui.focus" class="toolbar more">
       <label>{{ t('Line type') }} <select class="sel" v-model="f.unit"><option v-for="[v, l] in OPTS.unit" :key="v" :value="v">{{ l }}</option></select></label>
       <label>{{ t('Kind of untranslated') }} <select class="sel" v-model="f.kind"><option v-for="[v, l] in OPTS.kind" :key="v" :value="v">{{ l }}</option></select></label>
       <label>{{ t('Check') }} <select class="sel" v-model="f.issues"><option v-for="[v, l] in OPTS.issues" :key="v" :value="v">{{ l }}</option></select></label>
       <label>{{ t('Sort by') }} <select class="sel" v-model="f.sort"><option v-for="[v, l] in OPTS.sort" :key="v" :value="v">{{ l }}</option></select></label>
       <label>{{ t('Speaker') }} <select class="sel" v-model="mode"><option v-for="[v, l] in OPTS.mode" :key="v" :value="v">{{ l }}</option></select></label>
     </div>
-    <div v-if="chips.length" class="toolbar chips"><button v-for="([label, off], i) in chips" :key="i" class="chip on" :title="t('Remove this filter')" @click="off">{{ label }} ✕</button><button class="btn small ghost" @click="reset">{{ t('Clear all filters') }}</button></div>
+    <div v-if="chips.length && !ui.focus" class="toolbar chips"><button v-for="([label, off], i) in chips" :key="i" class="chip on" :title="t('Remove this filter')" @click="off">{{ label }} ✕</button><button class="btn small ghost" @click="reset">{{ t('Clear all filters') }}</button></div>
     <div v-if="error" class="notice danger" role="alert">{{ error }}</div>
 
-    <div class="split">
+    <div class="split" :class="ui.layout">
       <div class="tablewrap">
         <table class="grid">
           <thead><tr>
@@ -307,7 +317,9 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
       </div>
 
       <aside ref="asideEl" class="detail card">
-        <LineDetail v-if="detail" ref="ld" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @approve="doApprove" @proof="doProof" @goto="goto" @step="step" @error="error = $event" />
+        <ResultsBar v-if="ui.layout === 'film' && narrowed && total >= 2" :items="items" :total="total" :offset="offset" :sel="sel" :summary="summary" :more="offset + items.length < total" @select="select" @more="load(false)" />
+        <LineDetail v-if="detail" ref="ld" :layout="ui.layout" :quick="ui.quick" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @approve="doApprove" @proof="doProof" @goto="goto" @step="step" @error="error = $event" />
+        <div v-else-if="!total && !loading" class="empty muted"><b>{{ t('Nothing found') }}</b> {{ f.status === 'todo' ? t('There is nothing left to translate here – or change the filters.') : t('Try changing the filters or the search text.') }}</div>
         <template v-else><h3 class="card-title">{{ t('Line detail') }}</h3><p class="muted">{{ t('Select a line. The arrow keys ↑ ↓ move through the lines, {a} approves, {e} opens the editor, {q} shows all shortcuts.', { a: 'A', e: 'E', q: '?' }) }}</p></template>
       </aside>
     </div>
@@ -316,7 +328,7 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
 </template>
 
 <style scoped>
-.screen { padding: var(--s-4) var(--s-5) var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); width: 100%; min-width: 0; height: calc(100vh - 43px); box-sizing: border-box; overflow: hidden; }
+.screen { padding: var(--s-4) var(--s-5) var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); width: 100%; min-width: 0; height: calc(100vh - var(--topbar-h, 43px)); box-sizing: border-box; overflow: hidden; }
 .toolbar { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
 .toolbar.more label { display: flex; gap: var(--s-2); align-items: center; font-size: var(--fs-small); color: var(--text-muted); }
 .check { display: flex; gap: var(--s-1); align-items: center; font-size: var(--fs-small); color: var(--text-muted); white-space: nowrap; }
@@ -327,6 +339,10 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
 .sel.wide { max-width: 260px; }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); gap: var(--s-3); align-items: stretch; flex: 1; min-height: 0; }
 .split > div { min-height: 0; overflow: auto; }
+.split.film { grid-template-columns: minmax(0, 1fr); } .split.film .tablewrap { display: none; }
+.split.rows { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(120px, 38%) minmax(0, 1fr); }
+.split.cols { grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); }
+.screen.focus { padding-top: var(--s-10); }
 .tablewrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-card); }
 .grid { width: 100%; border-collapse: collapse; font-size: var(--fs-body); }
 .grid th { position: sticky; top: 0; background: var(--bg-bar); text-align: left; font-size: var(--fs-caption); font-weight: 500; color: var(--text-muted); padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line); z-index: 1; white-space: nowrap; }
@@ -343,5 +359,5 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
 .small { font-size: var(--fs-small); }
 .more-row, .empty { padding: var(--s-5); text-align: center; }
 .detail { padding: var(--s-4); min-height: 0; overflow: auto; }
-@media (max-width: 1100px) { .screen { height: auto; overflow: visible; } .split { grid-template-columns: 1fr; } .split > div { overflow: visible; } .tablewrap { max-height: 50vh; overflow: auto; } }
+@media (max-width: 1100px) { .screen { height: auto; overflow: visible; } .split:not(.cols) { grid-template-columns: 1fr; } .split > div { overflow: visible; } .tablewrap { max-height: 50vh; overflow: auto; } }
 </style>

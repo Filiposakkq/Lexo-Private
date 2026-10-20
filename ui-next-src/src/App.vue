@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import FocusBar from './components/FocusBar.vue';
 import HelpDialog from './components/HelpDialog.vue';
 import Palette from './components/Palette.vue';
 import ProLocked from './components/ProLocked.vue';
@@ -16,7 +17,8 @@ import Settings from './views/Settings.vue';
 import Team from './views/Team.vue';
 import ToolsScreen from './views/ToolsScreen.vue';
 import { post } from './api.js';
-import { onKeydown, register } from './keys.js';
+import { enterQuick, setFocus, ui } from './layout.js';
+import { handlers, onKeydown, register } from './keys.js';
 import { t, tn } from './i18n.js';
 import { app, loadApp, loadGames } from './state.js';
 import { loadOverview, loadTeam, openCheck, openLines, project, reloadAll } from './project.js';
@@ -42,6 +44,16 @@ function splashDone() {
   try { sessionStorage.setItem('aside.splash', '1'); } catch { /* nothing to remember */ }
 }
 const help = ref(false);
+/* The focus mode (only the list and the detail, a floating bar) works on the Lines screen; the quick modes are the film layout + focus + only the lines still to translate / to check. */
+const focusOn = computed(() => ui.focus && view.value === 'lines');
+function startQuick(kind) {
+  if (!project.overview) return;
+  enterQuick(kind);
+  openLines({ file: project.lines.file || '', status: kind === 'proof' ? 'review' : 'todo' });
+  view.value = 'lines';
+}
+function focusAct(id) { if (id === 'quick') startQuick('tr'); else if (id === 'proofmode') startQuick('proof'); else if (handlers[id]) handlers[id](); }
+ui.left = ui.left || {};
 const palette = ref(false);
 const flash = ref('');
 let flashT = null;
@@ -80,6 +92,7 @@ onMounted(() => {
     palette: () => { palette.value = true; }, help: () => { help.value = true; }, search, search_slash: search, refresh: doRefresh, undo: doUndo, fullscreen,
     tab_overview: () => goView('overview'), tab_files: () => goView('files'), tab_lines: () => goView('lines'), tab_check: () => goView('check'), tab_glossary: () => goView('glossary'),
     tab_tools: () => goView('tools'), tab_team: () => goView('team'), tab_publish: () => goView('publish'), tab_settings: () => goView('settings'),
+    focus: () => { if (view.value === 'lines') setFocus(!ui.focus); }, quick: () => startQuick('tr'), proofmode: () => startQuick('proof'),
     consistency: () => goCheck('cons'), ignored: () => goCheck('ign'), lint: () => goCheck('lint'), findings: () => goCheck('findings'), snapshot,
   };
   offKeys = register(handlersMap);
@@ -95,7 +108,8 @@ onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('keyd
   <Palette v-if="palette" @close="palette = false" @run="runAction" @file="paletteFile" />
   <HelpDialog v-if="help" @close="help = false" @settings="help = false; goView('settings')" />
   <div v-if="flash" class="flash toast" role="status">{{ flash }}</div>
-  <div class="shell">
+  <FocusBar v-if="focusOn" :left="ui.left" @act="focusAct" />
+  <div class="shell" :class="{ focus: focusOn }">
     <nav class="rail" :aria-label="t('Main menu')">
       <a class="rail-item" :class="{ on: view === 'home' }" href="#" :title="t('Home')" :aria-current="view === 'home' ? 'page' : null" @click.prevent="home">⌂</a>
       <a class="rail-item" :class="{ on: view === 'prepare' }" href="#" :title="t('Prepare a game')" :aria-current="view === 'prepare' ? 'page' : null" @click.prevent="prepare()">⚒</a>
@@ -119,9 +133,9 @@ onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('keyd
         <div class="screen-host">
           <Home v-if="view === 'home'" @prepare="prepare" @opened="opened" />
           <Prepare v-else-if="view === 'prepare'" :path="prepPath" @back="home" @done="loadGames" @opened="opened" />
-          <Overview v-else-if="view === 'overview'" @go="view = $event" />
+          <Overview v-else-if="view === 'overview'" @go="view = $event" @quick="startQuick" />
           <Files v-else-if="view === 'files'" @go="view = $event" />
-          <Lines v-else-if="view === 'lines'" @go="view = $event" />
+          <Lines v-else-if="view === 'lines'" @go="view = $event" @quick="startQuick" />
           <Check v-else-if="view === 'check'" @go="view = $event" />
           <Glossary v-else-if="view === 'glossary'" @go="view = $event" />
           <Publish v-else-if="view === 'publish'" @go="view = $event" />
@@ -141,6 +155,8 @@ onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('keyd
 .screen-host { flex: 1; min-width: 0; display: flex; }
 .screen-host > :deep(*) { flex: 1; min-width: 0; }
 .nav-item { text-decoration: none; }
+.shell.focus { --topbar-h: 0px; }
+.shell.focus .rail, .shell.focus .topbar, .shell.focus .nav { display: none; }
 .flash { position: fixed; right: var(--s-5); bottom: var(--s-5); z-index: 30; }
 .nav { flex: none; min-height: calc(100vh - 52px); }
 .game { padding: var(--s-2) var(--s-3) var(--s-3); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

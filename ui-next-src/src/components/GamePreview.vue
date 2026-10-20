@@ -7,7 +7,7 @@ import { fontOf, gameText, lastSize, loadGui, metricsOf, peekGui, peekScene, pla
 /* The line as the player sees it: the picture of the scene (found in the game's archives by following the game script upwards to the last `scene` / `show`) with the
    dialogue box drawn over it, sized by the game's own gui.rpy values. Without the game folder it is the box alone. The font is the game's own when it can be had;
    wrapping is an estimate. The text follows the editor while you type. */
-const props = defineProps({ detail: { type: Object, required: true }, text: { type: String, default: '' } });
+const props = defineProps({ detail: { type: Object, required: true }, text: { type: String, default: '' }, big: Boolean });
 const mode = ref('target');
 const outer = ref(null);
 const info = ref('');
@@ -70,7 +70,7 @@ function paint() {
   outer.value.replaceChildren(stage);
 
   const box = outer.value.parentElement;
-  const fit = Math.max(200, innerHeight * 0.45) / H;
+  const fit = Math.max(200, innerHeight * (props.big ? 0.52 : 0.45)) / H;
   const k = box && box.clientWidth ? Math.min(1, (box.clientWidth - 2) / W, fit) : Math.min(1, fit);
   stage.style.transform = `scale(${k})`;
   outer.value.style.height = Math.ceil(H * k) + 'px'; outer.value.style.width = Math.ceil(W * k) + 'px';

@@ -9,11 +9,14 @@ import FixDialog from './FixDialog.vue';
 import Fold from './Fold.vue';
 import IgnoreDialog from './IgnoreDialog.vue';
 import GamePreview from './GamePreview.vue';
+import FilmStrip from './FilmStrip.vue';
+import MenuPanel from './MenuPanel.vue';
 import MtDialog from './MtDialog.vue';
 
 /* The detail of a line: the original, the editor (tags, missing variables, glossary terms, machine suggestion, live check), the progress of its file with the jumps
    (scenes, next untranslated / unchecked / too long) and the tabs Check, Proofreading, Menu, Scene, Memory, History and Script. */
-const props = defineProps({ detail: { type: Object, required: true }, position: { type: Object, default: () => ({ i: 0, n: 0 }) } });
+const props = defineProps({ detail: { type: Object, required: true }, position: { type: Object, default: () => ({ i: 0, n: 0 }) }, layout: { type: String, default: '' }, quick: { type: String, default: '' } });
+const film = computed(() => props.layout === 'film');          // the scene and the film strip: the picture over the editor, the original beside it, the strip of lines under them
 const emit = defineEmits(['updated', 'goto', 'step', 'advance', 'error', 'approve', 'proof']);
 
 const text = ref(props.detail.target);
@@ -54,11 +57,11 @@ const TABS = computed(() => [
   ['check', open.value.length ? t('Check ({n})', { n: open.value.length }) : t('Check')],
   ['proof', t('Proofreading')],
   ...((isChoice.value && d.value.ref) || menuAvail.value ? [['menu', t('Menu')]] : []),
-  ['scene', t('Scene')], ['memory', t('Memory')], ['history', t('History')],
+  ...(film.value ? [] : [['scene', t('Scene')]]), ['memory', t('Memory')], ['history', t('History')],
   ...(project.team && project.team.exists ? [['team', t('Team')]] : []),
   ['script', t('Script')],
 ]);
-const current = computed(() => (TABS.value.some(([k]) => k === tab.value) ? tab.value : open.value.length ? 'check' : isChoice.value && d.value.ref ? 'menu' : 'scene'));
+const current = computed(() => (props.quick === 'proof' ? 'proof' : TABS.value.some(([k]) => k === tab.value) ? tab.value : open.value.length ? 'check' : isChoice.value && d.value.ref ? 'menu' : 'scene'));
 
 watch(() => props.detail, (now, before) => {
   text.value = props.detail.target; live.value = null; note.value = props.detail.proof_note || ''; mt.value.result = null; mt.value.error = '';
@@ -207,14 +210,14 @@ const diff = (before, after) => {
 </script>
 
 <template>
-  <div class="ld">
+  <div class="ld" :class="{ film }">
     <div class="dhead">
       <span class="path mono small" :title="d.ref ? t('original script: {ref}', { ref: d.ref }) : ''">{{ d.file }}:{{ d.line }}</span>
       <span class="pill none">{{ isChoice ? t('Choice') : t('Dialogue') }}</span>
       <span class="pill" :class="pillOf(d.status)">{{ lineState(d.status) }}<template v-if="d.kind && d.status !== 'translated'"> · {{ lineKind(d.kind) }}</template></span>
       <template v-if="d.status !== 'todo'"><span v-if="d.proof === 'ok'" class="pill checked">{{ t('✓ Proofread') }}</span><span v-else-if="d.proof === 'fix'" class="pill todo">{{ t('⚑ needs a fix') }}</span><span v-else-if="d.proof === 'stale'" class="pill none">{{ t('↻ changed after proofreading') }}</span><span v-else class="pill none">{{ t('Not proofread') }}</span></template>
     </div>
-    <div class="actions">
+    <div class="actions top">
       <button v-if="d.status !== 'translated' && d.kind !== 'empty'" class="btn primary" @click="approve">{{ d.status === 'approved' ? t('Unapprove (A)') : t('Approve (A)') }}</button>
       <button class="btn" :title="t('Opens the file at this line in an external editor')" @click="openEditor">{{ t('Editor (E)') }}</button>
       <div class="menu-wrap">
@@ -226,6 +229,8 @@ const diff = (before, after) => {
         </div>
       </div>
     </div>
+
+    <GamePreview v-if="film" class="o-prev" big :detail="d" :text="text" />
 
     <div class="filestrip">
       <div class="fsname" :title="d.file">{{ baseName(d.file) }}</div>
@@ -251,9 +256,13 @@ const diff = (before, after) => {
       </div>
     </div>
 
+    <div class="pair">
+    <div class="col">
     <div class="head"><h4>{{ t('Original') }}</h4><span><button class="btn small ghost" :title="t('Copies the original text to the clipboard')" @click="copy(d.source ?? '')">{{ t('⧉ Original') }}</button>
       <button class="btn small ghost" :title="t('Copies the original and the translation one under the other')" @click="copy((d.source ?? '') + '\n' + text)">{{ t('⧉ Both') }}</button></span></div>
     <div class="box orig">{{ d.source ?? t('(source not found)') }}</div>
+    </div>
+    <div class="col">
 
     <div class="head"><h4>{{ t('Translation') }} <span class="muted">{{ t('– edited directly in the file') }}</span></h4></div>
     <textarea ref="ta" v-model="text" class="edit" rows="5" :aria-label="t('Translation')" spellcheck="true" lang="cs" @keydown="key"></textarea>
@@ -288,8 +297,14 @@ const diff = (before, after) => {
     </div>
     <p class="muted small">{{ t('Write a new line as \\n, a quote as \\". Leave the tags {i}…{/i} and [variables] as in the original.') }}</p>
 
-    <div class="tabs" role="tablist"><button v-for="[k, label] in TABS" :key="k" class="tab" :class="{ on: current === k, warn: k === 'check' && open.length }" role="tab" :aria-selected="current === k" @click="setTab(k)">{{ label }}</button></div>
-    <div class="pane" role="tabpanel">
+    </div>
+    </div>
+
+    <FilmStrip v-if="film" class="o-strip" :detail="d" :radius="radius" @goto="emit('goto', $event)" />
+    <Fold v-if="film && menuAvail && data.menu && data.menu !== 'loading' && data.menu.available" id="filmmenu" class="o-menu"><template #title>{{ t('Menu') }}</template><MenuPanel :menu="data.menu" @goto="emit('goto', $event)" /></Fold>
+
+    <div v-if="!quick" class="tabs" role="tablist"><button v-for="[k, label] in TABS" :key="k" class="tab" :class="{ on: current === k, warn: k === 'check' && open.length }" role="tab" :aria-selected="current === k" @click="setTab(k)">{{ label }}</button></div>
+    <div v-if="quick !== 'tr'" class="pane" role="tabpanel">
       <template v-if="current === 'check'">
         <div v-if="issues.length">
           <div v-for="x in issues" :key="x.code" class="issue" :class="{ ignored: x.ignored }">
@@ -320,29 +335,7 @@ const diff = (before, after) => {
         <div v-else class="muted">{{ t('The line is not translated yet – proofreading is done after translating.') }}</div>
       </template>
 
-      <template v-else-if="current === 'menu'">
-        <div v-if="!data.menu || data.menu === 'loading'" class="muted">{{ t('Loading…') }}</div>
-        <div v-else-if="data.menu.error || !data.menu.available" class="muted">{{ data.menu.error || data.menu.reason }}</div>
-        <template v-else>
-          <div class="muted mono small">{{ t('Game script: ') }}{{ data.menu.script }}</div>
-          <h4>{{ data.menu.question.length ? t('Question') : t('Said before the menu') }}</h4>
-          <div v-for="(x, i) in (data.menu.question.length ? data.menu.question : data.menu.before)" :key="'q' + i" class="mline" :class="{ cur: x.here }" @click="x.entry && emit('goto', { file: x.entry.file, line: x.entry.line })">
-            <template v-if="x.entry"><b>{{ speaker(x.entry.who) }}</b> <span v-if="x.here" class="pill none">{{ t('this line') }}</span><div>{{ x.entry.status === 'todo' ? t('untranslated') : x.entry.target }}</div><div class="muted">{{ x.entry.source }}</div></template>
-            <span v-else class="muted mono">{{ x.script }}</span>
-          </div>
-          <h4>{{ t('Choices') }}</h4>
-          <div v-for="(o, i) in data.menu.options" :key="'o' + i" class="mopt" :class="{ cur: o.current }">
-            <div class="mline" @click="o.entry && emit('goto', { file: o.entry.file, line: o.entry.line })">
-              <span class="pill none">{{ t('Choice') }}</span> <span v-if="o.cond" class="pill none" :title="o.cond">{{ t('if {cond}', { cond: o.cond }) }}</span> <span v-if="o.current" class="pill none">{{ t('this line') }}</span>
-              <div>{{ o.entry ? (o.entry.status === 'todo' ? t('untranslated') : o.entry.target) : t('(not found in the translation)') }}</div><div class="muted">{{ o.text }}</div>
-              <div v-if="o.where" class="muted small">{{ t('The same text is used in an earlier menu ({ref}): all of them share one translation, and the line is listed there.', { ref: o.where }) }}</div>
-            </div>
-            <div v-if="!o.after.length && o.body && o.body.length" class="muted small"><div>{{ t('No dialogue follows; the script continues with:') }}</div><pre class="code">{{ o.body.join('\n') }}</pre></div>
-            <div v-if="o.after.length" class="after"><div class="muted small">{{ t('then:') }}</div>
-              <div v-for="(x, j) in o.after" :key="j" class="mline" @click="x.entry && emit('goto', { file: x.entry.file, line: x.entry.line })"><template v-if="x.entry"><b>{{ speaker(x.entry.who) }}</b><div>{{ x.entry.status === 'todo' ? t('untranslated') : x.entry.target }}</div><div class="muted">{{ x.entry.source }}</div></template><span v-else class="muted mono">{{ x.script }}</span></div></div>
-          </div>
-        </template>
-      </template>
+      <MenuPanel v-else-if="current === 'menu'" :menu="data.menu" @goto="emit('goto', $event)" />
 
       <template v-else-if="current === 'scene'">
         <GamePreview :detail="d" :text="text" />
@@ -438,6 +431,12 @@ const diff = (before, after) => {
 
 <style scoped>
 .ld { display: flex; flex-direction: column; gap: var(--s-2); }
+.pair { display: flex; flex-direction: column; gap: var(--s-2); }
+.col { display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
+/* the scene and film strip layout: the picture first, the original beside the editor, the file, the strip, the menu, then the tabs */
+.film .dhead { order: 1; } .film .top { order: 2; } .film .o-prev { order: 3; } .film .pair { order: 4; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-4); }
+.film .filestrip { order: 5; } .film .o-strip { order: 6; } .film .o-menu { order: 7; } .film .tabs { order: 8; } .film .pane { order: 9; }
+.film .box.orig { height: auto; min-height: calc(5 * var(--fs-text) * var(--lh-normal) + 2 * var(--s-3) + 2px); max-height: 40vh; }
 .dhead { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
 .path { word-break: break-all; }
 .actions { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
