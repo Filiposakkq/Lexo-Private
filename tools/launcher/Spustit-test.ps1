@@ -13,6 +13,7 @@ $UiNextDir = Join-Path $Repo 'rust\resources\ui-next'
 $UiClassicDir = Join-Path $Repo 'rust\resources\ui-classic'
 $script:Started = @()                      # the processes THIS launcher started: only these are stopped
 $script:LastUrl = $null
+$script:LastLog = $null                  # what the Log button opens: the build log after a failed build, otherwise the log of the server
 
 function Set-RustEnv {
   $env:RUSTUP_HOME = 'E:\rust\rustup'; $env:CARGO_HOME = 'E:\rust\cargo'
@@ -50,6 +51,29 @@ function Ui-Text {
   $t = (Get-Item $idx).LastWriteTime
   if ((Ui-Sources) -gt $t) { return 'nove rozhrani: ZASTARALE (zdroje jsou novejsi)' }
   'nove rozhrani: aktualni (' + $t.ToString('d.M. HH:mm') + ')'
+}
+
+# ---- a build step that does not freeze the window: its output goes to the build log, the status shows what it does and for how long, the window keeps responding
+$BuildLog = Join-Path $env:TEMP 'aside-test-build.log'
+function Run-Step($title, $exe, $argList, $dir) {
+  $outf = Join-Path $env:TEMP 'aside-step.out'; $errf = Join-Path $env:TEMP 'aside-step.err'
+  $p = Start-Process -FilePath $exe -ArgumentList $argList -WorkingDirectory $dir -RedirectStandardOutput $outf -RedirectStandardError $errf -WindowStyle Hidden -PassThru
+  $t0 = Get-Date
+  while (-not $p.HasExited) {
+    [Windows.Forms.Application]::DoEvents()
+    if ($form.IsDisposed) { return 1 }
+    $last = ''
+    try { $x = Get-Content $errf -Tail 1 -ErrorAction Stop; if ($x) { $last = [string]$x } } catch { $last = '' }      # an empty file gives $null, not ''
+    $sec = [int]((Get-Date) - $t0).TotalSeconds
+    $status.Text = ('{0} - {1}:{2:00}  {3}' -f $title, [math]::Floor($sec / 60), ($sec % 60), $last.Trim())
+    Start-Sleep -Milliseconds 200
+  }
+  $p.WaitForExit()                 # without it the exit code of a process started with -PassThru can be empty
+  $code = [int]$p.ExitCode
+  $text = ''
+  foreach ($x in @($outf, $errf)) { if (Test-Path $x) { $text += (Get-Content $x -Raw) } }
+  Add-Content $BuildLog ("=== " + $title + " (exit " + $code + ")" + [Environment]::NewLine + $text)
+  $code
 }
 
 # ---- stop only what this launcher started (and the Pro sidecar that the server started), never another copy of Aside that is running
@@ -112,7 +136,7 @@ $go = New-Object Windows.Forms.Button; $go.Text = 'Spustit'; $go.Location = '16,
 $stop = New-Object Windows.Forms.Button; $stop.Text = 'Zastavit'; $stop.Location = '164,640'; $stop.Size = '100,40'
 $reopen = New-Object Windows.Forms.Button; $reopen.Text = 'Znovu otevrit'; $reopen.Location = '272,640'; $reopen.Size = '130,40'
 $logb = New-Object Windows.Forms.Button; $logb.Text = 'Log'; $logb.Location = '410,640'; $logb.Size = '70,40'
-$status = New-Object Windows.Forms.Label; $status.Location = '16,690'; $status.Size = '520,26'; $status.Text = ''
+$status = New-Object Windows.Forms.Label; $status.Location = '16,690'; $status.Size = '520,44'; $status.Text = ''; $status.AutoEllipsis = $true
 $form.Controls.AddRange(@($go, $stop, $reopen, $logb, $status))
 
 # ---- what was chosen last time
@@ -145,7 +169,7 @@ $form.Add_Shown({ $status.Text = 'Zjistuji stav sestaveni...'; $form.Refresh(); 
 
 $stop.Add_Click({ Stop-Aside; $status.Text = 'Zastaveno.' })
 $reopen.Add_Click({ if ($script:LastUrl) { Start-Process $script:LastUrl } else { $status.Text = 'Zatim nic nebezi.' } })
-$logb.Add_Click({ if (Test-Path $Log) { Start-Process notepad.exe (Q $Log) } else { $status.Text = 'Log zatim neexistuje.' } })
+$logb.Add_Click({ $l = if ($script:LastLog -and (Test-Path $script:LastLog)) { $script:LastLog } else { $Log }; if (Test-Path $l) { Start-Process notepad.exe (Q $l) } else { $status.Text = 'Log zatim neexistuje.' } })
 $form.Add_FormClosed({ Stop-Aside })
 
 $go.Add_Click({
@@ -160,19 +184,23 @@ $go.Add_Click({
     if ($others.Count -and $kill.Checked) { $others | Stop-Process -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 400 }
     elseif ($others.Count) { $status.Text = 'Pozor: bezi jina kopie Aside (PID ' + (($others | ForEach-Object { $_.Id }) -join ', ') + ').'; $form.Refresh() }
 
+    if (Test-Path $BuildLog) { Remove-Item $BuildLog -Force }
     if ($uib.Checked) {
-      $status.Text = 'Sestavuji nove rozhrani...'; $form.Refresh(); $env:Path = 'E:\node;' + $env:Path
-      Push-Location (Join-Path $Repo 'ui-next-src')
-      if (-not (Test-Path 'node_modules')) { & npm.cmd install --no-audit --no-fund }
-      & npm.cmd run build; $nb = $LASTEXITCODE; Pop-Location
-      if ($nb -ne 0) { $status.Text = 'Sestaveni noveho rozhrani selhalo (viz okno konzole).'; return }
+      $env:Path = 'E:\node;' + $env:Path
+      $uiDir = Join-Path $Repo 'ui-next-src'
+      if (-not (Test-Path (Join-Path $uiDir 'node_modules'))) { [void](Run-Step 'Instaluji balicky noveho rozhrani (npm install)' 'npm.cmd' @('install', '--no-audit', '--no-fund') $uiDir) }
+      $nb = Run-Step 'Sestavuji nove rozhrani' 'npm.cmd' @('run', 'build') $uiDir
+      if ($nb -ne 0) { $script:LastLog = $BuildLog; $status.Text = 'Sestaveni noveho rozhrani selhalo - tlacitko Log ukaze proc.'; return }
     }
     if ($build.Checked) {
-      $status.Text = 'Sestavuji server (' + $profile + ')...'; $form.Refresh(); Set-RustEnv
-      Push-Location (Join-Path $Repo 'rust'); & cargo +stable-x86_64-pc-windows-msvc build @flag -p lexo-server; $a = $LASTEXITCODE; Pop-Location
-      Push-Location (Join-Path $Repo 'pro\rust'); & cargo +stable-x86_64-pc-windows-msvc build @flag --bins; $b = $LASTEXITCODE; Pop-Location
-      if ($asapp.Checked) { Push-Location (Join-Path $Repo 'rust'); & cargo +stable-x86_64-pc-windows-msvc build @flag -p lexo-app; if ($LASTEXITCODE -ne 0) { $a = 1 }; Pop-Location }
-      if ($a -ne 0 -or $b -ne 0) { $status.Text = 'Sestaveni selhalo (viz okno konzole).'; return }
+      Set-RustEnv
+      $cargo = 'E:\rust\cargo\bin\cargo.exe'; $tc = '+stable-x86_64-pc-windows-msvc'
+      $note = if ($profile -eq 'release') { ' (release, poprve par minut)' } else { '' }
+      $a = Run-Step ('Sestavuji server' + $note) $cargo (@($tc, 'build') + $flag + @('-p', 'lexo-server')) (Join-Path $Repo 'rust')
+      $b = 0
+      if ($a -eq 0) { $b = Run-Step 'Sestavuji Pro balicek (sidecar)' $cargo (@($tc, 'build') + $flag + @('--bins')) (Join-Path $Repo 'pro\rust') }
+      if ($a -eq 0 -and $b -eq 0 -and $asapp.Checked) { $a = Run-Step 'Sestavuji appku (Tauri)' $cargo (@($tc, 'build') + $flag + @('-p', 'lexo-app')) (Join-Path $Repo 'rust') }
+      if ($a -ne 0 -or $b -ne 0) { $script:LastLog = $BuildLog; $status.Text = 'Sestaveni selhalo - tlacitko Log ukaze proc.'; return }
       Refresh-Info
     }
     if (-not $asapp.Checked -and -not (Test-Path $Server)) { $status.Text = 'Chybi ' + $Server + ' - zaskrtni "sestavit".'; return }
@@ -200,6 +228,8 @@ $go.Add_Click({
     if ($selftest.Checked) { $args2 += '--selftest' }
     elseif ($folder.Text.Trim()) { $args2 += @('--project', (Q $folder.Text.Trim())) }
     if (Test-Path $Log) { Remove-Item $Log -Force }
+    $script:LastLog = $Log
+    $status.Text = 'Spoustim server...'; $form.Refresh()
     $p = Start-Process $Server -ArgumentList $args2 -RedirectStandardOutput $Log -WindowStyle Hidden -PassThru
     $script:Started += $p.Id
     $url = $null
@@ -218,7 +248,7 @@ $go.Add_Click({
       $open = if ($uiMode -eq 'next') { $base + '/next/' } else { $url }
       Start-Process $open; $script:LastUrl = $open; $status.Text = "Bezi (" + $profile + "): $open"
     }
-  } catch { $status.Text = 'Chyba: ' + $_.Exception.Message }
+  } catch { $status.Text = 'Chyba: ' + $_.Exception.Message + ' (radek ' + $_.InvocationInfo.ScriptLineNumber + ')'; Add-Content $BuildLog ($_ | Out-String); $script:LastLog = $BuildLog }
   finally { $go.Enabled = $true }
 })
 
