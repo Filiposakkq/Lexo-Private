@@ -104,11 +104,11 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
       <div class="col">
         <section class="card">
           <h3 class="card-title">{{ t('Progress by group') }}</h3>
-          <template v-if="!o.groups_defined">
+          <div v-if="!o.groups_defined" class="empty-groups">
             <b>{{ t('No groups yet') }}</b>
             <p class="muted">{{ t('Episodes, chapters or parts give you statistics for each of them. Aside can guess them from the file names.') }}</p>
             <button class="btn" @click="groups = true">{{ t('Set up groups…') }}</button>
-          </template>
+          </div>
           <div v-for="e in o.episodes" :key="e.n" class="ep">
             <span class="nm">{{ groupName(e.n) }}</span>
             <div v-if="e.translation.total" class="bars"><div class="bar"><i :style="{ width: e.translation.percent + '%' }"></i></div><div class="bar thin two"><i :style="{ width: e.proofreading.percent + '%' }"></i></div></div>
@@ -118,7 +118,7 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
               <option v-for="k in EPISODE_STATES" :key="k" :value="k">{{ fileState(k) }}</option>
             </select>
           </div>
-          <p class="muted small" v-if="o.general.translation.total || o.unassigned.translation.total">{{ t('General (the whole game)') }}: {{ fmtN(o.general.translation.done) }} / {{ fmtN(o.general.translation.total) }} · {{ t('Unassigned files') }}: {{ fmtN(o.unassigned.translation.done) }} / {{ fmtN(o.unassigned.translation.total) }}</p>
+          <p class="muted small totals" v-if="o.general.translation.total || o.unassigned.translation.total">{{ t('General (the whole game)') }}: {{ t('{done} / {total} lines', { done: fmtN(o.general.translation.done), total: fmtN(o.general.translation.total) }) }} · {{ t('Unassigned files') }}: {{ t('{done} / {total} lines', { done: fmtN(o.unassigned.translation.done), total: fmtN(o.unassigned.translation.total) }) }}</p>
         </section>
       </div>
       <div class="col">
@@ -152,7 +152,12 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
 
 <style scoped>
 .screen { padding: var(--s-5) var(--s-6) var(--s-8); display: flex; flex-direction: column; gap: var(--s-4); max-width: 1180px; width: 100%; margin: 0 auto; }
-.card { padding: var(--s-4); }
+.card { padding: var(--s-5); }
+.card-title { margin-bottom: var(--s-4); }
+.empty-groups { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); }
+.empty-groups p { margin: 0; line-height: var(--lh-normal); max-width: 60ch; }
+.empty-groups .btn { margin-top: var(--s-2); }
+.totals { margin: var(--s-4) 0 0; padding-top: var(--s-3); border-top: 1px solid var(--line-soft); line-height: var(--lh-normal); }
 .hero { display: flex; gap: var(--s-6); align-items: center; padding: var(--s-5); border-radius: var(--r-xl); }
 .ring { position: relative; flex: none; width: 132px; height: 132px; }
 .ring circle { fill: none; stroke-width: 9; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }

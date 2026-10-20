@@ -1,8 +1,10 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
+import { forgetFileData, menuOf, mtOn, peekMt, prefetchAll, prefetchStats, sceneRadius, scenesOf } from '../gamewindow.js';
+import { requireFeature } from '../pro.js';
 import LineDetail from '../components/LineDetail.vue';
-import Tools from '../components/Tools.vue';
+import MtDialog from '../components/MtDialog.vue';
 import { t, tn } from '../i18n.js';
 import { baseName, fmtN, lineKind, lineState, loadFiles, loadNames, loadOverview, pillOf, project } from '../project.js';
 
@@ -17,6 +19,7 @@ const offset = ref(0);
 const loading = ref(false);
 const sel = ref(-1);
 const detail = ref(null);
+const asideEl = ref(null);
 const picked = ref(new Set());
 const moreOpen = ref(false);
 const ld = ref(null);
@@ -70,19 +73,60 @@ async function load(resetList) {
 function change() { clearTimeout(timer); timer = setTimeout(() => load(true), 220); }
 watch(f, change, { deep: true });
 
+/* Is the Scene tab the one shown? (the last tab chosen is remembered; with none chosen the detail opens on the scene when the line has no findings) */
+function wantsScene() { try { const k = localStorage.getItem('aside.detailTab') || ''; return k === 'scene' || k === ''; } catch { return true; } }
 async function select(i) {
   if (i < 0 || i >= items.value.length) return;
   if (ld.value && ld.value.dirty && !window.confirm(t('You changed the text of this line and did not save it. Discard the changes?'))) return;
   sel.value = i;
   const it = items.value[i];
   try {
-    detail.value = await get('entry', { file: it.file, line: it.line });
+    const scroller = scrollerOf(); const top = scroller ? scroller.scrollTop : 0;      // the panel keeps its place when the next line opens (the new line has its tabs still loading, so the content is short for a moment)
+    // the Scene tab shows the picture and the lines around: they are fetched together with the line, so the new line appears complete and nothing loads after it
+    const entry = get('entry', { file: it.file, line: it.line });
+    const ahead = [scenesOf(it.file), entry.then((d) => (d.unit !== 'string' && d.ref ? menuOf(it.file, it.line) : null))];     // the strip of scenes and the Menu tab are there with the line
+    if (peekMt() === null) ahead.push(mtOn());
+    if (wantsScene()) ahead.push(prefetchAll(it.file, it.line, sceneRadius()).catch(() => {}));
+    // A line nobody opened yet can take seconds on the server (the first scene of a file, the index of the pictures). The detail waits a moment for what is quick, so a
+    // line you have seen appears complete; for the rest it opens at once and the parts fill in the room kept for them.
+    await Promise.race([Promise.all(ahead).catch(() => {}), new Promise((r) => setTimeout(r, 250))]);
+    detail.value = await entry;
+    await nextTick();
+    holdScroll(scroller, top);
     try { localStorage.setItem('aside.last', JSON.stringify({ file: it.file, line: it.line })); } catch { /* only for the Continue button */ }
     post('focus', { file: it.file, line: it.line }).catch(() => {});
     await nextTick();
-    document.querySelector('.ln.sel')?.scrollIntoView({ block: 'nearest' });
+    keepRowVisible();
+    const nx = items.value[i + 1];
+    if (nx && wantsScene() && prefetchStats.ms < 400) setTimeout(() => { if (sel.value === i) prefetchAll(nx.file, nx.line, sceneRadius()).catch(() => {}); }, 400);      // the next line is ready when you get there
     if (i >= items.value.length - 15 && offset.value + items.value.length < total.value) load(false);
   } catch (e) { error.value = e.message; detail.value = null; }
+}
+/* After a new line replaced the old one: put the panel back where it was, and keep doing so while the content grows (the tabs fetch their data), until the user scrolls. */
+let holdOff = null;
+/* What scrolls: the panel itself when it has its own scroll bar (wide window), otherwise the page (narrow window, where the panel sits under the list). */
+function scrollerOf() { return asideEl.value; }
+function holdScroll(el, top) {
+  if (holdOff) holdOff();
+  if (!el || !top) return;
+  el.scrollTop = top;
+  const inner = el === document.scrollingElement ? document.body : el.firstElementChild;
+  if (!inner || typeof ResizeObserver === "undefined") return;
+  const stop = () => { clearTimeout(tm); ro.disconnect(); for (const ev of ["wheel", "touchstart", "keydown"]) el.removeEventListener(ev, stop); holdOff = null; };
+  const ro = new ResizeObserver(() => { if (el.scrollTop < top) el.scrollTop = top; });
+  const tm = setTimeout(stop, 1500);
+  ro.observe(inner);
+  for (const ev of ["wheel", "touchstart", "keydown"]) el.addEventListener(ev, stop);
+  holdOff = stop;
+}
+onBeforeUnmount(() => { if (holdOff) holdOff(); });
+/* The selected row stays in view inside the list: only the list scrolls, never the page. */
+function keepRowVisible() {
+  const row = document.querySelector('.ln.sel'), box = row && row.closest('.tablewrap');
+  if (!row || !box) return;
+  const head = box.querySelector('thead')?.offsetHeight || 0;
+  if (row.offsetTop - head < box.scrollTop) box.scrollTop = row.offsetTop - head;
+  else if (row.offsetTop + row.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = row.offsetTop + row.offsetHeight - box.clientHeight;
 }
 function mirror() {
   const d = detail.value, it = items.value[sel.value];
@@ -100,10 +144,10 @@ async function updated(ev = {}) {
   error.value = '';
   try {
     const i = sel.value, d = detail.value;
-    if (ev.reload) { await load(true); loadOverview().catch(() => {}); loadFiles().catch(() => {}); return; }
+    if (ev.reload) { forgetFileData(); await load(true); lazyNumbers(); return; }
     detail.value = await get('entry', { file: d.file, line: d.line });
     mirror();
-    loadOverview().catch(() => {}); loadFiles().catch(() => {});
+    forgetFileData(); lazyNumbers();
     if (ev.advance) {
       let k;
       if (ev.kind === 'proof') k = nextWhere(i, (x) => x.status !== 'todo' && !['ok', 'fix'].includes(x.proof));
@@ -141,7 +185,13 @@ function key(ev) {
 const who = (it) => (it.who || '').trim().split(/\s+/)[0];
 const full = (it) => project.names[who(it)] || '';
 const shown = (s) => String(s ?? '').replace(/\n/g, ' ↵ ');
-const after = async () => { await load(true); loadOverview().catch(() => {}); loadFiles().catch(() => {}); };
+/* The tools have their own screen; what stays here works on the lines you picked: translating them with a machine. */
+const mtOpen = ref(false);
+async function openMt() { if (await requireFeature('mt.batch')) mtOpen.value = true; }
+/* The numbers of the overview and of the files are fetched after a pause, not after every save (they are not on this screen). */
+let lazyT = null;
+function lazyNumbers() { clearTimeout(lazyT); lazyT = setTimeout(() => { loadOverview().catch(() => {}); loadFiles().catch(() => {}); }, 2000); }
+const after = async () => { forgetFileData(); await load(true); lazyNumbers(); };
 
 onMounted(async () => {
   window.addEventListener('keydown', key);
@@ -160,8 +210,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
       <select class="sel wide" v-model="f.file" :title="t('File')"><option value="">{{ t('All files') }}</option><option v-for="x in files" :key="x.name" :value="x.name">{{ x.name }}</option></select>
       <select class="sel" v-model="speaker" :title="t('Speaker')" :aria-label="t('Speaker')" @change="pickSpeaker"><option value="">{{ t('Speaker: all') }}</option><option v-for="[code, name] in speakers" :key="code" :value="code">{{ name }} · {{ code }}</option></select>
       <button class="btn" :aria-expanded="moreOpen" :title="t('Line type, kind, check, sorting, speaker display')" @click="moreOpen = !moreOpen">{{ moreOpen ? '▾' : '▸' }} {{ t('More filters') }}<template v-if="extra"> ({{ extra }})</template></button>
-      <Tools :picked="pickedList" :anchor="detail" :file="f.file" @changed="after" />
-      <template v-if="picked.size"><span class="muted small">{{ tn(picked.size, 'Selected {n} line', 'Selected {n} lines') }}</span><button class="btn small ghost" @click="picked = new Set()">{{ t('Clear the selection') }}</button></template>
+      <template v-if="picked.size"><span class="muted small">{{ tn(picked.size, 'Selected {n} line', 'Selected {n} lines') }}</span><button class="btn small ghost" @click="picked = new Set()">{{ t('Clear the selection') }}</button><button class="btn small" @click="openMt">{{ t('Translate with a machine…') }}</button></template>
       <span class="grow"></span>
       <span class="muted small">{{ tn(total, '{n} line', '{n} lines', { n: fmtN(total) }) }}</span>
     </div>
@@ -210,16 +259,17 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
         <div v-else-if="offset + items.length < total" class="more-row"><button class="btn" @click="load(false)">{{ t('Load {n} more (shown {shown} of {total})', { n: Math.min(200, total - offset - items.length), shown: fmtN(offset + items.length), total: fmtN(total) }) }}</button></div>
       </div>
 
-      <aside class="detail card">
+      <aside ref="asideEl" class="detail card">
         <LineDetail v-if="detail" ref="ld" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @goto="goto" @step="step" @error="error = $event" />
         <template v-else><h3 class="card-title">{{ t('Line detail') }}</h3><p class="muted">{{ t('Select a line. The arrow keys ↑ ↓ move through the lines, {a} approves, {e} opens the editor, {q} shows all shortcuts.', { a: 'A', e: 'E', q: '?' }) }}</p></template>
       </aside>
     </div>
+      <MtDialog v-if="mtOpen" :picked="pickedList" :anchor="detail" :file="f.file" @close="mtOpen = false" @done="mtOpen = false; after()" @settings="mtOpen = false" />
   </main>
 </template>
 
 <style scoped>
-.screen { padding: var(--s-4) var(--s-5) var(--s-6); display: flex; flex-direction: column; gap: var(--s-3); width: 100%; min-width: 0; }
+.screen { padding: var(--s-4) var(--s-5) var(--s-4); display: flex; flex-direction: column; gap: var(--s-3); width: 100%; min-width: 0; height: calc(100vh - 43px); box-sizing: border-box; overflow: hidden; }
 .toolbar { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
 .toolbar.more label { display: flex; gap: var(--s-2); align-items: center; font-size: var(--fs-small); color: var(--text-muted); }
 .check { display: flex; gap: var(--s-1); align-items: center; font-size: var(--fs-small); color: var(--text-muted); white-space: nowrap; }
@@ -228,8 +278,9 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
 .grow { flex: 1; }
 .sel { height: var(--h-control-sm); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--s-2); max-width: 200px; }
 .sel.wide { max-width: 260px; }
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); gap: var(--s-3); align-items: start; }
-.tablewrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-card); max-height: calc(100vh - 200px); }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); gap: var(--s-3); align-items: stretch; flex: 1; min-height: 0; }
+.split > div { min-height: 0; overflow: auto; }
+.tablewrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-card); }
 .grid { width: 100%; border-collapse: collapse; font-size: var(--fs-body); }
 .grid th { position: sticky; top: 0; background: var(--bg-bar); text-align: left; font-size: var(--fs-caption); font-weight: 500; color: var(--text-muted); padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line); z-index: 1; white-space: nowrap; }
 .grid td { padding: 6px var(--s-3); border-bottom: 1px solid var(--line-soft); vertical-align: top; }
@@ -244,6 +295,6 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
 .num { font-variant-numeric: tabular-nums; text-align: right; }
 .small { font-size: var(--fs-small); }
 .more-row, .empty { padding: var(--s-5); text-align: center; }
-.detail { padding: var(--s-4); position: sticky; top: var(--s-3); max-height: calc(100vh - 120px); overflow: auto; }
-@media (max-width: 1100px) { .split { grid-template-columns: 1fr; } .detail { position: static; max-height: none; } }
+.detail { padding: var(--s-4); min-height: 0; overflow: auto; }
+@media (max-width: 1100px) { .screen { height: auto; overflow: visible; } .split { grid-template-columns: 1fr; } .split > div { overflow: visible; } .tablewrap { max-height: 50vh; overflow: auto; } }
 </style>
