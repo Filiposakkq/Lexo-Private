@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import GroupsDialog from '../components/GroupsDialog.vue';
 import { t, tn } from '../i18n.js';
-import { assignLabel, baseName, fileState, fmtN, fmtPct, groupName, groupNumbers, loadFiles, loadOverview, loadTeam, openLines, pctOf, pillOf, post, project, reloadAll } from '../project.js';
+import { assignLabel, baseName, fileState, fmtN, fmtPct, groupName, groupNumbers, loadFiles, loadOverview, loadTeam, openCheck, openLines, pctOf, pillOf, post, project, reloadAll } from '../project.js';
 
 /* Files: every file with its progress, assignment and state; the detail of the chosen file on the right. Double-click (or "Show lines") opens its lines. */
 const emit = defineEmits(['go']);
@@ -165,7 +165,7 @@ async function openEditor(r) { try { await post('open-editor', { file: r.name, l
             <dt>{{ t('To fix') }}</dt><dd><button v-if="current.proof_fix" class="btn small" @click="lines(current, 'fix')">{{ fmtN(current.proof_fix) }}</button><template v-else>0</template></dd>
             <dt>{{ t('Errors / warnings') }}</dt><dd>{{ current.errors }} / {{ current.warnings }}</dd>
           </dl>
-          <a v-if="current.errors + current.warnings" class="btn small" href="/">{{ t('Show the problems') }}</a>
+          <button v-if="current.errors + current.warnings" class="btn small" @click="openCheck({ file: current.name }); emit('go', 'check')">{{ t('Show the problems') }}</button>
         </template>
         <template v-else><h3 class="card-title">{{ t('File detail') }}</h3><p class="muted">{{ t('Select a file in the table. Double-click opens its lines.') }}</p></template>
       </aside>
