@@ -8,6 +8,7 @@ import Overview from './views/Overview.vue';
 import Files from './views/Files.vue';
 import Lines from './views/Lines.vue';
 import Check from './views/Check.vue';
+import Glossary from './views/Glossary.vue';
 import Team from './views/Team.vue';
 import ToolsScreen from './views/ToolsScreen.vue';
 import { t } from './i18n.js';
@@ -21,12 +22,12 @@ const view = ref('home');          // home | prepare | overview | files | lines
 const prepPath = ref('');
 function prepare(path) { prepPath.value = path || ''; view.value = 'prepare'; }
 function home() { view.value = 'home'; loadGames(); }
-const PROJECT_VIEWS = ['overview', 'files', 'lines', 'check', 'tools', 'team'];
+const PROJECT_VIEWS = ['overview', 'files', 'lines', 'check', 'glossary', 'tools', 'team'];
 const inProject = computed(() => PROJECT_VIEWS.includes(view.value));
 async function opened() { view.value = 'overview'; loadTeam(); try { await loadOverview(); } catch { /* the screen shows the error itself */ } }
 const projectName = computed(() => project.overview?.project?.name || project.overview?.project?.dir || '');
-const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['check', () => t('Check'), '✓'], ['tools', () => t('Tools'), '⚒'], ['team', () => t('Team'), '☺']];
-const CLASSIC = [() => t('Glossary'), () => t('Publishing'), () => t('Settings')];
+const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['check', () => t('Check'), '✓'], ['glossary', () => t('Glossary'), 'Aa'], ['tools', () => t('Tools'), '⚒'], ['team', () => t('Team'), '☺']];
+const CLASSIC = [() => t('Publishing'), () => t('Settings')];
 let seen = false;
 try { seen = sessionStorage.getItem('aside.splash') === '1'; } catch { /* no storage: the animation plays */ }
 if (seen) splash.value = false;
@@ -70,6 +71,7 @@ onMounted(loadApp);
           <Files v-else-if="view === 'files'" @go="view = $event" />
           <Lines v-else-if="view === 'lines'" @go="view = $event" />
           <Check v-else-if="view === 'check'" @go="view = $event" />
+          <Glossary v-else-if="view === 'glossary'" @go="view = $event" />
           <ToolsScreen v-else-if="view === 'tools'" />
           <Team v-else-if="view === 'team'" />
         </div>
