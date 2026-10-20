@@ -6,7 +6,7 @@ import { baseName, dateLong, fileState, fmtN, fmtPct, groupName, loadFiles, load
 
 /* Overview: where you are in the translation and one click to carry on, then the numbers (translation, what is left, proofreading, the check),
    the groups (episodes, chapters…), the files by state and the recent activity. */
-const emit = defineEmits(['go']);
+const emit = defineEmits(['go', 'quick']);
 const error = ref('');
 const groups = ref(false);
 const o = computed(() => project.overview);
@@ -68,6 +68,8 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
         <div class="actions">
           <button class="btn primary" @click="resume">{{ last && last.file ? t('Continue: {where}', { where: baseName(last.file) + ':' + last.line }) : t('Start translating') }}</button>
           <button v-if="totals.total - totals.proofread > 0" class="btn" @click="lines({ status: 'review' })">{{ t('Continue proofreading') }}</button>
+          <button class="btn" :title="t('Scene and editor over the whole screen, untranslated lines only')" @click="emit('quick', 'tr')">{{ t('Translate quickly') }}</button>
+          <button v-if="totals.total - totals.proofread > 0" class="btn" :title="t('Scene and editor over the whole screen, only lines to check')" @click="emit('quick', 'proof')">{{ t('Proofread quickly') }}</button>
           <button v-if="nearest" class="btn ghost" :title="t('File with the least left: {name}', { name: nearest.name })" @click="lines({ file: nearest.name, status: 'todo' })">{{ t('Closest to done: {name} ({n} left)', { name: baseName(nearest.name), n: fmtN(nearest.todo) }) }}</button>
         </div>
       </div>

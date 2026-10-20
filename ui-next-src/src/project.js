@@ -73,3 +73,9 @@ export function assignLabel(a) {
 }
 
 export { post, get };
+
+/* A speaker as the lists show it: the full name from the glossary and the code, or the code alone; a colour that is the same for the same code. */
+const speakerCode = (who) => String(who || '').trim().split(/\s+/)[0];
+export const speakerLabel = (who) => { const n = project.names[speakerCode(who)]; return n ? `${n} · ${who}` : who || '—'; };
+export const speakerColor = (who) => { let hue = 0; for (const ch of speakerCode(who)) hue = (hue * 31 + ch.charCodeAt(0)) % 360; return speakerCode(who) ? `hsl(${hue} 55% 52%)` : ''; };
+export const speakerInitial = (who) => ([...String(project.names[speakerCode(who)] || speakerCode(who)).replace(/^\[|\]$/g, '')][0] || '?').toUpperCase();
