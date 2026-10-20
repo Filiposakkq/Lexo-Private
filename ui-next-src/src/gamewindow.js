@@ -162,3 +162,11 @@ export function bumpScene(file, line, dDone, dProof) {
 }
 /* After a write the counts of the scenes and the memory of the neighbours may have changed. */
 export function forgetFileData() { filesScenes.clear(); scenesDone.clear(); ctxCache.clear(); ctxDone.clear(); menus.clear(); menusDone.clear(); mtState = null; }
+
+/* Another game was opened: nothing of the previous one may show up in it (the same file names, the same lines, other windows and fonts). */
+export function resetGameCaches() {
+  cache.scene.clear(); cache.fonts = {}; cache.fontRes = {}; cache.metrics = {}; cache.metRes = {}; cache.images.clear(); cache.gui = null;
+  done.clear();
+  forgetFileData();
+  lastSize.w = 0; lastSize.h = 0;
+}

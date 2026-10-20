@@ -1,7 +1,7 @@
 import { fromWire, t } from './i18n.js';
 
 /* Talking to the application (the same /api as the classic interface). The token of the run is in the page (__TOKEN__ of index.html is replaced by the server). */
-const TOKEN = document.querySelector('meta[name="token"]')?.content || '';
+export const TOKEN = document.querySelector('meta[name="token"]')?.content || '';
 
 export async function request(method, path, body) {
   const opts = { method, headers: {} };

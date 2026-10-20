@@ -132,3 +132,44 @@ fn the_server_serves_the_ui_and_the_operations() {
     server.shutdown();
     let _ = std::fs::remove_dir_all(&tmp);
 }
+
+/// A shell that remembers the address of the window it was asked to open.
+struct Recorder(std::sync::Arc<std::sync::Mutex<Vec<String>>>);
+impl lexo_server::dispatch::Shell for Recorder {
+    fn open_window(&self, url: &str) -> Result<(), String> {
+        self.0.lock().unwrap().push(url.to_string());
+        Ok(())
+    }
+}
+
+#[test]
+fn a_second_window_opens_in_the_classic_or_the_new_interface() {
+    std::env::set_var("LEXO_NO_PRO", "1");
+    let tmp = std::env::temp_dir().join(format!("lexo-server-window-{}", std::process::id()));
+    std::fs::create_dir_all(&tmp).unwrap();
+    let cfg = tmp.join("cfg");
+    let seen = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+    let mut opts = ServerOptions::new(default_ui_dir());
+    opts.shell = Box::new(Recorder(seen.clone()));
+    let server = start(
+        move || {
+            let mut config = Config::new(Some(&cfg.join("config.json")));
+            config.load();
+            App::new(config, Packs { bundled: default_packs_dir(), user: None })
+        },
+        opts,
+    )
+    .unwrap();
+    let port = server.addr.port();
+    let token = server.session.token.clone();
+    let post = |body: Value| request(port, "POST", "/api/window/open", &[("X-Token", &token), ("Content-Type", "application/json")], &body.to_string());
+    let (code, _) = post(json!({"view": "entries", "companion": "1", "tab": "scene", "status": "all", "file": "a b.rpy", "line": 12}));
+    assert_eq!(code, 200);
+    let (code, answer) = post(json!({"view": "entries", "companion": "1", "tab": "scene", "ui": "next", "file": "a.rpy", "line": 7}));
+    assert_eq!(code, 200);
+    assert!(answer.contains("\"ok\":true"), "{answer}");
+    let urls = seen.lock().unwrap().clone();
+    assert_eq!(urls.len(), 2, "{urls:?}");
+    assert!(urls[0].starts_with(&format!("http://127.0.0.1:{port}/?win=2&companion=1&tab=scene&view=entries&file=a%20b.rpy&line=12")), "{}", urls[0]);
+    assert!(urls[1].starts_with(&format!("http://127.0.0.1:{port}/next/?win=2&companion=1&tab=scene&view=entries&file=a.rpy&line=7")), "{}", urls[1]);
+}

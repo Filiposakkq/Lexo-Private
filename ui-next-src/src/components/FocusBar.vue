@@ -13,7 +13,7 @@ const quick = (k) => { if (ui.quick !== k) emit('act', k === 'proof' ? 'proofmod
 <template>
   <div class="focusbar" role="toolbar" :aria-label="t('Focus')">
     <button class="btn small" :title="t('Bring back the top bar and the tabs (Ctrl+Shift+F)')" @click="setFocus(false)">{{ t('⤢ Show everything') }}</button>
-    <LayoutMenu @quick="emit('act', 'quick')" />
+    <LayoutMenu @quick="emit('act', 'quick')" @window="emit('act', 'new_window')" />
     <div v-if="ui.quick" class="seg" role="group" :aria-label="t('Quick mode')">
       <button class="btn small" :class="{ primary: ui.quick === 'tr' }" :title="t('Only untranslated lines, the editor focuses itself')" @click="quick('tr')">{{ t('Translation') }}</button>
       <button class="btn small" :class="{ primary: ui.quick === 'proof' }" :title="t('Only lines to check, P marks one as checked and moves on')" @click="quick('proof')">{{ t('Proofreading') }}</button>

@@ -17,7 +17,9 @@ import Settings from './views/Settings.vue';
 import Team from './views/Team.vue';
 import ToolsScreen from './views/ToolsScreen.vue';
 import { post } from './api.js';
+import { resetGameCaches } from './gamewindow.js';
 import { enterQuick, setFocus, ui } from './layout.js';
+import { COMPANION, SECONDARY, openDetailWindow, startPings, win } from './win.js';
 import { handlers, onKeydown, register } from './keys.js';
 import { t, tn } from './i18n.js';
 import { app, loadApp, loadGames } from './state.js';
@@ -25,14 +27,14 @@ import { loadOverview, loadTeam, openCheck, openLines, project, reloadAll } from
 
 /* The shell: the icon rail, the top bar with the name (Aside, or Aside Pro when Pro is on) and the screen. Home and the first screens of a game (Overview, Files, Lines) are in the new interface;
    the other screens of a game (Check, Glossary, Tools, Team, Release, Settings) are still the classic ones and are linked from the menu of the game. */
-const splash = ref(true);
+const splash = ref(!SECONDARY);
 const view = ref('home');          // home | prepare | overview | files | lines
 const prepPath = ref('');
 function prepare(path) { prepPath.value = path || ''; view.value = 'prepare'; }
 function home() { view.value = 'home'; loadGames(); }
 const PROJECT_VIEWS = ['overview', 'files', 'lines', 'check', 'glossary', 'tools', 'team', 'publish', 'settings'];
 const inProject = computed(() => PROJECT_VIEWS.includes(view.value));
-async function opened() { view.value = 'overview'; loadTeam(); try { await loadOverview(); } catch { /* the screen shows the error itself */ } }
+async function opened() { resetGameCaches(); view.value = 'overview'; loadTeam(); try { await loadOverview(); } catch { /* the screen shows the error itself */ } }
 const projectName = computed(() => project.overview?.project?.name || project.overview?.project?.dir || '');
 const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['check', () => t('Check'), '✓'], ['glossary', () => t('Glossary'), 'Aa'], ['tools', () => t('Tools'), '⚒'], ['team', () => t('Team'), '☺'], ['publish', () => t('Publishing'), '⇪'], ['settings', () => t('Settings'), '⚙']];
 function openSettings() { if (project.overview) view.value = 'settings'; }
@@ -46,6 +48,7 @@ function splashDone() {
 const help = ref(false);
 /* The focus mode (only the list and the detail, a floating bar) works on the Lines screen; the quick modes are the film layout + focus + only the lines still to translate / to check. */
 const focusOn = computed(() => ui.focus && view.value === 'lines');
+async function secondWindow() { try { await openDetailWindow(null); } catch (e) { say(e.message); } }
 function startQuick(kind) {
   if (!project.overview) return;
   enterQuick(kind);
@@ -86,20 +89,24 @@ function runAction(a) { palette.value = false; setTimeout(() => { const fn = han
 let handlersMap = {};
 const handlersOf = (id) => handlersMap[id];
 function paletteFile(name) { palette.value = false; if (!project.overview) return; openLines({ file: name, status: 'all' }); view.value = 'lines'; }
-onMounted(() => {
-  loadApp();
+let stopPings = null;
+onMounted(async () => {
+  stopPings = startPings();
+  if (SECONDARY) { await loadApp(); try { await loadOverview(); loadTeam(); view.value = 'lines'; } catch { /* no project is open: Home */ } }
+  else loadApp();
   handlersMap = {
     palette: () => { palette.value = true; }, help: () => { help.value = true; }, search, search_slash: search, refresh: doRefresh, undo: doUndo, fullscreen,
     tab_overview: () => goView('overview'), tab_files: () => goView('files'), tab_lines: () => goView('lines'), tab_check: () => goView('check'), tab_glossary: () => goView('glossary'),
     tab_tools: () => goView('tools'), tab_team: () => goView('team'), tab_publish: () => goView('publish'), tab_settings: () => goView('settings'),
     focus: () => { if (view.value === 'lines') setFocus(!ui.focus); }, quick: () => startQuick('tr'), proofmode: () => startQuick('proof'),
+    new_window: () => { if (view.value === 'lines') secondWindow(); },
     consistency: () => goCheck('cons'), ignored: () => goCheck('ign'), lint: () => goCheck('lint'), findings: () => goCheck('findings'), snapshot,
   };
   offKeys = register(handlersMap);
   window.addEventListener('keydown', onKeydown);
 });
 let offKeys = null;
-onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('keydown', onKeydown); clearTimeout(flashT); });
+onBeforeUnmount(() => { if (stopPings) stopPings(); if (offKeys) offKeys(); window.removeEventListener('keydown', onKeydown); clearTimeout(flashT); });
 </script>
 
 <template>
@@ -109,7 +116,8 @@ onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('keyd
   <HelpDialog v-if="help" @close="help = false" @settings="help = false; goView('settings')" />
   <div v-if="flash" class="flash toast" role="status">{{ flash }}</div>
   <FocusBar v-if="focusOn" :left="ui.left" @act="focusAct" />
-  <div class="shell" :class="{ focus: focusOn }">
+  <div v-if="win.lost" class="lost">{{ t('The application was closed. You can close this window.') }}</div>
+  <div class="shell" :class="{ focus: focusOn, companion: COMPANION }">
     <nav class="rail" :aria-label="t('Main menu')">
       <a class="rail-item" :class="{ on: view === 'home' }" href="#" :title="t('Home')" :aria-current="view === 'home' ? 'page' : null" @click.prevent="home">⌂</a>
       <a class="rail-item" :class="{ on: view === 'prepare' }" href="#" :title="t('Prepare a game')" :aria-current="view === 'prepare' ? 'page' : null" @click.prevent="prepare()">⚒</a>
@@ -155,8 +163,9 @@ onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('keyd
 .screen-host { flex: 1; min-width: 0; display: flex; }
 .screen-host > :deep(*) { flex: 1; min-width: 0; }
 .nav-item { text-decoration: none; }
-.shell.focus { --topbar-h: 0px; }
-.shell.focus .rail, .shell.focus .topbar, .shell.focus .nav { display: none; }
+.shell.focus, .shell.companion { --topbar-h: 0px; }
+.shell.focus .rail, .shell.focus .topbar, .shell.focus .nav, .shell.companion .rail, .shell.companion .topbar, .shell.companion .nav { display: none; }
+.lost { position: fixed; inset: 0; z-index: 40; background: var(--bg-app); display: flex; align-items: center; justify-content: center; text-align: center; padding: var(--s-8); }
 .flash { position: fixed; right: var(--s-5); bottom: var(--s-5); z-index: 30; }
 .nav { flex: none; min-height: calc(100vh - 52px); }
 .game { padding: var(--s-2) var(--s-3) var(--s-3); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
