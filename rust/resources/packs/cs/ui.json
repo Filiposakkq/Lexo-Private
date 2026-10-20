@@ -2073,6 +2073,13 @@
   "The download failed: {reason}": "Stažení se nezdařilo: {reason}",
   "The checksum of the download could not be found.": "Kontrolní součet stahovaného souboru se nepodařilo najít.",
   "The download is damaged (the checksum does not match). Try again.": "Stažený soubor je poškozený (kontrolní součet nesedí). Zkus to znovu.",
-  "The SDK could not be unpacked: {reason}": "SDK se nepodařilo rozbalit: {reason}"
+  "The SDK could not be unpacked: {reason}": "SDK se nepodařilo rozbalit: {reason}",
+  "Game menu": "Menu hry",
+  "Note for the proofreader": "Poznámka pro korektora",
+  "Open the check": "Otevřít kontrolu",
+  "Suggested assignment, groups and the team are in the classic interface for now": "Navržené zařazení, skupiny a tým jsou zatím v klasickém rozhraní",
+  "The check is in the classic interface for now": "Kontrola je zatím v klasickém rozhraní",
+  "This screen is in the classic interface for now": "Tahle obrazovka je zatím v klasickém rozhraní",
+  "What needs to be fixed?": "Co je potřeba opravit?"
  }
 }

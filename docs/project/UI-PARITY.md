@@ -4,6 +4,8 @@ The new interface (see the sketches discussed in the project: a sidebar with Ove
 
 Generated from the sources of the current UI (`rust/resources/ui-classic/js`); 324 actions in 24 areas. It is a checklist to start from, not an exact inventory: a few actions are built without a plain button label and must be added by hand.
 
+**Progress.** Built in the new interface (`ui-next`): Home, the guide to prepare a game, **Overview, Files and Lines** with the actions listed under those headings *except* the ones named in the "Not yet" part of [UI-NEXT.md](UI-NEXT.md). Their *New place* cells are still to be filled in one by one; nothing is removed from the classic interface.
+
 ## Přehled (`20-overview.js`)
 
 | Current action | New place | Done |

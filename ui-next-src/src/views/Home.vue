@@ -7,9 +7,9 @@ import { post } from '../api.js';
 import { t, tn } from '../i18n.js';
 import { app, loadApp, loadGames } from '../state.js';
 
-const emit = defineEmits(['prepare']);
+const emit = defineEmits(['prepare', 'opened']);
 
-/* Home: the library of games, what needs attention (the licence), and the way into a game. The screens of a game are still the classic ones, so opening a game continues there. */
+/* Home: the library of games, what needs attention (the licence), and the way into a game. The screens of a game are still the classic ones, so opening a game goes to its Overview. */
 const query = ref('');
 const sort = ref('recent');
 const adding = ref(false);
@@ -50,7 +50,8 @@ async function open(game) {
   busy.value = true; message.value = '';
   try {
     await post('project/set', { path: game.path });
-    location.href = '/';           // the screens of a game are the classic ones for now
+    emit('opened', game);
+    busy.value = false;
   } catch (e) { message.value = e.message; busy.value = false; }
 }
 async function pin(game) { try { await post('library/pin', { path: game.path, pinned: !game.pinned }); } catch (e) { message.value = e.message; } await loadGames(); }
