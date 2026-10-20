@@ -2086,6 +2086,7 @@
   "Remove this filter": "Zrušit tento filtr",
   "Speaker: all": "Mluvčí: všichni",
   "The fixes are in the Tools menu of the lines": "Opravy jsou v nabídce Nástroje u řádků",
-  "News": "Novinky"
+  "News": "Novinky",
+  "Every one shows a preview first; nothing is written until you confirm, and a change can be undone.": "Každá nejdřív ukáže náhled; nic se nezapíše, dokud nepotvrdíš, a změnu jde vrátit."
  }
 }

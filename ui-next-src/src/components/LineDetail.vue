@@ -104,7 +104,7 @@ function wrap(open_, close_) {
 const SNIPS = [
   ['{i}…', () => wrap('{i}', '{/i}'), 'Italic – wraps the selected text'], ['{b}…', () => wrap('{b}', '{/b}'), 'Bold'], ['{u}…', () => wrap('{u}', '{/u}'), 'Underlined'],
   ['{w}', () => insert('{w}'), 'Pause, waits for a click'], ['{p}', () => insert('{p}'), 'A new paragraph with a pause'], ['{nw}', () => insert('{nw}'), 'No waiting for a click'],
-  ['\\n', () => insert('\\n'), 'Line break (written as \\n in the game text)'], ['…', () => insert('…'), 'Three dots as one character'], ['„ “', () => wrap('„', '“'), 'Czech quotation marks – wraps the selected text'],
+  ['\\n', () => insert('\\n'), 'Line break (written as \\n in the game text)'], ['…', () => insert('…'), 'Three dots as one character'],
 ];
 function key(ev) {
   if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); save(true); }

@@ -8,6 +8,7 @@ import Overview from './views/Overview.vue';
 import Files from './views/Files.vue';
 import Lines from './views/Lines.vue';
 import Team from './views/Team.vue';
+import ToolsScreen from './views/ToolsScreen.vue';
 import { t } from './i18n.js';
 import { app, loadApp, loadGames } from './state.js';
 import { loadOverview, loadTeam, project } from './project.js';
@@ -19,11 +20,11 @@ const view = ref('home');          // home | prepare | overview | files | lines
 const prepPath = ref('');
 function prepare(path) { prepPath.value = path || ''; view.value = 'prepare'; }
 function home() { view.value = 'home'; loadGames(); }
-const PROJECT_VIEWS = ['overview', 'files', 'lines', 'team'];
+const PROJECT_VIEWS = ['overview', 'files', 'lines', 'tools', 'team'];
 const inProject = computed(() => PROJECT_VIEWS.includes(view.value));
 async function opened() { view.value = 'overview'; loadTeam(); try { await loadOverview(); } catch { /* the screen shows the error itself */ } }
 const projectName = computed(() => project.overview?.project?.name || project.overview?.project?.dir || '');
-const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['team', () => t('Team'), '☺']];
+const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['tools', () => t('Tools'), '⚒'], ['team', () => t('Team'), '☺']];
 const CLASSIC = [() => t('Check'), () => t('Glossary'), () => t('Publishing'), () => t('Settings')];
 let seen = false;
 try { seen = sessionStorage.getItem('aside.splash') === '1'; } catch { /* no storage: the animation plays */ }
@@ -67,6 +68,7 @@ onMounted(loadApp);
           <Overview v-else-if="view === 'overview'" @go="view = $event" />
           <Files v-else-if="view === 'files'" @go="view = $event" />
           <Lines v-else-if="view === 'lines'" @go="view = $event" />
+          <ToolsScreen v-else-if="view === 'tools'" />
           <Team v-else-if="view === 'team'" />
         </div>
       </div>
