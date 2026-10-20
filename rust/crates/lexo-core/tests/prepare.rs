@@ -97,7 +97,8 @@ fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_s
     let plan = app.prepare_plan(&a.to_string_lossy(), "copy", "").unwrap();
     assert_eq!(
         plan["workspace"].as_str().unwrap().replace('\\', "/"),
-        format!("{}-aside", a.to_string_lossy().replace('\\', "/")),
+        // the application works with resolved paths (on Windows a short temp path such as RUNNER~1 becomes the long one), so the expected path is resolved too
+        format!("{}-aside", lexo_core::fsutil::resolve(&a).to_string_lossy().replace('\\', "/")),
         "the copy is beside the game: {plan}"
     );
     assert_eq!((plan["links"].clone(), plan["enough"].clone()), (true.into(), true.into()), "the same disk: linked, little to copy: {plan}");
