@@ -49,6 +49,8 @@ Every `POST` needs the session token (the header the page sends); the answers ar
 | `POST library/pin` | `{path, pinned}` | pin or unpin a card | |
 | `POST prepare/inspect` | `{path}` | what is in the game and what is missing, `ready` | |
 | `POST prepare/unrpyc` | `{path}` | remember where `unrpyc.py` is | |
+| `POST prepare/sdk` | `{path}` | remember the folder of a Ren'Py SDK (for a game without an engine of its own) | |
+| `POST prepare/sdk_download` | `{family}` (`py3` = Ren'Py 8, `py2` = Ren'Py 7) | download the official SDK as a job: `{job}`; progress in `prepare/status` (`result.received/total`); the UI asks the user first | |
 | `POST prepare/start` | `{path, language}` | start preparing the game as a job: `{job}` | |
 | `POST prepare/status` | `{job}` | `{current, steps, done, success, error, result}` | |
 | `POST git/state` | | `{available, repo, branch, remote, upstream, behind, ahead, changes}`: git in the translation folder (no change is made) | |

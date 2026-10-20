@@ -1999,7 +1999,6 @@
   "Scripts: {a} as text, {b} only as bytecode; archives: {c}.": "Skripty: {a} jako text, {b} jen jako bytekód; archivy: {c}.",
   "Steps": "Kroky",
   "The game has its own engine, so nothing else is needed to write the translation.": "Hra má vlastní engine, takže k vytvoření překladu nic dalšího není potřeba.",
-  "The game has no engine of its own (no program of the game with its .py file and a lib folder beside it), so it cannot be prepared here.": "Hra nemá vlastní engine (vedle není program hry s jejím souborem .py a složka lib), takže se tady připravit nedá.",
   "The game itself creates the files of the translation.": "Soubory překladu vytvoří samotná hra.",
   "The scripts inside .rpa files.": "Skripty uvnitř souborů .rpa.",
   "The translation is ready: {n} file.|The translation is ready: {n} files.": [
@@ -2056,6 +2055,24 @@
   "The working copy must not be inside the game folder.": "Pracovní kopie nesmí být uvnitř složky hry.",
   "The working copy cannot go there: {path} is a file.": "Pracovní kopie tam jít nemůže: {path} je soubor.",
   "There is not enough room on that disk for the working copy: it needs about {need} and {free} is free. Choose a folder on a disk with more room, or work in the game itself (without a copy).": "Na tom disku není dost místa pro pracovní kopii: potřebuje asi {need}, volných je {free}. Vyber složku na disku s více místem, nebo pracuj přímo ve hře (bez kopie).",
-  "The scripts are read with unrpyc, which comes with Aside (version {v}).": "Skripty se čtou programem unrpyc, který je součástí Aside (verze {v})."
+  "The scripts are read with unrpyc, which comes with Aside (version {v}).": "Skripty se čtou programem unrpyc, který je součástí Aside (verze {v}).",
+  "The game has no engine of its own, so a Ren'Py SDK is needed to prepare it: choose the folder of one, or let Aside download it.": "Hra nemá vlastní engine, takže k přípravě je potřeba Ren'Py SDK: vyber složku s jedním, nebo ho nech stáhnout Aside.",
+  "The Ren'Py SDK is used to write the translation: {path}": "Překlad zapisuje Ren'Py SDK: {path}",
+  "A Ren'Py SDK is the program that writes the translation. This game does not carry one, so choose the folder of an SDK you already have, or let Aside download one from renpy.org.": "Ren'Py SDK je program, který překlad zapíše. Tahle hra ho s sebou nemá, takže vyber složku SDK, které už máš, nebo nech Aside jedno stáhnout z renpy.org.",
+  "Folder of the Ren'Py SDK": "Složka Ren'Py SDK",
+  "Checking the download…": "Kontroluji stažený soubor…",
+  "Unpacking…": "Rozbaluji…",
+  "Downloading… {percent} %": "Stahuji… {percent} %",
+  "Download the SDK": "Stáhnout SDK",
+  "Aside will download Ren'Py {version} (about {size}) from renpy.org into its settings folder and check its checksum. Continue?": "Aside stáhne Ren'Py {version} (asi {size}) z renpy.org do své složky s nastavením a zkontroluje jeho kontrolní součet. Pokračovat?",
+  "Download": "Stáhnout",
+  "Download Ren'Py {version} ({size})": "Stáhnout Ren'Py {version} ({size})",
+  "A Ren'Py SDK was not found there: {path}": "Ren'Py SDK tam nebylo nalezeno: {path}",
+  "This kind of SDK is not known: {family}": "Tenhle druh SDK neznám: {family}",
+  "There is not enough room for the SDK on the disk of the settings: it needs about {need} and {free} is free.": "Na disku s nastavením není pro SDK dost místa: potřebuje asi {need} a volných je {free}.",
+  "The download failed: {reason}": "Stažení se nezdařilo: {reason}",
+  "The checksum of the download could not be found.": "Kontrolní součet stahovaného souboru se nepodařilo najít.",
+  "The download is damaged (the checksum does not match). Try again.": "Stažený soubor je poškozený (kontrolní součet nesedí). Zkus to znovu.",
+  "The SDK could not be unpacked: {reason}": "SDK se nepodařilo rozbalit: {reason}"
  }
 }
