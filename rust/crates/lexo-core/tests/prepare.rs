@@ -8,6 +8,9 @@ use serde_json::Value;
 use std::path::Path;
 use std::time::{Duration, Instant};
 
+/// The jobs are global (one at a time), so the tests of this file run one after the other.
+static ONE_AT_A_TIME: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 fn app_in(tmp: &Path) -> App {
     let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let mut config = Config::new(Some(&tmp.join("cfg/config.json")));
@@ -66,6 +69,7 @@ fn wait(app: &App, job: &str) -> Value {
 
 #[test]
 fn a_game_is_inspected_refused_when_it_cannot_be_prepared_and_prepared_step_by_step() {
+    let _one = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = std::env::temp_dir().join(format!("prepare-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&tmp);
     let mut app = app_in(&tmp);
@@ -217,6 +221,7 @@ fn tampered_fetch(url: &str, dest: &Path, progress: &dyn Fn(u64, u64)) -> Result
 
 #[test]
 fn a_game_without_an_engine_uses_an_sdk_that_fits_or_offers_to_download_one() {
+    let _one = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = std::env::temp_dir().join(format!("prepare-sdk-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&tmp);
     let mut app = app_in(&tmp);
@@ -260,6 +265,7 @@ fn a_game_without_an_engine_uses_an_sdk_that_fits_or_offers_to_download_one() {
 
 #[test]
 fn the_sdk_is_downloaded_checked_and_unpacked() {
+    let _one = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = std::env::temp_dir().join(format!("prepare-dl-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&tmp);
     let mut app = app_in(&tmp);
@@ -291,6 +297,7 @@ fn the_sdk_is_downloaded_checked_and_unpacked() {
 #[test]
 #[ignore]
 fn real_sdk_download() {
+    let _one = ONE_AT_A_TIME.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = std::env::temp_dir().join(format!("prepare-real-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&tmp);
     let mut app = app_in(&tmp);
