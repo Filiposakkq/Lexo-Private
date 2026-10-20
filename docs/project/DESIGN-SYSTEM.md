@@ -62,7 +62,7 @@ Every component has: default, hover, focus (a visible ring), disabled; and where
 |---|---|---|
 | Button | `.btn` + `.primary` `.ghost` `.danger` `.sm` | one `.primary` per view; a destructive action is `.danger` and asks first |
 | Filter | `.chip` `.chip.on` | a control: toggles a filter; the active one is in the accent |
-| State | `.pill` + `.todo` `.ok` `.checked` `.danger` `.none` | only tells; the same word and colour for the same state everywhere |
+| State | `.pill` + `.todo` `.ok` `.approved` `.checked` `.danger` `.none` | only tells; the same word and colour for the same state everywhere (`.approved` is an outline, so it differs from `.ok` and stays visible on a selected row) |
 | Badge | `.badge` | a count that wants attention (errors, news); hidden at zero |
 | Pro tag | `.tag-pro` | on a Pro feature; a lock in Free |
 | Card | `.card` `.hero` `.active` | the basic surface; a title with an optional link on the right |

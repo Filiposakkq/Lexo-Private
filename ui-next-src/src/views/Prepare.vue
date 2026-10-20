@@ -6,7 +6,7 @@ import { t, tn } from '../i18n.js';
 /* The guide to prepare a game: look at the game, then (as a job that runs on its own) make a working copy, unpack the archives, read the scripts (unrpyc) when needed, and let the game write
    its translation. The game is only read. When it is done the translation folder is put on Home and can be opened. */
 const props = defineProps({ path: { type: String, default: '' } });
-const emit = defineEmits(['back', 'done']);
+const emit = defineEmits(['back', 'done', 'opened']);
 
 const path = ref(props.path);
 const language = ref('czech');
@@ -125,7 +125,7 @@ async function poll(job) {
   } catch (e) { clearInterval(timer); error.value = e.message; phase.value = 'failed'; }
 }
 async function open() {
-  try { await post('project/set', { path: result.value.folder }); location.href = '/'; } catch (e) { error.value = e.message; }
+  try { await post('project/set', { path: result.value.folder }); emit('opened'); } catch (e) { error.value = e.message; }
 }
 onMounted(look);
 onBeforeUnmount(() => { clearInterval(timer); clearInterval(dlTimer); });

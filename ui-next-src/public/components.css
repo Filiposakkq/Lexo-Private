@@ -11,6 +11,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ---- buttons: one .primary per view */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); height: var(--h-control); padding: 0 var(--s-4); border-radius: var(--r-md); border: 1px solid var(--line); background: transparent; color: var(--text-2); cursor: pointer; transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease); white-space: nowrap; }
+a.btn { text-decoration: none; }
 .btn:hover { background: var(--bg-hover); border-color: var(--line-accent); color: var(--text); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 500; }
 .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
@@ -28,6 +29,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pill { display: inline-block; padding: 1px var(--s-2); border-radius: var(--r-pill); font-size: var(--fs-caption); line-height: 1.6; text-align: center; white-space: nowrap; }
 .pill.todo { background: var(--todo-bg); color: var(--todo); }
 .pill.ok { background: var(--ok-bg); color: var(--accent-text); }
+.pill.approved { background: transparent; box-shadow: inset 0 0 0 1px var(--line-accent); color: var(--accent-text); }
 .pill.checked { background: var(--checked-bg); color: var(--checked); }
 .pill.danger { background: var(--danger-bg); color: var(--danger); }
 .pill.none { background: var(--bg-hover); color: var(--text-muted); }
