@@ -9,6 +9,8 @@ import Files from './views/Files.vue';
 import Lines from './views/Lines.vue';
 import Check from './views/Check.vue';
 import Glossary from './views/Glossary.vue';
+import Publish from './views/Publish.vue';
+import Settings from './views/Settings.vue';
 import Team from './views/Team.vue';
 import ToolsScreen from './views/ToolsScreen.vue';
 import { t } from './i18n.js';
@@ -22,12 +24,12 @@ const view = ref('home');          // home | prepare | overview | files | lines
 const prepPath = ref('');
 function prepare(path) { prepPath.value = path || ''; view.value = 'prepare'; }
 function home() { view.value = 'home'; loadGames(); }
-const PROJECT_VIEWS = ['overview', 'files', 'lines', 'check', 'glossary', 'tools', 'team'];
+const PROJECT_VIEWS = ['overview', 'files', 'lines', 'check', 'glossary', 'tools', 'team', 'publish', 'settings'];
 const inProject = computed(() => PROJECT_VIEWS.includes(view.value));
 async function opened() { view.value = 'overview'; loadTeam(); try { await loadOverview(); } catch { /* the screen shows the error itself */ } }
 const projectName = computed(() => project.overview?.project?.name || project.overview?.project?.dir || '');
-const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['check', () => t('Check'), '✓'], ['glossary', () => t('Glossary'), 'Aa'], ['tools', () => t('Tools'), '⚒'], ['team', () => t('Team'), '☺']];
-const CLASSIC = [() => t('Publishing'), () => t('Settings')];
+const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['check', () => t('Check'), '✓'], ['glossary', () => t('Glossary'), 'Aa'], ['tools', () => t('Tools'), '⚒'], ['team', () => t('Team'), '☺'], ['publish', () => t('Publishing'), '⇪'], ['settings', () => t('Settings'), '⚙']];
+function openSettings() { if (project.overview) view.value = 'settings'; }
 let seen = false;
 try { seen = sessionStorage.getItem('aside.splash') === '1'; } catch { /* no storage: the animation plays */ }
 if (seen) splash.value = false;
@@ -47,7 +49,7 @@ onMounted(loadApp);
       <a class="rail-item" :class="{ on: view === 'prepare' }" href="#" :title="t('Prepare a game')" :aria-current="view === 'prepare' ? 'page' : null" @click.prevent="prepare()">⚒</a>
       <a class="rail-item" href="/" :title="t('The rest of the application is in the classic interface for now')">☰</a>
       <span class="grow"></span>
-      <a class="rail-item" href="/" :title="t('Settings (in the classic interface for now)')">⚙</a>
+      <a class="rail-item" :class="{ on: view === 'settings' }" href="#" :title="t('Settings')" @click.prevent="openSettings">⚙</a>
     </nav>
     <div class="main">
       <header class="topbar">
@@ -61,8 +63,6 @@ onMounted(loadApp);
         <nav v-if="inProject" class="nav" :aria-label="t('Game menu')">
           <div class="game" :title="projectName">{{ projectName }}</div>
           <a v-for="[k, label, glyph] in MENU" :key="k" class="nav-item" :class="{ on: view === k }" href="#" :aria-current="view === k ? 'page' : null" @click.prevent="view = k"><span aria-hidden="true">{{ glyph }}</span>{{ label() }}</a>
-          <hr class="sep">
-          <a v-for="(label, i) in CLASSIC" :key="i" class="nav-item" href="/" :title="t('This screen is in the classic interface for now')">{{ label() }}</a>
         </nav>
         <div class="screen-host">
           <Home v-if="view === 'home'" @prepare="prepare" @opened="opened" />
@@ -72,6 +72,8 @@ onMounted(loadApp);
           <Lines v-else-if="view === 'lines'" @go="view = $event" />
           <Check v-else-if="view === 'check'" @go="view = $event" />
           <Glossary v-else-if="view === 'glossary'" @go="view = $event" />
+          <Publish v-else-if="view === 'publish'" @go="view = $event" />
+          <Settings v-else-if="view === 'settings'" @go="view = $event" />
           <ToolsScreen v-else-if="view === 'tools'" />
           <Team v-else-if="view === 'team'" />
         </div>
