@@ -76,32 +76,43 @@ watch(f, change, { deep: true });
 
 /* Is the Scene tab the one shown? (the last tab chosen is remembered; with none chosen the detail opens on the scene when the line has no findings) */
 function wantsScene() { try { const k = localStorage.getItem('aside.detailTab') || ''; return k === 'scene' || k === ''; } catch { return true; } }
+/* Choosing a line. Moving fast (a key held down, many clicks) must feel at least as quick as the classic list, so:
+   - only the last choice counts: an answer for a line that is no longer the chosen one is thrown away (the row is highlighted at once, the detail follows the last row);
+   - the line itself is fetched first (a few milliseconds); the heavier parts (the picture of the scene, the scenes of the file, the menu) are asked for only once the line has arrived and is still
+     the chosen one, so a run of presses does not flood the server with requests for lines that are skipped;
+   - the detail waits for those parts a quarter of a second when you stop, but only a moment while you are moving fast;
+   - the position is told to the other window after a short pause, not for every line that is passed. */
+let selSeq = 0, lastSelAt = 0, focusT = null;
+const pause = (ms) => new Promise((r) => setTimeout(r, ms));
 async function select(i) {
   if (i < 0 || i >= items.value.length) return;
   if (ld.value && ld.value.dirty && !window.confirm(t('You changed the text of this line and did not save it. Discard the changes?'))) return;
   sel.value = i;
+  const my = ++selSeq, at = performance.now(), fast = at - lastSelAt < 350;
+  lastSelAt = at;
   const it = items.value[i];
+  nextTick(keepRowVisible);
   try {
     const scroller = scrollerOf(); const top = scroller ? scroller.scrollTop : 0;      // the panel keeps its place when the next line opens (the new line has its tabs still loading, so the content is short for a moment)
-    // the Scene tab shows the picture and the lines around: they are fetched together with the line, so the new line appears complete and nothing loads after it
-    const entry = get('entry', { file: it.file, line: it.line });
-    const ahead = [scenesOf(it.file), entry.then((d) => (d.unit !== 'string' && d.ref ? menuOf(it.file, it.line) : null))];     // the strip of scenes and the Menu tab are there with the line
+    const d = await get('entry', { file: it.file, line: it.line });
+    if (my !== selSeq) return;
+    const ahead = [scenesOf(it.file)];                                                  // the strip of scenes and the Menu tab are there with the line
+    if (d.unit !== 'string' && d.ref) ahead.push(menuOf(it.file, it.line));
     if (peekMt() === null) ahead.push(mtOn());
     if (wantsScene()) ahead.push(prefetchAll(it.file, it.line, sceneRadius()).catch(() => {}));
-    // A line nobody opened yet can take seconds on the server (the first scene of a file, the index of the pictures). The detail waits a moment for what is quick, so a
-    // line you have seen appears complete; for the rest it opens at once and the parts fill in the room kept for them.
-    await Promise.race([Promise.all(ahead).catch(() => {}), new Promise((r) => setTimeout(r, 250))]);
-    detail.value = await entry;
+    // A line nobody opened yet can take seconds on the server (the first scene of a file, the index of the pictures): the detail waits a moment for what is quick, and opens without the rest.
+    await Promise.race([Promise.all(ahead).catch(() => {}), pause(fast ? 40 : 250)]);
+    if (my !== selSeq) return;
+    detail.value = d;
     await nextTick();
     holdScroll(scroller, top);
     try { localStorage.setItem('aside.last', JSON.stringify({ file: it.file, line: it.line })); } catch { /* only for the Continue button */ }
-    post('focus', { file: it.file, line: it.line }).catch(() => {});
-    await nextTick();
-    keepRowVisible();
+    clearTimeout(focusT);
+    focusT = setTimeout(() => { post('focus', { file: it.file, line: it.line }).catch(() => {}); }, 150);
     const nx = items.value[i + 1];
     if (nx && wantsScene() && prefetchStats.ms < 400) setTimeout(() => { if (sel.value === i) prefetchAll(nx.file, nx.line, sceneRadius()).catch(() => {}); }, 400);      // the next line is ready when you get there
     if (i >= items.value.length - 15 && offset.value + items.value.length < total.value) load(false);
-  } catch (e) { error.value = e.message; detail.value = null; }
+  } catch (e) { if (my === selSeq) { error.value = e.message; detail.value = null; } }
 }
 /* After a new line replaced the old one: put the panel back where it was, and keep doing so while the content grows (the tabs fetch their data), until the user scrolls. */
 let holdOff = null;
@@ -235,7 +246,7 @@ onMounted(async () => {
   try { if (!project.files) await loadFiles(); } catch (e) { error.value = e.message; }
   load(true);
 });
-onBeforeUnmount(() => { if (stale) refreshNumbers(); if (offKeys) offKeys(); window.removeEventListener('aside:reload', reloadList); clearTimeout(timer); });
+onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (offKeys) offKeys(); window.removeEventListener('aside:reload', reloadList); clearTimeout(timer); });
 </script>
 
 <template>
