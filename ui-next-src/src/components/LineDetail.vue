@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
 import { contextFor, menuOf, mtOn, peekContext, peekMenu, peekMt, peekScenes, sceneRadius, scenesOf, setSceneRadius } from '../gamewindow.js';
 import { t, tn } from '../i18n.js';
@@ -12,10 +12,16 @@ import GamePreview from './GamePreview.vue';
 import FilmStrip from './FilmStrip.vue';
 import MenuPanel from './MenuPanel.vue';
 import MtDialog from './MtDialog.vue';
+import { Q, announceDraft, setSlim, win } from '../win.js';
 
 /* The detail of a line: the original, the editor (tags, missing variables, glossary terms, machine suggestion, live check), the progress of its file with the jumps
    (scenes, next untranslated / unchecked / too long) and the tabs Check, Proofreading, Menu, Scene, Memory, History and Script. */
-const props = defineProps({ detail: { type: Object, required: true }, position: { type: Object, default: () => ({ i: 0, n: 0 }) }, layout: { type: String, default: '' }, quick: { type: String, default: '' } });
+const props = defineProps({ detail: { type: Object, required: true }, position: { type: Object, default: () => ({ i: 0, n: 0 }) }, layout: { type: String, default: '' }, quick: { type: String, default: '' }, companion: Boolean, slim: Boolean });
+/* companion: the detail window next to the main one (the scene, the checks; the editor only when you ask for it). slim: the main window while a detail window is open (only the original and the editor). */
+const showPair = computed(() => !props.companion || win.editor);
+const slimmed = computed(() => props.slim && !props.companion && props.layout !== 'film');
+const fullScene = computed(() => props.companion && win.full);
+const showTabs = computed(() => !slimmed.value && !fullScene.value);
 const film = computed(() => props.layout === 'film');          // the scene and the film strip: the picture over the editor, the original beside it, the strip of lines under them
 const emit = defineEmits(['updated', 'goto', 'step', 'advance', 'error', 'approve', 'proof']);
 
@@ -36,14 +42,16 @@ const radius = ref(sceneRadius());             // how many lines around the open
 const data = ref({});              // what the tabs fetched: scene, memory, history, context, menu
 let checkTimer = null;
 
-function storedTab() { try { return localStorage.getItem('aside.detailTab') || ''; } catch { return ''; } }
+/* the second window keeps its own tab (it starts on the one the address asks for), so choosing a tab there does not change the main window */
+function tabKey() { return props.companion ? 'aside.detailTabWin' : 'aside.detailTab'; }
+function storedTab() { try { return localStorage.getItem(tabKey()) || (props.companion ? Q.get('tab') || '' : ''); } catch { return ''; } }
 function storedMode() { try { return localStorage.getItem('aside.sceneMode') === 'bubbles' ? 'bubbles' : 'table'; } catch { return 'table'; } }
 function setMode(k) { sceneMode.value = k; try { localStorage.setItem('aside.sceneMode', k); } catch { /* only for this page */ } }
 /* The speaker as the lists show it: the full name from the glossary and the code, or the code alone. */
 const code = (who) => String(who || '').trim().split(/\s+/)[0];
 const speaker = (who) => { const n = project.names[code(who)]; return n ? `${n} · ${who}` : who || '—'; };
 const speakerColor = (who) => { let hue = 0; for (const ch of code(who)) hue = (hue * 31 + ch.charCodeAt(0)) % 360; return code(who) ? `hsl(${hue} 55% 52%)` : ''; };
-function setTab(k) { tab.value = k; try { localStorage.setItem('aside.detailTab', k); } catch { /* the choice is only remembered while the page lives */ } loadTab(); }
+function setTab(k) { tab.value = k; try { localStorage.setItem(tabKey(), k); } catch { /* the choice is only remembered while the page lives */ } loadTab(); }
 
 const d = computed(() => props.detail);
 const dirty = computed(() => text.value !== d.value.target);
@@ -57,7 +65,7 @@ const TABS = computed(() => [
   ['check', open.value.length ? t('Check ({n})', { n: open.value.length }) : t('Check')],
   ['proof', t('Proofreading')],
   ...((isChoice.value && d.value.ref) || menuAvail.value ? [['menu', t('Menu')]] : []),
-  ...(film.value ? [] : [['scene', t('Scene')]]), ['memory', t('Memory')], ['history', t('History')],
+  ...(film.value ? [] : [['scene', t('Scene')]]), ...(props.companion && !win.editor ? [] : [['memory', t('Memory')], ['history', t('History')]]),
   ...(project.team && project.team.exists ? [['team', t('Team')]] : []),
   ['script', t('Script')],
 ]);
@@ -84,6 +92,7 @@ async function checkMenu() {
 }
 
 watch(text, () => {
+  if (!props.companion && win.companionOpen) announceDraft(d.value.file, d.value.line, text.value);        // the second window shows what is being typed
   clearTimeout(checkTimer);
   if (!dirty.value) { live.value = null; return; }
   const line = d.value;
@@ -91,7 +100,10 @@ watch(text, () => {
     try { const r = await post('entry/check', { file: line.file, line: line.line, text: text.value }); if (props.detail === line) live.value = r; } catch { /* the live check is only a hint */ }
   }, 300);
 });
-onBeforeUnmount(() => clearTimeout(checkTimer));
+/* in the second window without an editor, the text typed in the main window is what its preview shows */
+const onDraft = (e) => { if (props.companion && !win.editor) text.value = e.detail; };
+onMounted(() => window.addEventListener('aside:draft', onDraft));
+onBeforeUnmount(() => { clearTimeout(checkTimer); window.removeEventListener('aside:draft', onDraft); });
 
 
 /* ---- the tabs fetch their data only when they are shown */
@@ -217,22 +229,23 @@ const diff = (before, after) => {
       <span class="pill" :class="pillOf(d.status)">{{ lineState(d.status) }}<template v-if="d.kind && d.status !== 'translated'"> · {{ lineKind(d.kind) }}</template></span>
       <template v-if="d.status !== 'todo'"><span v-if="d.proof === 'ok'" class="pill checked">{{ t('✓ Proofread') }}</span><span v-else-if="d.proof === 'fix'" class="pill todo">{{ t('⚑ needs a fix') }}</span><span v-else-if="d.proof === 'stale'" class="pill none">{{ t('↻ changed after proofreading') }}</span><span v-else class="pill none">{{ t('Not proofread') }}</span></template>
     </div>
-    <div class="actions top">
+    <div v-if="!companion" class="actions top">
       <button v-if="d.status !== 'translated' && d.kind !== 'empty'" class="btn primary" @click="approve">{{ d.status === 'approved' ? t('Unapprove (A)') : t('Approve (A)') }}</button>
       <button class="btn" :title="t('Opens the file at this line in an external editor')" @click="openEditor">{{ t('Editor (E)') }}</button>
       <div class="menu-wrap">
         <button class="btn" :aria-expanded="menuOpen" :title="t('More actions with the line')" @click="menuOpen = !menuOpen" @blur="menuOpen = false">{{ t('More') }} ▾</button>
         <div v-if="menuOpen" class="menu" role="menu" @mousedown.prevent>
           <div v-if="d.status !== 'translated' && d.kind !== 'empty'" class="menu-item" role="menuitem" @click="identical = true; menuOpen = false">{{ t('Approve all identical…') }}<span class="faint">Shift+A</span></div>
+          <div v-if="win.companionOpen && !companion" class="menu-item" role="menuitem" @click="setSlim(!win.slim); menuOpen = false">{{ win.slim ? t('Show the tabs in this window too') : t('Tabs only in the second window') }}</div>
           <div class="menu-item" role="menuitem" @click="copy(d.path + ':' + d.line); menuOpen = false">{{ t('Copy the path') }}</div>
           <div class="menu-item" role="menuitem" @click="undoLast(); menuOpen = false">{{ t('↶ Undo the last file change') }}</div>
         </div>
       </div>
     </div>
 
-    <GamePreview v-if="film" class="o-prev" big :detail="d" :text="text" />
+    <GamePreview v-if="film || fullScene" class="o-prev" big :detail="d" :text="text" />
 
-    <div class="filestrip">
+    <div v-if="!companion" class="filestrip">
       <div class="fsname" :title="d.file">{{ baseName(d.file) }}</div>
       <template v-if="fileRow">
         <div class="fsb"><span>{{ t('Translated {n} %', { n: Math.round(pctOf(fileRow.done, fileRow.total)) }) }}</span><div class="bar"><i :style="{ width: pctOf(fileRow.done, fileRow.total) + '%' }"></i></div><span class="muted">{{ t('{n} left to translate', { n: fmtN(fileRow.todo) }) }}</span></div>
@@ -256,7 +269,7 @@ const diff = (before, after) => {
       </div>
     </div>
 
-    <div class="pair">
+    <div v-if="showPair" class="pair">
     <div class="col">
     <div class="head"><h4>{{ t('Original') }}</h4><span><button class="btn small ghost" :title="t('Copies the original text to the clipboard')" @click="copy(d.source ?? '')">{{ t('⧉ Original') }}</button>
       <button class="btn small ghost" :title="t('Copies the original and the translation one under the other')" @click="copy((d.source ?? '') + '\n' + text)">{{ t('⧉ Both') }}</button></span></div>
@@ -303,8 +316,9 @@ const diff = (before, after) => {
     <FilmStrip v-if="film" class="o-strip" :detail="d" :radius="radius" @goto="emit('goto', $event)" />
     <Fold v-if="film && menuAvail && data.menu && data.menu !== 'loading' && data.menu.available" id="filmmenu" class="o-menu"><template #title>{{ t('Menu') }}</template><MenuPanel :menu="data.menu" @goto="emit('goto', $event)" /></Fold>
 
-    <div v-if="!quick" class="tabs" role="tablist"><button v-for="[k, label] in TABS" :key="k" class="tab" :class="{ on: current === k, warn: k === 'check' && open.length }" role="tab" :aria-selected="current === k" @click="setTab(k)">{{ label }}</button></div>
-    <div v-if="quick !== 'tr'" class="pane" role="tabpanel">
+    <div v-if="slimmed" class="slimnote muted small">{{ t('The scene, check, proofreading and other tabs are in the second window. ') }}<button class="btn small ghost" @click="setSlim(false)">{{ t('Show them here too') }}</button></div>
+    <div v-if="!quick && showTabs" class="tabs" role="tablist"><button v-for="[k, label] in TABS" :key="k" class="tab" :class="{ on: current === k, warn: k === 'check' && open.length }" role="tab" :aria-selected="current === k" @click="setTab(k)">{{ label }}</button></div>
+    <div v-if="quick !== 'tr' && showTabs" class="pane" role="tabpanel">
       <template v-if="current === 'check'">
         <div v-if="issues.length">
           <div v-for="x in issues" :key="x.code" class="issue" :class="{ ignored: x.ignored }">
@@ -432,6 +446,7 @@ const diff = (before, after) => {
 <style scoped>
 .ld { display: flex; flex-direction: column; gap: var(--s-2); }
 .pair { display: flex; flex-direction: column; gap: var(--s-2); }
+.slimnote { padding: var(--s-2) var(--s-3); border: 1px dashed var(--line); border-radius: var(--r-md); }
 .col { display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
 /* the scene and film strip layout: the picture first, the original beside the editor, the file, the strip, the menu, then the tabs */
 .film .dhead { order: 1; } .film .top { order: 2; } .film .o-prev { order: 3; } .film .pair { order: 4; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-4); }

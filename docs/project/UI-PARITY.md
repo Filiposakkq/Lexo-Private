@@ -9,7 +9,7 @@ Generated from the sources of the current UI (`rust/resources/ui-classic/js`); 3
 
 ## State (filled by comparing the texts of the classic interface with the new one, then by hand)
 
-**321 of 324 actions have their place in the new interface.** The 3 that are left are the second window (*Scene and detail*, *Scene over the whole window*, *Show them here too*). The rows marked (#126) are in the pull request of the keyboard and the licence and count once it is merged. A row is ticked when the same text is used by the new interface or when its place was checked by hand; this is a check of the actions, not of how each one behaves, which the tests and the browser checks of each pull request cover.
+**324 of 324 actions have their place in the new interface.** The rows marked (#126) are in the pull request of the keyboard and the licence and count once it is merged. A row is ticked when the same text is used by the new interface or when its place was checked by hand; this is a check of the actions, not of how each one behaves, which the tests and the browser checks of each pull request cover.
 
 ## Přehled (`20-overview.js`)
 
@@ -119,9 +119,9 @@ Generated from the sources of the current UI (`rust/resources/ui-classic/js`); 3
 | Show the list (Zobrazit seznam) | ResultsBar (the film layout) | ☑ |
 | Previous line (←) (Předchozí řádek (←)) | ResultsBar (the film layout) | ☑ |
 | Next line (→) (Další řádek (→)) | ResultsBar (the film layout) | ☑ |
-| Show them here too (Ukázat je i tady) | **not built:** second window | ☐ |
-| Scene and detail (Scéna a detail) | **not built:** second window | ☐ |
-| Scene over the whole window (Scéna přes celé okno) | **not built:** second window | ☐ |
+| Show them here too (Ukázat je i tady) | Lines + `src/win.js` (the second window) | ☑ |
+| Scene and detail (Scéna a detail) | Lines + `src/win.js` (the second window) | ☑ |
+| Scene over the whole window (Scéna přes celé okno) | Lines + `src/win.js` (the second window) | ☑ |
 | Stop ignoring (Přestat ignorovat) | LineDetail, Check | ☑ |
 | Hides this finding on this line (can be undone) (Schová tenhle nález u tohoto řádku (jde vrátit)) | LineDetail, Check | ☑ |
 | Ignore… (Ignorovat…) | LineDetail, Check | ☑ |

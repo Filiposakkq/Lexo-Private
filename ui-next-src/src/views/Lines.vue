@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { get, post } from '../api.js';
 import { register } from '../keys.js';
 import { ui } from '../layout.js';
+import { COMPANION, Q, announceFocus, openDetailWindow, startFollowing, win } from '../win.js';
 import LayoutMenu from '../components/LayoutMenu.vue';
 import ResultsBar from '../components/ResultsBar.vue';
 import { bumpScene, forgetFileData, menuOf, mtOn, peekMt, prefetchAll, prefetchStats, sceneRadius, scenesOf } from '../gamewindow.js';
@@ -116,8 +117,7 @@ async function select(i) {
     holdScroll(scroller, top);
     if (ui.quick === 'tr') ld.value?.focusEditor();             // quick translating: the editor has the focus
     try { localStorage.setItem('aside.last', JSON.stringify({ file: it.file, line: it.line })); } catch { /* only for the Continue button */ }
-    clearTimeout(focusT);
-    focusT = setTimeout(() => { post('focus', { file: it.file, line: it.line }).catch(() => {}); }, 150);
+    announceFocus(it.file, it.line);
     const nx = items.value[i + 1];
     if (nx && wantsScene() && prefetchStats.ms < 400) setTimeout(() => { if (sel.value === i) prefetchAll(nx.file, nx.line, sceneRadius()).catch(() => {}); }, 400);      // the next line is ready when you get there
     if (i >= items.value.length - 15 && offset.value + items.value.length < total.value) load(false);
@@ -155,6 +155,7 @@ function mirror() {
   Object.assign(it, { target: d.target, status: d.status, proof: d.proof, kind: d.kind, issues: (d.issues || []).filter((x) => x.severity !== 'info').map((x) => ({ severity: x.severity, code: x.code })) });
 }
 async function goto({ file, line }) {
+  if (COMPANION) { followLine(file, line, true); return; }
   const i = items.value.findIndex((x) => x.file === file && x.line === line);
   if (i >= 0) { await select(i); return; }
   if (ld.value && ld.value.dirty && !window.confirm(t('You changed the text of this line and did not save it. Discard the changes?'))) return;
@@ -201,6 +202,7 @@ async function updated(ev = {}) {
   error.value = '';
   try {
     const i = sel.value, d = detail.value;
+    if (COMPANION) { detail.value = await get('entry', { file: d.file, line: d.line }); forgetFileData(); return; }
     if (ev.reload) { forgetFileData(); await load(true); lazyNumbers(); return; }
     detail.value = await get('entry', { file: d.file, line: d.line });
     mirror();
@@ -248,18 +250,59 @@ function refreshNumbers() { clearTimeout(lazyT); stale = false; loadOverview().c
 function lazyNumbers() { stale = true; clearTimeout(lazyT); lazyT = setTimeout(refreshNumbers, 30000); }
 const after = async () => { forgetFileData(); await load(true); lazyNumbers(); };
 
+/* The second window (the detail window): it has no list; it shows the line the main window has open, and what is typed there, and it can be told to stop following. */
+let stopFollowing = null;
+async function openSecond() { try { await openDetailWindow(detail.value ? { file: detail.value.file, line: detail.value.line } : null); } catch (e) { error.value = e.message; } }
+async function followLine(file, line, force) {
+  if (!force && !win.follow) return;
+  const cur = detail.value;
+  if (cur && cur.file === file && cur.line === line) return;
+  if (ld.value && ld.value.dirty) return;                          // what is being typed here is never replaced
+  const my = ++selSeq;
+  try {
+    const d = await get('entry', { file, line });
+    if (my !== selSeq) return;
+    await Promise.race([Promise.all([scenesOf(file), prefetchAll(file, line, sceneRadius()).catch(() => {})]).catch(() => {}), pause(250)]);
+    if (my === selSeq) detail.value = d;
+  } catch (e) { if (my === selSeq) error.value = e.message; }
+}
+function followApply(f) {
+  if (!f || !f.file) return;
+  if (typeof f.text === 'string' && detail.value && detail.value.file === f.file && detail.value.line === f.line) { window.dispatchEvent(new CustomEvent('aside:draft', { detail: f.text })); return; }
+  if (typeof f.text !== 'string') followLine(f.file, f.line);
+}
 onMounted(async () => {
+  if (COMPANION) {
+    loadNames();
+    stopFollowing = startFollowing(followApply);
+    if (Q.get('file') && Q.get('line')) followLine(Q.get('file'), +Q.get('line'), true);
+    else try { const f = await get('focus'); followApply(f); } catch { /* the main window has not chosen a line yet */ }
+    return;
+  }
   offKeys = register(keyHandlers);
   window.addEventListener('aside:reload', reloadList);
   loadNames();
   try { if (!project.files) await loadFiles(); } catch (e) { error.value = e.message; }
   load(true);
 });
-onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (offKeys) offKeys(); window.removeEventListener('aside:reload', reloadList); clearTimeout(timer); });
+onBeforeUnmount(() => { if (stopFollowing) stopFollowing(); clearTimeout(focusT); if (stale) refreshNumbers(); if (offKeys) offKeys(); window.removeEventListener('aside:reload', reloadList); clearTimeout(timer); });
 </script>
 
 <template>
-  <main class="screen" :class="{ focus: ui.focus }">
+  <main v-if="COMPANION" class="screen comp">
+    <div class="followbar" role="toolbar" :aria-label="t('The window shows the line I click in the main window')">
+      <label class="check" :title="t('The window shows the line I click in the main window')"><input v-model="win.follow" type="checkbox"> {{ t(' Follow the main window') }}</label>
+      <label class="check" :title="t('Translate in this window too (otherwise translating is done in the main one and this window shows the scene and the checks)')"><input v-model="win.editor" type="checkbox"> {{ t(' Editor here too') }}</label>
+      <span class="grow"></span>
+      <div class="seg" role="group"><button class="btn small" :class="{ primary: !win.full }" @click="win.full = false">{{ t('Scene and detail') }}</button><button class="btn small" :class="{ primary: win.full }" @click="win.full = true">{{ t('Scene over the whole window') }}</button></div>
+    </div>
+    <div v-if="error" class="notice danger" role="alert">{{ error }}</div>
+    <aside ref="asideEl" class="detail card">
+      <LineDetail v-if="detail" ref="ld" companion :key="detail.file + ':' + detail.line" :detail="detail" @updated="updated" @goto="goto" @error="error = $event" />
+      <p v-else class="muted">{{ t('Select a line. The arrow keys ↑ ↓ move through the lines, {a} approves, {e} opens the editor, {q} shows all shortcuts.', { a: 'A', e: 'E', q: '?' }) }}</p>
+    </aside>
+  </main>
+  <main v-else class="screen" :class="{ focus: ui.focus }">
     <div v-show="!ui.focus" class="toolbar">
       <label class="field search"><input v-model="f.q" type="search" :placeholder="t('Search in the text… (Ctrl+F)')" @input="speaker = ''"></label>
       <label class="check" :title="t('Whole word')"><input type="checkbox" v-model="f.word"> {{ t('Whole word') }}</label>
@@ -269,7 +312,7 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
       <template v-if="picked.size"><span class="muted small">{{ tn(picked.size, 'Selected {n} line', 'Selected {n} lines') }}</span><button class="btn small ghost" @click="picked = new Set()">{{ t('Clear the selection') }}</button><button class="btn small" @click="openMt">{{ t('Translate with a machine…') }}</button></template>
       <span class="grow"></span>
       <span class="muted small">{{ tn(total, '{n} line', '{n} lines', { n: fmtN(total) }) }}</span>
-      <LayoutMenu @quick="$emit('quick', 'tr')" />
+      <LayoutMenu @quick="$emit('quick', 'tr')" @window="openSecond" />
     </div>
     <div v-show="!ui.focus" class="pills" role="group" :aria-label="t('State of the lines')">
       <button v-for="[k, l] in STATUS_OPTS" :key="k" class="chip" :class="{ on: f.status === k }" @click="f.status = k">{{ l }}<span v-if="counts && counts[k] !== undefined" class="faint"> {{ fmtN(counts[k]) }}</span></button>
@@ -318,7 +361,7 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
 
       <aside ref="asideEl" class="detail card">
         <ResultsBar v-if="ui.layout === 'film' && narrowed && total >= 2" :items="items" :total="total" :offset="offset" :sel="sel" :summary="summary" :more="offset + items.length < total" @select="select" @more="load(false)" />
-        <LineDetail v-if="detail" ref="ld" :layout="ui.layout" :quick="ui.quick" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @approve="doApprove" @proof="doProof" @goto="goto" @step="step" @error="error = $event" />
+        <LineDetail v-if="detail" ref="ld" :layout="ui.layout" :quick="ui.quick" :slim="win.slim && win.companionOpen" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @approve="doApprove" @proof="doProof" @goto="goto" @step="step" @error="error = $event" />
         <div v-else-if="!total && !loading" class="empty muted"><b>{{ t('Nothing found') }}</b> {{ f.status === 'todo' ? t('There is nothing left to translate here – or change the filters.') : t('Try changing the filters or the search text.') }}</div>
         <template v-else><h3 class="card-title">{{ t('Line detail') }}</h3><p class="muted">{{ t('Select a line. The arrow keys ↑ ↓ move through the lines, {a} approves, {e} opens the editor, {q} shows all shortcuts.', { a: 'A', e: 'E', q: '?' }) }}</p></template>
       </aside>
@@ -343,6 +386,10 @@ onBeforeUnmount(() => { clearTimeout(focusT); if (stale) refreshNumbers(); if (o
 .split.rows { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(120px, 38%) minmax(0, 1fr); }
 .split.cols { grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); }
 .screen.focus { padding-top: var(--s-10); }
+.screen.comp { height: 100vh; padding: var(--s-3); }
+.screen.comp .detail { flex: 1; min-height: 0; }
+.followbar { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; }
+.seg { display: flex; gap: var(--s-1); }
 .tablewrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-card); }
 .grid { width: 100%; border-collapse: collapse; font-size: var(--fs-body); }
 .grid th { position: sticky; top: 0; background: var(--bg-bar); text-align: left; font-size: var(--fs-caption); font-weight: 500; color: var(--text-muted); padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line); z-index: 1; white-space: nowrap; }

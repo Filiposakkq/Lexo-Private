@@ -42,6 +42,7 @@ export const ACTIONS = [
   { id: 'ignored', get label() { return t('Check: ignored findings'); }, keys: [] },
   { id: 'lint', get label() { return t("Check: game lint (Ren'Py)"); }, keys: [] },
   { id: 'findings', get label() { return t('Check: findings'); }, keys: [] },
+  { id: 'new_window', get label() { return t('Open a second window with the line detail'); }, keys: [] },
   { id: 'snapshot', get label() { return t('Create a backup of the translation files now'); }, keys: [] },
 ];
 

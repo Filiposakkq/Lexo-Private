@@ -529,7 +529,9 @@ impl Dispatcher {
             q.push(("status".into(), text("status")));
         }
         let query = q.iter().map(|(k, v)| format!("{}={}", lexo_core::util::url_quote(k), lexo_core::util::url_quote(v))).collect::<Vec<_>>().join("&");
-        let url = format!("{}?{query}", self.session.base_url.lock().unwrap());
+        // `ui: "next"` opens the window in the new interface (`/next/`), anything else in the classic one
+        let base = self.session.base_url.lock().unwrap().clone();
+        let url = if text("ui") == "next" { format!("{}/next/?{query}", base.trim_end_matches('/')) } else { format!("{base}?{query}") };
         match self.session.shell.open_window(&url) {
             Ok(()) => Reply::json(200, &json!({"ok": true, "url": url})),
             Err(e) => {
