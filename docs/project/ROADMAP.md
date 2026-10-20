@@ -33,7 +33,7 @@ Tauri: Rust backend, web UI. Port Core module by module (`rpy` and `rpa` first, 
 Done when: one exe without Python that passes the same fixtures.
 
 ## Step 5 – New UI
-Designed after the Core interface is stable; menu with game selection, onboarding, settings.
+In progress (Vue, `ui-next-src/`, served at `/next/` beside the classic UI): Home with the library of games, the guide to prepare a game, Overview, Files, Lines with the Tools, Groups, Team. Left: the scene picture, Check, Glossary, Publishing, Settings, then the switch (see UI-NEXT.md and UI-PARITY.md).
 
 ## Step 6 – Free release and Pro
 - Public repo from `core/` + `free/` (fresh history).
@@ -70,7 +70,7 @@ Designed after the Core interface is stable; menu with game selection, onboardin
 | 6 | Cleanup and test data for the Python/Rust comparison | **done** (`testdata/golden/`: parser, archive, layout, menu and validator cases, 4 projects and 4 scenarios with recorded answers; docs/technical/GOLDEN.md; unused imports and dead code removed) |
 Done on the way: project file, language packs (format + loader), feature registry, game tools (.rpa, unrpyc as a helper, translation files through the SDK, no UI yet), `app.js` split into ES modules, UI text conversion.
 | 7 | **Port Core to Rust** (M0 to M9 done, M10 in progress) (Tauri: Rust core, web UI), module by module against `testdata/golden` (docs/technical/GOLDEN.md): `rpy`, `rpa` first; the Python Core stays the reference until everything matches. **Free Core only**: the Pro pack is not part of this step (its form is decided with the sidecar in step 9; golden data for it can be added then). **Planned in docs/technical/RUST-PORT.md** (milestones M0 to M10; the toolchain has to be installed first: the owner is asked) | **next** |
-| 8 | Menu with game selection, onboarding, the "prepare a game" window (the code exists and is tested on 8 games), the new UI | after the port |
+| 8 | Menu with game selection, onboarding, the "prepare a game" window, the new UI | **in progress**: Home, the guide to prepare a game, Overview, Files, Lines, Groups, Team, Tools are built (Vue, `/next/`); left: scene picture, Check, Glossary, Publishing, Settings, the switch |
 | 9 | Licence server, signed packs, the sidecar transport, updates, the installer, the user guide, the Free / Pro release | **in progress**: sidecar, licence file and client, server, installer built; carry over built; open: payment provider, web and legal pages, signing, updater (see the log) |
 
 Done on the way and not forgotten: layered images are not drawn in the scene preview (planned); the licence check of the pack is a development stub (`reference/python/pro/lexo_pro/licence.py`).
