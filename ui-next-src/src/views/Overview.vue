@@ -118,7 +118,7 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
               <option v-for="k in EPISODE_STATES" :key="k" :value="k">{{ fileState(k) }}</option>
             </select>
           </div>
-          <p class="muted small" v-if="o.general.translation.total || o.unassigned.translation.total">{{ t('General (the whole game)') }}: {{ fmtN(o.general.translation.done) }} / {{ fmtN(o.general.translation.total) }} · {{ t('Unassigned files') }}: {{ fmtN(o.unassigned.translation.done) }} / {{ fmtN(o.unassigned.translation.total) }}</p>
+          <p class="muted small" v-if="o.general.translation.total || o.unassigned.translation.total">{{ t('General (the whole game)') }}: {{ t('{done} / {total} lines', { done: fmtN(o.general.translation.done), total: fmtN(o.general.translation.total) }) }} · {{ t('Unassigned files') }}: {{ t('{done} / {total} lines', { done: fmtN(o.unassigned.translation.done), total: fmtN(o.unassigned.translation.total) }) }}</p>
         </section>
       </div>
       <div class="col">

@@ -254,10 +254,10 @@ const diff = (before, after) => {
 
     <div class="head"><h4>{{ t('Original') }}</h4><span><button class="btn small ghost" :title="t('Copies the original text to the clipboard')" @click="copy(d.source ?? '')">{{ t('⧉ Original') }}</button>
       <button class="btn small ghost" :title="t('Copies the original and the translation one under the other')" @click="copy((d.source ?? '') + '\n' + text)">{{ t('⧉ Both') }}</button></span></div>
-    <div class="box">{{ d.source ?? t('(source not found)') }}</div>
+    <div class="box orig">{{ d.source ?? t('(source not found)') }}</div>
 
     <div class="head"><h4>{{ t('Translation') }} <span class="muted">{{ t('– edited directly in the file') }}</span></h4></div>
-    <textarea ref="ta" v-model="text" class="edit" rows="4" :aria-label="t('Translation')" spellcheck="true" lang="cs" @keydown="key"></textarea>
+    <textarea ref="ta" v-model="text" class="edit" rows="5" :aria-label="t('Translation')" spellcheck="true" lang="cs" @keydown="key"></textarea>
     <div class="snips"><span class="muted">{{ t('Insert:') }}</span><button v-for="[label, fn, title] in SNIPS" :key="label" class="btn small snip" :title="t(title)" @click.prevent="fn">{{ label }}</button></div>
     <div v-if="missing.length" class="snips"><span class="muted">{{ t('Missing from the original:') }}</span>
       <button v-for="m in missing" :key="m" class="btn small snip" :title="t('Inserts a tag or variable from the original at the cursor')" @click.prevent="insert(m)">{{ m }}</button>
@@ -453,7 +453,11 @@ const diff = (before, after) => {
 .head { display: flex; justify-content: space-between; align-items: center; margin-top: var(--s-2); }
 .head h4, h4 { margin: var(--s-2) 0 var(--s-1); font-size: var(--fs-body); font-weight: 500; color: var(--text-2); }
 .head h4 { margin: 0; }
+/* The original has a fixed height (five lines, then it scrolls) and the editor starts at five lines: the editor and everything under it stay where they are from one line to the next,
+   instead of moving by the height of each text. */
 .box { padding: var(--s-3); background: var(--bg-input); border: 1px solid var(--line); border-radius: var(--r-md); white-space: pre-wrap; font-size: var(--fs-text); line-height: var(--lh-normal); }
+.box.orig { box-sizing: border-box; height: calc(5 * var(--fs-text) * var(--lh-normal) + 2 * var(--s-3) + 2px); overflow: auto; }
+.dhead { min-height: 26px; }
 .edit { width: 100%; box-sizing: border-box; padding: var(--s-3); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); font: inherit; font-size: var(--fs-text); line-height: var(--lh-normal); resize: vertical; }
 .edit:focus { outline: none; border-color: var(--accent-hi); }
 .snips { display: flex; flex-wrap: wrap; gap: var(--s-1); align-items: center; font-size: var(--fs-small); }
