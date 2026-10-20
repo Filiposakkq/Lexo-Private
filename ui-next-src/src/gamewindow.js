@@ -118,8 +118,11 @@ export function contextFor(file, line, radius) {
   return ctxCache.get(key).catch((e) => { ctxCache.delete(key); throw e; });
 }
 /* Everything the Scene tab of a line needs, fetched ahead of the swap to the new line. */
+export const prefetchStats = { ms: 0 };
 export async function prefetchAll(file, line, radius) {
+  const t0 = performance.now();
   const [sc] = await Promise.all([prefetchScene(file, line), loadGui(''), contextFor(file, line, radius).catch(() => {})]);
+  prefetchStats.ms = performance.now() - t0;
   done.set(file + '\t' + line, sc);
   if (done.size > 80) done.delete(done.keys().next().value);
   return sc;

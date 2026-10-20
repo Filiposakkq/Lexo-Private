@@ -96,7 +96,10 @@ watch(() => props.text, later);
 watch(mode, draw);
 const toggled = (open) => { if (open) nextTick(draw); };
 onMounted(() => {
-  if (outer.value && lastSize.h) { outer.value.style.height = lastSize.h + 'px'; outer.value.style.width = lastSize.w + 'px'; }   // the size of the previous picture until this one is drawn (no jump)
+  if (outer.value) {                // the size of the previous picture until this one is drawn (no jump); the first time a 16:9 window as wide as the panel
+    const w = lastSize.w || Math.min(outer.value.parentElement.clientWidth - 2, 800);
+    outer.value.style.width = w + 'px'; outer.value.style.height = (lastSize.h || Math.round(w * 9 / 16)) + 'px';
+  }
   draw();
   if (typeof ResizeObserver !== 'undefined' && outer.value?.parentElement) { ro = new ResizeObserver(later); ro.observe(outer.value.parentElement); }
 });
@@ -124,4 +127,5 @@ onBeforeUnmount(() => { clearTimeout(timer); seq++; if (ro) ro.disconnect(); });
 .sel { height: var(--h-control-sm); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--s-2); }
 .small { font-size: var(--fs-small); }
 .note { font-size: var(--fs-caption); }
+.gp .muted.small:not(.note) { min-height: 3.6em; }
 </style>

@@ -49,6 +49,16 @@ describe('the line detail: scene and menu', () => {
     expect(w.text()).toContain('this line');
   });
 
+  it('keeps the Menu tab when the same line is read again after approving or saving', async () => {
+    const w = mount(LineDetail, { props: { detail: detail() } });
+    await flushPromises();
+    expect(w.findAll('.tab').some((b) => b.text() === 'Menu')).toBe(true);
+    await w.setProps({ detail: detail({ status: 'approved' }) });
+    expect(w.findAll('.tab').some((b) => b.text() === 'Menu')).toBe(true);     // not even for a moment
+    await flushPromises();
+    expect(w.findAll('.tab').some((b) => b.text() === 'Menu')).toBe(true);
+  });
+
   it('has no Menu tab for a line of dialogue outside a menu', async () => {
     get.mockImplementation(async (path) => (path === 'entry/menu' ? { ok: true, available: false, reason: 'x' } : { ok: true, items: [], available: false }));
     const w = mount(LineDetail, { props: { detail: detail() } });

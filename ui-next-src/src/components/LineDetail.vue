@@ -58,10 +58,13 @@ const TABS = computed(() => [
 ]);
 const current = computed(() => (TABS.value.some(([k]) => k === tab.value) ? tab.value : open.value.length ? 'check' : isChoice.value && d.value.ref ? 'menu' : 'scene'));
 
-watch(() => props.detail, () => {
+watch(() => props.detail, (now, before) => {
   text.value = props.detail.target; live.value = null; note.value = props.detail.proof_note || ''; mt.value.result = null; mt.value.error = '';
-  data.value = {}; menuAvail.value = false;
-  loadScenes(); loadTab(); checkMenu();
+  // the same line read again (after approving, saving, marking): the tabs keep what does not depend on it, so nothing flashes or moves
+  const same = before && before.file === now.file && before.line === now.line;
+  data.value = same ? { menu: data.value.menu, context: data.value.context } : {};
+  if (!same) menuAvail.value = false;
+  loadScenes(same); loadTab(); if (!same) checkMenu();
 }, { immediate: true });
 
 /* Does this line of dialogue belong to a menu? The answer is kept as the data of the Menu tab, so opening the tab costs nothing more. */
@@ -103,9 +106,9 @@ async function loadTab() {
   } catch (e) { c[k === 'script' ? 'context' : k] = { error: e.message }; }
 }
 watch(radius, (n) => { setSceneRadius(n); data.value.scene = null; loadTab(); });
-async function loadScenes() {
+async function loadScenes(keep) {
   const file = d.value.file, known = peekScenes(file);
-  scenes.value = known || scenes.value || [];          // what is known is shown at once, so the strip does not appear late; a file not seen yet is fetched
+  if (!(keep && !known)) scenes.value = known;                                 // what is known is shown at once; for a file not seen yet the strip keeps its place (disabled) until the scenes arrive
   if (!known) { const r = await scenesOf(file); if (d.value.file === file) scenes.value = r; }
 }
 const sceneIndex = computed(() => { let k = -1; (scenes.value || []).forEach((s, i) => { if (s.line <= d.value.line) k = i; }); return k; });
@@ -231,8 +234,12 @@ const diff = (before, after) => {
         <div class="fsb"><span>{{ t('Translated {n} %', { n: Math.round(pctOf(fileRow.done, fileRow.total)) }) }}</span><div class="bar"><i :style="{ width: pctOf(fileRow.done, fileRow.total) + '%' }"></i></div><span class="muted">{{ t('{n} left to translate', { n: fmtN(fileRow.todo) }) }}</span></div>
         <div class="fsb"><span>{{ t('Proofread {n} %', { n: Math.round(pctOf(fileRow.corr, fileRow.total)) }) }}</span><div class="bar two"><i :style="{ width: pctOf(fileRow.corr, fileRow.total) + '%' }"></i></div><span class="muted">{{ t('{n} left to check', { n: fmtN(Math.max(0, fileRow.total - fileRow.corr)) }) }}</span></div>
       </template>
+      <template v-else><div class="fsb skel"><div class="skeleton"></div></div><div class="fsb skel"><div class="skeleton"></div></div></template>
       <div class="jumps">
-        <template v-if="scenes && scenes.length">
+        <template v-if="scenes === null">
+          <button class="btn small" disabled>{{ t('◀ Scene') }}</button><select class="sel" disabled :aria-label="t('Loading…')"><option>{{ t('Loading…') }}</option></select><button class="btn small" disabled>{{ t('Scene ▶') }}</button>
+        </template>
+        <template v-else-if="scenes.length">
           <button class="btn small" :disabled="sceneIndex <= 0" :title="t('First line of the previous scene')" @click="goScene(sceneIndex - 1)">{{ t('◀ Scene') }}</button>
           <select class="sel" :value="sceneIndex" :title="t('List of the scenes of the file: translated / lines · proofread')" :aria-label="t('Scene {n} / {total}', { n: sceneIndex + 1, total: scenes.length })" @change="goScene(+$event.target.value)">
             <option v-for="(s, i) in scenes" :key="i" :value="i">{{ i + 1 }}. {{ s.name || '—' }} ({{ s.done }}/{{ s.count }} · ✓ {{ s.proofed }})</option>
@@ -438,6 +445,8 @@ const diff = (before, after) => {
 .menu-item { justify-content: space-between; cursor: pointer; }
 .filestrip { border: 1px solid var(--line-soft); border-radius: var(--r-md); padding: var(--s-2) var(--s-3); display: flex; flex-direction: column; gap: var(--s-2); font-size: var(--fs-small); }
 .fsname { font-weight: 500; }
+.fsb.skel { grid-template-columns: 1fr; height: 21px; }
+.fsb.skel .skeleton { height: 14px; }
 .fsb { display: grid; grid-template-columns: 120px 1fr 120px; gap: var(--s-2); align-items: center; }
 .jumps { display: flex; flex-wrap: wrap; gap: var(--s-1); align-items: center; }
 .sel { height: var(--h-control-sm); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--s-2); max-width: 220px; }

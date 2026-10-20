@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
-import { forgetFileData, menuOf, mtOn, peekMt, prefetchAll, sceneRadius, scenesOf } from '../gamewindow.js';
+import { forgetFileData, menuOf, mtOn, peekMt, prefetchAll, prefetchStats, sceneRadius, scenesOf } from '../gamewindow.js';
 import { requireFeature } from '../pro.js';
 import LineDetail from '../components/LineDetail.vue';
 import MtDialog from '../components/MtDialog.vue';
@@ -87,7 +87,9 @@ async function select(i) {
     const ahead = [scenesOf(it.file), entry.then((d) => (d.unit !== 'string' && d.ref ? menuOf(it.file, it.line) : null))];     // the strip of scenes and the Menu tab are there with the line
     if (peekMt() === null) ahead.push(mtOn());
     if (wantsScene()) ahead.push(prefetchAll(it.file, it.line, sceneRadius()).catch(() => {}));
-    await Promise.all(ahead);
+    // A line nobody opened yet can take seconds on the server (the first scene of a file, the index of the pictures). The detail waits a moment for what is quick, so a
+    // line you have seen appears complete; for the rest it opens at once and the parts fill in the room kept for them.
+    await Promise.race([Promise.all(ahead).catch(() => {}), new Promise((r) => setTimeout(r, 250))]);
     detail.value = await entry;
     await nextTick();
     holdScroll(scroller, top);
@@ -96,7 +98,7 @@ async function select(i) {
     await nextTick();
     keepRowVisible();
     const nx = items.value[i + 1];
-    if (nx && wantsScene()) setTimeout(() => { if (sel.value === i) prefetchAll(nx.file, nx.line, sceneRadius()).catch(() => {}); }, 400);      // the next line is ready when you get there
+    if (nx && wantsScene() && prefetchStats.ms < 400) setTimeout(() => { if (sel.value === i) prefetchAll(nx.file, nx.line, sceneRadius()).catch(() => {}); }, 400);      // the next line is ready when you get there
     if (i >= items.value.length - 15 && offset.value + items.value.length < total.value) load(false);
   } catch (e) { error.value = e.message; detail.value = null; }
 }
