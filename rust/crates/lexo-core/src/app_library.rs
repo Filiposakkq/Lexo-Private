@@ -100,17 +100,26 @@ impl App {
         self.library_list()
     }
 
+    /// The paths a card may be kept under: the text as given and the resolved one (a card is stored resolved, which on Windows also expands short names such as `RUNNER~1`).
+    fn library_keys(path: &str) -> [String; 2] {
+        let given = crate::util::py_strip(path).trim_matches('"').to_string();
+        let resolved = fsutil::resolve(Path::new(&given)).to_string_lossy().into_owned();
+        [given, resolved]
+    }
+
     /// Take a game off Home (the card only: no file of the game is touched).
     pub fn library_remove(&mut self, path: &str) -> Res<Value> {
         let mut games = self.library_read();
-        games.retain(|g| py_str(&g["path"]) != path);
+        let keys = Self::library_keys(path);
+        games.retain(|g| !keys.contains(&py_str(&g["path"])));
         self.library_write(&games)?;
         self.library_list()
     }
 
     pub fn library_pin(&mut self, path: &str, pinned: bool) -> Res<Value> {
         let mut games = self.library_read();
-        for g in games.iter_mut().filter(|g| py_str(&g["path"]) == path) {
+        let keys = Self::library_keys(path);
+        for g in games.iter_mut().filter(|g| keys.contains(&py_str(&g["path"]))) {
             g["pinned"] = json!(pinned);
         }
         self.library_write(&games)?;
