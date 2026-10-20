@@ -5,7 +5,9 @@ import { contextFor, menuOf, mtOn, peekContext, peekMenu, peekMt, peekScenes, sc
 import { t, tn } from '../i18n.js';
 import { baseName, fmtN, lineKind, lineState, pctOf, pillOf, project } from '../project.js';
 import ApproveIdentical from './ApproveIdentical.vue';
+import FixDialog from './FixDialog.vue';
 import Fold from './Fold.vue';
+import IgnoreDialog from './IgnoreDialog.vue';
 import GamePreview from './GamePreview.vue';
 import MtDialog from './MtDialog.vue';
 
@@ -180,12 +182,9 @@ const undoLast = () => run(async () => { await post('fix/undo'); emit('updated',
 const openEditor = () => run(async () => { await post('open-editor', { file: d.value.file, line: d.value.line }); });
 const copy = (s) => run(async () => { await navigator.clipboard.writeText(s); });
 const unignore = (x) => run(async () => { await post('ignore/set', { items: [{ file: d.value.file, line: d.value.line, code: x.code }], on: false }); emit('updated', {}); });
-const ignore = (x) => run(async () => {
-  const reason = window.prompt(t('Why is it ignored? (optional, you will see it in the list of ignored findings)'), '');
-  if (reason === null) return;
-  await post('ignore/set', { items: [{ file: d.value.file, line: d.value.line, code: x.code }], on: true, note: reason });
-  emit('updated', {});
-});
+const ignoreDlg = ref(null);       // the findings of the open ignore dialog
+const fixDlg = ref(null);          // { kinds } of the open fix dialog for this line
+const ignore = (x) => { ignoreDlg.value = [x, ...issues.value.filter((y) => !y.ignored && y !== x)].map((y) => ({ file: d.value.file, line: d.value.line, code: y.code, severity: y.severity, message: y.message })); };
 async function jump(kind) {
   try {
     const r = await get('entry/next', { file: d.value.file, line: d.value.line, kind });
@@ -299,7 +298,7 @@ const diff = (before, after) => {
             <div class="actions">
               <button v-if="x.ignored" class="btn small ghost" @click="unignore(x)">{{ t('Stop ignoring') }}</button>
               <button v-else class="btn small ghost" :title="t('Hides this finding on this line (can be undone)')" @click="ignore(x)">{{ t('Ignore…') }}</button>
-              <a v-if="x.fixable" class="btn small primary" href="/" :title="t('The fixes are in the Tools menu of the lines')">{{ x.kind === 'speaker' || !x.kind ? t('Fix from the original') : t('Fix…') }}</a>
+              <button v-if="x.fixable" class="btn small primary" :title="t('Shows a preview of the fix')" @click="fixDlg = { kinds: [x.kind || 'speaker'] }">{{ x.kind === 'speaker' || !x.kind ? t('Fix from the original') : t('Fix…') }}</button>
             </div>
             <div v-if="x.ratio" class="muted">{{ t('Length: original {a}, translation {b} characters (ratio {r}). Decide yourself whether it is intended.', { a: x.source_len, b: x.target_len, r: x.ratio }) }}</div>
           </div>
@@ -431,6 +430,8 @@ const diff = (before, after) => {
       </template>
     </div>
 
+    <IgnoreDialog v-if="ignoreDlg" :items="ignoreDlg" @close="ignoreDlg = null" @done="ignoreDlg = null; emit('updated', {})" />
+    <FixDialog v-if="fixDlg" :items="[{ file: d.file, line: d.line }]" :kinds="fixDlg.kinds" @close="fixDlg = null" @done="fixDlg = null; emit('updated', { reload: true })" />
     <ApproveIdentical v-if="identical" :detail="d" @close="identical = false" @done="identical = false; emit('updated', { reload: true })" />
   </div>
 </template>

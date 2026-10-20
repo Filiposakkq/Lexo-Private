@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { t, tn } from '../i18n.js';
 import GroupsDialog from '../components/GroupsDialog.vue';
-import { baseName, dateLong, fileState, fmtN, fmtPct, groupName, loadFiles, loadOverview, openLines, pillOf, post, project, reloadAll } from '../project.js';
+import { baseName, dateLong, fileState, fmtN, fmtPct, groupName, loadFiles, loadOverview, openCheck, openLines, pillOf, post, project, reloadAll } from '../project.js';
 
 /* Overview: where you are in the translation and one click to carry on, then the numbers (translation, what is left, proofreading, the check),
    the groups (episodes, chapters…), the files by state and the recent activity. */
@@ -33,6 +33,7 @@ const sub = computed(() => [
 const ring = (r, pct) => { const c = 2 * Math.PI * r; return `${(c * Math.max(0, Math.min(100, pct))) / 100} ${c}`; };
 
 function lines(filter) { openLines(filter); emit('go', 'lines'); }
+function check(filter) { openCheck(filter); emit('go', 'check'); }
 function resume() { if (last.value && last.value.file) lines({ file: last.value.file, status: 'all', line: last.value.line }); else lines({ status: 'todo' }); }
 function files_(k) { return files.value.filter((f) => f.status === k).length; }
 async function setEpisode(e, state) {
@@ -96,7 +97,7 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
         <div class="label">{{ t('Translation check') }}</div>
         <div class="value">{{ fmtN(o.validation.error) }} <small>{{ tn(o.validation.error, 'error', 'errors') }}</small></div>
         <div class="sub muted">{{ tn(o.validation.warning, '{n} warning ({length} about text length)', '{n} warnings ({length} about text length)', { n: fmtN(o.validation.warning), length: fmtN(o.validation.length) }) }}</div>
-        <div class="sub"><a href="/" :title="t('The check is in the classic interface for now')">{{ t('Open the check') }}</a></div>
+        <div class="sub"><a href="#" @click.prevent="check({})">{{ t('Open the check') }}</a></div>
       </div>
     </section>
 
