@@ -14,7 +14,7 @@ The names are the folder names, so nothing is confusable: `ui-classic` is the ol
 
 ## How to run each
 
-- **Launcher** (`tools/launcher/Spustit-test.cmd`): the box *Nove rozhrani (/next/) misto klasickeho* opens `/next/` instead of `/` (in the browser mode; the window of the application, Tauri, shows the classic one).
+- **Launcher** (`tools/launcher/Spustit-test.cmd`): the box *Nove rozhrani (/next/) misto klasickeho* opens `/next/` instead of `/` (in the browser mode; the window of the application, Tauri, shows the classic one). The box *Klasicke i nove vedle sebe* starts **one** server and opens both interfaces in two tabs: they use the same Core and the same project, so they can be compared at once. (Two separate servers on one project would fight over the project lock, which is why it is one server.)
 - **By hand:** start `lexo-server` and open `/` (classic) or `/next/` (new). Both talk to the same Core through `/api` and use the same token, so the same project works in both.
 - **Folders:** `LEXO_UI_DIR` replaces the classic folder, `LEXO_UI_NEXT_DIR` the new one (`lexo-server --ui <folder>` too, for the classic one). `/next/` exists only when the folder has an `index.html`; otherwise it is "not found".
 
