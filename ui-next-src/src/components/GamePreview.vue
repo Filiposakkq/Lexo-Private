@@ -1,7 +1,8 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import Fold from './Fold.vue';
 import { t, tn } from '../i18n.js';
-import { fontOf, gameText, loadGui, metricsOf, placeChars, prefetchScene } from '../gamewindow.js';
+import { fontOf, gameText, lastSize, loadGui, metricsOf, peekGui, peekScene, placeChars, prefetchScene } from '../gamewindow.js';
 
 /* The line as the player sees it: the picture of the scene (found in the game's archives by following the game script upwards to the last `scene` / `show`) with the
    dialogue box drawn over it, sized by the game's own gui.rpy values. Without the game folder it is the box alone. The font is the game's own when it can be had;
@@ -15,12 +16,20 @@ const over = ref(false);
 let gui = null, scene = null, imgOk = true, seq = 0, timer = null, ro = null;
 const badLayers = new Set();
 
-async function draw() {
+/* When the scene, the window values and the fonts are already known (the list prefetches them before the next line opens) the picture is drawn at once, in the same task as the
+   rest of the detail; only a line nobody looked at yet waits for them. */
+function draw() {
+  if (!outer.value) return;
   const my = ++seq;
-  if (!gui) gui = await loadGui(t('default values'));
-  if (!scene) scene = await prefetchScene(props.detail.file, props.detail.line);
-  if (my !== seq || !outer.value) return;
-  paint();
+  gui = gui || peekGui();
+  scene = scene || peekScene(props.detail.file, props.detail.line);
+  if (gui && scene) { paint(); return; }
+  return (async () => {
+    if (!gui) gui = await loadGui(t('default values'));
+    if (!scene) scene = await prefetchScene(props.detail.file, props.detail.line);
+    if (my !== seq || !outer.value) return;
+    paint();
+  })();
 }
 function paint() {
   const d = props.detail;
@@ -65,6 +74,7 @@ function paint() {
   const k = box && box.clientWidth ? Math.min(1, (box.clientWidth - 2) / W, fit) : Math.min(1, fit);
   stage.style.transform = `scale(${k})`;
   outer.value.style.height = Math.ceil(H * k) + 'px'; outer.value.style.width = Math.ceil(W * k) + 'px';
+  lastSize.w = Math.ceil(W * k); lastSize.h = Math.ceil(H * k);
   const n = Math.max(1, Math.round(dlg.offsetHeight / (g.text_size * 1.3)));
   lines.value = n;
   over.value = n > g.max_lines || g.dialogue_ypos + dlg.offsetHeight > g.textbox_height;
@@ -84,7 +94,9 @@ function paint() {
 const later = () => { clearTimeout(timer); timer = setTimeout(draw, 150); };
 watch(() => props.text, later);
 watch(mode, draw);
+const toggled = (open) => { if (open) nextTick(draw); };
 onMounted(() => {
+  if (outer.value && lastSize.h) { outer.value.style.height = lastSize.h + 'px'; outer.value.style.width = lastSize.w + 'px'; }   // the size of the previous picture until this one is drawn (no jump)
   draw();
   if (typeof ResizeObserver !== 'undefined' && outer.value?.parentElement) { ro = new ResizeObserver(later); ro.observe(outer.value.parentElement); }
 });
@@ -92,24 +104,23 @@ onBeforeUnmount(() => { clearTimeout(timer); seq++; if (ro) ro.disconnect(); });
 </script>
 
 <template>
-  <section class="gp">
-    <div class="bar-top">
-      <h4>{{ t('Scene preview ') }}<span v-if="lines" class="muted">(≈ {{ tn(lines, '{n} line', '{n} lines') }}<template v-if="over"> – {{ t('too much!') }}</template>)</span></h4>
+  <Fold id="preview" @toggle="toggled">
+    <template #title>{{ t('Scene preview ') }}<span v-if="lines" class="muted">(≈ {{ tn(lines, '{n} line', '{n} lines') }}<template v-if="over"> – {{ t('too much!') }}</template>)</span></template>
+    <section class="gp">
       <select v-model="mode" class="sel" :title="t('Which text to show in the game window')" :aria-label="t('Which text to show in the game window')">
         <option value="target">{{ t('Translation') }}</option>
         <option value="source">{{ t('Original') }}</option>
       </select>
-    </div>
-    <div ref="outer" class="gwin" :class="{ over }"></div>
-    <div class="muted small">{{ info }}</div>
-    <div class="muted small note">{{ t("The preview is an estimate from the game script, not a screenshot. For games with layered images (characters or backgrounds built from several parts, animations, conditions) it can be wrong or incomplete, and it may not be a good picture of the scene. The font of the text can be a substitute, and the frames of the text box and the name box (their pictures and colours) may look different in the game.") }}</div>
-  </section>
+      <div ref="outer" class="gwin" :class="{ over }"></div>
+      <div class="muted small">{{ info }}</div>
+      <div class="muted small note">{{ t("The preview is an estimate from the game script, not a screenshot. For games with layered images (characters or backgrounds built from several parts, animations, conditions) it can be wrong or incomplete, and it may not be a good picture of the scene. The font of the text can be a substitute, and the frames of the text box and the name box (their pictures and colours) may look different in the game.") }}</div>
+    </section>
+  </Fold>
 </template>
 
 <style scoped>
-.gp { display: flex; flex-direction: column; gap: var(--s-1); margin-bottom: var(--s-3); }
-.bar-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
-h4 { margin: 0; font-size: var(--fs-body); font-weight: 500; color: var(--text-2); }
+.gp { display: flex; flex-direction: column; gap: var(--s-1); align-items: flex-start; }
+.gp .gwin { align-self: center; }
 .sel { height: var(--h-control-sm); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--s-2); }
 .small { font-size: var(--fs-small); }
 .note { font-size: var(--fs-caption); }

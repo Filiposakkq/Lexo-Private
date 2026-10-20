@@ -1,9 +1,11 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { get, post } from '../api.js';
+import { contextFor, peekContext, sceneRadius, setSceneRadius } from '../gamewindow.js';
 import { t, tn } from '../i18n.js';
 import { baseName, fmtN, lineKind, lineState, pctOf, pillOf, project } from '../project.js';
 import ApproveIdentical from './ApproveIdentical.vue';
+import Fold from './Fold.vue';
 import GamePreview from './GamePreview.vue';
 import MtDialog from './MtDialog.vue';
 
@@ -25,7 +27,7 @@ const tab = ref(storedTab());
 const menuAvail = ref(false);      // a line of dialogue that belongs to a menu (its question, the start of a choice, the lines before it) gets the Menu tab too
 const sceneMode = ref(storedMode());
 const mtScene = ref(false);
-const radius = ref(6);             // how many lines around the open one the Scene tab shows
+const radius = ref(sceneRadius());             // how many lines around the open one the Scene tab shows
 const data = ref({});              // what the tabs fetched: scene, memory, history, context, menu
 let checkTimer = null;
 
@@ -89,7 +91,10 @@ async function loadTab() {
   const k = current.value, line = d.value, c = data.value;
   const q = { file: line.file, line: line.line };
   try {
-    if (k === 'scene' && !c.scene) { c.scene = 'loading'; c.scene = await get('entry/scene', { ...q, radius: radius.value }); }
+    if (k === 'scene' && !c.scene) {
+      c.scene = peekContext(line.file, line.line, radius.value) || 'loading';      // the list fetched it ahead: no "Loading…" between two lines
+      if (c.scene === 'loading') c.scene = await contextFor(line.file, line.line, radius.value);
+    }
     else if (k === 'memory' && !c.memory) { c.memory = 'loading'; c.memory = await get('entry/memory', q); }
     else if (k === 'history' && !c.history) { c.history = 'loading'; c.history = await get('entry/history', q); }
     else if (k === 'script' && line.ref && !c.context) { c.context = 'loading'; c.context = await get('entry/context', q); }
@@ -97,7 +102,7 @@ async function loadTab() {
     else if (k === 'team' && !c.notes) { c.notes = 'loading'; c.notes = await post('team/notes', q); }
   } catch (e) { c[k === 'script' ? 'context' : k] = { error: e.message }; }
 }
-watch(radius, () => { data.value.scene = null; loadTab(); });
+watch(radius, (n) => { setSceneRadius(n); data.value.scene = null; loadTab(); });
 async function loadScenes() {
   try { const r = await get('scenes', { file: d.value.file, line: 0 }); scenes.value = r.available ? r.items : []; } catch { scenes.value = []; }
 }
@@ -333,8 +338,9 @@ const diff = (before, after) => {
 
       <template v-else-if="current === 'scene'">
         <GamePreview :detail="d" :text="text" />
+        <Fold id="scenectx">
+        <template #title>{{ t('Scene around the line ') }}<span class="muted">{{ t('(original next to the translation)') }}</span></template>
         <div class="actions">
-          <h4>{{ t('Scene around the line ') }}<span class="muted">{{ t('(original next to the translation)') }}</span></h4>
           <select class="sel" v-model.number="radius" :title="t('How many surrounding lines to show')" :aria-label="t('How many surrounding lines to show')"><option v-for="n in [3, 6, 10, 15]" :key="n" :value="n">{{ t('±{n} lines', { n }) }}</option></select>
           <div class="seg" role="group"><button v-for="[k, label] in [['table', t('Table')], ['bubbles', t('Bubbles')]]" :key="k" class="btn small" :class="{ primary: sceneMode === k }" :aria-pressed="sceneMode === k" @click="setMode(k)">{{ label }}</button></div>
           <button class="btn small" :title="t('Translates the untranslated lines around this one (±15) by machine. You review the suggestions before writing.')" @click="mtScene = true">{{ t('Translate the scene with a machine…') }}</button>
@@ -351,10 +357,11 @@ const diff = (before, after) => {
         <table v-else class="scene"><thead><tr><th>{{ t('Line') }}</th><th>{{ t('Speaker') }}</th><th>{{ t('Original') }}</th><th>{{ t('Translation') }}</th></tr></thead>
           <tbody><tr v-for="x in data.scene.items" :key="x.line" :class="{ cur: x.current }" @click="emit('goto', { file: d.file, line: x.line })">
             <td class="num muted">{{ x.line }}</td><td class="mono">{{ speaker(x.who) }}</td><td>{{ shown(x.source) }}</td><td>{{ x.status === 'todo' ? t('untranslated') : shown(x.target) }}</td></tr></tbody></table>
+        </Fold>
         <MtDialog v-if="mtScene" :anchor="{ file: d.file, line: d.line }" :file="d.file" scope="scene" @close="mtScene = false" @done="mtScene = false; emit('updated', { reload: true })" @settings="mtScene = false" />
       </template>
 
-      <template v-else-if="current === 'memory'">
+      <template v-else-if="current === 'memory'"><Fold id="memory"><template #title>{{ t('Translation memory ') }}<span class="muted">{{ !data.memory || data.memory === 'loading' ? t('loading…') : data.memory.error ? t('(unavailable)') : (data.memory.exact.length + data.memory.similar.length) ? '(' + (data.memory.exact.length + data.memory.similar.length) + ')' : t('(nothing similar)') }}</span></template>
         <div v-if="!data.memory || data.memory === 'loading'" class="muted">{{ t('loading…') }}</div>
         <div v-else-if="data.memory.error" class="notice danger">{{ data.memory.error }}</div>
         <template v-else>
@@ -374,9 +381,9 @@ const diff = (before, after) => {
               <button v-if="x.file" class="btn small ghost" @click="emit('goto', { file: x.file, line: x.line })">{{ t('Show the line') }}</button></div>
           </div>
         </template>
-      </template>
+      </Fold></template>
 
-      <template v-else-if="current === 'history'">
+      <template v-else-if="current === 'history'"><Fold id="history"><template #title>{{ t('Text history ') }}<span class="muted">{{ !data.history || data.history === 'loading' ? t('loading…') : data.history.error ? t('(unavailable)') : data.history.count ? '(' + tn(data.history.count, '{n} change', '{n} changes') + ')' : t('(no recorded change)') }}</span></template>
         <div v-if="!data.history || data.history === 'loading'" class="muted">{{ t('loading…') }}</div>
         <div v-else-if="data.history.error" class="notice danger">{{ data.history.error }}</div>
         <template v-else>
@@ -388,7 +395,7 @@ const diff = (before, after) => {
             <div v-if="!v.current" class="actions"><button class="btn small" :title="t('Puts this version into the field. It is written only after saving.')" @click="text = v.text; ta && ta.focus()">{{ t('Restore into the field') }}</button><button class="btn small ghost" @click="copy(v.text)">{{ t('⧉ Copy') }}</button></div>
           </div>
         </template>
-      </template>
+      </Fold></template>
 
       <template v-else-if="current === 'team'">
         <div v-if="!data.notes || data.notes === 'loading'" class="muted">{{ t('Loading…') }}</div>

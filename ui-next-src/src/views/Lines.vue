@@ -1,8 +1,10 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { get, post } from '../api.js';
+import { prefetchAll, sceneRadius } from '../gamewindow.js';
+import { requireFeature } from '../pro.js';
 import LineDetail from '../components/LineDetail.vue';
-import Tools from '../components/Tools.vue';
+import MtDialog from '../components/MtDialog.vue';
 import { t, tn } from '../i18n.js';
 import { baseName, fmtN, lineKind, lineState, loadFiles, loadNames, loadOverview, pillOf, project } from '../project.js';
 
@@ -71,6 +73,8 @@ async function load(resetList) {
 function change() { clearTimeout(timer); timer = setTimeout(() => load(true), 220); }
 watch(f, change, { deep: true });
 
+/* Is the Scene tab the one shown? (the last tab chosen is remembered; with none chosen the detail opens on the scene when the line has no findings) */
+function wantsScene() { try { const k = localStorage.getItem('aside.detailTab') || ''; return k === 'scene' || k === ''; } catch { return true; } }
 async function select(i) {
   if (i < 0 || i >= items.value.length) return;
   if (ld.value && ld.value.dirty && !window.confirm(t('You changed the text of this line and did not save it. Discard the changes?'))) return;
@@ -78,7 +82,10 @@ async function select(i) {
   const it = items.value[i];
   try {
     const scroller = scrollerOf(); const top = scroller ? scroller.scrollTop : 0;      // the panel keeps its place when the next line opens (the new line has its tabs still loading, so the content is short for a moment)
-    detail.value = await get('entry', { file: it.file, line: it.line });
+    // the Scene tab shows the picture and the lines around: they are fetched together with the line, so the new line appears complete and nothing loads after it
+    const entry = get('entry', { file: it.file, line: it.line });
+    if (wantsScene()) await Promise.all([entry, prefetchAll(it.file, it.line, sceneRadius()).catch(() => {})]);
+    detail.value = await entry;
     await nextTick();
     holdScroll(scroller, top);
     try { localStorage.setItem('aside.last', JSON.stringify({ file: it.file, line: it.line })); } catch { /* only for the Continue button */ }
@@ -166,6 +173,9 @@ function key(ev) {
 const who = (it) => (it.who || '').trim().split(/\s+/)[0];
 const full = (it) => project.names[who(it)] || '';
 const shown = (s) => String(s ?? '').replace(/\n/g, ' ↵ ');
+/* The tools have their own screen; what stays here works on the lines you picked: translating them with a machine. */
+const mtOpen = ref(false);
+async function openMt() { if (await requireFeature('mt.batch')) mtOpen.value = true; }
 const after = async () => { await load(true); loadOverview().catch(() => {}); loadFiles().catch(() => {}); };
 
 onMounted(async () => {
@@ -185,8 +195,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
       <select class="sel wide" v-model="f.file" :title="t('File')"><option value="">{{ t('All files') }}</option><option v-for="x in files" :key="x.name" :value="x.name">{{ x.name }}</option></select>
       <select class="sel" v-model="speaker" :title="t('Speaker')" :aria-label="t('Speaker')" @change="pickSpeaker"><option value="">{{ t('Speaker: all') }}</option><option v-for="[code, name] in speakers" :key="code" :value="code">{{ name }} · {{ code }}</option></select>
       <button class="btn" :aria-expanded="moreOpen" :title="t('Line type, kind, check, sorting, speaker display')" @click="moreOpen = !moreOpen">{{ moreOpen ? '▾' : '▸' }} {{ t('More filters') }}<template v-if="extra"> ({{ extra }})</template></button>
-      <Tools :picked="pickedList" :anchor="detail" :file="f.file" @changed="after" />
-      <template v-if="picked.size"><span class="muted small">{{ tn(picked.size, 'Selected {n} line', 'Selected {n} lines') }}</span><button class="btn small ghost" @click="picked = new Set()">{{ t('Clear the selection') }}</button></template>
+      <template v-if="picked.size"><span class="muted small">{{ tn(picked.size, 'Selected {n} line', 'Selected {n} lines') }}</span><button class="btn small ghost" @click="picked = new Set()">{{ t('Clear the selection') }}</button><button class="btn small" @click="openMt">{{ t('Translate with a machine…') }}</button></template>
       <span class="grow"></span>
       <span class="muted small">{{ tn(total, '{n} line', '{n} lines', { n: fmtN(total) }) }}</span>
     </div>
@@ -240,6 +249,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
         <template v-else><h3 class="card-title">{{ t('Line detail') }}</h3><p class="muted">{{ t('Select a line. The arrow keys ↑ ↓ move through the lines, {a} approves, {e} opens the editor, {q} shows all shortcuts.', { a: 'A', e: 'E', q: '?' }) }}</p></template>
       </aside>
     </div>
+      <MtDialog v-if="mtOpen" :picked="pickedList" :anchor="detail" :file="f.file" @close="mtOpen = false" @done="mtOpen = false; after()" @settings="mtOpen = false" />
   </main>
 </template>
 

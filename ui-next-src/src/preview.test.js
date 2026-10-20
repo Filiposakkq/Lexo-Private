@@ -69,3 +69,19 @@ describe('the line detail: scene and menu', () => {
     expect(w.find('.bubble.cur').text()).toContain('Ahoj');
   });
 });
+
+describe('sections that collapse', () => {
+  it('remembers whether a section was left open, by its id', async () => {
+    const Fold = (await import('./components/Fold.vue')).default;
+    try { localStorage.clear(); } catch { /* none */ }
+    const make = () => mount(Fold, { props: { id: 'demo' }, slots: { title: 'Title', default: '<p class="in">inside</p>' } });
+    const a = make();
+    expect(a.find('.in').exists()).toBe(true);
+    a.find('details').element.open = false;
+    await a.find('details').trigger('toggle');
+    expect(a.find('.in').exists()).toBe(false);
+    const b = make();                                  // the next line: the same section starts closed
+    expect(b.find('details').element.open).toBe(false);
+    expect(b.find('.in').exists()).toBe(false);
+  });
+});

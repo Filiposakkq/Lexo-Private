@@ -95,3 +95,36 @@ export async function prefetchScene(file, line) {
 }
 /* After something was written the pictures stay valid, but the scene of a line may change (a script was prepared again): forget them. */
 export function forgetScenes() { cache.scene.clear(); }
+
+/* ---- what is known without waiting: the preview of a line is drawn in the same task as the rest of the detail when everything is already here, so a new line does not
+   show an empty picture and a "Loading…" first. */
+const done = new Map();
+const ctxDone = new Map();
+const ctxCache = new Map();
+const fontsReady = (sc) => [sc.fonts_text, sc.fonts_name].every((f) => !f || !f.url || (f.file in cache.fontRes && f.file in cache.metRes));
+export function peekScene(file, line) {
+  const sc = done.get(file + '\t' + line);
+  return sc && cache.gui && fontsReady(sc) ? sc : null;
+}
+export const peekGui = () => cache.gui;
+export function peekContext(file, line, radius) { return ctxDone.get(`${file}\t${line}\t${radius}`) || null; }
+/* The lines around one line (scene around it), cached per line and radius. */
+export function contextFor(file, line, radius) {
+  const key = `${file}\t${line}\t${radius}`;
+  if (!ctxCache.has(key)) {
+    ctxCache.set(key, get('entry/scene', { file, line, radius }).then((r) => { ctxDone.set(key, r); return r; }));
+    if (ctxCache.size > 60) ctxCache.delete(ctxCache.keys().next().value);
+  }
+  return ctxCache.get(key).catch((e) => { ctxCache.delete(key); throw e; });
+}
+/* Everything the Scene tab of a line needs, fetched ahead of the swap to the new line. */
+export async function prefetchAll(file, line, radius) {
+  const [sc] = await Promise.all([prefetchScene(file, line), loadGui(''), contextFor(file, line, radius).catch(() => {})]);
+  done.set(file + '\t' + line, sc);
+  if (done.size > 80) done.delete(done.keys().next().value);
+  return sc;
+}
+export function sceneRadius() { try { return +localStorage.getItem('aside.sceneRadius') || 6; } catch { return 6; } }
+export function setSceneRadius(n) { try { localStorage.setItem('aside.sceneRadius', String(n)); } catch { /* only for this page */ } }
+/* The size of the last picture: the next one starts with it, so the panel does not jump. */
+export const lastSize = { w: 0, h: 0 };
