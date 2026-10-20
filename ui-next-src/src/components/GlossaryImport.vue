@@ -29,18 +29,18 @@ const shortName = (f) => f.split(/[\\/]/).slice(-3).join('/');
 </script>
 
 <template>
-  <Dialog :title="t('Import of names from characters.rpy')" width="980px" @close="emit('close')">
-    <p class="muted">{{ t('The game files (characters.rpy and season2/scripts/characters_season2.rpy…) are only read. The ticked rows are written to the glossary; names you already have in the glossary that differ are overwritten only if you tick them yourself.') }}</p>
-    <div class="bar-row"><label class="field grow"><input v-model="path" type="text" :placeholder="t('game folder or the characters.rpy file')" :aria-label="t('game folder or the characters.rpy file')" @keydown.enter="load"></label><button class="btn" @click="load">{{ t('Load') }}</button></div>
+  <Dialog :title="t('Import character names from the game')" width="980px" @close="emit('close')">
+    <p class="muted">{{ t('The scripts of the game that define characters (for example characters.rpy) are only read. The ticked rows are written to the glossary; names you already have in the glossary that differ are overwritten only if you tick them yourself.') }}</p>
+    <div class="bar-row"><label class="field grow"><input v-model="path" type="text" :placeholder="t('game folder or a script file')" :aria-label="t('game folder or a script file')" @keydown.enter="load"></label><button class="btn" @click="load">{{ t('Load') }}</button></div>
     <div v-if="error" class="notice danger" role="alert">{{ error }}</div>
     <template v-if="data">
       <div v-if="!rows.length" class="empty muted"><b>{{ t('Nothing to import') }}</b> {{ data.message || t('There are no define … = Character("…") lines in the file.') }}</div>
       <template v-else>
         <div class="muted small">{{ t('Loaded files ({n}): ', { n: data.files.length }) }}<span class="mono">{{ data.files.map(shortName).join('  ·  ') }}</span></div>
         <div v-if="data.duplicates && data.duplicates.length" class="notice warn">{{ t("Codes defined several times (Ren'Py uses the last definition): ") }}<span class="mono">{{ data.duplicates.map((d) => `${d.code}: ${d.names.join(' → ')}`).join(';  ') }}</span></div>
-        <div v-if="data.missing && data.missing.length" class="notice warn">{{ tn(data.missing.length, "The translation has {n} speaker code that the characters*.rpy files do not define (it may be defined elsewhere, or it is a typo): ", "The translation has {n} speaker codes that the characters*.rpy files do not define (they may be defined elsewhere, or it is a typo): ") }}<span class="mono">{{ data.missing.slice(0, 25).join(', ') + (data.missing.length > 25 ? ' …' : '') }}</span></div>
+        <div v-if="data.missing && data.missing.length" class="notice warn">{{ tn(data.missing.length, "The translation has {n} speaker code that the game scripts do not define (it may be defined elsewhere, or it is a typo): ", "The translation has {n} speaker codes that the game scripts do not define (they may be defined elsewhere, or it is a typo): ") }}<span class="mono">{{ data.missing.slice(0, 25).join(', ') + (data.missing.length > 25 ? ' …' : '') }}</span></div>
         <div class="wrap"><table>
-          <thead><tr><th></th><th>{{ t('Code') }}</th><th>{{ t('Name in characters.rpy') }}</th><th>{{ t('In the glossary so far') }}</th><th>{{ t('File') }}</th><th>{{ t('State') }}</th></tr></thead>
+          <thead><tr><th></th><th>{{ t('Code') }}</th><th>{{ t('Name in the script') }}</th><th>{{ t('In the glossary so far') }}</th><th>{{ t('File') }}</th><th>{{ t('State') }}</th></tr></thead>
           <tbody><tr v-for="r in rows" :key="r.code">
             <td><input v-model="r.on" type="checkbox" :disabled="r.state === 'dynamic' || r.state === 'same'" :title="r.state === 'conflict' ? t('Overwrites the name you have in the glossary') : ''" :aria-label="r.code"></td>
             <td class="mono">{{ r.code }}</td><td>{{ r.name || r.note }}</td><td class="muted">{{ r.current || '–' }}</td><td class="mono muted small">{{ r.source }}</td>

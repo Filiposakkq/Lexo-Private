@@ -82,7 +82,7 @@ const stats = computed(() => (data.value ? t('{n} items · without a name: {unna
     </div>
     <div class="toolbar">
       <button class="btn" @click="adding = true">{{ t('+ Add an item (term / name)') }}</button>
-      <button class="btn" :title="t('Loads the character names from the game\'s characters.rpy')" @click="importing = true">{{ t('Import from characters.rpy…') }}</button>
+      <button class="btn" :title="t('Loads the character names defined in the game\'s scripts')" @click="importing = true">{{ t('Import names from the game…') }}</button>
       <span class="grow"></span><span class="muted small">{{ stats }}</span>
     </div>
     <div v-if="message" class="notice" role="status">{{ message }}<span class="act" role="button" tabindex="0" @click="message = ''" @keydown.enter="message = ''">{{ t('Close') }}</span></div>
