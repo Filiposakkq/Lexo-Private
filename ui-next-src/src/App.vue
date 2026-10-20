@@ -1,5 +1,7 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import HelpDialog from './components/HelpDialog.vue';
+import Palette from './components/Palette.vue';
 import ProLocked from './components/ProLocked.vue';
 import Splash from './components/Splash.vue';
 import Home from './views/Home.vue';
@@ -13,9 +15,11 @@ import Publish from './views/Publish.vue';
 import Settings from './views/Settings.vue';
 import Team from './views/Team.vue';
 import ToolsScreen from './views/ToolsScreen.vue';
-import { t } from './i18n.js';
+import { post } from './api.js';
+import { onKeydown, register } from './keys.js';
+import { t, tn } from './i18n.js';
 import { app, loadApp, loadGames } from './state.js';
-import { loadOverview, loadTeam, project } from './project.js';
+import { loadOverview, loadTeam, openCheck, openLines, project, reloadAll } from './project.js';
 
 /* The shell: the icon rail, the top bar with the name (Aside, or Aside Pro when Pro is on) and the screen. Home and the first screens of a game (Overview, Files, Lines) are in the new interface;
    the other screens of a game (Check, Glossary, Tools, Team, Release, Settings) are still the classic ones and are linked from the menu of the game. */
@@ -37,12 +41,60 @@ function splashDone() {
   splash.value = false;
   try { sessionStorage.setItem('aside.splash', '1'); } catch { /* nothing to remember */ }
 }
-onMounted(loadApp);
+const help = ref(false);
+const palette = ref(false);
+const flash = ref('');
+let flashT = null;
+function say(text) { flash.value = text; clearTimeout(flashT); flashT = setTimeout(() => { flash.value = ''; }, 4000); }
+const goView = (v) => { if (project.overview) view.value = v; };
+function goCheck(mode) { if (!project.overview) return; openCheck({ mode }); view.value = 'check'; }
+function search() { const el = document.querySelector('main input[type="search"]'); if (el) { el.focus(); el.select?.(); } }
+async function afterChange() { try { await reloadAll(); } catch { /* the screens show their own errors */ } window.dispatchEvent(new Event('aside:reload')); }
+async function doUndo() {
+  if (!project.overview) return;
+  try { const r = await post('undo'); say(t('Undone: {what}', { what: r.undone })); await afterChange(); } catch (e) { say(e.message); }
+}
+async function doRefresh() {
+  if (!project.overview) return;
+  try {
+    let r = await post('refresh', { force: false, dirty: false });
+    if (r.needs_confirm) { if (!window.confirm(r.message)) return; r = await post('refresh', { force: false, discard: true }); }
+    say(r.changed ? t('Refreshed – {summary}', { summary: r.summary }) : t('Refreshed – no changes.'));
+    await afterChange();
+  } catch (e) { say(e.message); }
+}
+async function snapshot() {
+  try { const r = await post('snapshots/create'); say(t('Backup created ({files} files, {size}).', { files: r.snapshot.files, size: Math.max(1, Math.round(r.snapshot.bytes / 1024)) + ' kB' })); } catch (e) { say(e.message); }
+}
+async function fullscreen() {
+  try { const r = await post('window/fullscreen', {}); if (r.ok) return; } catch { /* the browser way */ }
+  try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch (e) { say(e.message); }
+}
+function runAction(a) { palette.value = false; setTimeout(() => { const fn = handlersOf(a.id); if (fn) fn(); }, 0); }
+let handlersMap = {};
+const handlersOf = (id) => handlersMap[id];
+function paletteFile(name) { palette.value = false; if (!project.overview) return; openLines({ file: name, status: 'all' }); view.value = 'lines'; }
+onMounted(() => {
+  loadApp();
+  handlersMap = {
+    palette: () => { palette.value = true; }, help: () => { help.value = true; }, search, search_slash: search, refresh: doRefresh, undo: doUndo, fullscreen,
+    tab_overview: () => goView('overview'), tab_files: () => goView('files'), tab_lines: () => goView('lines'), tab_check: () => goView('check'), tab_glossary: () => goView('glossary'),
+    tab_tools: () => goView('tools'), tab_team: () => goView('team'), tab_publish: () => goView('publish'), tab_settings: () => goView('settings'),
+    consistency: () => goCheck('cons'), ignored: () => goCheck('ign'), lint: () => goCheck('lint'), findings: () => goCheck('findings'), snapshot,
+  };
+  offKeys = register(handlersMap);
+  window.addEventListener('keydown', onKeydown);
+});
+let offKeys = null;
+onBeforeUnmount(() => { if (offKeys) offKeys(); window.removeEventListener('keydown', onKeydown); clearTimeout(flashT); });
 </script>
 
 <template>
   <Splash v-if="splash" @done="splashDone" />
   <ProLocked />
+  <Palette v-if="palette" @close="palette = false" @run="runAction" @file="paletteFile" />
+  <HelpDialog v-if="help" @close="help = false" @settings="help = false; goView('settings')" />
+  <div v-if="flash" class="flash toast" role="status">{{ flash }}</div>
   <div class="shell">
     <nav class="rail" :aria-label="t('Main menu')">
       <a class="rail-item" :class="{ on: view === 'home' }" href="#" :title="t('Home')" :aria-current="view === 'home' ? 'page' : null" @click.prevent="home">⌂</a>
@@ -89,6 +141,7 @@ onMounted(loadApp);
 .screen-host { flex: 1; min-width: 0; display: flex; }
 .screen-host > :deep(*) { flex: 1; min-width: 0; }
 .nav-item { text-decoration: none; }
+.flash { position: fixed; right: var(--s-5); bottom: var(--s-5); z-index: 30; }
 .nav { flex: none; min-height: calc(100vh - 52px); }
 .game { padding: var(--s-2) var(--s-3) var(--s-3); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rail { position: sticky; top: 0; height: 100vh; }

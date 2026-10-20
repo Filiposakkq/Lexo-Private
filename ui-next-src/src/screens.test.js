@@ -93,4 +93,44 @@ describe('Lines', () => {
     await flushPromises();
     expect(post).toHaveBeenCalledWith('entry/save', { file: 'chat.rpy', line: 1, text: 'Ahoj 1' });
   });
+  it('approves optimistically: the next line opens before the mark is written, and a failed write puts the row back', async () => {
+    const w = await setup();
+    await w.find('tbody tr').trigger('click');
+    await flushPromises();
+    const order = [];
+    get.mockImplementation(async (path, q) => {
+      if (path === 'entry') { order.push('get entry ' + q.line); return { ok: true, ...item(q.line), path: 'game/tl/czech/chat.rpy' }; }
+      return { ok: true };
+    });
+    let fail = false;
+    post.mockImplementation(async (path) => { if (path === 'approve/apply') { order.push('write'); if (fail) throw new Error('disk is full'); } return { ok: true }; });
+    await w.findAll('button').find((b) => b.text().startsWith('Approve (A)')).trigger('click');
+    await flushPromises(); await new Promise((r) => setTimeout(r, 300)); await flushPromises();
+    expect(order.slice(0, 2)).toEqual(['get entry 2', 'write']);               // the next line first, the write after it
+    expect(w.findAll('tbody tr')[0].text()).toContain('Approved');              // the row shows it at once
+    fail = true; order.length = 0;
+    await w.findAll('button').find((b) => b.text().startsWith('Approve (A)')).trigger('click');
+    await flushPromises(); await new Promise((r) => setTimeout(r, 300)); await flushPromises();
+    expect(w.text()).toContain('disk is full');
+    expect(w.findAll('tbody tr')[1].text()).not.toContain('Approved');          // put back
+  });
+  it('moving fast shows the last line you chose, not a slower answer for an earlier one', async () => {
+    const w = await setup();
+    let release;
+    const slow = new Promise((r) => { release = r; });
+    get.mockImplementation(async (path, q) => {
+      if (path === 'entry' && q.line === 1) { await slow; return { ok: true, ...item(1), path: 'game/tl/czech/chat.rpy' }; }
+      if (path === 'entry') return { ok: true, ...item(q.line), path: 'game/tl/czech/chat.rpy' };
+      return { ok: true };
+    });
+    const rows = w.findAll('tbody tr');
+    await rows[0].trigger('click');                 // the answer for line 1 is slow
+    await rows[1].trigger('click');                 // line 2 is chosen after it
+    await flushPromises(); await new Promise((r) => setTimeout(r, 300)); await flushPromises();
+    expect(w.find('.path').text()).toContain(':2');
+    release();                                      // the late answer for line 1 arrives
+    await flushPromises(); await new Promise((r) => setTimeout(r, 100)); await flushPromises();
+    expect(w.find('.path').text()).toContain(':2');
+    expect(w.findAll('tbody tr')[1].classes()).toContain('sel');
+  });
 });

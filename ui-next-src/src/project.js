@@ -7,7 +7,7 @@ import { locale, t } from './i18n.js';
 export const project = reactive({
   overview: null, files: null, names: {}, team: null, error: '',
   lines: { file: '', status: 'todo', q: '', line: 0 },
-  check: { file: '', ignored: false },          // what the Check screen opens with (the other screens set it before they open Check)
+  check: { file: '', ignored: false, mode: '' },          // what the Check screen opens with (the other screens set it before they open Check)
 });
 
 export async function loadOverview() {
@@ -36,7 +36,7 @@ export function openLines(filter) {
 }
 
 export function openCheck(filter) {
-  project.check = { file: '', ignored: false, ...filter };
+  project.check = { file: '', ignored: false, mode: '', ...filter };
 }
 
 export const fmtN = (n) => new Intl.NumberFormat(locale()).format(n ?? 0);

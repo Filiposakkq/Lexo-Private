@@ -14,7 +14,7 @@ import MtDialog from './MtDialog.vue';
 /* The detail of a line: the original, the editor (tags, missing variables, glossary terms, machine suggestion, live check), the progress of its file with the jumps
    (scenes, next untranslated / unchecked / too long) and the tabs Check, Proofreading, Menu, Scene, Memory, History and Script. */
 const props = defineProps({ detail: { type: Object, required: true }, position: { type: Object, default: () => ({ i: 0, n: 0 }) } });
-const emit = defineEmits(['updated', 'goto', 'step', 'advance', 'error']);
+const emit = defineEmits(['updated', 'goto', 'step', 'advance', 'error', 'approve', 'proof']);
 
 const text = ref(props.detail.target);
 const live = ref(null);
@@ -158,11 +158,8 @@ if (peekMt() === null) mtOn().then((on) => { mt.value.on = on; });
 
 /* ---- approving, proofreading, the other actions */
 async function run(fn) { try { await fn(); } catch (e) { emit('error', e.message); } }
-const approve = () => run(async () => {
-  const on = d.value.status !== 'approved';
-  await post('approve/apply', { selections: [{ file: d.value.file, key: d.value.key }], on });
-  emit('updated', { advance: on, kind: 'approve' });
-});
+/* Approving and the proofread mark are done by the list: it shows the result and goes on to the next line at once, and writes behind it. */
+const approve = () => emit('approve');
 async function proof(state, noteText) {
   return run(async () => {
     const r = await post('proof/set', { items: [{ file: d.value.file, key: d.value.key }], state, note: noteText });
@@ -170,7 +167,10 @@ async function proof(state, noteText) {
     emit('updated', { advance: state === 'ok', kind: 'proof' });
   });
 }
-const toggleProof = () => proof(d.value.proof === 'ok' ? '' : 'ok');
+const toggleProof = () => {
+  if (d.value.status === 'todo') { emit('error', t('The line is not translated yet – proofreading is done after translating.')); return; }
+  emit('proof', { state: d.value.proof === 'ok' ? '' : 'ok' });
+};
 const toggleFix = () => proof(d.value.proof === 'fix' ? '' : 'fix', note.value);
 const saveNote = () => { const state = d.value.proof === 'fix' ? 'fix' : d.value.proof === 'ok' ? 'ok' : (note.value.trim() ? 'fix' : ''); if (state) proof(state, note.value); };
 const proofUpto = (state) => run(async () => {
