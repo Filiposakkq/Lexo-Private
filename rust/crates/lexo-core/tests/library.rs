@@ -56,6 +56,12 @@ fn games_are_on_home_when_opened_or_added_and_can_be_pinned_and_removed() {
     // pinned ones come first; removing takes only the card
     let l = app.library_pin(&bare.to_string_lossy(), true).unwrap();
     assert_eq!(names(&l)[0], "Bare Game", "{l}");
+    // a card is found by the path as the user may write it (with a `..`, a short Windows name), not only by the exact text that was stored
+    let dotted = tmp.join("Ready Game").join("..").join("Bare Game");
+    let l = app.library_pin(&dotted.to_string_lossy(), false).unwrap();
+    assert_eq!(names(&l)[0], "Ready Game", "unpinned through another spelling of the path: {l}");
+    let l = app.library_pin(&dotted.to_string_lossy(), true).unwrap();
+    assert_eq!(names(&l)[0], "Bare Game", "{l}");
     let l = app.library_remove(&bare.to_string_lossy()).unwrap();
     assert_eq!(names(&l), vec!["Ready Game"]);
     assert!(bare.join("game/script.rpy").is_file(), "no file of the game is touched");
