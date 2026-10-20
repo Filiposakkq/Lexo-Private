@@ -17,6 +17,7 @@ const offset = ref(0);
 const loading = ref(false);
 const sel = ref(-1);
 const detail = ref(null);
+const asideEl = ref(null);
 const picked = ref(new Set());
 const moreOpen = ref(false);
 const ld = ref(null);
@@ -76,7 +77,10 @@ async function select(i) {
   sel.value = i;
   const it = items.value[i];
   try {
+    const scroller = scrollerOf(); const top = scroller ? scroller.scrollTop : 0;      // the panel keeps its place when the next line opens (the new line has its tabs still loading, so the content is short for a moment)
     detail.value = await get('entry', { file: it.file, line: it.line });
+    await nextTick();
+    holdScroll(scroller, top);
     try { localStorage.setItem('aside.last', JSON.stringify({ file: it.file, line: it.line })); } catch { /* only for the Continue button */ }
     post('focus', { file: it.file, line: it.line }).catch(() => {});
     await nextTick();
@@ -84,6 +88,27 @@ async function select(i) {
     if (i >= items.value.length - 15 && offset.value + items.value.length < total.value) load(false);
   } catch (e) { error.value = e.message; detail.value = null; }
 }
+/* After a new line replaced the old one: put the panel back where it was, and keep doing so while the content grows (the tabs fetch their data), until the user scrolls. */
+let holdOff = null;
+/* What scrolls: the panel itself when it has its own scroll bar (wide window), otherwise the page (narrow window, where the panel sits under the list). */
+function scrollerOf() {
+  const a = asideEl.value;
+  return a && a.scrollHeight > a.clientHeight + 1 ? a : document.scrollingElement;
+}
+function holdScroll(el, top) {
+  if (holdOff) holdOff();
+  if (!el || !top) return;
+  el.scrollTop = top;
+  const inner = el === document.scrollingElement ? document.body : el.firstElementChild;
+  if (!inner || typeof ResizeObserver === "undefined") return;
+  const stop = () => { clearTimeout(tm); ro.disconnect(); for (const ev of ["wheel", "touchstart", "keydown"]) el.removeEventListener(ev, stop); holdOff = null; };
+  const ro = new ResizeObserver(() => { if (el.scrollTop < top) el.scrollTop = top; });
+  const tm = setTimeout(stop, 1500);
+  ro.observe(inner);
+  for (const ev of ["wheel", "touchstart", "keydown"]) el.addEventListener(ev, stop);
+  holdOff = stop;
+}
+onBeforeUnmount(() => { if (holdOff) holdOff(); });
 function mirror() {
   const d = detail.value, it = items.value[sel.value];
   if (!d || !it) return;
@@ -210,7 +235,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', key); clearTimeout
         <div v-else-if="offset + items.length < total" class="more-row"><button class="btn" @click="load(false)">{{ t('Load {n} more (shown {shown} of {total})', { n: Math.min(200, total - offset - items.length), shown: fmtN(offset + items.length), total: fmtN(total) }) }}</button></div>
       </div>
 
-      <aside class="detail card">
+      <aside ref="asideEl" class="detail card">
         <LineDetail v-if="detail" ref="ld" :key="detail.file + ':' + detail.line" :detail="detail" :position="{ i: sel, n: items.length }" @updated="updated" @goto="goto" @step="step" @error="error = $event" />
         <template v-else><h3 class="card-title">{{ t('Line detail') }}</h3><p class="muted">{{ t('Select a line. The arrow keys ↑ ↓ move through the lines, {a} approves, {e} opens the editor, {q} shows all shortcuts.', { a: 'A', e: 'E', q: '?' }) }}</p></template>
       </aside>
