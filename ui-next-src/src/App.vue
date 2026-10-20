@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import ProLocked from './components/ProLocked.vue';
 import Splash from './components/Splash.vue';
 import Home from './views/Home.vue';
 import Prepare from './views/Prepare.vue';
@@ -35,6 +36,7 @@ onMounted(loadApp);
 
 <template>
   <Splash v-if="splash" @done="splashDone" />
+  <ProLocked />
   <div class="shell">
     <nav class="rail" :aria-label="t('Main menu')">
       <a class="rail-item" :class="{ on: view === 'home' }" href="#" :title="t('Home')" :aria-current="view === 'home' ? 'page' : null" @click.prevent="home">⌂</a>

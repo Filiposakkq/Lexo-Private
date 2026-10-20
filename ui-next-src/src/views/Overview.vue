@@ -36,6 +36,11 @@ function files_(k) { return files.value.filter((f) => f.status === k).length; }
 async function setEpisode(e, state) {
   try { await post('episode', { ep: e.n, state }); await loadOverview(); } catch (err) { error.value = err.message; }
 }
+const busy = ref(false);
+async function undo() {
+  busy.value = true; error.value = '';
+  try { await post('undo'); await Promise.all([loadOverview(), loadFiles()]); } catch (e) { error.value = e.message; } finally { busy.value = false; }
+}
 const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
 </script>
 
@@ -128,6 +133,14 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
           <ul class="list" v-if="o.recent.length"><li v-for="r in o.recent" :key="r.at"><span class="muted">{{ r.at }}</span><span class="num">{{ t('{n} translated', { n: (r.translated >= 0 ? '+' : '') + fmtN(r.translated) }) }}<template v-if="r.proofread"> · {{ t('{n} proofread', { n: (r.proofread >= 0 ? '+' : '') + fmtN(r.proofread) }) }}</template></span></li></ul>
           <p v-else class="muted">{{ t('No activity yet') }}</p>
         </section>
+        <section class="card">
+          <div class="card-title">
+            <h3 class="grow-t">{{ t('Recent changes (can be undone)') }}</h3>
+            <button v-if="o.undo && o.undo.length" class="btn small" :disabled="busy" :title="t('Undo: {what} (Ctrl+Z)', { what: o.undo[0] })" @click="undo">{{ t('↶ Undo the last file change') }}</button>
+          </div>
+          <ul class="list" v-if="o.undo && o.undo.length"><li v-for="(u, i) in o.undo" :key="i"><span>{{ u }}</span><span v-if="i === 0" class="muted">Ctrl+Z</span></li></ul>
+          <p v-else class="muted">{{ t('Nothing to revert') }}</p>
+        </section>
       </div>
     </div>
   </main>
@@ -161,6 +174,7 @@ const EPISODE_STATES = ['none', 'wip', 'tr', 'proof', 'done'];
 .ep { display: grid; grid-template-columns: 110px minmax(0, 1fr) 110px 120px; gap: var(--s-3); align-items: center; padding: var(--s-2) 0; border-top: 1px solid var(--line-soft); font-size: var(--fs-body); }
 .ep .bars { display: flex; flex-direction: column; gap: 3px; }
 .sel { height: var(--h-control-sm); background: var(--bg-input); color: var(--text); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--s-2); }
+.grow-t { flex: 1; margin: 0; font-size: var(--fs-heading); font-weight: 500; }
 .num { font-variant-numeric: tabular-nums; text-align: right; }
 .small { font-size: var(--fs-small); }
 @media (max-width: 900px) { .two { grid-template-columns: 1fr; } .hero { flex-direction: column; align-items: flex-start; } }

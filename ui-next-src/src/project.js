@@ -46,7 +46,7 @@ export function lineKind(k) {
   return { empty: t('empty'), english: t('in English'), same: t('identical'), symbols: t('symbols only') }[k] || '';
 }
 /* The look of the pill for a state. */
-export const pillOf = (k) => ({ done: 'checked', rev: 'checked', proof: 'checked', tr: 'ok', translated: 'ok', approved: 'ok', wip: 'todo', todo: 'todo', none: 'none', planned: 'none' }[k] || 'none');
+export const pillOf = (k) => ({ done: 'checked', rev: 'checked', proof: 'checked', tr: 'ok', translated: 'ok', approved: 'approved', wip: 'todo', todo: 'todo', none: 'none', planned: 'none' }[k] || 'none');
 
 export function groupName(n) {
   const named = project.overview?.group_names?.[String(n)];

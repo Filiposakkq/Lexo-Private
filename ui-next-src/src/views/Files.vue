@@ -170,7 +170,8 @@ async function openEditor(r) { try { await post('open-editor', { file: r.name, l
 .grid td { padding: 0 var(--s-3); height: var(--h-row); border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
 .grid tbody tr { cursor: default; }
 .grid tbody tr:hover { background: var(--bg-hover); }
-.grid tbody tr.sel { background: var(--accent-soft); }
+.grid tbody tr.sel { background: var(--bg-hover); }
+.grid tbody tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--accent-hi); }
 .grid tfoot td { font-weight: 500; color: var(--text-2); background: var(--bg-bar); position: sticky; bottom: 0; }
 .pick { width: 34px; text-align: center; padding: 0 var(--s-2); }
 .name { max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
