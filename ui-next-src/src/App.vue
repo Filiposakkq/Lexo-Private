@@ -17,6 +17,7 @@ import Settings from './views/Settings.vue';
 import Team from './views/Team.vue';
 import ToolsScreen from './views/ToolsScreen.vue';
 import { post } from './api.js';
+import { resetGameCaches } from './gamewindow.js';
 import { enterQuick, setFocus, ui } from './layout.js';
 import { COMPANION, SECONDARY, openDetailWindow, startPings, win } from './win.js';
 import { handlers, onKeydown, register } from './keys.js';
@@ -33,7 +34,7 @@ function prepare(path) { prepPath.value = path || ''; view.value = 'prepare'; }
 function home() { view.value = 'home'; loadGames(); }
 const PROJECT_VIEWS = ['overview', 'files', 'lines', 'check', 'glossary', 'tools', 'team', 'publish', 'settings'];
 const inProject = computed(() => PROJECT_VIEWS.includes(view.value));
-async function opened() { view.value = 'overview'; loadTeam(); try { await loadOverview(); } catch { /* the screen shows the error itself */ } }
+async function opened() { resetGameCaches(); view.value = 'overview'; loadTeam(); try { await loadOverview(); } catch { /* the screen shows the error itself */ } }
 const projectName = computed(() => project.overview?.project?.name || project.overview?.project?.dir || '');
 const MENU = [['overview', () => t('Overview'), '◔'], ['files', () => t('Files'), '▤'], ['lines', () => t('Lines'), '≡'], ['check', () => t('Check'), '✓'], ['glossary', () => t('Glossary'), 'Aa'], ['tools', () => t('Tools'), '⚒'], ['team', () => t('Team'), '☺'], ['publish', () => t('Publishing'), '⇪'], ['settings', () => t('Settings'), '⚙']];
 function openSettings() { if (project.overview) view.value = 'settings'; }

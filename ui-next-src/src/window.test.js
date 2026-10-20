@@ -119,3 +119,16 @@ describe('the windows and the server', () => {
     expect(post).toHaveBeenCalledWith('window/open', expect.objectContaining({ companion: '1', ui: 'next', file: 'a.rpy', line: 5 }));
   });
 });
+
+describe('another game', () => {
+  it('forgets everything of the previous one: the scene of a line, the values of the window', async () => {
+    const { peekGui, peekScene, prefetchAll, resetGameCaches } = await import('./gamewindow.js');
+    get.mockImplementation(async (path) => (path === 'game/scene' ? { ok: true, available: true, found: true, image: 'bg a', script: 's.rpy:1' } : path === 'settings' ? { ok: true, game_gui: { text_size: 33 }, validation: { textbox: { max_lines: 4 } } } : { ok: true, items: [], available: false }));
+    await prefetchAll('script.rpy', 5, 6);
+    expect(peekScene('script.rpy', 5)).not.toBeNull();
+    expect(peekGui()).not.toBeNull();
+    resetGameCaches();
+    expect(peekScene('script.rpy', 5)).toBeNull();
+    expect(peekGui()).toBeNull();
+  });
+});
